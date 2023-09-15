@@ -28,17 +28,17 @@ const navConfig = [
   },
   {
     title: 'Transaction Directory',
-    path: '/dashboard/products',
+    path: '/dashboard/transact',
     icon: icon('ic_transact'),
   },
   {
     title: 'Wallets & Payouts',
-    path: '/dashboard/blog',
+    path: '/dashboard/wallet',
     icon: icon('ic_wallet'),
   },
   {
     title: 'Reports',
-    path: '/dashboard/products',
+    path: '/dashboard/reports',
     icon: icon('ic_report'),
   },
   {
@@ -48,7 +48,7 @@ const navConfig = [
   },
   {
     title: 'View Live Data',
-    path: '/dashboard/products',
+    path: '/dashboard/livedata',
     icon: icon('ic_toggle'),
   },
   // {
