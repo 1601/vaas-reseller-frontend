@@ -56,33 +56,33 @@ export default function DashboardAppPage() {
               title="Website Visits"
               subheader="(+43%) than last year"
               chartLabels={[
-                '01/01/2003',
-                '02/01/2003',
-                '03/01/2003',
-                '04/01/2003',
-                '05/01/2003',
-                '06/01/2003',
-                '07/01/2003',
-                '08/01/2003',
-                '09/01/2003',
-                '10/01/2003',
-                '11/01/2003',
+                '01/01/2023',
+                '02/01/2023',
+                '03/01/2023',
+                '04/01/2023',
+                '05/01/2023',
+                '06/01/2023',
+                '07/01/2023',
+                '08/01/2023',
+                '09/01/2023',
+                '10/01/2023',
+                '11/01/2023',
               ]}
               chartData={[
                 {
-                  name: 'Team A',
+                  name: 'Reseller A',
                   type: 'column',
                   fill: 'solid',
                   data: [23, 11, 22, 27, 13, 22, 37, 21, 44, 22, 30],
                 },
                 {
-                  name: 'Team B',
+                  name: 'Reseller B',
                   type: 'area',
                   fill: 'gradient',
                   data: [44, 55, 41, 67, 22, 43, 21, 41, 56, 27, 43],
                 },
                 {
-                  name: 'Team C',
+                  name: 'Reseller C',
                   type: 'line',
                   fill: 'solid',
                   data: [30, 25, 36, 30, 45, 35, 64, 52, 59, 36, 39],
@@ -130,12 +130,12 @@ export default function DashboardAppPage() {
 
           <Grid item xs={12} md={6} lg={4}>
             <AppCurrentSubject
-              title="Current Subject"
-              chartLabels={['English', 'History', 'Physics', 'Geography', 'Chinese', 'Math']}
+              title="Sales by Reseller"
+              chartLabels={['Topup-Globe', 'Topup-Smart', 'Topup-TNT', 'Bills Payment', 'EGifts', 'Topup-Sun']}
               chartData={[
-                { name: 'Series 1', data: [80, 50, 30, 40, 100, 20] },
-                { name: 'Series 2', data: [20, 30, 40, 80, 20, 80] },
-                { name: 'Series 3', data: [44, 76, 78, 13, 43, 10] },
+                { name: 'Reseller A', data: [80, 50, 30, 40, 100, 20] },
+                { name: 'Reseller B', data: [20, 30, 40, 80, 20, 80] },
+                { name: 'Reseller C', data: [44, 76, 78, 13, 43, 10] },
               ]}
               chartColors={[...Array(6)].map(() => theme.palette.text.secondary)}
             />
@@ -144,27 +144,50 @@ export default function DashboardAppPage() {
           <Grid item xs={12} md={6} lg={8}>
             <AppNewsUpdate
               title="News Update"
-              list={[...Array(5)].map((_, index) => ({
+              list={[                 
+                  {
+                    title: "New Egifts Available",
+                    description: "Exciting news! New Egifts from your favorite brands are now available in our store.",
+                  },
+                  {
+                    title: "Instant Top-up",
+                    description: "Top-up made easy! Instantly recharge your mobile with our fast and secure service.",
+                  },
+                  {
+                    title: "Bill Payment Update",
+                    description: "Important update: Our platform now supports bill payments for over 100+ providers in the Philippines.",
+                  },
+                  {
+                    title: "Exclusive Offer Alert",
+                    description: "Exclusive offer alert! Save 20% on your next Egift purchase. Limited time only!",
+                  },
+                  {
+                    title: "Global Accessibility",
+                    description: "Expanding horizons! Our services are now accessible worldwide. Enjoy convenience no matter where you are.",
+                  },
+              ]
+              .map((item, index) => ({
                 id: faker.datatype.uuid(),
-                title: faker.name.jobTitle(),
-                description: faker.name.jobTitle(),
-                image: `/assets/images/covers/cover_${index + 1}.jpg`,
-                postedAt: faker.date.recent(),
+                title: item.title, // Use the provided title
+                description: item.description, // Use the provided description
+                image: `/assets/images/covers/cover_${index + 1}.jpg`, // Replace with your image source
+                postedAt: faker.date.recent(), // You can replace this with the actual post date if needed
               }))}
+              
             />
           </Grid>
 
           <Grid item xs={12} md={6} lg={4}>
             <AppOrderTimeline
-              title="Order Timeline"
+              title="Wallet Timeline"
               list={[...Array(5)].map((_, index) => ({
                 id: faker.datatype.uuid(),
                 title: [
                   '1983, orders, $4220',
-                  '12 Invoices have been paid',
-                  'Order #37745 from September',
-                  'New order placed #XF-2356',
-                  'New order placed #XF-2346',
+                  'Wallet Refill Php 120,000 from September',
+                  '280, orders, $220',
+                  '997, orders, $2222',
+                  'Wallet Refill Php 199,000 from March',
                 ][index],
                 type: `order${index + 1}`,
                 time: faker.date.past(),
