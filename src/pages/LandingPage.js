@@ -29,7 +29,7 @@ const StyledContent = styled('div')(({ theme }) => ({
 
 // ----------------------------------------------------------------------
 
-export default function Page404() {
+export default function LandingPage() {
   return (
     <div className="flex flex-col min-h-screen overflow-hidden">
   
