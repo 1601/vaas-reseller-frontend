@@ -46,59 +46,75 @@ export default function LoginPage() {
   return (
     <>
       <Helmet>
-        <title> Login | Minimal UI </title>
+        <title> Login | VAAS </title>
       </Helmet>
 
       <StyledRoot>
-        <Logo
-          sx={{
-            position: 'fixed',
-            top: { xs: 16, sm: 24, md: 40 },
-            left: { xs: 16, sm: 24, md: 40 },
-          }}
-        />
+        
 
-        {mdUp && (
+        {/* {mdUp && (
           <StyledSection>
             <Typography variant="h3" sx={{ px: 5, mt: 10, mb: 5 }}>
               Hi, Welcome Back
             </Typography>
             <img src="/assets/illustrations/illustration_login.png" alt="login" />
           </StyledSection>
-        )}
+        )} */}
 
-        <Container maxWidth="sm">
+        <Container maxWidth="sm" sx={{backgroundColor: "#fff"}}>
+        <Logo
+          sx={{
+            alignSelf: 'center',
+            // position: 'fixed',
+            // top: { xs: 16, sm: 24, md: 40 },
+            // left: { xs: 16, sm: 24, md: 40 },
+          }}
+        />
           <StyledContent>
             <Typography variant="h4" gutterBottom>
-              Sign in to Minimal
+              Login
             </Typography>
 
             <Typography variant="body2" sx={{ mb: 5 }}>
-              Don’t have an account? {''}
-              <Link variant="subtitle2">Get started</Link>
+              Continue to Vortex {''}
+              {/* <Link variant="subtitle2">Get started</Link> */}
             </Typography>
 
-            <Stack direction="row" spacing={2}>
-              <Button fullWidth size="large" color="inherit" variant="outlined">
-                <Iconify icon="eva:google-fill" color="#DF3E30" width={22} height={22} />
-              </Button>
-
-              <Button fullWidth size="large" color="inherit" variant="outlined">
-                <Iconify icon="eva:facebook-fill" color="#1877F2" width={22} height={22} />
-              </Button>
-
-              <Button fullWidth size="large" color="inherit" variant="outlined">
-                <Iconify icon="eva:twitter-fill" color="#1C9CEA" width={22} height={22} />
-              </Button>
-            </Stack>
-
+            <LoginForm />
+            
             <Divider sx={{ my: 3 }}>
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                 OR
               </Typography>
             </Divider>
 
-            <LoginForm />
+            <Stack direction="column" spacing={2}>
+              <Button fullWidth size="large" color="inherit" variant="outlined">
+                <Iconify icon="eva:google-fill" color="#DF3E30" width={22} height={22} />
+                Continue with Google
+              </Button>
+
+              <Button fullWidth size="large" color="inherit" variant="outlined">
+                <Iconify icon="eva:facebook-fill" color="#1877F2" width={22} height={22} />
+                Continue with Facebook
+              </Button>
+
+              {/* <Button fullWidth size="large" color="inherit" variant="outlined">
+                <Iconify icon="eva:twitter-fill" color="#1C9CEA" width={22} height={22} />
+              </Button> */}
+            </Stack>
+            <Stack direction="row" spacing={2}>
+              <Typography variant="body2" sx={{ mb: 5 }}>
+                Don't have a Vortex ID? {''}
+                <Link variant="subtitle2">Sign Up</Link>
+              </Typography>
+              <Typography variant="body2" sx={{ mb: 5, mr: 5 }}>
+                {''}
+                <Link variant="subtitle2">Help</Link>  {''}
+                <Link variant="subtitle2">Privacy</Link>  {''}
+                <Link variant="subtitle2">Terms of Service</Link>  {''}
+              </Typography>
+            </Stack>
           </StyledContent>
         </Container>
       </StyledRoot>

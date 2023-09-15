@@ -5,6 +5,8 @@ import { Link as RouterLink } from 'react-router-dom';
 import { useTheme } from '@mui/material/styles';
 import { Box, Link } from '@mui/material';
 
+import VortexBlackLogo from '../../assets/vortex_logo_black.png';
+
 // ----------------------------------------------------------------------
 
 const Logo = forwardRef(({ disabledLink = false, sx, ...other }, ref) => {
@@ -31,14 +33,17 @@ const Logo = forwardRef(({ disabledLink = false, sx, ...other }, ref) => {
       ref={ref}
       component="div"
       sx={{
-        width: 40,
-        height: 40,
+        // width: 40,
+        // height: 40,
         display: 'inline-flex',
         ...sx,
       }}
       {...other}
     >
-      <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 512 512">
+      <img src={VortexBlackLogo}  height="50" alt="Logo" 
+      style={{height:"5em"}}
+      /> 
+      {/* <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 512 512">
         <defs>
           <linearGradient id="BG1" x1="100%" x2="50%" y1="9.946%" y2="50%">
             <stop offset="0%" stopColor={PRIMARY_DARK} />
@@ -70,7 +75,7 @@ const Logo = forwardRef(({ disabledLink = false, sx, ...other }, ref) => {
             d="M450 384c26.509 0 48-21.491 48-48s-21.491-48-48-48-48 21.491-48 48 21.491 48 48 48"
           />
         </g>
-      </svg>
+      </svg> */}
     </Box>
   );
 
