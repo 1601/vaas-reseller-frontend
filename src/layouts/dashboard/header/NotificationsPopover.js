@@ -31,8 +31,8 @@ import Scrollbar from '../../../components/scrollbar';
 const NOTIFICATIONS = [
   {
     id: faker.datatype.uuid(),
-    title: 'Your order is placed',
-    description: 'waiting for shipping',
+    title: 'Your wallet has been replenished',
+    description: 'with Php 120,000.',
     avatar: null,
     type: 'order_placed',
     createdAt: set(new Date(), { hours: 10, minutes: 30 }),
@@ -40,8 +40,8 @@ const NOTIFICATIONS = [
   },
   {
     id: faker.datatype.uuid(),
-    title: faker.name.fullName(),
-    description: 'answered to your comment on the Minimal',
+    title: "New Egifts",
+    description: 'from your favorite brands are now available in our store.',
     avatar: '/assets/images/avatars/avatar_2.jpg',
     type: 'friend_interactive',
     createdAt: sub(new Date(), { hours: 3, minutes: 30 }),
@@ -49,8 +49,8 @@ const NOTIFICATIONS = [
   },
   {
     id: faker.datatype.uuid(),
-    title: 'You have new message',
-    description: '5 unread messages',
+    title: 'Welcome aboard',
+    description: "We're thrilled to have you as a new member of our fulfillment platform.",
     avatar: null,
     type: 'chat_message',
     createdAt: sub(new Date(), { days: 1, hours: 3, minutes: 30 }),
@@ -58,8 +58,8 @@ const NOTIFICATIONS = [
   },
   {
     id: faker.datatype.uuid(),
-    title: 'You have new mail',
-    description: 'sent from Guido Padberg',
+    title: 'Stay in the loop.',
+    description: 'Enable SMS notifications for real-time updates on your account activity.',
     avatar: null,
     type: 'mail',
     createdAt: sub(new Date(), { days: 2, hours: 3, minutes: 30 }),
@@ -67,8 +67,8 @@ const NOTIFICATIONS = [
   },
   {
     id: faker.datatype.uuid(),
-    title: 'Delivery processing',
-    description: 'Your order is being shipped',
+    title: 'A customers Bill Payment',
+    description: ' is being processed',
     avatar: null,
     type: 'order_shipped',
     createdAt: sub(new Date(), { days: 3, hours: 3, minutes: 30 }),

@@ -23,8 +23,8 @@ const StyledHeader = styled('header')(({ theme }) => ({
 export default function SimpleLayout() {
   return (
     <>
-      <StyledHeader>
-        <Logo />
+      <StyledHeader >
+        <Logo sx={{backgroundColor: "#fff"}}/>
       </StyledHeader>
 
       <Outlet />

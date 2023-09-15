@@ -25,7 +25,7 @@ export default function Page404() {
         <title> 404 Page Not Found | VAAS </title>
       </Helmet>
 
-      <Container>
+      <Container sx={{backgroundColor: "#fff"}}>
         <StyledContent sx={{ textAlign: 'center', alignItems: 'center' }}>
           <Typography variant="h3" paragraph>
             Sorry, page not found!
