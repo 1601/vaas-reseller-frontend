@@ -1,8 +1,17 @@
 import { Helmet } from 'react-helmet-async';
 import { Link as RouterLink } from 'react-router-dom';
+
 // @mui
 import { styled } from '@mui/material/styles';
 import { Button, Typography, Container, Box } from '@mui/material';
+
+import "../index.css"
+
+import Header from '../partials/Header';
+import HeroHome from '../partials/HeroHome';
+import FeaturesHome from '../partials/Features';
+import FeaturesBlocks from '../partials/FeaturesBlocks';
+import Footer from '../partials/Footer';
 
 // ----------------------------------------------------------------------
 
@@ -26,6 +35,17 @@ export default function Page404() {
       </Helmet>
 
       <Container>
+        {/*  Site header */}
+          <Header />
+
+        {/*  Page content */}
+        <main className="flex-grow">          
+          <HeroHome />
+          <FeaturesHome />
+          <FeaturesBlocks />
+        </main>
+
+        <Footer />
         <StyledContent sx={{ textAlign: 'center', alignItems: 'center' }}>
           <Typography variant="h3" paragraph>
            Hello World
