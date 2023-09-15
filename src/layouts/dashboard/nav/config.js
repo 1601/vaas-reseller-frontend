@@ -23,44 +23,44 @@ const navConfig = [
   },
   {
     title: 'Customers',
-    path: '/dashboard/customer',
+    path: '/dashboard/blog',
     icon: icon('ic_user'),
   },
   {
     title: 'Transaction Directory',
-    path: '/dashboard/transact',
+    path: '/dashboard/products',
     icon: icon('ic_transact'),
   },
   {
     title: 'Wallets & Payouts',
-    path: '/dashboard/wallet',
+    path: '/dashboard/blog',
     icon: icon('ic_wallet'),
   },
   {
     title: 'Reports',
-    path: '/dashboard/reports',
+    path: '/dashboard/products',
     icon: icon('ic_report'),
   },
   {
     title: 'Developers',
-    path: '/dashboard/user',
+    path: '/dashboard/blog',
     icon: icon('ic_dev'),
   },
   {
     title: 'View Live Data',
-    path: '/dashboard/livedata',
+    path: '/dashboard/products',
     icon: icon('ic_toggle'),
   },
-  {
-    title: 'login',
-    path: '/login',
-    icon: icon('ic_lock'),
-  },
-  {
-    title: 'Not found',
-    path: '/404',
-    icon: icon('ic_disabled'),
-  },
+  // {
+  //   title: 'login',
+  //   path: '/login',
+  //   icon: icon('ic_lock'),
+  // },
+  // {
+  //   title: 'Not found',
+  //   path: '/404',
+  //   icon: icon('ic_disabled'),
+  // },
 ];
 
 export default navConfig;
