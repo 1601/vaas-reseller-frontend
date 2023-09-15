@@ -14,10 +14,30 @@ import Scrollbar from '../../../components/scrollbar';
 import NavSection from '../../../components/nav-section';
 //
 import navConfig from './config';
+import SvgColor from '../../../components/svg-color';
 
 // ----------------------------------------------------------------------
 
 const NAV_WIDTH = 280;
+const icon = (name) => <SvgColor src={`/assets/icons/navbar/${name}.svg`} sx={{ width: 1, height: 1 }} />;
+
+const navConfigBottom = [
+  {
+    title: 'upload document',
+    path: '/dashboard/kyc',
+    icon: icon('ic_user'),
+  },
+  {
+    title: 'security logs',
+    path: '/dashboard/securitylogs',
+    icon: icon('ic_securitylogs'),
+  },
+  {
+    title: 'settings',
+    path: '/dashboard/settings',
+    icon: icon('ic_settings'),
+  },
+];
 
 const StyledAccount = styled('div')(({ theme }) => ({
   display: 'flex',
@@ -53,10 +73,7 @@ export default function Nav({ openNav, onCloseNav }) {
         '& .simplebar-content': { height: 1, display: 'flex', flexDirection: 'column' },
       }}
     >
-      <Box sx={{ px: 2.5, py: 3, display: 'inline-flex' }}>
-        <Logo />
-      </Box>
-
+      
       <Box sx={{ mb: 5, mx: 2.5 }}>
         <Link underline="none">
           <StyledAccount>
@@ -80,7 +97,9 @@ export default function Nav({ openNav, onCloseNav }) {
       <Box sx={{ flexGrow: 1 }} />
 
       <Box sx={{ px: 2.5, pb: 3, mt: 10 }}>
-        <Stack alignItems="center" spacing={3} sx={{ pt: 5, borderRadius: 2, position: 'relative' }}>
+      <NavSection data={navConfigBottom} />
+      
+        {/* <Stack alignItems="center" spacing={3} sx={{ pt: 5, borderRadius: 2, position: 'relative' }}>
           <Box
             component="img"
             src="/assets/illustrations/illustration_avatar.png"
@@ -100,8 +119,13 @@ export default function Nav({ openNav, onCloseNav }) {
           <Button href="https://material-ui.com/store/items/minimal-dashboard/" target="_blank" variant="contained">
             Upgrade to Pro
           </Button>
-        </Stack>
+        </Stack> */}
       </Box>
+     
+      <Box sx={{ px: 2.5, py: 3, display: 'inline-flex' }}>
+        <Logo />
+      </Box>
+
     </Scrollbar>
   );
 

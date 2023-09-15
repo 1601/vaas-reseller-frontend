@@ -28,6 +28,9 @@ export default function Router() {
         { path: 'user', element: <UserPage /> },
         { path: 'products', element: <ProductsPage /> },
         { path: 'blog', element: <BlogPage /> },
+        { path: 'kyc', element: <UserPage /> },
+        { path: 'securitylogs', element: <UserPage /> },
+        { path: 'settings', element: <UserPage /> },
       ],
     },
     {
