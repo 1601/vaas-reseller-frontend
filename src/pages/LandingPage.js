@@ -12,6 +12,8 @@ import HeroHome from '../partials/HeroHome';
 import FeaturesHome from '../partials/Features';
 import FeaturesBlocks from '../partials/FeaturesBlocks';
 import Footer from '../partials/Footer';
+import Testimonials from '../partials/Testimonials';
+import Newsletter from '../partials/Newsletter';
 
 // ----------------------------------------------------------------------
 
@@ -43,8 +45,8 @@ export default function Page404() {
     <HeroHome />
     <FeaturesHome />
     <FeaturesBlocks />
-    {/* <Testimonials />
-    <Newsletter /> */}
+    <Testimonials />
+    <Newsletter />
 
   </main>
 

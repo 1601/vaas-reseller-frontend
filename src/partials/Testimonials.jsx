@@ -85,7 +85,7 @@ function Testimonials() {
                   <img className="relative rounded-full" src={'https://palscon.org/public/assets/img/officers-and-directors/viber_image_2022-01-14_15-56-09-240.webp'} width="96" height="96" alt="Testimonial 01" />
                 </div>
                 <blockquote className="text-xl font-medium mb-4">
-                  “ I love this product and would recommend it to anyone. Could be not easier to use, and our multiple websites are wonderful. We get nice comments all the time. “
+                  “ VAAS has transformed the way we handle bills payment, top-ups, and e-gifts in the Philippines and beyond. Its global accessibility, efficiency, and customer-centric design have elevated our operations. VAAS is the key to our success.“
                 </blockquote>
                 <cite className="block font-bold text-lg not-italic mb-1">Jay Ar Sta Ana</cite>
                 <div className="text-gray-600">
