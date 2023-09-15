@@ -1,6 +1,6 @@
 {
-  "short_name": "Minimal App",
-  "name": "React Material Minimal UI Kit",
+  "short_name": "VAAS app",
+  "name": "React PWA for Vortex as a Service",
   "icons": [
     {
       "src": "favicon/android-chrome-192x192.png",
