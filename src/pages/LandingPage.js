@@ -31,7 +31,7 @@ const StyledContent = styled('div')(({ theme }) => ({
 
 export default function LandingPage() {
   return (
-    <div className="flex flex-col min-h-screen overflow-hidden">
+    <div className="flex flex-col min-h-screen overflow-hidden" style={{backgroundColor: "#FFF"}}>
   
   {/*  Site header */}
   <Header />

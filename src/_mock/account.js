@@ -1,8 +1,8 @@
 // ----------------------------------------------------------------------
 
 const account = {
-  displayName: 'Jaydon Frankie',
-  email: 'demo@minimals.cc',
+  displayName: 'Juan Dela Cruz',
+  email: 'dealer@dealerstore.com',
   photoURL: '/assets/images/avatars/avatar_default.jpg',
 };
 
