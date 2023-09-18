@@ -39,10 +39,10 @@ function Features() {
         <div className="pt-12 md:pt-20">
 
           {/* Section header */}
-          <div className="max-w-3xl mx-auto text-center pb-12 md:pb-16">
+          {/* <div className="max-w-3xl mx-auto text-center pb-12 md:pb-16">
             <h1 className="h2 mb-4">Explore the solutions</h1>
             <p className="text-xl text-gray-600">Looking for an easy and fast way to send prepaid mobile load to your friends and loved ones in the Philippines? Look no further! </p>
-          </div>
+          </div> */}
 
           {/* Section content */}
           <div className="md:grid md:grid-cols-12 md:gap-6">
