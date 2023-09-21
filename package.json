@@ -13,6 +13,7 @@
     "lint:fix": "eslint --fix --ext .js,.jsx ./src",
     "clear-all": "rm -rf build node_modules",
     "re-start": "rm -rf build node_modules && npm install && npm start",
+    "re-start-windows": "rd /s /q node_modules && npm install && npm start",
     "re-build-windows": "rd /s /q node_modules && npm install && npm run build",
     "re-build": "rm -rf node_modules && npm install && npm run build"
   },

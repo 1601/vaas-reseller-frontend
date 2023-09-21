@@ -18,6 +18,7 @@ import VerifyPage from './pages/VerifyPage';
 // ----------------------------------------------------------------------
 
 export default function Router() {
+  const isLoggedIn = localStorage.getItem('token');
   const routes = useRoutes([
     {
       path: '', // This is the root path
@@ -25,7 +26,7 @@ export default function Router() {
     },
     {
       path: '/dashboard',
-      element: <DashboardLayout />,
+      element: isLoggedIn ? <DashboardLayout /> : <Navigate to="/login" />,
       children: [
         { element: <Navigate to="/dashboard/app" />, index: true }, // This is the index route for the dashboard
         { path: 'app', element: <DashboardAppPage /> },
@@ -46,7 +47,7 @@ export default function Router() {
     },
     {
       path: 'login',
-      element: <LoginPage />,
+      element: isLoggedIn ? <Navigate to="/dashboard/app" /> : <LoginPage />,
     },
     {
       path: 'signup',

@@ -10,13 +10,16 @@ async function fetchUserData(id) {
   return data;
 }
 
+const user = JSON.parse(localStorage.getItem('user'));
+
 const account = {
-  displayName: localStorage.getItem('username') || 'Guest',
-  email: localStorage.getItem('email') || 'guest@email.com',
+  displayName: user ? (user.username || 'Guest') : 'Guest',
+  email: user ? (user.email || 'guest@email.com') : 'guest@email.com',
   photoURL: '/assets/images/avatars/avatar_default.jpg',
 };
 
-console.log("Email from localStorage:", localStorage.getItem('email'));
-console.log("Username from localStorage:", localStorage.getItem('username'));
+console.log("Email from localStorage:", user ? user.email : 'N/A');
+console.log("Username from localStorage:", user ? user.username : 'N/A');
 
 export default account;
+

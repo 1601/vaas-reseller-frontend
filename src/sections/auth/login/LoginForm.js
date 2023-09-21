@@ -34,10 +34,7 @@ export default function LoginForm() {
 
       // Save token and user info to local storage
       localStorage.setItem('token', token);
-      localStorage.setItem('username', username);
-      localStorage.setItem('email', email);
-      localStorage.setItem('user_id', _id);
-      localStorage.setItem('role', role);
+      localStorage.setItem('user', JSON.stringify(response.data));
 
       navigate('/dashboard', { replace: true });
       window.location.reload();

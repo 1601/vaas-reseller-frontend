@@ -26,10 +26,12 @@ const StorePageEdit = () => {
     }, [storeData]);
 
     useEffect(() => {
-        const storedUserId = localStorage.getItem('user_id');
+        
+        const storedUserId = JSON.parse(localStorage.getItem('user'))._id;
 
         const fetchStoreData = async () => {
             try {
+                console.log(storedUserId)
                 const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/stores/owner/${storedUserId}`);
                 setStoreData(response.data);
                 setEditedData(response.data);
@@ -60,7 +62,7 @@ const StorePageEdit = () => {
     const handleSaveClick = async () => {
         console.log("Save button clicked");
         try {
-            const storedUserId = localStorage.getItem('user_id');
+            const storedUserId = JSON.parse(localStorage.getItem('user'))._id;
 
             if (!isValidSubdomain(editedData.storeUrl)) {
                 alert("Please ensure only lowercase alphanumerical with no special symbols");
@@ -169,7 +171,7 @@ const StorePageEdit = () => {
             }, 500);
     
             const formData = new FormData();
-            const storedUserId = localStorage.getItem('user_id');
+            const storedUserId = JSON.parse(localStorage.getItem('user'))._id;
     
             formData.append('file', editedData.storeLogo);
             formData.append('logoFileName', editedData.logoFileName);
@@ -213,7 +215,7 @@ const StorePageEdit = () => {
 
     const handleGoLiveClick = async () => {
         try {
-            const storedUserId = localStorage.getItem('user_id');  // Fetch the user ID from local storage
+            const storedUserId = JSON.parse(localStorage.getItem('user'))._id;  // Fetch the user ID from local storage
 
             // Fetch the latest store data to get the current isApproved status
             const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/stores/owner/${storedUserId}`);
@@ -258,7 +260,7 @@ const StorePageEdit = () => {
             };
 
             const token = localStorage.getItem('token');
-            const ownerId = localStorage.getItem('user_id');
+            const ownerId = JSON.parse(localStorage.getItem('user'))._id;
 
             // Send the updated colors to the server
             const response = await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/updateColors/${ownerId}`, dataToSend, {
@@ -287,7 +289,7 @@ const StorePageEdit = () => {
     const previewLogoUrl = `${process.env.REACT_APP_BACKEND_URL}/public/img/${editedData.storeLogo}`;
 
     const formData = new FormData();
-    const storedUserId = localStorage.getItem('user_id');
+    const storedUserId = JSON.parse(localStorage.getItem('user'))._id;
     formData.append('ownerId', storedUserId);
     formData.append('storeName', editedData.storeName);
     formData.append('storeLogo', editedData.storeLogo);
