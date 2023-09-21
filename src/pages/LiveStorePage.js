@@ -23,6 +23,7 @@ const LiveStorePage = () => {
 
   const queryParams = new URLSearchParams(location.search);
   const notFound = queryParams.get('notFound');
+  const user = JSON.parse(localStorage.getItem('user'));
 
   useEffect(() => {
     if (storeUrl) {
@@ -61,6 +62,101 @@ const LiveStorePage = () => {
     );
   }
 
+  if (user && user._id === storeData.ownerId || storeData.isLive) {
+    return (
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        height: '100vh'
+      }}>
+
+       {/* banner to alert the user that this is a preview only if the storeData is not yet live and the owner is the user.id -
+        the preview is always there but i should be able to interact still on the UI  */}
+
+
+       <div style={{
+          display: storeData.isLive ? 'none' : 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          pointerEvents: 'none',
+          opacity: 0.3,
+          alignItems: 'center',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          background: 'rgba(0,0,0,0.5)',
+          color: 'white',
+          fontSize: '1.5rem'
+        }}>
+          <div style={{ textAlign: 'center' }}>
+            <h1>Preview Only</h1>
+            <h3>This store is not yet live</h3>
+            <Button variant="outlined" color="inherit" href={`/dashboard/store`}
+              style={{ pointerEvents: 'all' }}
+            >
+              Edit Store
+            </Button>
+          </div>
+        </div>
+        <div style={{ textAlign: 'center' }}>
+          <img
+            src={storeData ? storeData.storeLogo : '/vortex_logo_black.png'}
+            alt={`${storeData ? storeData.storeName : "Your Store"}'s Logo`}
+            style={{ maxWidth: '400px', maxHeight: '400px' }}
+          />
+          <h1>{storeData.storeName}</h1>
+          <h1>{`${location.pathname}`}</h1>
+  
+          <Container>
+            <Outlet />
+  
+            <Grid container spacing={4}>
+              <Grid item xs={4}
+                style={{
+                  display: platformVariables.enableBills ? "" : "none"
+                }}>
+                <Link href={`/${storeUrl}/bills`}>
+                  <img src={BillsImage} height="100px" alt="Home" />
+                  <div className="menu--text">Bills</div>
+                </Link>
+              </Grid>
+              <Grid item xs={4}
+                style={{
+                  display: platformVariables.enableLoad ? "" : "none"
+                }}>
+  
+                <Link href={`/${storeUrl}/topup`}>
+                  <img src={LoadImage} height="100px" alt="Express" />
+                  <div className="menu--text">Load</div>
+                </Link>
+              </Grid>
+              <Grid item xs={4}
+                style={{
+                  display: platformVariables.enableGift ? "" : "none"
+                }}
+              >
+                <Link href={`/${storeUrl}/voucher`}>
+                  <img src={VoucherImage} height="100px" alt="Express" />
+                  <div className="menu--text">Vouchers</div>
+                </Link>
+              </Grid>
+            </Grid>
+            <Stack m={3} direction={"row"} justifyContent={"center"}>
+              <Link href={`/${storeUrl}/transactions`}>
+                View transactions
+              </Link>
+            </Stack>
+          </Container>
+  
+  
+        </div>
+      </div>
+    );
+  }
+
+
   if (!storeData.isLive) {
     return (
       <div style={{
@@ -75,66 +171,8 @@ const LiveStorePage = () => {
     );
   }
 
-  return (
-    <div style={{
-      display: 'flex',
-      justifyContent: 'center',
-      height: '100vh'
-    }}>
-      <div style={{ textAlign: 'center' }}>
-        <img
-          src={storeData ? storeData.storeLogo : '/vortex_logo_black.png'}
-          alt={`${storeData ? storeData.storeName : "Your Store"}'s Logo`}
-          style={{ maxWidth: '400px', maxHeight: '400px' }}
-        />
-        <h1>{storeData.storeName}</h1>
-        <h1>{`${location.pathname}`}</h1>
-
-        <Container>
-          <Outlet />
-
-          <Grid container spacing={4}>
-            <Grid item xs={4}
-              style={{
-                display: platformVariables.enableBills ? "" : "none"
-              }}>
-              <Link href={`/${storeUrl}/bills`}>
-                <img src={BillsImage} height="100px" alt="Home" />
-              </Link>
-              <div className="menu--text">Bills</div>
-            </Grid>
-            <Grid item xs={4}
-              style={{
-                display: platformVariables.enableLoad ? "" : "none"
-              }}>
-
-              <Link href={`/${storeUrl}/topup`}>
-                <img src={LoadImage} height="100px" alt="Express" />
-              </Link>
-              <div className="menu--text">Load</div>
-            </Grid>
-            <Grid item xs={4}
-              style={{
-                display: platformVariables.enableGift ? "" : "none"
-              }}
-            >
-              <Link href={`/${storeUrl}/voucher`}>
-                <img src={VoucherImage} height="100px" alt="Express" />
-              </Link>
-              <div className="menu--text">Vouchers</div>
-            </Grid>
-          </Grid>
-          <Stack m={3} direction={"row"} justifyContent={"center"}>
-            <Link href={`/${storeUrl}/transactions`}>
-              View transactions
-            </Link>
-          </Stack>
-        </Container>
-
-
-      </div>
-    </div>
-  );
+ 
+ return(<></>);
 };
 
 export default LiveStorePage;

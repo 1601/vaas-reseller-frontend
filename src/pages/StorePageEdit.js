@@ -108,7 +108,8 @@ const StorePageEdit = () => {
     };
 
     const handlePreviewClick = () => {
-        navigate(`/${editedData.storeUrl}`);
+        // navigate(`/${editedData.storeUrl}`);
+        window.open(`/${editedData.storeUrl}`, '_blank');
     };
 
     const handleFileUpload = (event) => {
