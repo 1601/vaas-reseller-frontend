@@ -18,6 +18,7 @@ const LiveStorePage = () => {
           const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/stores/url/${storeUrl}`);
           setStoreData(response.data);
         } catch (error) {
+          setStoreData('domainNotFound');
           console.error('Could not fetch store data', error);
         }
       };
@@ -25,16 +26,20 @@ const LiveStorePage = () => {
     }
   }, [storeUrl]);
 
-  if (storeData === null || notFound === 'true') {
+  if (!storeData ||notFound === 'true') {
+    return (
+      <div style={{ textAlign: 'center' }}>
+        <h1>Loading . . .</h1>
+      </div>
+    );
+  }
+
+  if (  storeData === 'domainNotFound') {
     return (
       <div style={{ textAlign: 'center' }}>
         <h1>Domain Not Found</h1>
       </div>
     );
-  }
-
-  if (!storeData) {
-    return <div>Loading...</div>;
   }
 
   return (
