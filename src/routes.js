@@ -45,6 +45,12 @@ export default function Router() {
     {
       path: ':storeUrl',
       element: <LiveStorePage />,
+      children: [
+        { path: 'bills', element: <div> Bills </div> },
+        { path: 'topup', element: <div> Topup </div> },
+        { path: 'voucher', element: <div> Voucher </div> },
+        { path: 'transactions', element: <div> Transactions </div> },
+      ],
     },
     {
       element: <SimpleLayout />,
