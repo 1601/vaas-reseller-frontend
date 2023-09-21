@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 // @mui
-import { Link, Stack, IconButton, InputAdornment, TextField, Checkbox } from '@mui/material';
+import { Button, Link, Stack, IconButton, InputAdornment, TextField, Checkbox, Typography } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 // components
 import Iconify from '../../../components/iconify';
@@ -14,32 +14,35 @@ export default function LoginForm() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [isVerified, setIsVerified] = useState(true);
+  const [verificationMessage, setVerificationMessage] = useState('');
 
   const handleLogin = async () => {
-    console.log("Email:", email);
-    console.log("Password:", password);
     try {
       const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/login`, {
         email,
         password
       });
-      console.log("Response:", response);
 
-      const { token, username, _id, role, email: userEmail } = response.data;
+      const { token, username, _id, role, email: userEmail, isActive } = response.data;
+
+      if (isActive === false) {
+        setIsVerified(false);
+        setVerificationMessage('Email not yet verified. Please proceed to verification');
+        return;
+      }
 
       // Save token and user info to local storage
       localStorage.setItem('token', token);
       localStorage.setItem('username', username);
       localStorage.setItem('email', email);
-      localStorage.setItem('_id', _id);
+      localStorage.setItem('user_id', _id);
       localStorage.setItem('role', role);
 
       navigate('/dashboard', { replace: true });
-
       window.location.reload();
 
     } catch (error) {
-      console.log("Error:", error);
       setError('Invalid email or password');
     }
   };
@@ -78,11 +81,12 @@ export default function LoginForm() {
         </Link>
       </Stack>
 
-      <LoadingButton fullWidth size="large" type="submit" variant="primary" onClick={handleLogin}>
+      <Button fullWidth size="large" color="inherit" variant="outlined" onClick={handleLogin}>
         Login
-      </LoadingButton>
+      </Button>
 
-      {error && <p>{error}</p>}
+      {!isVerified && <Typography variant="body2" color="error" sx={{ mt: 2 }}>{verificationMessage}</Typography>}
+      {error && <Typography variant="body2" color="error" sx={{ mt: 2 }}>{error}</Typography>}
     </>
   );
 }

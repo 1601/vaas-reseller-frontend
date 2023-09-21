@@ -1,4 +1,5 @@
 import { Helmet } from 'react-helmet-async';
+import { useNavigate } from 'react-router-dom';
 // @mui
 import { styled } from '@mui/material/styles';
 import { Link, Container, Typography, Divider, Stack, Button } from '@mui/material';
@@ -42,6 +43,7 @@ const StyledContent = styled('div')(({ theme }) => ({
 
 export default function LoginPage() {
   const mdUp = useResponsive('up', 'md');
+  const navigate = useNavigate();
 
   return (
     <>
@@ -50,7 +52,7 @@ export default function LoginPage() {
       </Helmet>
 
       <StyledRoot>
-        
+
 
         {/* {mdUp && (
           <StyledSection>
@@ -61,15 +63,15 @@ export default function LoginPage() {
           </StyledSection>
         )} */}
 
-        <Container maxWidth="sm" sx={{backgroundColor: "#fff"}}>
-        <Logo
-          sx={{
-            alignSelf: 'center',
-            // position: 'fixed',
-            // top: { xs: 16, sm: 24, md: 40 },
-            // left: { xs: 16, sm: 24, md: 40 },
-          }}
-        />
+        <Container maxWidth="sm" sx={{ backgroundColor: "#fff" }}>
+          <Logo
+            sx={{
+              alignSelf: 'center',
+              // position: 'fixed',
+              // top: { xs: 16, sm: 24, md: 40 },
+              // left: { xs: 16, sm: 24, md: 40 },
+            }}
+          />
           <StyledContent>
             <Typography variant="h4" gutterBottom>
               Login
@@ -81,7 +83,7 @@ export default function LoginPage() {
             </Typography>
 
             <LoginForm />
-            
+
             <Divider sx={{ my: 3 }}>
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                 OR
@@ -106,7 +108,7 @@ export default function LoginPage() {
             <Stack direction="row" spacing={2}>
               <Typography variant="body2" sx={{ mb: 5 }}>
                 Don't have a Vortex ID? {''}
-                <Link variant="subtitle2">Sign Up</Link>
+                <Link variant="subtitle2" onClick={() => navigate('/signup')} sx={{ cursor: 'pointer' }}>Sign Up</Link>
               </Typography>
               <Typography variant="body2" sx={{ mb: 5, mr: 5 }}>
                 {''}
@@ -115,6 +117,16 @@ export default function LoginPage() {
                 <Link variant="subtitle2">Terms of Service</Link>  {''}
               </Typography>
             </Stack>
+            <Typography variant="body2" sx={{ mt: 3 }}>
+              Not yet Verified?
+              <Link
+                variant="subtitle2"
+                onClick={() => navigate('/verify')}
+                sx={{ cursor: 'pointer', ml: 1 }}
+              >
+                Verify
+              </Link>
+            </Typography>
           </StyledContent>
         </Container>
       </StyledRoot>

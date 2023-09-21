@@ -39,7 +39,7 @@ const LiveStorePage = () => {
     }
   }, [storeUrl]);
 
-  if (!storeData ||notFound === 'true') {
+  if (!storeData || notFound === 'true') {
     return (
       <div style={{ textAlign: 'center' }}>
         <h1>Loading . . .</h1>
@@ -47,74 +47,94 @@ const LiveStorePage = () => {
     );
   }
 
-  if (  storeData === 'domainNotFound') {
+  if (storeData === 'domainNotFound') {
     return (
-      <div style={{ textAlign: 'center' }}>
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh', // full height of the viewport
+        fontSize: '3rem' // larger font size
+      }}>
         <h1>Domain Not Found</h1>
       </div>
     );
   }
 
+  if (!storeData.isLive) {
+    return (
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh', // full height of the viewport
+        fontSize: '3rem' // larger font size
+      }}>
+        <h1>Store is currently Offline</h1>
+      </div>
+    );
+  }
+
   return (
-    <div style={{ 
+    <div style={{
       display: 'flex',
       justifyContent: 'center',
-      height: '100vh' 
+      height: '100vh'
     }}>
       <div style={{ textAlign: 'center' }}>
         <img
-          src={`${process.env.REACT_APP_BACKEND_URL}/public/img/${storeData.storeLogo}`}
-          alt={`${storeData.storeName}'s Logo`}
+          src={storeData ? storeData.storeLogo : '/vortex_logo_black.png'}
+          alt={`${storeData ? storeData.storeName : "Your Store"}'s Logo`}
           style={{ maxWidth: '400px', maxHeight: '400px' }}
         />
         <h1>{storeData.storeName}</h1>
         <h1>{`${location.pathname}`}</h1>
 
         <Container>
-        <Outlet />
+          <Outlet />
 
-        <Grid container spacing={4}>                 
-          <Grid item xs={4}
-            style={{
-              display: platformVariables.enableBills ? "" : "none"
-            }}>
-            <Link href={`/${storeUrl}/bills`}>
-              <img src={BillsImage} height="100px" alt="Home" />
-            </Link>
-            <div className="menu--text">Bills</div>
+          <Grid container spacing={4}>
+            <Grid item xs={4}
+              style={{
+                display: platformVariables.enableBills ? "" : "none"
+              }}>
+              <Link href={`/${storeUrl}/bills`}>
+                <img src={BillsImage} height="100px" alt="Home" />
+              </Link>
+              <div className="menu--text">Bills</div>
+            </Grid>
+            <Grid item xs={4}
+              style={{
+                display: platformVariables.enableLoad ? "" : "none"
+              }}>
+
+              <Link href={`/${storeUrl}/topup`}>
+                <img src={LoadImage} height="100px" alt="Express" />
+              </Link>
+              <div className="menu--text">Load</div>
+            </Grid>
+            <Grid item xs={4}
+              style={{
+                display: platformVariables.enableGift ? "" : "none"
+              }}
+            >
+              <Link href={`/${storeUrl}/voucher`}>
+                <img src={VoucherImage} height="100px" alt="Express" />
+              </Link>
+              <div className="menu--text">Vouchers</div>
+            </Grid>
           </Grid>
-          <Grid item xs={4}
-            style={{
-              display: platformVariables.enableLoad ? "" : "none"
-            }}>
-            
-            <Link href={`/${storeUrl}/topup`}>
-              <img src={LoadImage} height="100px" alt="Express" />
+          <Stack m={3} direction={"row"} justifyContent={"center"}>
+            <Link href={`/${storeUrl}/transactions`}>
+              View transactions
             </Link>
-            <div className="menu--text">Load</div>
-          </Grid>
-          <Grid item xs={4}
-            style={{
-              display: platformVariables.enableGift ? "" : "none"
-            }}
-          >
-            <Link href={`/${storeUrl}/voucher`}>
-              <img src={VoucherImage} height="100px" alt="Express" />
-            </Link>
-            <div className="menu--text">Vouchers</div>
-          </Grid>
-        </Grid>
-        <Stack m={3} direction={"row"} justifyContent={"center"}>
-          <Link href={`/${storeUrl}/transactions`}>
-            View transactions
-          </Link>
-        </Stack>
+          </Stack>
         </Container>
 
-                    
+
       </div>
     </div>
-  );  
+  );
 };
 
 export default LiveStorePage;

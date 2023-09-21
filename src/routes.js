@@ -6,11 +6,14 @@ import SimpleLayout from './layouts/simple';
 import BlogPage from './pages/BlogPage';
 import UserPage from './pages/UserPage';
 import LoginPage from './pages/LoginPage';
+import SignUpPage from './pages/SignUpPage';
 import Page404 from './pages/Page404';
 import ProductsPage from './pages/ProductsPage';
 import DashboardAppPage from './pages/DashboardAppPage';
 import LandingPage from './pages/LandingPage';
 import LiveStorePage from './pages/LiveStorePage';
+import StorePageEdit from './pages/StorePageEdit';
+import VerifyPage from './pages/VerifyPage';
 
 // ----------------------------------------------------------------------
 
@@ -29,6 +32,9 @@ export default function Router() {
         { path: 'user', element: <UserPage /> },
         { path: 'products', element: <ProductsPage /> },
         { path: 'blog', element: <BlogPage /> },
+        { path: 'store', element: <StorePageEdit /> },
+        { path: 'customer', element: <UserPage /> },
+        { path: 'developer', element: <UserPage /> },
         { path: 'transact', element: <UserPage /> },
         { path: 'wallet', element: <UserPage /> },
         { path: 'reports', element: <UserPage /> },
@@ -42,6 +48,14 @@ export default function Router() {
       path: 'login',
       element: <LoginPage />,
     },
+    {
+      path: 'signup',
+      element: <SignUpPage />,
+    },
+    {
+      path: 'verify',
+      element: <VerifyPage />,
+    },    
     {
       path: ':storeUrl',
       element: <LiveStorePage />,
