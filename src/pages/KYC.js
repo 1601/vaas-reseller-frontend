@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import Box from '@mui/material/Box';
 import Stepper from '@mui/material/Stepper';
 import Step from '@mui/material/Step';
@@ -10,13 +10,17 @@ import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import { Card } from '@mui/material';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import Checkbox from '@mui/material/Checkbox';
+
+import KycImage from '../images/Rectangle 52.png'
+import { postDataKyc, putFileKyc } from '../api/public/kyc'
 
 const steps = [
   'What is KYC?',
   'General Information',
   'Business Information',
-  'Statement of acceptance',
+  'Statement of acceptance'
 ];
 
 const initialFormData = {
@@ -35,7 +39,9 @@ const initialFormData = {
 
 export default function KYC() {
   const [activeStep, setActiveStep] = useState(0);
+  const [selectedFile, setSelectedFile] = useState(null);
   const [formData, setFormData] = useState(initialFormData);
+  const fileInputRef = useRef(null);
 
   const handleNext = () => {
     setActiveStep((prevStep) => prevStep + 1);
@@ -57,9 +63,21 @@ export default function KYC() {
     }));
   };
 
-  const handleSubmit = () => {
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    setSelectedFile(file);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
     // Send formData to the backend API
-    console.log('Submitting formData:', formData);
+    const result = await postDataKyc(formData);
+    if(result.status === 200) {
+      // Submit File 
+      const fileResult = await putFileKyc(selectedFile)
+      console.log(fileResult.status)
+    }
+
   };
 
   const handleInputChange = (e) => {
@@ -75,8 +93,8 @@ export default function KYC() {
 
   return (
     <Container maxWidth="md" style={{ textAlign: 'center', marginTop: '50px' }}>
-      <Card>
-        <Box sx={{ width: '100%', backgroundColor: 'white'}}>
+      <Card style={{paddingTop: '50px', paddingBottom:'50px'}}>
+        <Box sx={{ width: '100%', backgroundColor: 'white' }}>
           <Stepper activeStep={activeStep} alternativeLabel>
             {steps.map((label, index) => (
               <Step key={label}>
@@ -87,34 +105,31 @@ export default function KYC() {
           <form onSubmit={(e) => e.preventDefault()}>
             {activeStep === 0 && (
               <Container maxWidth="md" style={{ textAlign: 'center', marginTop: '50px' }}>
-              <Typography variant="h4">Welcome to Vortex</Typography>
-              <div style={{ marginTop: '20px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-                  <CheckCircleOutlineIcon style={{ color: 'green', marginRight: '10px' }} />
-                  <Typography variant="body1">
-                    Please provide the necessary information and documents to avoid delays in your activation
-                  </Typography>
+                <Typography variant="h3" style={{color:"#BA61E8"}}>Welcome to Vortex!</Typography>
+                <img className="mx-auto" src={KycImage} width="150" height="auto" alt="Hero" />
+                <div style={{ marginTop: '20px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+                    <CheckCircleOutlineIcon style={{ color: 'green', marginRight: '10px' }} />
+                    <Typography variant="body1">
+                      Please provide the necessary information and documents to avoid delays in your activation
+                    </Typography>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+                    <CheckCircleOutlineIcon style={{ color: 'green', marginRight: '10px' }} />
+                    <Typography variant="body1">
+                      Upon submission, please give our team up to 7 working days to review your application
+                    </Typography>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+                    <CheckCircleOutlineIcon style={{ color: 'green', marginRight: '10px' }} />
+                    <Typography variant="body1">
+                      Please make sure that your business is not part of our list of Restricted Business
+                    </Typography>
+                  </div>
                 </div>
-        
-                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-                  <CheckCircleOutlineIcon style={{ color: 'green', marginRight: '10px' }} />
-                  <Typography variant="body1">
-                    Upon submission, please give our team up to 7 working days to review your application
-                  </Typography>
-                </div>
-        
-                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-                  <CheckCircleOutlineIcon style={{ color: 'green', marginRight: '10px' }} />
-                  <Typography variant="body1">
-                    Please make sure that your business is not part of our list of Restricted Business
-                  </Typography>
-                </div>
-              </div>
-        
-              <Button variant="contained" color="primary" onClick={handleNext}>
-                Next
-              </Button>
-            </Container>
+              </Container>
             )}
             {activeStep === 1 && (
               <div>
@@ -230,17 +245,34 @@ export default function KYC() {
             )}
             {activeStep === 3 && (
               <div>
-                {/* Step 4: Statement of Acceptance */}
-                <TextField
-                  label="Unique Identifier"
-                  name="uniqueIdentifier"
-                  value={formData.uniqueIdentifier}
-                  onChange={handleChange}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  onChange={handleFileChange}
+                  style={{ display: 'none' }}
+                  id="file-input"
                 />
-                {/* Add other Statement of Acceptance fields here */}
+                {/* <label htmlFor="file-input"> */}
+                <Button
+                  variant="contained"
+                  color="primary"
+                  component="span"
+                  startIcon={<CloudUploadIcon />}
+                  onClick={() => {
+                    if (fileInputRef.current) {
+                      fileInputRef.current.click();
+                    }
+                  }}
+                >
+                  Upload File
+                </Button>
+                {/* </label> */}
+                {selectedFile && (
+                  <p>Selected File: {selectedFile.name}</p>
+                )}
               </div>
             )}
-            <div>
+            <div style={{marginTop:'50px'}}>
               <Button
                 disabled={activeStep === 0}
                 onClick={handleBack}
@@ -249,8 +281,9 @@ export default function KYC() {
                 Back
               </Button>
               <Button
-                variant="contained"
+                variant="outlined"
                 color="primary"
+                style={{color:"white",backgroundColor:"#873EC0"}}
                 onClick={isLastStep ? handleSubmit : handleNext}
               >
                 {isLastStep ? 'Submit' : 'Next'}
