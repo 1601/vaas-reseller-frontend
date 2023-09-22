@@ -15,6 +15,7 @@ import LiveStorePage from './pages/LiveStorePage';
 import StorePageEdit from './pages/StorePageEdit';
 import VerifyPage from './pages/VerifyPage';
 import KYC from './pages/KYC';
+import ForgotPasswordPage from './pages/ForgotPassword';
 
 // ----------------------------------------------------------------------
 
@@ -53,6 +54,10 @@ export default function Router() {
     {
       path: 'signup',
       element: <SignUpPage />,
+    },
+    {
+      path: 'forgotpassword',
+      element: <ForgotPasswordPage />,
     },
     {
       path: 'verify',
