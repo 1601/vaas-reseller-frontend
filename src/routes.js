@@ -14,6 +14,7 @@ import LandingPage from './pages/LandingPage';
 import LiveStorePage from './pages/LiveStorePage';
 import StorePageEdit from './pages/StorePageEdit';
 import VerifyPage from './pages/VerifyPage';
+import KYC from './pages/KYC';
 
 // ----------------------------------------------------------------------
 
@@ -40,7 +41,7 @@ export default function Router() {
         { path: 'wallet', element: <UserPage /> },
         { path: 'reports', element: <UserPage /> },
         { path: 'livedata', element: <UserPage /> },
-        { path: 'kyc', element: <UserPage /> },
+        { path: 'kyc', element: <KYC /> },
         { path: 'securitylogs', element: <UserPage /> },
         { path: 'settings', element: <UserPage /> },
       ],
