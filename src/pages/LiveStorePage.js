@@ -21,6 +21,10 @@ const LiveStorePage = () => {
     enableGift: true,
   });
 
+  const gradientStyle = storeData ? {
+    background: `linear-gradient(45deg, ${storeData.primaryColor}, ${storeData.secondaryColor})`
+  } : {};
+
   const queryParams = new URLSearchParams(location.search);
   const notFound = queryParams.get('notFound');
   const user = JSON.parse(localStorage.getItem('user'));
@@ -42,7 +46,7 @@ const LiveStorePage = () => {
 
   if (!storeData || notFound === 'true') {
     return (
-      <div style={{ textAlign: 'center' }}>
+      <div style={{ ...gradientStyle, textAlign: 'center' }}>
         <h1>Loading . . .</h1>
       </div>
     );
@@ -51,6 +55,7 @@ const LiveStorePage = () => {
   if (storeData === 'domainNotFound') {
     return (
       <div style={{
+        ...gradientStyle,
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
@@ -65,6 +70,7 @@ const LiveStorePage = () => {
   if (user && user._id === storeData.ownerId || storeData.isLive) {
     return (
       <div style={{
+        ...gradientStyle,
         display: 'flex',
         justifyContent: 'center',
         height: '100vh'
@@ -149,17 +155,15 @@ const LiveStorePage = () => {
               </Link>
             </Stack>
           </Container>
-  
-  
         </div>
       </div>
     );
   }
 
-
   if (!storeData.isLive) {
     return (
       <div style={{
+        ...gradientStyle,
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
@@ -171,7 +175,6 @@ const LiveStorePage = () => {
     );
   }
 
- 
  return(<></>);
 };
 
