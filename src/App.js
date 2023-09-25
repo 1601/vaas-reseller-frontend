@@ -21,9 +21,8 @@ export default function App() {
           <ThemeProvider>
             <ScrollToTop />
             <StyledChart />
-            <Router>
-              <SubdomainHandler />
-            </Router>
+            <SubdomainHandler />
+            <Router />
           </ThemeProvider>
         </BrowserRouter>
       </StoreProvider>
