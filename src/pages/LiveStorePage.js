@@ -47,14 +47,6 @@ const LiveStorePage = () => {
 
   if (!storeData || notFound === 'true') {
     return (
-      <div style={{ ...gradientStyle, textAlign: 'center' }}>
-        <h1>Loading . . .</h1>
-      </div>
-    );
-  }
-
-  if (storeData === 'domainNotFound') {
-    return (
       <div
         style={{
           ...gradientStyle,
