@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import Stepper from '@mui/material/Stepper';
 import Step from '@mui/material/Step';
@@ -25,9 +25,34 @@ import PersonIcon from '@mui/icons-material/Person';
 import GroupIcon from '@mui/icons-material/Group';
 import CorporateFareIcon from '@mui/icons-material/CorporateFare';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
-
+import { styled } from '@mui/system';
 import KycImage from '../images/Rectangle 52.png'
 import { postDataKyc, putFileKyc } from '../api/public/kyc'
+
+
+const HoverableCard = styled(Card)`
+  width: 50%;
+  height: 300px;
+  transition: 0.3s; /* Add a smooth transition effect on hover */
+
+  &:hover {
+    background-color: #f0f0f0; /* New background color on hover */
+    box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.75); /* Box shadow on hover */
+    cursor: pointer; /* Change cursor to pointer on hover (optional) */
+    color:#BA61E8;
+  }
+`;
+
+const HoverableButton = styled(Box)`
+  transition: 0.3s; /* Add a smooth transition effect on hover */
+  &:hover {
+    border: 2px solid #e0e0e0; /* Remove quotes and use camelCase */
+    border-radius: 10px; /* Remove quotes and use camelCase */
+    padding: 10px; /* Remove quotes and use camelCase */
+  }
+`;
+
+
 
 const steps = [
   'What is KYC?',
@@ -44,6 +69,7 @@ const initialFormData = {
   zipCodeAddress: '',
   physicalStore: false,
   numberOfEmployees: 0,
+  externalLinkAccount:'',
   uniqueIdentifier: '',
   businessType: '',
   idLink: '',
@@ -52,16 +78,26 @@ const initialFormData = {
 
 export default function KYC() {
   const [activeStep, setActiveStep] = useState(0);
-  const [selectedFile, setSelectedFile] = useState(null);
+  const [selectedImage, setSelectedImage] = useState([]);
+  const [selectedDocs, setSelectedDocs] = useState([]);
   const [formData, setFormData] = useState(initialFormData);
   const fileInputRef = useRef(null);
+  const docsInputRef = useRef(null);
   const [textFields, setTextFields] = useState([]);
   const [newTextField, setNewTextField] = useState('');
+  const [businessType, setBusinessType] = useState('');
 
   const handleAddTextField = () => {
     setTextFields([...textFields, newTextField]);
     setNewTextField(''); // Clear the input field after adding
   };
+
+  const handleDeleteField = (indexField) => {
+    const newArray = textFields.filter((_, index) => index !== indexField);
+
+    // Update the state with the new array
+    setTextFields(newArray);
+  }
 
   const handleNext = () => {
     setActiveStep((prevStep) => prevStep + 1);
@@ -85,19 +121,30 @@ export default function KYC() {
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
-    setSelectedFile(file);
+    setSelectedImage([...selectedImage, file]);
   };
+
+  const handleDocsChange = (event) =>{
+    const file = event.target.files[0];
+    setSelectedDocs([...selectedDocs, file])
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     // Send formData to the backend API
-    const result = await postDataKyc(formData);
-    if (result.status === 200) {
-      // Submit File 
-      const fileResult = await putFileKyc(selectedFile)
-      console.log(fileResult.status)
-    }
-
+   try{
+    // const result = await postDataKyc(formData);
+    // if (result.status === 200) {
+    //   // Submit File 
+    //   const fileResult = await putFileKyc(selectedImage)
+    //   console.log(fileResult)
+    //   // console.log(result)
+    //   setFormData(initialFormData)
+    // }
+    console.log(selectedImage)
+   }catch(error){
+    window.alert('Error')
+   }
   };
 
   const handleInputChange = (e) => {
@@ -108,6 +155,14 @@ export default function KYC() {
     });
   };
 
+  const handleClick = (type) => {
+    setBusinessType(type)
+    setFormData({...formData, businessType:type});
+  }
+
+  // useEffect(() =>{
+  //   console.log(selectedFile)
+  // },[selectedFile])
 
   const isLastStep = activeStep === steps.length - 1;
 
@@ -159,7 +214,7 @@ export default function KYC() {
                   <form>
                     {/* Customer Service Number */}
                     <Typography variant="body1"> Customer Service Number </Typography>
-                    <Typography variant="caption" style={{ color: '#888e99' }}> This is a landline or mobile number your customer can contact</Typography>
+                    <Typography variant="caption" color='text.secondary'> This is a landline or mobile number your customer can contact</Typography>
                     <TextField
                       fullWidth
                       label="Enter service number"
@@ -278,12 +333,12 @@ export default function KYC() {
                     />
 
                     <Typography variant="body1" style={{ marginTop: "30px" }}> Online Presence </Typography>
-                    <Typography variant="caption" style={{ color: '#888e99' }}> Help us get to know your businese more by
+                    <Typography variant="caption" color='text.secondary'> Help us get to know your businese more by
                       providing atleast one link for either business website or social media
                       account
                     </Typography>
                     <Typography variant="body2" style={{ marginTop: "20px" }}>Business website or social media</Typography>
-                    <Typography variant="caption" style={{ color: '#888e99' }}>Provide the link/s of your website
+                    <Typography variant="caption" color='text.secondary'>Provide the link/s of your website
                       and/ or social media where you conduct business with your customers.
                       Business pages with your catalog of products and services are preferred
                     </Typography>
@@ -294,8 +349,8 @@ export default function KYC() {
                       variant="outlined"
                       margin="normal"
                       placeholder="e.g. https://vortex.com"
-                      name="uniqueIdentifier"
-                      value={formData.uniqueIdentifier}
+                      name="externalLinkAccount"
+                      value={formData.externalLinkAccount}
                       onChange={handleInputChange}
                     />
                     {textFields.map((text, index) => (
@@ -305,15 +360,15 @@ export default function KYC() {
                         variant="outlined"
                         margin="normal"
                         placeholder="e.g. https://vortex.com"
-                        name="uniqueIdentifier"
-                        value={formData.uniqueIdentifier}
+                        name="externalLinkAccount"
+                        value={formData.externalLinkAccount}
                         onChange={handleInputChange}
                         key={index}
                         InputProps={{
                           endAdornment: (
                             <InputAdornment position="end">
                               <IconButton>
-                                <DeleteForeverIcon /> {/* Replace with your desired icon */}
+                                <DeleteForeverIcon onClick={() => handleDeleteField(index)} />
                               </IconButton>
                             </InputAdornment>
                           ),
@@ -347,7 +402,7 @@ export default function KYC() {
                 {/* Step 3: Business Information */}
                 <Container maxWidth="md" style={{ marginTop: "50px" }}>
                   <Typography variant="h6">Business Information</Typography>
-                  <Typography variant="caption"> Provide more details about your business. We ask questions specific to your business type.</Typography>
+                  <Typography variant="caption" color='text.secondary'> Provide more details about your business. We ask questions specific to your business type.</Typography>
                   <Box style={{
                     marginTop: "40px",
                     border: "solid 2px #e0e0e0",
@@ -355,16 +410,16 @@ export default function KYC() {
                     padding: "30px"
                   }}>
                     <Typography> Choose your type of business</Typography>
-                    <Typography variant="caption"> Select appropriately to avoid delays in your application. This will be reviewd by our Onboarding team.</Typography>
+                    <Typography variant="caption" color='text.secondary'> Select appropriately to avoid delays in your application. This will be reviewd by our Onboarding team.</Typography>
                     <Box style={{
                       display: 'flex',
                       gap: '10px',
                       textAlign: "center",
                       marginTop: "30px",
                     }}>
-                      <Card style={{ width: '50%', height: '300px' }}>
+                      <HoverableCard onClick={() => handleClick('Individual')}>
                         <CardContent>
-                          <PersonIcon style={{ fontSize: "4rem" }} />
+                          <PersonIcon style={{ fontSize: '4rem' }} />
                           <Typography variant="h5" component="div">
                             Individual
                           </Typography>
@@ -372,8 +427,8 @@ export default function KYC() {
                             You are the only owner of a business, and you are not registered with the DTI.
                           </Typography>
                         </CardContent>
-                      </Card>
-                      <Card style={{ width: '50%', height: '300px' }}>
+                      </HoverableCard>
+                      <HoverableCard onClick={() => handleClick('Sole Proprietorship')} >
                         <CardContent>
                           <AccountBoxIcon style={{ fontSize: "4rem" }} />
                           <Typography variant="h5" component="div">
@@ -384,10 +439,10 @@ export default function KYC() {
                             You are the sole owner of the business, and you have it registered with the DTI.
                           </Typography>
                         </CardContent>
-                      </Card>
+                      </HoverableCard>
                     </Box>
                     <Box style={{ display: 'flex', gap: '10px', textAlign: "center", marginTop: "10px" }}>
-                      <Card style={{ width: '50%', height: '300px' }}>
+                      <HoverableCard onClick={() => handleClick('Partnership')}>
                         <CardContent>
                           <GroupIcon style={{ fontSize: "4rem" }} />
                           <Typography variant="h5" component="div">
@@ -397,8 +452,8 @@ export default function KYC() {
                             Your businese owner by two or more individuals or partners, and it is registered with the SEC.
                           </Typography>
                         </CardContent>
-                      </Card>
-                      <Card style={{ width: '50%', height: '300px' }}>
+                      </HoverableCard>
+                      <HoverableCard onClick={() => handleClick('Corporation')}>
                         <CardContent>
                           <CorporateFareIcon style={{ fontSize: "4rem" }} />
                           <Typography variant="h5" component="div">
@@ -408,7 +463,7 @@ export default function KYC() {
                             Your business is owned by a corporate entity and is registered with the SEC.
                           </Typography>
                         </CardContent>
-                      </Card>
+                      </HoverableCard>
                     </Box>
 
                     {/* <TextField
@@ -425,11 +480,11 @@ export default function KYC() {
             {activeStep === 3 && (
               <div style={{ marginTop: '50px', textAlign: 'start' }}>
                 <Container maxWidth="md" style={{ marginTop: "50px" }}>
-                  <Typography variant="h6"> Sole Proprietorship - Business Information</Typography>
-                  <Typography variant="caption"> Details about your business like bank details, business documents and others</Typography>
-                  <div style={{ marginTop: '20px' }}>
+                  <Typography variant="h6"> {businessType}- Business Information</Typography>
+                  <Typography variant="caption" color='text.secondary'> Details about your business like bank details, business documents and others</Typography>
+                  <div style={{ marginTop: '20px', marginBottom:'20px' }}>
                     <Typography> Upload IDs</Typography>
-                    <Typography variant="caption"> Guidlines for uploading IDs</Typography>
+                    <Typography variant="caption" color='text.secondary'> Guidlines for uploading IDs</Typography>
                     <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
                       <CheckCircleOutlineIcon style={{ color: 'green', marginRight: '10px' }} />
                       <Typography variant="body1">
@@ -450,11 +505,11 @@ export default function KYC() {
                     </div>
 
                     <div style={{ marginTop: '30px', marginBottom: '30px' }}>
-                      <Typography variant='subtitle1'> Valid Identification Documents</Typography>
-                      <Typography variant='caption'> Upload one(1) Primary ID or two(2) Secondary IDs( only if you cannot provide a primary ID)</Typography>
+                      <Typography variant='body2'> Valid Identification Documents</Typography>
+                      <Typography variant='caption' color='text.secondary'> Upload one(1) Primary ID or two(2) Secondary IDs( only if you cannot provide a primary ID)</Typography>
                     </div>
 
-                    <div style={{ border: 'solid 2px #e0e0e0', borderRadius: '10px', padding: '10px' }}>
+                    <HoverableButton>
                       <input
                         ref={fileInputRef}
                         type="file"
@@ -477,14 +532,37 @@ export default function KYC() {
                         Select File
                       </Button>
                       {/* </label> */}
-                      {selectedFile && (
-                        <p>Selected File: {selectedFile.name}</p>
-                      )}
-                    </div>
+  
+                          <div style={{ display: 'flex', flexDirection: 'row', flexWrap:'wrap', marginTop:'10px' }}>
+                          {selectedImage.map((item, index) => (
+                            <div
+                            key={index}
+                            style={{
+                              backgroundColor: '#873EC0',
+                              borderRadius: '5px',
+                              color: 'white', // Changed text color to white for better contrast
+                              width: '100px', // Increased the width for more space
+                              padding: '8px', // Added padding for better spacing
+                              fontSize: '14px', // Adjusted font size
+                              textAlign: 'center', // Center-align text
+                              whiteSpace: 'nowrap',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              marginRight: '10px',
+                              marginBottom: '10px',
+                              boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.2)', // Added a subtle shadow
+                            }}
+                          >
+                            {item.name}
+                          </div>
+                          ))}
+                        </div>
+                    </HoverableButton>
                   </div>
+                  <hr/>
                   <div style={{ marginTop: '20px' }}>
                     <Typography> Upload Documents </Typography>
-                    <Typography variant="caption"> Guidlines for uploading documents</Typography>
+                    <Typography variant="caption" color='text.secondary'> Guidlines for uploading documents</Typography>
                     <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
                       <CheckCircleOutlineIcon style={{ color: 'green', marginRight: '10px' }} />
                       <Typography variant="body1">
@@ -511,15 +589,14 @@ export default function KYC() {
                     </div>
 
                     <div style={{ marginTop: '30px', marginBottom: '30px' }}>
-                      <Typography variant='subtitle1'> Valid Identification Documents</Typography>
-                      <Typography variant='caption'> Upload one(1) Primary ID or two(2) Secondary IDs( only if you cannot provide a primary ID)</Typography>
+                      <Typography variant='body2'> DTI Business Name Registration certificate </Typography>
                     </div>
 
-                    <div style={{ border: 'solid 2px #e0e0e0', borderRadius: '10px', padding: '10px' }}>
+                    <HoverableButton>
                       <input
-                        ref={fileInputRef}
+                        ref={docsInputRef}
                         type="file"
-                        onChange={handleFileChange}
+                        onChange={handleDocsChange}
                         style={{ display: 'none' }}
                         id="file-input"
                       />
@@ -530,18 +607,39 @@ export default function KYC() {
                         component="span"
                         startIcon={<CloudUploadIcon />}
                         onClick={() => {
-                          if (fileInputRef.current) {
-                            fileInputRef.current.click();
+                          if (docsInputRef.current) {
+                            docsInputRef.current.click();
                           }
                         }}
                       >
                         Select File
                       </Button>
                       {/* </label> */}
-                      {selectedFile && (
-                        <p>Selected File: {selectedFile.name}</p>
-                      )}
-                    </div>
+                      <div style={{ display: 'flex', flexDirection: 'row', flexWrap:'wrap', marginTop:'10px' }}>
+                          {selectedDocs.map((item, index) => (
+                            <div
+                            key={index}
+                            style={{
+                              backgroundColor: '#873EC0',
+                              borderRadius: '5px',
+                              color: 'white', // Changed text color to white for better contrast
+                              width: '100px', // Increased the width for more space
+                              padding: '8px', // Added padding for better spacing
+                              fontSize: '14px', // Adjusted font size
+                              textAlign: 'center', // Center-align text
+                              whiteSpace: 'nowrap',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              marginRight: '10px',
+                              marginBottom: '10px',
+                              boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.2)', // Added a subtle shadow
+                            }}
+                          >
+                            {item.name}
+                          </div>
+                          ))}
+                        </div>
+                    </HoverableButton>
                   </div>
                 </Container>
               </div>
