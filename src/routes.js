@@ -21,10 +21,11 @@ import ForgotPasswordPage from './pages/ForgotPassword';
 
 export default function Router() {
   const isLoggedIn = localStorage.getItem('token');
+  const isSubdomain = window.location.hostname.split('.').length > 2;
   const routes = useRoutes([
     {
-      path: '', // This is the root path
-      element: <LandingPage />,
+      path: '',
+      element: isSubdomain ? <LiveStorePage /> : <LandingPage />,
     },
     {
       path: '/dashboard',
