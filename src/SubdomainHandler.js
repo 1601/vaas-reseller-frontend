@@ -14,7 +14,7 @@ const SubdomainHandler = () => {
     if (parts.length > 2) {
       const subdomain = parts[0];
       axios
-        .get(`${process.env.REACT_APP_BACKEND_URL}/api/stores/url/${subdomain}/live`, {
+        .get(`${process.env.REACT_APP_BACKEND_URL}/${subdomain}`, {
           headers: {
             'x-subdomain': subdomain,
           },
