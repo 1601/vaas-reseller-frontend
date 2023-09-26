@@ -156,6 +156,7 @@ export default function KYC() {
           setSelectedDocs([])
           setSelectedImage([])
           window.alert("Submitted");
+          window.location.href="/dashboard/app"
         }
       }
     } catch (error) {
