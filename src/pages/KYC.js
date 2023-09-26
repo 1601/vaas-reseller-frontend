@@ -25,6 +25,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import GroupIcon from '@mui/icons-material/Group';
 import CorporateFareIcon from '@mui/icons-material/CorporateFare';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
+import CircularProgress from "@mui/material/CircularProgress";
 import { styled } from '@mui/system';
 import KycImage from '../images/Rectangle 52.png'
 import { postDataKyc, putFileKyc } from '../api/public/kyc'
@@ -54,6 +55,8 @@ const HoverableButton = styled(Box)`
 
 
 
+
+
 const steps = [
   'What is KYC?',
   'General Information',
@@ -75,6 +78,39 @@ const initialFormData = {
   documentLink: '',
 };
 
+const CircularLoading = () => (
+  <>
+    <Box
+      sx={{
+        width: "100%",
+        height: "100%",
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: "rgba(0, 0, 0, 0.7)",
+        opacity: 0.5,
+        zIndex: 1
+      }}
+    />
+    <Box
+      sx={{
+        position: "fixed",
+        left: "50%",
+        top: "50%",
+        transform: "translate(-50%, -50%)",
+        zIndex: 2,
+        textAlign: "center",
+        color: "#fff",
+      }}
+    >
+      <CircularProgress size={70} />
+        <Typography variant='h4'>Uploading Files</Typography>
+    </Box>
+  </>
+);
+
 export default function KYC() {
   const [activeStep, setActiveStep] = useState(0);
   const [selectedImage, setSelectedImage] = useState([]);
@@ -85,6 +121,7 @@ export default function KYC() {
   const [businessType, setBusinessType] = useState('');
   const [linkFieldsData, setLinkFieldsData] = useState([{ externalLinkAccount: '' }]);
   const [fileUploaded, setFileUploaded] = useState(false)
+  const [preload, setPreload] = useState(0)
 
   const handleAddTextField = () => {
     setLinkFieldsData([...linkFieldsData, { externalLinkAccount: '' }]);
@@ -156,8 +193,11 @@ export default function KYC() {
           setLinkFieldsData([{ externalLinkAccount: '' }])
           setSelectedDocs([])
           setSelectedImage([])
-          window.alert("Submitted");
-          setFileUploaded(true)
+          setPreload(1)
+          setTimeout(() =>{
+            setPreload(2)
+          },3000)
+
         }
       }
     } catch (error) {
@@ -192,8 +232,18 @@ export default function KYC() {
 
   const isLastStep = activeStep === steps.length - 1;
 
+
+  useEffect(() =>{
+    if(preload === 2){
+      setFileUploaded(true)
+    }
+  },[preload])
+  
   return (
+    <>
+    {preload === 1? <CircularLoading/>: <></>}
     <Container maxWidth="md" style={{ textAlign: 'center', marginTop: '50px' }}>
+      
       <Card style={{ paddingTop: '50px', paddingBottom: '50px' }}>
         {fileUploaded === false? <Box sx={{ width: '100%', backgroundColor: 'white' }}>
           <Stepper activeStep={activeStep} alternativeLabel>
@@ -713,5 +763,6 @@ export default function KYC() {
         }
       </Card>
     </Container>
+    </>
   );
 }
