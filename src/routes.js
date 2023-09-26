@@ -19,9 +19,12 @@ import ForgotPasswordPage from './pages/ForgotPassword';
 
 // ----------------------------------------------------------------------
 
+const excludedSubdomains = ['pldt-vaas-frontend', 'www'];
+
 export default function Router() {
   const isLoggedIn = localStorage.getItem('token');
-  const isSubdomain = window.location.hostname.split('.').length > 2;
+  const isExcludedSubdomain = excludedSubdomains.includes(subdomain);
+  const isSubdomain = window.location.hostname.split('.').length > 2 && !isExcludedSubdomain;
   const routes = useRoutes([
     {
       path: '',
