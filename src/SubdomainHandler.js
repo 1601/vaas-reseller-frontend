@@ -16,7 +16,7 @@ const SubdomainHandler = () => {
         setHasSubdomain(false);
         return;
       }
-      
+
       axios
         .get(`${process.env.REACT_APP_BACKEND_URL}/api/stores/url/${subdomain}`, {
           headers: {
