@@ -84,6 +84,7 @@ export default function KYC() {
   const docsInputRef = useRef(null);
   const [businessType, setBusinessType] = useState('');
   const [linkFieldsData, setLinkFieldsData] = useState([{ externalLinkAccount: '' }]);
+  const [fileUploaded, setFileUploaded] = useState(false)
 
   const handleAddTextField = () => {
     setLinkFieldsData([...linkFieldsData, { externalLinkAccount: '' }]);
@@ -156,7 +157,7 @@ export default function KYC() {
           setSelectedDocs([])
           setSelectedImage([])
           window.alert("Submitted");
-          window.location.href="/dashboard/app"
+          setFileUploaded(true)
         }
       }
     } catch (error) {
@@ -184,16 +185,17 @@ export default function KYC() {
   };
 
 
-  // useEffect(() =>{
-  //   console.log(selectedFile)
-  // },[selectedFile])
+  const handleProceed = () =>{
+    setFileUploaded(false)
+    window.location.href ="/dashboard/app"
+  }
 
   const isLastStep = activeStep === steps.length - 1;
 
   return (
     <Container maxWidth="md" style={{ textAlign: 'center', marginTop: '50px' }}>
       <Card style={{ paddingTop: '50px', paddingBottom: '50px' }}>
-        <Box sx={{ width: '100%', backgroundColor: 'white' }}>
+        {fileUploaded === false? <Box sx={{ width: '100%', backgroundColor: 'white' }}>
           <Stepper activeStep={activeStep} alternativeLabel>
             {steps.map((label, index) => (
               <Step key={label}>
@@ -701,7 +703,14 @@ export default function KYC() {
               </Button>
             </div>
           </form>
-        </Box>
+        </Box>:
+          <div style={{ marginTop: '50px', textAlign: 'center', height:'250px' }}>
+          <Container maxWidth="md" style={{ marginTop: "50px" }}>
+              <Typography variant='h5'> Your Files are Successfuly Uploaded </Typography>
+              <Button onClick={handleProceed}  style={{ color: "white", backgroundColor: "#873EC0", marginTop:'30px', paddingLeft:'30px', paddingRight:'30px' }}> PROCEED </Button>
+            </Container>
+          </div>
+        }
       </Card>
     </Container>
   );
