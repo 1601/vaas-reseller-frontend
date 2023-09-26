@@ -28,12 +28,14 @@ const submitDataKyc = async (data) => {
   return response
 };
 
-const submitFileKyc = async (data) =>{
+const submitFileKyc = async (datas) =>{
     let response
     try{
         const formData = new FormData();
-        formData.append('file', data);
 
+        datas.map((data) =>{
+          return formData.append('file', data);
+        }); 
         response = await axiosInstance.put(`kyc/${getOnwerId()}`, formData);
     }catch(error){
         console.log(error)

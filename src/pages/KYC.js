@@ -69,7 +69,6 @@ const initialFormData = {
   zipCodeAddress: '',
   physicalStore: false,
   numberOfEmployees: 0,
-  externalLinkAccount:'',
   uniqueIdentifier: '',
   businessType: '',
   idLink: '',
@@ -83,21 +82,24 @@ export default function KYC() {
   const [formData, setFormData] = useState(initialFormData);
   const fileInputRef = useRef(null);
   const docsInputRef = useRef(null);
-  const [textFields, setTextFields] = useState([]);
-  const [newTextField, setNewTextField] = useState('');
   const [businessType, setBusinessType] = useState('');
+  const [linkFieldsData, setLinkFieldsData] = useState([{ externalLinkAccount: '' }]);
 
   const handleAddTextField = () => {
-    setTextFields([...textFields, newTextField]);
-    setNewTextField(''); // Clear the input field after adding
+    setLinkFieldsData([...linkFieldsData, { externalLinkAccount: '' }]);
   };
 
-  const handleDeleteField = (indexField) => {
-    const newArray = textFields.filter((_, index) => index !== indexField);
+  // const handleDeleteField = (indexField) => {
+  //   const newArray = linkFieldsData.filter((_, index) => index !== indexField);
 
-    // Update the state with the new array
-    setTextFields(newArray);
-  }
+  //   // // Update the state with the new array
+  //   // linkFieldsData(newArray);
+  // }
+  const handleDeleteField = (indexField) => {
+    const newArray = [...linkFieldsData];
+    newArray.splice(indexField, 1);
+    setLinkFieldsData(newArray);
+  };
 
   const handleNext = () => {
     setActiveStep((prevStep) => prevStep + 1);
@@ -124,27 +126,41 @@ export default function KYC() {
     setSelectedImage([...selectedImage, file]);
   };
 
-  const handleDocsChange = (event) =>{
+  const handleDocsChange = (event) => {
     const file = event.target.files[0];
     setSelectedDocs([...selectedDocs, file])
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+   
+    // Merge textFieldsData into formData
+    const mergedFormData = {
+      ...formData,
+      externalLinkAccount: linkFieldsData.map((item) => item.externalLinkAccount),
+    };
     // Send formData to the backend API
-   try{
-    // const result = await postDataKyc(formData);
-    // if (result.status === 200) {
-    //   // Submit File 
-    //   const fileResult = await putFileKyc(selectedImage)
-    //   console.log(fileResult)
-    //   // console.log(result)
-    //   setFormData(initialFormData)
-    // }
-    console.log(selectedImage)
-   }catch(error){
-    window.alert('Error')
-   }
+    try {
+      const result = await postDataKyc(mergedFormData);
+      if (result.status === 200) {
+        // Submit File 
+        const mergeFileData = [
+          ...selectedImage,
+          ...selectedDocs]
+        console.log("Sulod kaayu")
+        const fileResult = await putFileKyc(mergeFileData)
+        if(fileResult.status === 200){
+           // console.log(result)
+          setFormData(initialFormData)
+          setLinkFieldsData([{ externalLinkAccount: '' }])
+          setSelectedDocs([])
+          setSelectedImage([])
+          window.alert("Submitted");
+        }
+      }
+    } catch (error) {
+      window.alert('Error')
+    }
   };
 
   const handleInputChange = (e) => {
@@ -157,8 +173,15 @@ export default function KYC() {
 
   const handleClick = (type) => {
     setBusinessType(type)
-    setFormData({...formData, businessType:type});
+    setFormData({ ...formData, businessType: type });
   }
+
+  const handleInputChangeLink = (index, event) => {
+    const updatedData = [...linkFieldsData];
+    updatedData[index].externalLinkAccount = event.target.value;
+    setLinkFieldsData(updatedData);
+  };
+
 
   // useEffect(() =>{
   //   console.log(selectedFile)
@@ -343,17 +366,7 @@ export default function KYC() {
                       Business pages with your catalog of products and services are preferred
                     </Typography>
                     {/* Website links  */}
-                    <TextField
-                      fullWidth
-                      label="Link"
-                      variant="outlined"
-                      margin="normal"
-                      placeholder="e.g. https://vortex.com"
-                      name="externalLinkAccount"
-                      value={formData.externalLinkAccount}
-                      onChange={handleInputChange}
-                    />
-                    {textFields.map((text, index) => (
+                    {/* {textFields.map((text, index) => (
                       <TextField
                         fullWidth
                         label="Link"
@@ -374,7 +387,30 @@ export default function KYC() {
                           ),
                         }}
                       />
+                    ))} */}
+                    {linkFieldsData.map((text, index) => (
+                      <TextField
+                        fullWidth
+                        label="Link"
+                        variant="outlined"
+                        margin="normal"
+                        placeholder="e.g. https://vortex.com"
+                        name={`externalLinkAccount-${index}`}
+                        value={text.externalLinkAccount}
+                        onChange={(event) => handleInputChangeLink(index, event)}
+                        key={index}
+                        InputProps={{
+                          endAdornment: (
+                            <InputAdornment position="end">
+                              {index > 0 ? <IconButton>
+                                <DeleteForeverIcon onClick={() => handleDeleteField(index)} />
+                              </IconButton> : null}
+                            </InputAdornment>
+                          ),
+                        }}
+                      />
                     ))}
+
                     <Button style={{ color: "#BA61E8", fontSize: '.7rem' }} onClick={handleAddTextField}><AddLinkIcon /> Add another link</Button>
 
                     <Typography variant='body2' style={{ marginTop: '30px' }}> Preferred Business Handle</Typography>
@@ -482,7 +518,7 @@ export default function KYC() {
                 <Container maxWidth="md" style={{ marginTop: "50px" }}>
                   <Typography variant="h6"> {businessType}- Business Information</Typography>
                   <Typography variant="caption" color='text.secondary'> Details about your business like bank details, business documents and others</Typography>
-                  <div style={{ marginTop: '20px', marginBottom:'20px' }}>
+                  <div style={{ marginTop: '20px', marginBottom: '20px' }}>
                     <Typography> Upload IDs</Typography>
                     <Typography variant="caption" color='text.secondary'> Guidlines for uploading IDs</Typography>
                     <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
@@ -513,6 +549,7 @@ export default function KYC() {
                       <input
                         ref={fileInputRef}
                         type="file"
+                        multiple
                         onChange={handleFileChange}
                         style={{ display: 'none' }}
                         id="file-input"
@@ -532,10 +569,10 @@ export default function KYC() {
                         Select File
                       </Button>
                       {/* </label> */}
-  
-                          <div style={{ display: 'flex', flexDirection: 'row', flexWrap:'wrap', marginTop:'10px' }}>
-                          {selectedImage.map((item, index) => (
-                            <div
+
+                      <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', marginTop: '10px' }}>
+                        {selectedImage.map((item, index) => (
+                          <div
                             key={index}
                             style={{
                               backgroundColor: '#873EC0',
@@ -555,11 +592,11 @@ export default function KYC() {
                           >
                             {item.name}
                           </div>
-                          ))}
-                        </div>
+                        ))}
+                      </div>
                     </HoverableButton>
                   </div>
-                  <hr/>
+                  <hr />
                   <div style={{ marginTop: '20px' }}>
                     <Typography> Upload Documents </Typography>
                     <Typography variant="caption" color='text.secondary'> Guidlines for uploading documents</Typography>
@@ -596,6 +633,7 @@ export default function KYC() {
                       <input
                         ref={docsInputRef}
                         type="file"
+                        multiple
                         onChange={handleDocsChange}
                         style={{ display: 'none' }}
                         id="file-input"
@@ -615,9 +653,9 @@ export default function KYC() {
                         Select File
                       </Button>
                       {/* </label> */}
-                      <div style={{ display: 'flex', flexDirection: 'row', flexWrap:'wrap', marginTop:'10px' }}>
-                          {selectedDocs.map((item, index) => (
-                            <div
+                      <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', marginTop: '10px' }}>
+                        {selectedDocs.map((item, index) => (
+                          <div
                             key={index}
                             style={{
                               backgroundColor: '#873EC0',
@@ -637,8 +675,8 @@ export default function KYC() {
                           >
                             {item.name}
                           </div>
-                          ))}
-                        </div>
+                        ))}
+                      </div>
                     </HoverableButton>
                   </div>
                 </Container>
