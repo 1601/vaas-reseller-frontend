@@ -715,15 +715,22 @@ export default function KYC() {
             )}
             {isError === true &&(
               <Container maxWidth='md'>
-                <Box style={{textAlign:'left'}}>
+                <Box style={{
+                  marginTop:'20px',
+                  textAlign:'center',
+                  backgroundColor:'#fde4f2', 
+                  border:'solid #eea1cd 1px',
+                  borderRadius:'10px',
+                  width:'350px'
+                }}>
                 <Typography
                   variant='subtitle1'
-                  color='red'
+                  color='#ff6b6b'
                 > Please fill all necessary fields!</Typography>
               </Box>
               </Container>
             )}
-            <div style={{ marginTop: '50px' }}>
+            <div style={{ marginTop: '40px' }}>
               <Button
                 disabled={activeStep === 0}
                 onClick={handleBack}
