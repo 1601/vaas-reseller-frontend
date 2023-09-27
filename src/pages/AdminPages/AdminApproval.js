@@ -69,6 +69,25 @@ const AdminApproval = () => {
                                 <Typography variant="h4" gutterBottom>
                                     Store Details
                                 </Typography>
+                                <div style={{ position: 'absolute', top: '20px', right: '20px' }}>
+                                    {storeDetails && storeDetails.needsApproval && !storeDetails.isLive && (
+                                        <Button
+                                            onClick={handleApprove}
+                                            variant="outlined"
+                                            color="primary"
+                                            style={{ marginRight: '8px' }}
+                                        >
+                                            Approve
+                                        </Button>
+                                    )}
+                                    <Button
+                                        onClick={handleGoBack}
+                                        variant="outlined"
+                                        color="primary"
+                                    >
+                                        Go Back
+                                    </Button>
+                                </div>
                             </div>
                             <div>
                                 <Card style={{ marginBottom: '20px', padding: '15px' }}>
@@ -118,96 +137,62 @@ const AdminApproval = () => {
                                         {storeDetails.isLive ? 'Live' : 'Offline'}
                                     </Typography>
                                 </Card>
-
-                                <div style={{ marginTop: '10px' }}>
-                                    {(storeDetails.needsApproval && !storeDetails.isLive) && (
-                                        <Button
-                                            onClick={handleApprove}
-                                            variant="outlined"
-                                            color="primary"
-                                            style={{ marginRight: '10px' }}
-                                        >
-                                            Approve
-                                        </Button>
-                                    )}
-                                    <Button
-                                        onClick={handleGoBack}
-                                        variant="outlined"
-                                        color="primary"
-                                    >
-                                        Go Back
-                                    </Button>
-                                </div>
-
                             </div>
                         </Card>
                     </div>
                 ) : (
                     <p>Loading store details...</p>
                 )}
-
                 {/* Store Logo and Colors section */}
                 <div className="mb-4 w-full">
-                    <Card variant="outlined" style={{ display: 'flex', flexDirection: 'row', padding: '20px', marginBottom: '20px' }}>
-                        {/* Store Logo section */}
-                        <div style={{ flex: 1, paddingRight: '10px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                            <Card variant="outlined" style={{ padding: '20px', marginBottom: '20px', flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                                <Typography variant="h4" gutterBottom>
+                    <Card variant="outlined" style={{ padding: '20px', marginBottom: '20px' }}>
+                        <div className="flex flex-col md:flex-row">
+                            <Card variant="outlined" className="md:flex-1 p-4 mb-4 md:mb-0 md:mr-4">
+                                {/* Store Logo section */}
+                                <Typography variant="h4" gutterBottom align="center">
                                     Store Logo
                                 </Typography>
-                                <Typography variant="subtitle1" gutterBottom style={{ marginTop: '-10px' }}>
-                                    Current Store Logo.
-                                </Typography>
-                                <Grid container spacing={3}>
-                                    <Grid item xs={12} md={6}>
-                                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', width: '100%' }}>
-                                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
-                                                <img
-                                                    src={storeDetails ? storeDetails.storeLogo : '/vortex_logo_black.png'}
-                                                    alt="Store Logo"
-                                                    style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
-                                                />
-                                            </div>
+                                <Grid container spacing={3} justifyContent="center" alignItems="center">
+                                    <Grid item xs={12} md={12}>
+                                        <div
+                                            className="flex justify-center items-center"
+                                            style={{
+                                                maxHeight: '230px', 
+                                                maxWidth: '230px',  
+                                                margin: 'auto'
+                                            }}
+                                        >
+                                            <img
+                                                src={storeDetails ? storeDetails.storeLogo : '/vortex_logo_black.png'}
+                                                alt="Store Logo"
+                                                className="max-w-full max-h-full object-contain"
+                                            />
                                         </div>
                                     </Grid>
                                 </Grid>
                             </Card>
-                        </div>
 
-
-                        {/* Store Colors section */}
-                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-                            <Card variant="outlined" style={{ padding: '20px', marginBottom: '20px', flex: 1 }}>
-                                <Typography variant="h4" gutterBottom>
+                            {/* Store Colors section */}
+                            <Card variant="outlined" className="md:flex-1 p-4">
+                                <Typography variant="h4" gutterBottom align="center">
                                     Store Colors
                                 </Typography>
-                                <Typography variant="subtitle1" gutterBottom style={{ marginTop: '-10px' }}>
-                                    Current Store's Primary and Secondary Colors
-                                </Typography>
-                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'space-between', flex: 1 }}>
+                                <div className="flex flex-col items-center justify-between flex-1">
                                     <div>
                                         {/* Primary Color */}
-                                        <Box ml={2} >
-                                            <Typography variant="subtitle1" align="center">Primary Color</Typography>
-                                            <Box
-                                                width="100px"
-                                                height="30px"
-                                                bgcolor={storeDetails ? storeDetails.primaryColor : '#FFF'}
-                                                mb={2}
-                                                border="1px solid #000"
-                                            />
+                                        <Box ml={2}>
+                                            <Typography variant="subtitle1" align="center">
+                                                Primary
+                                            </Typography>
+                                            <Box width="100px" height="30px" bgcolor={storeDetails ? storeDetails.primaryColor : '#FFF'} mb={2} border="1px solid #000" />
                                         </Box>
 
                                         {/* Secondary Color */}
                                         <Box ml={2} mt={2}>
-                                            <Typography variant="subtitle1" align="center">Secondary Color</Typography>
-                                            <Box
-                                                width="100px"
-                                                height="30px"
-                                                bgcolor={storeDetails ? storeDetails.secondaryColor : '#FFF'}
-                                                mb={2}
-                                                border="1px solid #000"
-                                            />
+                                            <Typography variant="subtitle1" align="center">
+                                                Secondary
+                                            </Typography>
+                                            <Box width="100px" height="30px" bgcolor={storeDetails ? storeDetails.secondaryColor : '#FFF'} mb={2} border="1px solid #000" />
                                         </Box>
                                     </div>
                                 </div>
@@ -215,6 +200,7 @@ const AdminApproval = () => {
                         </div>
                     </Card>
                 </div>
+
             </div>
         </div>
     );
