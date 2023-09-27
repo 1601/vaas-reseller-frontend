@@ -19,6 +19,7 @@ import ForgotPasswordPage from './pages/ForgotPassword';
 import AdminDashboard from './pages/AdminPages/AdminHome';
 import AdminApproval from './pages/AdminPages/AdminApproval';
 import AdminStores from './pages/AdminPages/AdminStores';
+import AdminKYC from './pages/AdminPages/AdminKYC';
 
 // ----------------------------------------------------------------------
 
@@ -39,23 +40,13 @@ export default function Router() {
     },
     {
       path: '/dashboard',
-      element: isLoggedIn ? <DashboardLayout /> :
-        <Navigate to="/login" />,
+      element: isLoggedIn
+        ? (role === 'admin'
+          ? <Navigate to="/dashboard/admin" replace />
+          : <DashboardLayout />)
+        : <Navigate to="/login" />,
       children: [
         { element: <Navigate to="/dashboard/app" />, index: true }, // This is the index route for the dashboard
-        {
-          path: 'admin/*',
-          element: role === 'admin' ? (
-            <Routes>
-              <Route path="/" element={<AdminDashboard />} />
-              <Route path="/approval" element={<AdminStores />} />
-              <Route path="approve/:storeId" element={<AdminApproval />} />
-              <Route path="/kycapproval" element={<AdminDashboard />} />
-            </Routes>
-          ) : (
-            <Navigate to="/404" />
-          ),
-        },
         { path: 'app', element: <DashboardAppPage /> },
         { path: 'user', element: <UserPage /> },
         { path: 'products', element: <ProductsPage /> },
@@ -71,6 +62,17 @@ export default function Router() {
         { path: 'securitylogs', element: <UserPage /> },
         { path: 'settings', element: <UserPage /> },
       ],
+    },
+    {
+      path: '/dashboard/admin',
+      element: role === 'admin' ? <DashboardLayout /> : <Navigate to="/404" />,
+      children: [
+        { element: <Navigate to="/dashboard/admin/home" />, index: true },
+        { path: 'home', element: <AdminDashboard /> },
+        { path: 'approval', element: <AdminStores /> },
+        { path: 'approve/:storeId', element: <AdminApproval /> },
+        { path: 'kycapproval', element: <AdminKYC /> }
+      ]
     },
     {
       path: 'login',

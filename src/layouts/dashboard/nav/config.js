@@ -10,7 +10,7 @@ const navConfig = role === 'admin' ?
   [
     {
       title: 'Home',
-      path: '/dashboard/admin',
+      path: '/dashboard/admin/home',
       icon: icon('ic_analytics'),
     },
     {
