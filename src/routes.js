@@ -1,4 +1,4 @@
- import { Navigate, useRoutes } from 'react-router-dom';
+import { Navigate, Route, Routes, useRoutes } from 'react-router-dom';
 // layouts
 import DashboardLayout from './layouts/dashboard';
 import SimpleLayout from './layouts/simple';
@@ -16,6 +16,8 @@ import StorePageEdit from './pages/StorePageEdit';
 import VerifyPage from './pages/VerifyPage';
 import KYC from './pages/KYC';
 import ForgotPasswordPage from './pages/ForgotPassword';
+import AdminDashboard from './pages/AdminPages/AdminHome';
+import AdminApproval from './pages/AdminPages/AdminApproval';
 
 // ----------------------------------------------------------------------
 
@@ -27,6 +29,8 @@ export default function Router() {
   const isExcludedSubdomain = subdomain ? excludedSubdomains.includes(subdomain) : false;
   const isLoggedIn = localStorage.getItem('token');
   const isSubdomain = subdomain && !isExcludedSubdomain;
+  const role = localStorage.getItem('role');
+
   const routes = useRoutes([
     {
       path: '',
@@ -34,9 +38,21 @@ export default function Router() {
     },
     {
       path: '/dashboard',
-      element: isLoggedIn ? <DashboardLayout /> : <Navigate to="/login" />,
+      element: isLoggedIn ? <DashboardLayout /> :
+        <Navigate to="/login" />,
       children: [
         { element: <Navigate to="/dashboard/app" />, index: true }, // This is the index route for the dashboard
+        {
+          path: 'admin/*',
+          element: role === 'admin' ? (
+            <Routes>
+              <Route path="/" element={<AdminDashboard />} />
+              <Route path="approve/:storeId" element={<AdminApproval />} />
+            </Routes>
+          ) : (
+            <Navigate to="/404" />
+          ),
+        },
         { path: 'app', element: <DashboardAppPage /> },
         { path: 'user', element: <UserPage /> },
         { path: 'products', element: <ProductsPage /> },
@@ -68,7 +84,7 @@ export default function Router() {
     {
       path: 'verify',
       element: <VerifyPage />,
-    },    
+    },
     {
       path: ':storeUrl',
       element: <LiveStorePage />,
