@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Card, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 const AdminKYC = () => {
     const navigate = useNavigate();
@@ -11,7 +12,7 @@ const AdminKYC = () => {
         const fetchKYCPending = async () => {
             try {
                 const response = await axios.get(
-                    `${process.env.REACT_APP_BACKEND_URL}/api/kycpending`,
+                    `${process.env.REACT_APP_BACKEND_URL}/v1/api/kyc-business/pending`,
                     {
                         headers: {
                             'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -20,8 +21,6 @@ const AdminKYC = () => {
                 );
                 if (Array.isArray(response.data)) {
                     setKycPending(response.data);
-                } else if (response.data && Array.isArray(response.data.stores)) {
-                    setKycPending(response.data.stores);
                 } else {
                     console.error('Unexpected API response format');
                 }
@@ -56,20 +55,11 @@ const AdminKYC = () => {
                                 <Typography variant="h6">
                                     {shop.storeName}
                                 </Typography>
-                                {/* Display other KYC related information here */}
-                                <Typography variant="body2">
-                                    Customer Service Number: {shop.customerServiceNumber}
-                                </Typography>
-                                <Typography variant="body2">
-                                    Street Address: {shop.streetAddress}
-                                </Typography>
-                                {/* Add other KYC fields as needed */}
                             </Card>
                         ))}
                     </div>
                 </Card>
             </div>
-            {/* You can add more sections similar to the above for other categories if needed */}
         </div>
     );
 };

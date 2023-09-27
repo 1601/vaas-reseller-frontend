@@ -20,6 +20,7 @@ import AdminDashboard from './pages/AdminPages/AdminHome';
 import AdminApproval from './pages/AdminPages/AdminApproval';
 import AdminStores from './pages/AdminPages/AdminStores';
 import AdminKYC from './pages/AdminPages/AdminKYC';
+import AdminKYCApproval from './pages/AdminPages/AdminKYCApproval';
 
 // ----------------------------------------------------------------------
 
@@ -69,9 +70,10 @@ export default function Router() {
       children: [
         { element: <Navigate to="/dashboard/admin/home" />, index: true },
         { path: 'home', element: <AdminDashboard /> },
-        { path: 'approval', element: <AdminStores /> },
+        { path: 'storeapproval', element: <AdminStores /> },
         { path: 'approve/:storeId', element: <AdminApproval /> },
-        { path: 'kycapproval', element: <AdminKYC /> }
+        { path: 'kycapproval', element: <AdminKYC /> },
+        { path: 'kycapproval/:storeId', element: <AdminKYCApproval /> }
       ]
     },
     {

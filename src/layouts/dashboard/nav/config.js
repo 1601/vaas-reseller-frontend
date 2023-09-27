@@ -15,7 +15,7 @@ const navConfig = role === 'admin' ?
     },
     {
       title: 'Store Approval',
-      path: '/dashboard/admin/approval',
+      path: '/dashboard/admin/storeapproval',
       icon: icon('ic_approval'),
     },
     {
