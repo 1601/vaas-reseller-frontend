@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Card, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { Link } from 'react-router-dom';
 
 const AdminKYC = () => {
     const navigate = useNavigate();
