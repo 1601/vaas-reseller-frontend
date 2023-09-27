@@ -22,6 +22,7 @@ const AdminKYCApproval = () => {
                 );
                 if (response.data) {
                     setKYCDetails(response.data);
+                    setKYCApproved(response.data.store.kycApprove);
                 } else {
                     console.error('KYC details not found');
                 }
@@ -72,7 +73,7 @@ const AdminKYCApproval = () => {
                                         <Button
                                             onClick={handleApprove}
                                             variant="outlined"
-                                            color="primary" 
+                                            color="primary"
                                             style={{ marginRight: '5px' }}
                                         >
                                             Approve
