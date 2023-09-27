@@ -7,6 +7,7 @@ const AdminKYCApproval = () => {
     const { storeId } = useParams();
     const navigate = useNavigate();
     const [kycDetails, setKYCDetails] = useState(null);
+    const [kycApproved, setKYCApproved] = useState(false);
 
     useEffect(() => {
         const fetchKYCDetails = async () => {
@@ -25,16 +26,34 @@ const AdminKYCApproval = () => {
                     console.error('KYC details not found');
                 }
             } catch (error) {
-                console.error('Could not fetch KYC details', error);
-                navigate('/dashboard/admin/kyc');
+                console.error('Response:', error.response);
+                navigate('/dashboard/admin/kycapproval');
             }
         };
 
         fetchKYCDetails();
     }, [storeId, navigate]);
 
+
     const handleGoBack = () => {
-        navigate('/dashboard/admin/kyc');
+        navigate('/dashboard/admin/kycapproval');
+    };
+
+    const handleApprove = async () => {
+        try {
+            await axios.put(
+                `${process.env.REACT_APP_BACKEND_URL}/api/kyc/approve/${storeId}`,
+                {},
+                {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                }
+            );
+            setKYCApproved(true);
+        } catch (error) {
+            console.error('Error approving KYC:', error);
+        }
     };
 
     return (
@@ -49,6 +68,16 @@ const AdminKYCApproval = () => {
                                     KYC Details
                                 </Typography>
                                 <div style={{ position: 'absolute', top: '20px', right: '20px' }}>
+                                    {!kycApproved && (
+                                        <Button
+                                            onClick={handleApprove}
+                                            variant="outlined"
+                                            color="primary" 
+                                            style={{ marginRight: '5px' }}
+                                        >
+                                            Approve
+                                        </Button>
+                                    )}
                                     <Button
                                         onClick={handleGoBack}
                                         variant="outlined"
@@ -60,6 +89,7 @@ const AdminKYCApproval = () => {
                             </div>
                             <div>
                                 {/* Display KYC details from kycDetails object */}
+                                {console.log('kycDetails:', kycDetails)}
                                 <DisplayKYCDetails kycDetails={kycDetails} />
                             </div>
                         </Card>
@@ -79,19 +109,112 @@ const DisplayKYCDetails = ({ kycDetails }) => {
         <div>
             <Card style={{ marginBottom: '20px', padding: '15px' }}>
                 <Typography variant="h5" style={{ fontWeight: 'bold', marginBottom: '5px' }}>
-                    Customer Service Number
-                </Typography>
-                <Typography variant="body2" style={{ marginBottom: '8px' }}>
-                    Customer service contact number.
+                    Store Name
                 </Typography>
                 <Typography variant="body1">
-                    {kycDetails.customerServiceNumber}
+                    {kycDetails.store.storeName}
                 </Typography>
             </Card>
 
-            {/* Add more KYC fields as needed */}
+            <Card style={{ marginBottom: '20px', padding: '15px' }}>
+                <Typography variant="h5" style={{ fontWeight: 'bold', marginBottom: '5px' }}>
+                    Store Details
+                </Typography>
+
+                <Card style={{ marginBottom: '20px', padding: '15px' }}>
+                    <Typography variant="body2" style={{ marginBottom: '8px' }}>
+                        Unique Store ID
+                    </Typography>
+                    <Typography variant="body1">
+                        {kycDetails.store.uniqueIdentifier}
+                    </Typography>
+                </Card>
+
+                <Card style={{ marginBottom: '20px', padding: '15px' }}>
+                    <Typography variant="body2" style={{ marginBottom: '8px' }}>
+                        Business Type
+                    </Typography>
+                    <Typography variant="body1">
+                        {kycDetails.store.businessType}
+                    </Typography>
+                </Card>
+
+                <Card style={{ marginBottom: '20px', padding: '15px' }}>
+                    <Typography variant="body2" style={{ marginBottom: '8px' }}>
+                        Number of Employee
+                    </Typography>
+                    <Typography variant="body1">
+                        {kycDetails.store.numberOfEmployee}
+                    </Typography>
+                </Card>
+
+                <Card style={{ marginBottom: '20px', padding: '15px' }}>
+                    <Typography variant="body2" style={{ marginBottom: '8px' }}>
+                        Physical Store
+                    </Typography>
+                    <Typography variant="body1">
+                        {kycDetails.store.physicalStore ? 'Physical Store Present' : 'No Physical Store'}
+                    </Typography>
+                </Card>
+
+                <Card style={{ marginBottom: '20px', padding: '15px' }}>
+                    <Typography variant="body2" style={{ marginBottom: '8px' }}>
+                        Customer Service Number
+                    </Typography>
+                    <Typography variant="body1">
+                        {kycDetails.store.customerServiceNumber}
+                    </Typography>
+                </Card>
+
+            </Card>
+
+            <Card style={{ marginBottom: '20px', padding: '15px' }}>
+                <Typography variant="h5" style={{ fontWeight: 'bold', marginBottom: '5px' }}>
+                    Store Address
+                </Typography>
+
+                {/* Street Address */}
+                <Card style={{ marginBottom: '20px', padding: '15px' }}>
+                    <Typography variant="body2" style={{ marginBottom: '8px' }}>
+                        Street
+                    </Typography>
+                    <Typography variant="body1">
+                        {kycDetails.store.streetAddress}
+                    </Typography>
+                </Card>
+
+                {/* City */}
+                <Card style={{ marginBottom: '20px', padding: '15px' }}>
+                    <Typography variant="body2" style={{ marginBottom: '8px' }}>
+                        City
+                    </Typography>
+                    <Typography variant="body1">
+                        {kycDetails.store.cityAddress}
+                    </Typography>
+                </Card>
+
+                {/* Region */}
+                <Card style={{ marginBottom: '20px', padding: '15px' }}>
+                    <Typography variant="body2" style={{ marginBottom: '8px' }}>
+                        Region
+                    </Typography>
+                    <Typography variant="body1">
+                        {kycDetails.store.regionAddress}
+                    </Typography>
+                </Card>
+
+                {/* Zip Code */}
+                <Card style={{ marginBottom: '20px', padding: '15px' }}>
+                    <Typography variant="body2" style={{ marginBottom: '8px' }}>
+                        Zip Code
+                    </Typography>
+                    <Typography variant="body1">
+                        {kycDetails.store.zipCodeAddress}
+                    </Typography>
+                </Card>
+            </Card>
+
         </div>
     );
 };
-
 export default AdminKYCApproval;
