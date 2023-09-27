@@ -11,6 +11,7 @@ async function fetchUserData(id) {
 }
 
 const user = JSON.parse(localStorage.getItem('user'));
+const role = localStorage.getItem('role');
 
 const account = {
   displayName: user ? (user.username || 'Guest') : 'Guest',
@@ -20,6 +21,6 @@ const account = {
 
 console.log("Email from localStorage:", user ? user.email : 'N/A');
 console.log("Username from localStorage:", user ? user.username : 'N/A');
+console.log("Role from localStorage:", role);
 
 export default account;
-
