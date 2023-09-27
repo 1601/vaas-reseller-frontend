@@ -122,17 +122,12 @@ export default function KYC() {
   const [linkFieldsData, setLinkFieldsData] = useState([{ externalLinkAccount: '' }]);
   const [fileUploaded, setFileUploaded] = useState(false)
   const [preload, setPreload] = useState(0)
+  const [isError, setIsError] = useState(false)
 
   const handleAddTextField = () => {
     setLinkFieldsData([...linkFieldsData, { externalLinkAccount: '' }]);
   };
 
-  // const handleDeleteField = (indexField) => {
-  //   const newArray = linkFieldsData.filter((_, index) => index !== indexField);
-
-  //   // // Update the state with the new array
-  //   // linkFieldsData(newArray);
-  // }
   const handleDeleteField = (indexField) => {
     const newArray = [...linkFieldsData];
     newArray.splice(indexField, 1);
@@ -140,9 +135,20 @@ export default function KYC() {
   };
 
   const handleNext = () => {
+    const values = Object.values(formData);
+    if(activeStep === 1){
+      if(values[0] === '' || 
+         values[1] === '' || 
+         values[2] === '' || 
+         values[3] === '' || 
+         values[4] === '' ||
+         values[7] === ''){
+          return setIsError(true)
+      }
+    }
     setActiveStep((prevStep) => prevStep + 1);
+    return setIsError(false)
   };
-
   const handleBack = () => {
     setActiveStep((prevStep) => prevStep - 1);
   };
@@ -213,6 +219,7 @@ export default function KYC() {
     });
   };
 
+
   const handleClick = (type) => {
     setBusinessType(type)
     setFormData({ ...formData, businessType: type });
@@ -238,6 +245,7 @@ export default function KYC() {
       setFileUploaded(true)
     }
   },[preload])
+
   
   return (
     <>
@@ -419,28 +427,6 @@ export default function KYC() {
                       Business pages with your catalog of products and services are preferred
                     </Typography>
                     {/* Website links  */}
-                    {/* {textFields.map((text, index) => (
-                      <TextField
-                        fullWidth
-                        label="Link"
-                        variant="outlined"
-                        margin="normal"
-                        placeholder="e.g. https://vortex.com"
-                        name="externalLinkAccount"
-                        value={formData.externalLinkAccount}
-                        onChange={handleInputChange}
-                        key={index}
-                        InputProps={{
-                          endAdornment: (
-                            <InputAdornment position="end">
-                              <IconButton>
-                                <DeleteForeverIcon onClick={() => handleDeleteField(index)} />
-                              </IconButton>
-                            </InputAdornment>
-                          ),
-                        }}
-                      />
-                    ))} */}
                     {linkFieldsData.map((text, index) => (
                       <TextField
                         fullWidth
@@ -554,14 +540,6 @@ export default function KYC() {
                         </CardContent>
                       </HoverableCard>
                     </Box>
-
-                    {/* <TextField
-                    label="Business Type"
-                    name="businessType"
-                    value={formData.businessType}
-                    onChange={handleChange}
-                  />
-                  Add other Business Information fields here */}
                   </Box>
                 </Container>
               </div>
@@ -734,6 +712,16 @@ export default function KYC() {
                   </div>
                 </Container>
               </div>
+            )}
+            {isError === true &&(
+              <Container maxWidth='md'>
+                <Box style={{textAlign:'left'}}>
+                <Typography
+                  variant='subtitle1'
+                  color='red'
+                > Please fill all necessary fields!</Typography>
+              </Box>
+              </Container>
             )}
             <div style={{ marginTop: '50px' }}>
               <Button
