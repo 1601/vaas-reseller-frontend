@@ -79,76 +79,90 @@ const AdminStores = () => {
     };
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 max-w-screen-lg mx-auto">
-            {/* Needs Approval Card */}
-            <div className="mb-4 w-full">
-                <Card variant="outlined" className="p-4">
-                    <Typography variant="h4" gutterBottom>
-                        Needs Approval
-                    </Typography>
-                    <div className="overflow-auto" style={{ maxHeight: 'calc(100vh - 220px)' }}>
-                        {storesNeedingApproval.map((shop, index) => (
-                            <Card
-                                key={index}
-                                variant="outlined"
-                                className="m-2 p-2 cursor-pointer"
-                                onClick={() => handleStoreClick(shop._id)}
-                            >
-                                <Typography variant="h6">
-                                    {shop.storeName}
-                                </Typography>
-                            </Card>
-                        ))}
-                    </div>
-                </Card>
-            </div>
+        <Card 
+        className="mt-4 max-w-screen-lg mx-auto p-4" 
+        style={{ backgroundColor: '#ffffff' }}
+        >
+            <Typography variant="h3" align="center" gutterBottom>
+                Store Approval
+            </Typography>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 max-w-screen-lg mx-auto">
+                {/* Needs Approval Card */}
+                <div className="mb-4 w-full">
+                    <Card variant="outlined" className="p-4"
+                    style={{ backgroundColor: '#ffffff' }}
+                    >
+                        <Typography variant="h4" gutterBottom>
+                            Needs Approval
+                        </Typography>
+                        <div className="overflow-auto" style={{ maxHeight: 'calc(100vh - 220px)' }}>
+                            {storesNeedingApproval.map((shop, index) => (
+                                <Card
+                                    key={index}
+                                    variant="outlined"
+                                    className="m-2 p-2 cursor-pointer"
+                                    onClick={() => handleStoreClick(shop._id)}
+                                >
+                                    <Typography variant="h6">
+                                        {shop.storeName}
+                                    </Typography>
+                                </Card>
+                            ))}
+                        </div>
+                    </Card>
+                </div>
 
-            {/* Approved Shops Card */}
-            <div className="mb-4 w-full">
-                <Card variant="outlined" className="p-4">
-                    <Typography variant="h4" gutterBottom>
-                        Approved Shops
-                    </Typography>
-                    <div className="overflow-auto" style={{ maxHeight: 'calc(100vh - 220px)' }}>
-                        {approvedStores.map((shop, index) => (
-                            <Card
-                                key={index}
-                                variant="outlined"
-                                className="m-2 p-2 cursor-pointer"
-                                onClick={() => handleStoreClick(shop._id)}
-                            >
-                                <Typography variant="h6">
-                                    {shop.storeName}
-                                </Typography>
-                            </Card>
-                        ))}
-                    </div>
-                </Card>
-            </div>
+                {/* Approved Shops Card */}
+                <div className="mb-4 w-full">
+                    <Card variant="outlined" className="p-4"
+                    style={{ backgroundColor: '#ffffff' }}
+                    >
+                        <Typography variant="h4" gutterBottom>
+                            Approved Shops
+                        </Typography>
+                        <div className="overflow-auto" style={{ maxHeight: 'calc(100vh - 220px)' }}>
+                            {approvedStores.map((shop, index) => (
+                                <Card
+                                    key={index}
+                                    variant="outlined"
+                                    className="m-2 p-2 cursor-pointer"
+                                    onClick={() => handleStoreClick(shop._id)}
+                                >
+                                    <Typography variant="h6">
+                                        {shop.storeName}
+                                    </Typography>
+                                </Card>
+                            ))}
+                        </div>
+                    </Card>
+                </div>
 
-            {/* Live Shops Card */}
-            <div className="mb-4 w-full">
-                <Card variant="outlined" className="p-4">
-                    <Typography variant="h4" gutterBottom>
-                        Live Shops
-                    </Typography>
-                    <div className="overflow-auto" style={{ maxHeight: 'calc(100vh - 220px)' }}>
-                        {liveStores.map((shop, index) => (
-                            <Card
-                                key={index}
-                                variant="outlined"
-                                className="m-2 p-2 cursor-pointer"
-                                onClick={() => handleStoreClick(shop._id)}
-                            >
-                                <Typography variant="h6">
-                                    {shop.storeName}
-                                </Typography>
-                            </Card>
-                        ))}
-                    </div>
-                </Card>
+                {/* Live Shops Card */}
+                <div className="mb-4 w-full">
+                    <Card variant="outlined" className="p-4"
+                    style={{ backgroundColor: '#ffffff' }}
+                    >
+                        <Typography variant="h4" gutterBottom>
+                            Live Shops
+                        </Typography>
+                        <div className="overflow-auto" style={{ maxHeight: 'calc(100vh - 220px)' }}>
+                            {liveStores.map((shop, index) => (
+                                <Card
+                                    key={index}
+                                    variant="outlined"
+                                    className="m-2 p-2 cursor-pointer"
+                                    onClick={() => handleStoreClick(shop._id)}
+                                >
+                                    <Typography variant="h6">
+                                        {shop.storeName}
+                                    </Typography>
+                                </Card>
+                            ))}
+                        </div>
+                    </Card>
+                </div>
             </div>
-        </div>
+        </Card>
     );
 };
 
