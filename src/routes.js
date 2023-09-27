@@ -73,7 +73,7 @@ export default function Router() {
         { path: 'storeapproval', element: <AdminStores /> },
         { path: 'approve/:storeId', element: <AdminApproval /> },
         { path: 'kycapproval', element: <AdminKYC /> },
-        { path: 'kycapproval/:storeId', element: <AdminKYCApproval /> }
+        { path: 'kycapprove/:storeId', element: <AdminKYCApproval /> }
       ]
     },
     {
