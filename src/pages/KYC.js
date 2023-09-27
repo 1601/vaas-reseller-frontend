@@ -26,15 +26,21 @@ import GroupIcon from '@mui/icons-material/Group';
 import CorporateFareIcon from '@mui/icons-material/CorporateFare';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import CircularProgress from "@mui/material/CircularProgress";
-import { styled } from '@mui/system';
+import { styled } from '@mui/material/styles';
 import Grid from '@mui/material/Grid';
 import KycImage from '../images/Rectangle 52.png'
 import { postDataKyc, putFileKyc } from '../api/public/kyc'
 
 
+const Responsive = styled('Typography')(({theme}) =>({
+  [theme.breakpoints.down('sm')]:{
+    fontSize:'.6rem'
+  }
+}))
+
 
 const HoverableCard = styled(Card)`
-  width: 50%;
+  width: 100%;
   height: 300px;
   transition: 0.3s; /* Add a smooth transition effect on hover */
 
@@ -54,8 +60,6 @@ const HoverableButton = styled(Box)`
     padding: 10px; /* Remove quotes and use camelCase */
   }
 `;
-
-
 
 
 
@@ -259,7 +263,7 @@ export default function KYC() {
             <Stepper activeStep={activeStep} alternativeLabel>
               {steps.map((label, index) => (
                 <Step key={label}>
-                  <StepLabel>{label}</StepLabel>
+                  <StepLabel><Responsive>{label}</Responsive></StepLabel>
                 </Step>
               ))}
             </Stepper>
@@ -501,53 +505,60 @@ export default function KYC() {
                         textAlign: "center",
                         marginTop: "30px",
                       }}>
-                        <HoverableCard onClick={() => handleClick('Individual')}>
-                          <CardContent>
+                        <Grid container spacing={1}>
+                          <Grid item xs={12} md={6}>
+                            <HoverableCard onClick={() => handleClick('Individual')}>
+                            <CardContent>
                             <PersonIcon style={{ fontSize: '4rem' }} />
                             <Typography variant="h5" component="div">
-                              Individual
-                            </Typography>
-                            <Typography color="text.secondary">
+                                Individual
+                              </Typography>
+                              <Typography color="text.secondary">
                               You are the only owner of a business, and you are not registered with the DTI.
-                            </Typography>
-                          </CardContent>
-                        </HoverableCard>
-                        <HoverableCard onClick={() => handleClick('Sole Proprietorship')} >
-                          <CardContent>
-                            <AccountBoxIcon style={{ fontSize: "4rem" }} />
-                            <Typography variant="h5" component="div">
-
-                              Sole Proprietorship
-                            </Typography>
-                            <Typography color="text.secondary">
+                              </Typography>
+                            </CardContent>
+                          </HoverableCard>
+                          </Grid>
+                          <Grid item xs={12} md={6}>
+                            <HoverableCard onClick={() => handleClick('Sole Proprietorship')} >
+                            <CardContent>
+                              <AccountBoxIcon style={{ fontSize: "4rem" }} />
+                              <Typography variant="h5" component="div">
+                                Sole Proprietorship
+                              </Typography>
+                              <Typography color="text.secondary">
                               You are the sole owner of the business, and you have it registered with the DTI.
-                            </Typography>
-                          </CardContent>
-                        </HoverableCard>
-                      </Box>
-                      <Box style={{ display: 'flex', gap: '10px', textAlign: "center", marginTop: "10px" }}>
-                        <HoverableCard onClick={() => handleClick('Partnership')}>
-                          <CardContent>
-                            <GroupIcon style={{ fontSize: "4rem" }} />
-                            <Typography variant="h5" component="div">
-                              Partnership
-                            </Typography>
-                            <Typography color="text.secondary">
-                              Your businese owner by two or more individuals or partners, and it is registered with the SEC.
-                            </Typography>
-                          </CardContent>
-                        </HoverableCard>
-                        <HoverableCard onClick={() => handleClick('Corporation')}>
-                          <CardContent>
-                            <CorporateFareIcon style={{ fontSize: "4rem" }} />
-                            <Typography variant="h5" component="div">
-                              Corporation
-                            </Typography>
-                            <Typography color="text.secondary">
-                              Your business is owned by a corporate entity and is registered with the SEC.
-                            </Typography>
-                          </CardContent>
-                        </HoverableCard>
+                              </Typography>
+                            </CardContent>
+                            </HoverableCard>
+                          </Grid>
+                          <Grid item xs={12} md={6}>
+                            <HoverableCard onClick={() => handleClick('Partnership')}>
+                            <CardContent>
+                              <GroupIcon style={{ fontSize: "4rem" }} />
+                              <Typography variant="h5" component="div">
+                                Partnership
+                              </Typography>
+                              <Typography color="text.secondary">
+                                Your businese owner by two or more individuals or partners, and it is registered with the SEC.
+                              </Typography>
+                            </CardContent>
+                            </HoverableCard>
+                          </Grid>
+                          <Grid item xs={12} md={6}>
+                              <HoverableCard onClick={() => handleClick('Corporation')}>
+                              <CardContent>
+                                <CorporateFareIcon style={{ fontSize: "4rem" }} />
+                                <Typography variant="h5" component="div">
+                                  Corporation
+                                </Typography>
+                                <Typography color="text.secondary">
+                                  Your business is owned by a corporate entity and is registered with the SEC.
+                                </Typography>
+                              </CardContent>
+                            </HoverableCard>
+                          </Grid>
+                        </Grid>
                       </Box>
                     </Box>
                   </Container>
