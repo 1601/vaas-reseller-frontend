@@ -1,4 +1,4 @@
- import { Navigate, useRoutes } from 'react-router-dom';
+import { Navigate, Route, Routes, useRoutes } from 'react-router-dom';
 // layouts
 import DashboardLayout from './layouts/dashboard';
 import SimpleLayout from './layouts/simple';
@@ -16,6 +16,11 @@ import StorePageEdit from './pages/StorePageEdit';
 import VerifyPage from './pages/VerifyPage';
 import KYC from './pages/KYC';
 import ForgotPasswordPage from './pages/ForgotPassword';
+import AdminDashboard from './pages/AdminPages/AdminHome';
+import AdminApproval from './pages/AdminPages/AdminApproval';
+import AdminStores from './pages/AdminPages/AdminStores';
+import AdminKYC from './pages/AdminPages/AdminKYC';
+import AdminKYCApproval from './pages/AdminPages/AdminKYCApproval';
 
 // ----------------------------------------------------------------------
 
@@ -27,6 +32,8 @@ export default function Router() {
   const isExcludedSubdomain = subdomain ? excludedSubdomains.includes(subdomain) : false;
   const isLoggedIn = localStorage.getItem('token');
   const isSubdomain = subdomain && !isExcludedSubdomain;
+  const role = localStorage.getItem('role');
+
   const routes = useRoutes([
     {
       path: '',
@@ -34,7 +41,11 @@ export default function Router() {
     },
     {
       path: '/dashboard',
-      element: isLoggedIn ? <DashboardLayout /> : <Navigate to="/login" />,
+      element: isLoggedIn
+        ? (role === 'admin'
+          ? <Navigate to="/dashboard/admin" replace />
+          : <DashboardLayout />)
+        : <Navigate to="/login" />,
       children: [
         { element: <Navigate to="/dashboard/app" />, index: true }, // This is the index route for the dashboard
         { path: 'app', element: <DashboardAppPage /> },
@@ -54,6 +65,18 @@ export default function Router() {
       ],
     },
     {
+      path: '/dashboard/admin',
+      element: role === 'admin' ? <DashboardLayout /> : <Navigate to="/404" />,
+      children: [
+        { element: <Navigate to="/dashboard/admin/home" />, index: true },
+        { path: 'home', element: <AdminDashboard /> },
+        { path: 'storeapproval', element: <AdminStores /> },
+        { path: 'approve/:storeId', element: <AdminApproval /> },
+        { path: 'kycapproval', element: <AdminKYC /> },
+        { path: 'kycapprove/:storeId', element: <AdminKYCApproval /> }
+      ]
+    },
+    {
       path: 'login',
       element: isLoggedIn ? <Navigate to="/dashboard/app" /> : <LoginPage />,
     },
@@ -68,7 +91,7 @@ export default function Router() {
     {
       path: 'verify',
       element: <VerifyPage />,
-    },    
+    },
     {
       path: ':storeUrl',
       element: <LiveStorePage />,

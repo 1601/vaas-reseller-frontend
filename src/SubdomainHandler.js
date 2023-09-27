@@ -4,7 +4,7 @@ import { useStore } from './StoreContext';
 
 const SubdomainHandler = () => {
   const { setStoreData, setHasSubdomain } = useStore();
-  const excludedSubdomains = ['pldt-vaas-frontend', 'www'];
+  const excludedSubdomains = ['pldt-vaas-frontend', 'www', 'admin-approval.pldt-vaas-frontend'];
   
   useEffect(() => {
     const hostname = window.location.hostname;
