@@ -55,7 +55,7 @@ const AdminApproval = () => {
     };
 
     const handleGoBack = () => {
-        navigate('/dashboard/admin');
+        navigate('/dashboard/admin/approval');
     };
 
     return (

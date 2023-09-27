@@ -18,6 +18,7 @@ import KYC from './pages/KYC';
 import ForgotPasswordPage from './pages/ForgotPassword';
 import AdminDashboard from './pages/AdminPages/AdminHome';
 import AdminApproval from './pages/AdminPages/AdminApproval';
+import AdminStores from './pages/AdminPages/AdminStores';
 
 // ----------------------------------------------------------------------
 
@@ -47,7 +48,9 @@ export default function Router() {
           element: role === 'admin' ? (
             <Routes>
               <Route path="/" element={<AdminDashboard />} />
+              <Route path="/approval" element={<AdminStores />} />
               <Route path="approve/:storeId" element={<AdminApproval />} />
+              <Route path="/kycapproval" element={<AdminDashboard />} />
             </Routes>
           ) : (
             <Navigate to="/404" />
