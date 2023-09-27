@@ -17,7 +17,7 @@ const AdminHome = () => {
     }, []);
 
     const handleStoreApproval = () => {
-        navigate('/dashboard/admin/storeapproval');
+        navigate('/dashboard/admin/approval');
     };
 
     const handleKYCApproval = () => {
