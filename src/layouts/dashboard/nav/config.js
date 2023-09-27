@@ -13,6 +13,16 @@ const navConfig = role === 'admin' ?
       path: '/dashboard/admin',
       icon: icon('ic_analytics'),
     },
+    {
+      title: 'Store Approval',
+      path: '/dashboard/admin/approval',
+      icon: icon('ic_approval'),
+    },
+    {
+      title: 'KYC Approval',
+      path: '/dashboard/admin/kycapproval',
+      icon: icon('ic_user'),
+    },
   ] :
   [
     {
