@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { ChromePicker } from 'react-color';
-import { Box, Stack, Card, Grid, Container, Divider, Typography, Button } from '@mui/material';
-import { ColorPreview, ColorMultiPicker, ColorSinglePicker } from '../components/color-utils';
+import { Box, Stack, Card, Grid, Container, Divider, Switch, Typography, Button } from '@mui/material';
 
 const StorePageEdit = () => {
     const navigate = useNavigate();
@@ -21,12 +20,18 @@ const StorePageEdit = () => {
         secondary: { hex: '#FFFFFF' },
     });
 
+    const [platformVariables, setPlatformVariables] = useState({
+        enableBills: true,
+        enableLoad: true,
+        enableGift: true,
+    });
+
     useEffect(() => {
         console.log("storeData:", storeData);
     }, [storeData]);
 
     useEffect(() => {
-        
+
         const storedUserId = JSON.parse(localStorage.getItem('user'))._id;
 
         const fetchStoreData = async () => {
@@ -35,6 +40,7 @@ const StorePageEdit = () => {
                 const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/stores/owner/${storedUserId}`);
                 setStoreData(response.data);
                 setEditedData(response.data);
+                setPlatformVariables(response.data.platformVariables);
             } catch (error) {
                 console.error('Could not fetch store data', error);
             }
@@ -46,7 +52,7 @@ const StorePageEdit = () => {
             if (editedData.storeLogo) {
                 URL.revokeObjectURL(editedData.storeLogo);
             }
-            return null; // Consistent return value
+            return null;
         };
     }, []);
 
@@ -135,11 +141,40 @@ const StorePageEdit = () => {
         }
     };
 
+    const handleToggle = async (field) => {
+        const newValue = !platformVariables[field];
+        const newPlatformVariables = {
+            ...platformVariables,
+            [field]: newValue,
+        };
+        setPlatformVariables(newPlatformVariables);
+
+        // Send only the individual field to be updated
+        const requestBody = {
+            [field]: newValue
+        };
+
+        try {
+            const response = await axios.put(
+                `${process.env.REACT_APP_BACKEND_URL}/api/updatePlatformVariables/${storedUserId}`,
+                requestBody
+            );
+            if (response.status !== 200) {
+                throw new Error(response.data.message);
+            }
+        } catch (error) {
+            console.error('Error updating platform variables:', error.message);
+            setPlatformVariables({
+                ...platformVariables,
+                [field]: !newValue,
+            });
+        }
+    };
+
     const handleUploadClick = async (proseso) => {
         console.log('Upload button clicked');
         console.log('Before upload:', editedData);
-    
-        // Update isLive status immediately after clicking upload
+
         console.log("Attempting to update isLive status...");
         try {
             await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/stores/owner/update/${storedUserId}`, {
@@ -149,35 +184,35 @@ const StorePageEdit = () => {
         } catch (err) {
             console.error('Error updating isLive status:', err);
         }
-    
+
         if (editedData.storeLogo) {
             setUploading(true);
             setProgress(0);
-    
+
             const interval = setInterval(() => {
                 setProgress(oldProgress => {
                     if (oldProgress >= 100) {
                         clearInterval(interval);
                         setProgressText("Successfully Uploaded!");
-    
+
                         // Reload the page after progress reaches 100%.
                         setTimeout(() => {
                             window.location.reload();
                         }, 1000);
-    
+
                         return 100;
                     }
                     return Math.min(oldProgress + 10, 100);
                 });
             }, 500);
-    
+
             const formData = new FormData();
             const storedUserId = JSON.parse(localStorage.getItem('user'))._id;
-    
+
             formData.append('file', editedData.storeLogo);
             formData.append('logoFileName', editedData.logoFileName);
             formData.append('storeName', editedData.storeName);
-    
+
             const token = localStorage.getItem('token');
             const config = {
                 headers: {
@@ -185,10 +220,10 @@ const StorePageEdit = () => {
                     'Authorization': `Bearer ${token}`
                 }
             };
-    
+
             try {
                 const response = await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/upload-logo/${proseso}/${storedUserId}`, formData, config);
-    
+
                 if (response.data.url) {
                     const newLogoFileName = response.data.url.split('/').pop();
                     setEditedData({
@@ -196,13 +231,13 @@ const StorePageEdit = () => {
                         storeLogo: response.data.url,
                         logoFileName: newLogoFileName,
                     });
-    
+
                     setProgressText("Successfully Uploaded!");
                     clearInterval(interval);
                     setUploading(false);
                     setProgress(100);
                 }
-    
+
             } catch (error) {
                 console.error('Error uploading logo:', error);
                 clearInterval(interval);
@@ -212,7 +247,7 @@ const StorePageEdit = () => {
         } else {
             console.error('No file to upload.');
         }
-    };    
+    };
 
     const handleGoLiveClick = async () => {
         try {
@@ -471,7 +506,7 @@ const StorePageEdit = () => {
                                                     width="100px"
                                                     height="30px"
                                                     bgcolor={storeData ? storeData.primaryColor : '#FFF'}
-                                                    mb={2} // Add margin at the bottom to separate from the next box
+                                                    mb={2}
                                                     border="1px solid #000"
                                                 />
 
@@ -496,7 +531,7 @@ const StorePageEdit = () => {
                                                 alignItems: 'center',
                                                 height: '100%',
                                                 padding: '20px',
-                                                marginBottom: '20px', // Add margin for spacing on small screens
+                                                marginBottom: '20px',
                                             }}
                                         >
                                             {/* Secondary Color */}
@@ -537,7 +572,7 @@ const StorePageEdit = () => {
                             <Divider style={{ margin: '20px 0' }} />
 
                             <div className="flex flex-col sm:flex-row justify-center sm:justify-between items-center">
-                                <Button variant="outlined" color="primary" className="mb-2 sm:mb-0" onClick={handleSaveColorsClick}>
+                                <Button onClick={handleSaveColorsClick} className="bg-blue-600 text-white px-4 py-2 rounded mr-2">
                                     Update Colors
                                 </Button>
                                 <div>
@@ -546,6 +581,50 @@ const StorePageEdit = () => {
                                     </Button>
                                 </div>
                             </div>
+                        </Card>
+                    </div>
+                </div>
+
+                <div className="mb-4 w-full">
+                    <div className="w-full">
+                        <Card variant="outlined" style={{ padding: '20px', marginBottom: '20px' }}>
+                            <Typography variant="h4" gutterBottom>
+                                Product Toggles
+                            </Typography>
+                            <Typography variant="subtitle1" gutterBottom style={{ marginTop: '-10px' }}>
+                                Toggle what products you want your customers to interact with.
+                            </Typography>
+                            <Card variant="outlined" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%', padding: '20px' }}>
+                                <Grid container spacing={2}>
+                                    <Grid item xs={12} sm={4}>
+                                        <div>
+                                            <Typography variant="subtitle1">Enable Bills:</Typography>
+                                            <Switch
+                                                checked={platformVariables.enableBills}
+                                                onChange={() => handleToggle('enableBills')}
+                                            />
+                                        </div>
+                                    </Grid>
+                                    <Grid item xs={12} sm={4}>
+                                        <div>
+                                            <Typography variant="subtitle1">Enable Load:</Typography>
+                                            <Switch
+                                                checked={platformVariables.enableLoad}
+                                                onChange={() => handleToggle('enableLoad')}
+                                            />
+                                        </div>
+                                    </Grid>
+                                    <Grid item xs={12} sm={4}>
+                                        <div>
+                                            <Typography variant="subtitle1">Enable Gift:</Typography>
+                                            <Switch
+                                                checked={platformVariables.enableGift}
+                                                onChange={() => handleToggle('enableGift')}
+                                            />
+                                        </div>
+                                    </Grid>
+                                </Grid>
+                            </Card>
                         </Card>
                     </div>
                 </div>
