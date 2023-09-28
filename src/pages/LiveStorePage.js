@@ -19,8 +19,8 @@ const LiveStorePage = () => {
 
   const gradientStyle = storeData
     ? {
-        background: `linear-gradient(45deg, ${storeData.primaryColor}, ${storeData.secondaryColor})`,
-      }
+      background: `linear-gradient(45deg, ${storeData.primaryColor}, ${storeData.secondaryColor})`,
+    }
     : {};
 
   const queryParams = new URLSearchParams(location.search);
@@ -36,6 +36,10 @@ const LiveStorePage = () => {
             `${process.env.REACT_APP_BACKEND_URL}/api/stores/url/${storeUrl}`
           );
           setStoreData(response.data);
+
+          if (response.data.platformVariables) {
+            setPlatformVariables(response.data.platformVariables);
+          }
         } catch (error) {
           console.error('Could not fetch store data', error);
           setStoreData('domainNotFound');
@@ -53,8 +57,8 @@ const LiveStorePage = () => {
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
-          height: '100vh', 
-          fontSize: '3rem', 
+          height: '100vh',
+          fontSize: '3rem',
         }}
       >
         <h1>Domain Not Found</h1>
@@ -174,7 +178,7 @@ const LiveStorePage = () => {
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
-          height: '100vh', 
+          height: '100vh',
           fontSize: '3rem',
         }}
       >
