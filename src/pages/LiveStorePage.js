@@ -134,50 +134,60 @@ const LiveStorePage = () => {
                 },
               }}
             >
-              {platformVariables.enableBills && (
-                <div style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  <Link href={`/${storeUrl}/bills`}>
-                    <img src={BillsImage} height="100px" alt="Home" />
-                    <div className="menu--text">Bills</div>
-                  </Link>
-                </div>
-              )}
-              {platformVariables.enableLoad && (
-                <div style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  <Link href={`/${storeUrl}/topup`}>
-                    <img src={LoadImage} height="100px" alt="Express" />
-                    <div className="menu--text">Load</div>
-                  </Link>
-                </div>
-              )}
-              {platformVariables.enableGift && (
-                <div style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  <Link href={`/${storeUrl}/voucher`}>
-                    <img src={VoucherImage} height="100px" alt="Express" />
-                    <div className="menu--text">Vouchers</div>
-                  </Link>
-                </div>
-              )}
+              {
+                platformVariables.enableBills && (
+                  <div
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <Link href={`./bills`}>
+                      <img src={BillsImage} height="100px" alt="Home" />
+                      <div className="menu--text">Bills</div>
+                    </Link>
+                  </div>
+                )}
+              {
+                platformVariables.enableLoad && (
+                  <div
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <Link href={`./topup`}>
+                      <img src={LoadImage} height="100px" alt="Express" />
+                      <div className="menu--text">Load</div>
+                    </Link>
+                  </div>
+                )}
+              {
+                platformVariables.enableGift && (
+                  <div
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <Link href={`./voucher`}>
+                      <img src={VoucherImage} height="100px" alt="Express" />
+                      <div className="menu--text">Vouchers</div>
+                    </Link>
+                  </div>
+                )}
             </div>
 
             <Stack m={3} direction={'row'} justifyContent={'center'}>
-              <Link href={`/${storeUrl}/transactions`}>View transactions</Link>
+              <Link href={`./transactions`}>View transactions</Link>
             </Stack>
+
           </Container>
 
         </div>
