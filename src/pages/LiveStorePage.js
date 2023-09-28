@@ -28,12 +28,19 @@ const LiveStorePage = () => {
   const user = JSON.parse(localStorage.getItem('user'));
 
   useEffect(() => {
-    if (storeUrl) {
-      console.log('Fetching data for store URL:', storeUrl);
+    const hostname = window.location.hostname;
+    let subdomain = hostname.split('.')[0];
+
+    if (subdomain === 'www' || subdomain === 'website') {
+      subdomain = storeUrl;
+    }
+
+    if (subdomain) {
+      console.log('Fetching data for store URL:', subdomain);
       const fetchStoreData = async () => {
         try {
           const response = await axios.get(
-            `${process.env.REACT_APP_BACKEND_URL}/api/stores/url/${storeUrl}`
+            `${process.env.REACT_APP_BACKEND_URL}/api/stores/url/${subdomain}`
           );
           setStoreData(response.data);
 
