@@ -215,6 +215,39 @@ const DisplayKYCDetails = ({ kycDetails }) => {
                 </Card>
             </Card>
 
+            <Card style={{ marginBottom: '20px', padding: '15px' }}>
+                <Typography variant="h5" style={{ fontWeight: 'bold', marginBottom: '5px' }}>
+                    Store Documents
+                </Typography>
+
+                <Card style={{ marginBottom: '20px', padding: '15px' }}>
+                    <Typography variant="body2" style={{ marginBottom: '8px' }}>
+                        IDs Uploaded
+                    </Typography>
+                    <Typography variant="body1">
+                        {kycDetails.store.idUrl}
+                    </Typography>
+                </Card>
+
+                <Card style={{ marginBottom: '20px', padding: '15px' }}>
+                    <Typography variant="body2" style={{ marginBottom: '8px' }}>
+                        Additional Documents
+                    </Typography>
+                    <Typography variant="body1">
+                        {kycDetails.store.documentUrl}
+                    </Typography>
+                </Card>
+
+                <Card style={{ marginBottom: '20px', padding: '15px' }}>
+                    <Typography variant="body2" style={{ marginBottom: '8px' }}>
+                        Other Store Links
+                    </Typography>
+                    <Typography variant="body1">
+                        {kycDetails.store.externalLinkAccount}
+                    </Typography>
+                </Card>
+            </Card>
+
         </div>
     );
 };
