@@ -484,14 +484,14 @@ const StorePageEdit = () => {
                                                 display: 'flex',
                                                 flexDirection: 'row',
                                                 alignItems: 'center',
-                                                height: '100%',
+                                                justifyContent: 'center', // Center the items horizontally
                                                 padding: '20px',
-                                                marginBottom: '20px', // Add margin for spacing on small screens
+                                                marginBottom: '20px',
                                             }}
                                         >
                                             {/* Primary Color */}
-                                            <Box display="flex" flexDirection="column" alignItems="center">
-                                                <Typography variant="subtitle2">Primary Color</Typography>
+                                            <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center">
+                                                <Typography variant="subtitle2" align="center">Primary Color</Typography>
                                                 <ChromePicker
                                                     color={color.primary.hex}
                                                     onChangeComplete={(newColor) => setColor({ ...color, primary: { hex: newColor.hex } })}
@@ -499,7 +499,7 @@ const StorePageEdit = () => {
                                             </Box>
 
                                             {/* Right side content */}
-                                            <Box ml={2}>
+                                            <Box ml={2} display="flex" flexDirection="column" alignItems="center" justifyContent="center">
                                                 {/* Current Primary Color */}
                                                 <Typography variant="subtitle1" align="center">Current Primary Color</Typography>
                                                 <Box
@@ -529,14 +529,14 @@ const StorePageEdit = () => {
                                                 display: 'flex',
                                                 flexDirection: 'row',
                                                 alignItems: 'center',
-                                                height: '100%',
+                                                justifyContent: 'center',
                                                 padding: '20px',
                                                 marginBottom: '20px',
                                             }}
                                         >
                                             {/* Secondary Color */}
-                                            <Box display="flex" flexDirection="column" alignItems="center">
-                                                <Typography variant="subtitle2">Secondary Color</Typography>
+                                            <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center">
+                                                <Typography variant="subtitle2" align="center">Secondary Color</Typography>
                                                 <ChromePicker
                                                     color={color.secondary.hex}
                                                     onChangeComplete={(newColor) => setColor({ ...color, secondary: { hex: newColor.hex } })}
@@ -544,14 +544,14 @@ const StorePageEdit = () => {
                                             </Box>
 
                                             {/* Right side content */}
-                                            <Box ml={2}>
+                                            <Box ml={2} display="flex" flexDirection="column" alignItems="center" justifyContent="center">
                                                 {/* Current Secondary Color */}
                                                 <Typography variant="subtitle1" align="center">Current Secondary Color</Typography>
                                                 <Box
                                                     width="100px"
                                                     height="30px"
                                                     bgcolor={storeData ? storeData.secondaryColor : '#FFF'}
-                                                    mb={2} // Add margin at the bottom to separate from the next box
+                                                    mb={2}
                                                     border="1px solid #000"
                                                 />
 
@@ -585,6 +585,7 @@ const StorePageEdit = () => {
                     </div>
                 </div>
 
+
                 <div className="mb-4 w-full">
                     <div className="w-full">
                         <Card variant="outlined" style={{ padding: '20px', marginBottom: '20px' }}>
@@ -597,7 +598,7 @@ const StorePageEdit = () => {
                             <Card variant="outlined" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%', padding: '20px' }}>
                                 <Grid container spacing={2}>
                                     <Grid item xs={12} sm={4}>
-                                        <div>
+                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                                             <Typography variant="subtitle1">Enable Bills:</Typography>
                                             <Switch
                                                 checked={platformVariables.enableBills}
@@ -606,7 +607,7 @@ const StorePageEdit = () => {
                                         </div>
                                     </Grid>
                                     <Grid item xs={12} sm={4}>
-                                        <div>
+                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                                             <Typography variant="subtitle1">Enable Load:</Typography>
                                             <Switch
                                                 checked={platformVariables.enableLoad}
@@ -615,7 +616,7 @@ const StorePageEdit = () => {
                                         </div>
                                     </Grid>
                                     <Grid item xs={12} sm={4}>
-                                        <div>
+                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                                             <Typography variant="subtitle1">Enable Gift:</Typography>
                                             <Switch
                                                 checked={platformVariables.enableGift}
