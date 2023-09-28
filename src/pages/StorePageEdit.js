@@ -187,7 +187,7 @@ const StorePageEdit = () => {
             };
     
             try {
-                const response = await axios.put(`${process.env.REACT_APP_BACKEND_URL}/upload-logo/${proseso}/${storedUserId}`, formData, config);
+                const response = await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/upload-logo/${proseso}/${storedUserId}`, formData, config);
     
                 if (response.data.url) {
                     const newLogoFileName = response.data.url.split('/').pop();
