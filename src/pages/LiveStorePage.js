@@ -125,8 +125,13 @@ const LiveStorePage = () => {
             <div
               style={{
                 display: 'flex',
+                flexDirection: 'row',
                 justifyContent: 'center',
-                gap: '16px', // This sets the gap between items
+                gap: '16px',
+                '@media (max-width: 600px)': {
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                },
               }}
             >
               {platformVariables.enableBills && (
