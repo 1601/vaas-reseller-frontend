@@ -38,6 +38,12 @@ export default function Router() {
     {
       path: '',
       element: isSubdomain ? <LiveStorePage /> : <LandingPage />,
+      children: [
+        { path: 'bills', element: <div> Bills </div> },
+        { path: 'topup', element: <div> Topup </div> },
+        { path: 'voucher', element: <div> Voucher </div> },
+        { path: 'transactions', element: <div> Transactions </div> },
+      ],
     },
     {
       path: '/dashboard',
@@ -92,7 +98,7 @@ export default function Router() {
       path: 'verify',
       element: <VerifyPage />,
     },
-    {
+    { //for testing purpose, to be removed later
       path: ':storeUrl',
       element: <LiveStorePage />,
       children: [
