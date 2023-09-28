@@ -98,7 +98,7 @@ export default function Router() {
       path: 'verify',
       element: <VerifyPage />,
     },
-    { //for testing purpose, to be removed later
+    {
       path: ':storeUrl',
       element: <LiveStorePage />,
       children: [
