@@ -33,7 +33,8 @@ const LiveStorePage = () => {
     if (
       window.location.hostname.includes('localhost') ||
       window.location.hostname.includes('lvh.me') ||
-      window.location.hostname.includes('sevenstarjasem.com')
+      window.location.hostname.includes('sevenstarjasem.com') ||
+      window.location.hostname.includes('pldt-vaas-frontend.pages.dev')
     ) {
       subdomainOrStoreUrl = storeUrl;
     } else {
@@ -41,7 +42,7 @@ const LiveStorePage = () => {
       subdomainOrStoreUrl = hostnameParts[0];
     }
 
-    if (subdomainOrStoreUrl === 'www' || subdomainOrStoreUrl === 'sevenstarjasem') {
+    if (subdomainOrStoreUrl === 'www' || subdomainOrStoreUrl === 'sevenstarjasem' || ubdomainOrStoreUrl === 'pldt-vaas-frontend' ) {
       subdomainOrStoreUrl = storeUrl;
     }
 
