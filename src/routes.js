@@ -41,6 +41,11 @@ export default function Router() {
     const currentPath = window.location.pathname;
     const storeUrlPattern = /^\/([a-zA-Z0-9_-]+)$/;
     const match = currentPath.match(storeUrlPattern);
+    const noRedirectPaths = ['/bills', '/voucher', '/gift', '/topup', '/transactions'];
+
+    if (noRedirectPaths.some(path => currentPath.includes(path))) {
+      return;
+    }
 
     if (match) {
       const storeUrl = match[1];
@@ -48,23 +53,23 @@ export default function Router() {
       if (storeUrl === 'localhost') {
         return;
       }
-  
+
       if (currentHostname.includes('localhost')) {
         return;
       }
 
       fetch(`${process.env.REACT_APP_BACKEND_URL}/api/stores/url/${storeUrl}`)
-      .then(response => response.json()) 
-      .then(data => {
-        if (data.isLive === false) {
-          console.log('Store is not live.');
-          return;
-        }
-            if (currentHostname.includes('lvh.me')) {
-              window.location.href = `http://${storeUrl}.lvh.me:${currentPort}`;
-            } else if (currentHostname.includes('sevenstarjasem.com')) {
-              window.location.href = `https://${storeUrl}.sevenstarjasem.com`;
-            } 
+        .then(response => response.json())
+        .then(data => {
+          if (data.isLive === false) {
+            console.log('Store is not live.');
+            return;
+          }
+          if (currentHostname.includes('lvh.me')) {
+            window.location.href = `http://${storeUrl}.lvh.me:${currentPort}`;
+          } else if (currentHostname.includes('sevenstarjasem.com')) {
+            window.location.href = `https://${storeUrl}.sevenstarjasem.com`;
+          }
 
         })
     }
