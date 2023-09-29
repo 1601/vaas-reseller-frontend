@@ -226,7 +226,9 @@ const DisplayKYCDetails = ({ kycDetails }) => {
                         <TableHead>
                             <TableRow>
                                 <TableCell align="center" style={{ borderRight: '1px solid #ddd' }}>ID Preview</TableCell>
-                                <TableCell align="center">View Document</TableCell>
+                                <TableCell align="center" style={{ width: '400px' }}>
+                                    View Document
+                                </TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -280,7 +282,9 @@ const DisplayKYCDetails = ({ kycDetails }) => {
                         <TableHead>
                             <TableRow>
                                 <TableCell align="center" style={{ borderRight: '1px solid #ddd' }}>Document Preview</TableCell>
-                                <TableCell align="center">View Document</TableCell>
+                                <TableCell align="center" style={{ width: '400px' }}>
+                                    View Document
+                                </TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -288,7 +292,11 @@ const DisplayKYCDetails = ({ kycDetails }) => {
                                 ? kycDetails.store.documentUrl.map((url, index) => (
                                     <TableRow key={index}>
                                         <TableCell align="center" style={{ borderRight: '1px solid #ddd', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                            <img src={url} alt={`Document_${index + 1}`} style={{ maxWidth: '100px', height: 'auto' }} />
+                                            <iframe
+                                                src={url}
+                                                style={{ width: '100px', height: '140px' }}
+                                                title={`Document_${index + 1}`}
+                                            />
                                         </TableCell>
                                         <TableCell align="center">
                                             <a href={url} target="_blank" rel="noopener noreferrer" style={{
@@ -306,8 +314,12 @@ const DisplayKYCDetails = ({ kycDetails }) => {
                                 ))
                                 : (
                                     <TableRow>
-                                        <TableCell align="center" style={{ borderRight: '1px solid #ddd' }}>
-                                            <img src={kycDetails.store.documentUrl} alt="Document" style={{ maxWidth: '100px', height: 'auto' }} />
+                                        <TableCell align="center" style={{ borderRight: '1px solid #ddd', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                            <iframe
+                                                src={kycDetails.store.documentUrl}
+                                                style={{ width: '100px', height: '140px' }}
+                                                title="Document"
+                                            />
                                         </TableCell>
                                         <TableCell align="center">
                                             <a href={kycDetails.store.documentUrl} target="_blank" rel="noopener noreferrer" style={{
