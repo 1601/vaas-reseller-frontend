@@ -11,12 +11,27 @@ const LiveStorePage = () => {
   const { storeData, setStoreData } = useStore();
   const { storeUrl } = useParams();
   const location = useLocation();
+  const { pathname } = useLocation();
+  const [previewStoreUrl, setPreviewStoreUrl] = useState(storeUrl);
   const [showNotFoundError, setShowNotFoundError] = useState(false);
   const [platformVariables, setPlatformVariables] = useState({
     enableBills: true,
     enableLoad: true,
     enableGift: true,
   });
+
+  let baseUrl;
+  if (window.location.hostname.includes('lvh.me')) {
+    baseUrl = `http://${storeUrl}.lvh.me:3000`;
+  } else {
+    baseUrl = `https://${storeUrl}.sevenstarjasem.com`;
+  }
+
+  useEffect(() => {
+    const pathParts = location.pathname.split('/');
+    const newStoreUrl = `/${pathParts[1]}`;
+    setPreviewStoreUrl(newStoreUrl);
+  }, [location.pathname]);
 
   const gradientStyle = storeData
     ? {
@@ -42,7 +57,7 @@ const LiveStorePage = () => {
 
     if (
       subdomain === 'localhost' ||
-      subdomain === 'lvh' ||
+      subdomain === 'lvh' || // note that it's 'lvh' not 'lvh.me'
       subdomain === 'sevenstarjasem' ||
       subdomain === 'pldt-vaas-frontend'
     ) {
@@ -186,7 +201,7 @@ const LiveStorePage = () => {
                     justifyContent: 'center',
                   }}
                 >
-                  <Link href={`./bills`}>
+                  <Link href={storeUrl ? `${previewStoreUrl}/bills` : './bills'}>
                     <img src={BillsImage} height="100px" alt="Home" />
                     <div className="menu--text">Bills</div>
                   </Link>
@@ -201,7 +216,7 @@ const LiveStorePage = () => {
                     justifyContent: 'center',
                   }}
                 >
-                  <Link href={`./topup`}>
+                  <Link href={storeUrl ? `${previewStoreUrl}/topup` : './topup'}>
                     <img src={LoadImage} height="100px" alt="Express" />
                     <div className="menu--text">Load</div>
                   </Link>
@@ -216,7 +231,7 @@ const LiveStorePage = () => {
                     justifyContent: 'center',
                   }}
                 >
-                  <Link href={`./voucher`}>
+                  <Link href={storeUrl ? `${previewStoreUrl}/voucher` : './voucher'}>
                     <img src={VoucherImage} height="100px" alt="Express" />
                     <div className="menu--text">Vouchers</div>
                   </Link>
@@ -225,7 +240,7 @@ const LiveStorePage = () => {
             </div>
 
             <Stack m={3} direction={'row'} justifyContent={'center'}>
-              <Link href={`./transactions`}>View transactions</Link>
+              <Link href={storeUrl ? `${previewStoreUrl}/transactions` : './transactions'}>View transactions</Link>
             </Stack>
           </Container>
         </div>
