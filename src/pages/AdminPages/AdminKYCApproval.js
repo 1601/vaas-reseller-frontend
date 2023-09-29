@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Card, Typography, Button } from '@mui/material';
+import { Card, Typography, Button, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
 
 const AdminKYCApproval = () => {
     const { storeId } = useParams();
@@ -221,21 +221,111 @@ const DisplayKYCDetails = ({ kycDetails }) => {
                 </Typography>
 
                 <Card style={{ marginBottom: '20px', padding: '15px' }}>
-                    <Typography variant="body2" style={{ marginBottom: '8px' }}>
-                        IDs Uploaded
-                    </Typography>
-                    <Typography variant="body1">
-                        {kycDetails.store.idUrl}
-                    </Typography>
+                    <Typography variant="h6">IDs Uploaded</Typography>
+                    <Table>
+                        <TableHead>
+                            <TableRow>
+                                <TableCell align="center" style={{ borderRight: '1px solid #ddd' }}>ID Preview</TableCell>
+                                <TableCell align="center">View Document</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {Array.isArray(kycDetails.store.idUrl)
+                                ? kycDetails.store.idUrl.map((url, index) => (
+                                    <TableRow key={index}>
+                                        <TableCell align="center" style={{ borderRight: '1px solid #ddd', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                            <img src={url} alt={`ID_${index + 1}`} style={{ maxWidth: '100px', height: 'auto' }} />
+                                        </TableCell>
+                                        <TableCell align="center">
+                                            <a href={url} target="_blank" rel="noopener noreferrer" style={{
+                                                padding: '8px 12px',
+                                                border: '1px solid #000',
+                                                borderRadius: '5px',
+                                                backgroundColor: '#f0f0f0',
+                                                textDecoration: 'none',
+                                                color: 'black'
+                                            }}>
+                                                {`ID_${index + 1}`}
+                                            </a>
+                                        </TableCell>
+                                    </TableRow>
+                                ))
+                                : (
+                                    <TableRow>
+                                        <TableCell align="center" style={{ borderRight: '1px solid #ddd' }}>
+                                            <img src={kycDetails.store.idUrl} alt="ID" style={{ maxWidth: '100px', height: 'auto' }} />
+                                        </TableCell>
+                                        <TableCell align="center">
+                                            <a href={kycDetails.store.idUrl} target="_blank" rel="noopener noreferrer" style={{
+                                                padding: '8px 12px',
+                                                border: '1px solid #000',
+                                                borderRadius: '5px',
+                                                backgroundColor: '#f0f0f0',
+                                                textDecoration: 'none',
+                                                color: 'black'
+                                            }}>
+                                                ID_1
+                                            </a>
+                                        </TableCell>
+                                    </TableRow>
+                                )
+                            }
+                        </TableBody>
+                    </Table>
                 </Card>
 
                 <Card style={{ marginBottom: '20px', padding: '15px' }}>
-                    <Typography variant="body2" style={{ marginBottom: '8px' }}>
-                        Additional Documents
-                    </Typography>
-                    <Typography variant="body1">
-                        {kycDetails.store.documentUrl}
-                    </Typography>
+                    <Typography variant="h6">Additional Documents</Typography>
+                    <Table>
+                        <TableHead>
+                            <TableRow>
+                                <TableCell align="center" style={{ borderRight: '1px solid #ddd' }}>Document Preview</TableCell>
+                                <TableCell align="center">View Document</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {Array.isArray(kycDetails.store.documentUrl)
+                                ? kycDetails.store.documentUrl.map((url, index) => (
+                                    <TableRow key={index}>
+                                        <TableCell align="center" style={{ borderRight: '1px solid #ddd', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                            <img src={url} alt={`Document_${index + 1}`} style={{ maxWidth: '100px', height: 'auto' }} />
+                                        </TableCell>
+                                        <TableCell align="center">
+                                            <a href={url} target="_blank" rel="noopener noreferrer" style={{
+                                                padding: '8px 12px',
+                                                border: '1px solid #000',
+                                                borderRadius: '5px',
+                                                backgroundColor: '#f0f0f0',
+                                                textDecoration: 'none',
+                                                color: 'black'
+                                            }}>
+                                                {`Document_${index + 1}`}
+                                            </a>
+                                        </TableCell>
+                                    </TableRow>
+                                ))
+                                : (
+                                    <TableRow>
+                                        <TableCell align="center" style={{ borderRight: '1px solid #ddd' }}>
+                                            <img src={kycDetails.store.documentUrl} alt="Document" style={{ maxWidth: '100px', height: 'auto' }} />
+                                        </TableCell>
+                                        <TableCell align="center">
+                                            <a href={kycDetails.store.documentUrl} target="_blank" rel="noopener noreferrer" style={{
+                                                padding: '8px 12px',
+                                                border: '1px solid #000',
+                                                borderRadius: '5px',
+                                                backgroundColor: '#f0f0f0',
+                                                textDecoration: 'none',
+                                                color: 'black'
+                                            }}>
+                                                Document_1
+                                            </a>
+                                        </TableCell>
+                                    </TableRow>
+                                )
+                            }
+                        </TableBody>
+                    </Table>
                 </Card>
 
                 <Card style={{ marginBottom: '20px', padding: '15px' }}>
