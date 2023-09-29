@@ -178,7 +178,8 @@ const StorePageEdit = () => {
         console.log("Attempting to update isLive status...");
         try {
             await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/stores/owner/update/${storedUserId}`, {
-                isLive: false
+                isLive: false,
+                isApproved: false
             });
             console.log("Successfully updated isLive status to false.");
         } catch (err) {
@@ -251,21 +252,18 @@ const StorePageEdit = () => {
 
     const handleGoLiveClick = async () => {
         try {
-            const storedUserId = JSON.parse(localStorage.getItem('user'))._id;  // Fetch the user ID from local storage
-
-            // Fetch the latest store data to get the current isApproved status
+            const storedUserId = JSON.parse(localStorage.getItem('user'))._id;
             const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/stores/owner/${storedUserId}`);
             const updatedStoreData = response.data;
 
             console.log("Before update - isApproved:", updatedStoreData.isApproved);
             console.log("Before update - isLive:", updatedStoreData.isLive);
 
-            // Use the storedUserId when making the PUT request
             const updateResponse = await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/stores/owner/update/${storedUserId}`, {
                 isLive: true,
             }, {
                 headers: {
-                    'Owner-Id': storedUserId  // Add a custom header to pass the owner ID
+                    'Owner-Id': storedUserId
                 }
             });
 
@@ -281,6 +279,37 @@ const StorePageEdit = () => {
             console.error('Could not update isLive status', error);
         }
     };
+
+    const handleUnliveClick = async () => {
+        try {
+            const storedUserId = JSON.parse(localStorage.getItem('user'))._id;
+            const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/stores/owner/${storedUserId}`);
+            const updatedStoreData = response.data;
+
+            console.log("Before update - isApproved:", updatedStoreData.isApproved);
+            console.log("Before update - isLive:", updatedStoreData.isLive);
+
+            const updateResponse = await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/stores/owner/update/${storedUserId}`, {
+                isLive: false,
+            }, {
+                headers: {
+                    'Owner-Id': storedUserId
+                }
+            });
+
+            if (updateResponse.status === 200) {
+                setStoreData(prevStoreData => ({
+                    ...prevStoreData,
+                    isLive: false,
+                }));
+            } else {
+                console.error('Could not update isLive status, received status: ', updateResponse.status);
+            }
+        } catch (error) {
+            console.error('Could not update isLive status', error);
+        }
+    };
+
 
     const handleSaveColorsClick = async () => {
         try {
@@ -329,6 +358,7 @@ const StorePageEdit = () => {
     formData.append('ownerId', storedUserId);
     formData.append('storeName', editedData.storeName);
     formData.append('storeLogo', editedData.storeLogo);
+    console.log(storeData, storeData?.isApproved, storeData?.isLive);
 
     return (
         <div className="flex flex-col mt-4">
@@ -346,8 +376,17 @@ const StorePageEdit = () => {
                                     <>
                                         <Button onClick={handleEditClick} className="bg-blue-600 text-white px-4 py-2 rounded mr-2">Edit</Button>
                                         {storeData !== null && storeData.isApproved && !storeData.isLive && (
-                                            <Button variant="contained" color="secondary" className="bg-blue-600 text-white px-4 py-2 rounded" onClick={handleGoLiveClick}>
+                                            <Button
+                                                variant="contained"
+                                                color="secondary"
+                                                className="bg-green-600 text-white px-4 py-2 rounded"
+                                                onClick={handleGoLiveClick}>
                                                 Go Live
+                                            </Button>
+                                        )}
+                                        {storeData !== null && storeData.isLive && (
+                                            <Button variant="contained" color="secondary" className="bg-red-600 text-white px-4 py-2 rounded" onClick={handleUnliveClick}>
+                                                Un-Live
                                             </Button>
                                         )}
                                     </>
@@ -410,7 +449,7 @@ const StorePageEdit = () => {
                                         This is the status of your store's approval!
                                     </Typography>
                                     <Typography variant="body1">
-                                        {storeData.needsApproval ? 'Needs Approval' : 'Approved'}
+                                        {storeData.needsApproval ? 'Pending Approval' : 'Approved'}
                                     </Typography>
                                 </Card>
 
