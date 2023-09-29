@@ -47,7 +47,8 @@ const AdminApproval = () => {
                 }
             );
             if (response.status === 200) {
-                navigate('/dashboard/admin');
+                navigate(`/dashboard/admin/approve/${storeId}`)
+                window.location.reload();
             }
         } catch (error) {
             console.error('Could not approve store', error);
