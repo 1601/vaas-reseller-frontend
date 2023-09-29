@@ -252,28 +252,24 @@ const StorePageEdit = () => {
 
     const handleGoLiveClick = async () => {
         try {
-            const storedUserId = JSON.parse(localStorage.getItem('user'))._id;  
-
-            // Fetch the latest store data to get the current isApproved status
+            const storedUserId = JSON.parse(localStorage.getItem('user'))._id;
             const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/stores/owner/${storedUserId}`);
             const updatedStoreData = response.data;
 
             console.log("Before update - isApproved:", updatedStoreData.isApproved);
             console.log("Before update - isLive:", updatedStoreData.isLive);
 
-            // Use the storedUserId when making the PUT request
             const updateResponse = await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/stores/owner/update/${storedUserId}`, {
                 isLive: true,
             }, {
                 headers: {
-                    'Owner-Id': storedUserId  // Add a custom header to pass the owner ID
+                    'Owner-Id': storedUserId
                 }
             });
 
             if (updateResponse.status === 200) {
                 setStoreData(prevStoreData => ({
                     ...prevStoreData,
-                    isApproved: true,
                     isLive: true,
                 }));
             } else {
@@ -283,6 +279,37 @@ const StorePageEdit = () => {
             console.error('Could not update isLive status', error);
         }
     };
+
+    const handleUnliveClick = async () => {
+        try {
+            const storedUserId = JSON.parse(localStorage.getItem('user'))._id;
+            const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/stores/owner/${storedUserId}`);
+            const updatedStoreData = response.data;
+
+            console.log("Before update - isApproved:", updatedStoreData.isApproved);
+            console.log("Before update - isLive:", updatedStoreData.isLive);
+
+            const updateResponse = await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/stores/owner/update/${storedUserId}`, {
+                isLive: false,
+            }, {
+                headers: {
+                    'Owner-Id': storedUserId
+                }
+            });
+
+            if (updateResponse.status === 200) {
+                setStoreData(prevStoreData => ({
+                    ...prevStoreData,
+                    isLive: false,
+                }));
+            } else {
+                console.error('Could not update isLive status, received status: ', updateResponse.status);
+            }
+        } catch (error) {
+            console.error('Could not update isLive status', error);
+        }
+    };
+
 
     const handleSaveColorsClick = async () => {
         try {
@@ -351,6 +378,11 @@ const StorePageEdit = () => {
                                         {storeData !== null && storeData.isApproved && !storeData.isLive && (
                                             <Button variant="contained" color="secondary" className="bg-blue-600 text-white px-4 py-2 rounded" onClick={handleGoLiveClick}>
                                                 Go Live
+                                            </Button>
+                                        )}
+                                        {storeData !== null && storeData.isLive && (
+                                            <Button variant="contained" color="secondary" className="bg-red-600 text-white px-4 py-2 rounded" onClick={handleUnliveClick}>
+                                                Un-Live
                                             </Button>
                                         )}
                                     </>
