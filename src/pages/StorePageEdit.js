@@ -273,6 +273,7 @@ const StorePageEdit = () => {
             if (updateResponse.status === 200) {
                 setStoreData(prevStoreData => ({
                     ...prevStoreData,
+                    isApproved: true,
                     isLive: true,
                 }));
             } else {
@@ -412,7 +413,7 @@ const StorePageEdit = () => {
                                         This is the status of your store's approval!
                                     </Typography>
                                     <Typography variant="body1">
-                                        {storeData.needsApproval ? 'Approved' : 'Needs Approval'}
+                                        {storeData.needsApproval ? 'Pending Approval' : 'Approved'}
                                     </Typography>
                                 </Card>
 
