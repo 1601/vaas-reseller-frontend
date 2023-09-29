@@ -4,28 +4,33 @@ import { useStore } from './StoreContext';
 
 const SubdomainHandler = () => {
   const { setStoreData, setHasSubdomain } = useStore();
-  const excludedSubdomains = ['pldt-vaas-frontend', 'www', 'admin-approval.pldt-vaas-frontend'];
-  
+  const excludedSubdomains = ['pldt-vaas-frontend', 'www', 'lvh', 'localhost', 'sevenstarjasem'];
+
   useEffect(() => {
     const hostname = window.location.hostname;
+    const pathname = window.location.pathname;
     const parts = hostname.split('.');
-    
-    if (parts.length > 2) {
-      const subdomain = parts[0];
-      if (excludedSubdomains.includes(subdomain)) {
-        setHasSubdomain(false);
-        return;
-      }
 
+    let storeUrl;
+
+    if (hostname.includes('localhost') && pathname !== '/') {
+      storeUrl = pathname.slice(1);
+    } else if (hostname.includes('lvh.me') || hostname.includes('localhost')) {
+      storeUrl = parts[0];
+    } else {
+      storeUrl = parts.length > 2 ? parts[0] : null;
+    }
+
+    if (storeUrl && !excludedSubdomains.includes(storeUrl)) {
       axios
-        .get(`${process.env.REACT_APP_BACKEND_URL}/api/stores/url/${subdomain}`, {
+        .get(`${process.env.REACT_APP_BACKEND_URL}/api/stores/url/${storeUrl}`, {
           headers: {
-            'x-subdomain': subdomain,
+            'x-subdomain': storeUrl,
           },
         })
         .then((response) => {
           if (response.data) {
-            setStoreData({ subdomain, ...response.data });
+            setStoreData({ subdomain: storeUrl, ...response.data });
             setHasSubdomain(true);
           } else {
             setHasSubdomain(false);

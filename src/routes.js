@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Navigate, Route, Routes, useRoutes } from 'react-router-dom';
 // layouts
 import DashboardLayout from './layouts/dashboard';
@@ -24,7 +25,7 @@ import AdminKYCApproval from './pages/AdminPages/AdminKYCApproval';
 
 // ----------------------------------------------------------------------
 
-const excludedSubdomains = ['pldt-vaas-frontend', 'www'];
+const excludedSubdomains = ['pldt-vaas-frontend', 'www', 'lvh'];
 
 export default function Router() {
   const hostnameParts = window.location.hostname.split('.');
@@ -33,6 +34,37 @@ export default function Router() {
   const isLoggedIn = localStorage.getItem('token');
   const isSubdomain = subdomain && !isExcludedSubdomain;
   const role = localStorage.getItem('role');
+
+  useEffect(() => {
+    const currentHostname = window.location.hostname;
+    const currentPort = window.location.port;
+    const currentPath = window.location.pathname;
+    const storeUrlPattern = /^\/([a-zA-Z0-9_-]+)$/;
+    const match = currentPath.match(storeUrlPattern);
+
+    if (match) {
+      const storeUrl = match[1];
+
+      if (storeUrl === 'localhost') {
+        return;
+      }
+  
+      if (currentHostname.includes('localhost')) {
+        return;
+      }
+
+      fetch(`${process.env.REACT_APP_BACKEND_URL}/api/stores/url/${storeUrl}`)
+        .then(response => {
+          if (response.ok) {
+            if (currentHostname.includes('lvh.me')) {
+              window.location.href = `http://${storeUrl}.lvh.me:${currentPort}`;
+            } else if (currentHostname.includes('sevenstarjasem.com')) {
+              window.location.href = `https://${storeUrl}.sevenstarjasem.com`;
+            } 
+          }
+        })
+    }
+  }, []);
 
   const routes = useRoutes([
     {
@@ -123,4 +155,3 @@ export default function Router() {
 
   return routes;
 }
-

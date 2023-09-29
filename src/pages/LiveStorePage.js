@@ -28,19 +28,29 @@ const LiveStorePage = () => {
   const user = JSON.parse(localStorage.getItem('user'));
 
   useEffect(() => {
-    const hostname = window.location.hostname;
-    let subdomain = hostname.split('.')[0];
+    let subdomainOrStoreUrl;
 
-    if (subdomain === 'www' || subdomain === 'website') {
-      subdomain = storeUrl;
+    if (
+      window.location.hostname.includes('localhost') ||
+      window.location.hostname.includes('lvh.me') ||
+      window.location.hostname.includes('sevenstarjasem.com')
+    ) {
+      subdomainOrStoreUrl = storeUrl;
+    } else {
+      const hostnameParts = window.location.hostname.split('.');
+      subdomainOrStoreUrl = hostnameParts[0];
     }
 
-    if (subdomain) {
-      console.log('Fetching data for store URL:', subdomain);
+    if (subdomainOrStoreUrl === 'www' || subdomainOrStoreUrl === 'sevenstarjasem') {
+      subdomainOrStoreUrl = storeUrl;
+    }
+
+    if (subdomainOrStoreUrl) {
+      console.log('Fetching data for store URL:', subdomainOrStoreUrl);
       const fetchStoreData = async () => {
         try {
           const response = await axios.get(
-            `${process.env.REACT_APP_BACKEND_URL}/api/stores/url/${subdomain}`
+            `${process.env.REACT_APP_BACKEND_URL}/api/stores/url/${subdomainOrStoreUrl}`
           );
           setStoreData(response.data);
 
@@ -55,6 +65,7 @@ const LiveStorePage = () => {
       fetchStoreData();
     }
   }, [storeUrl, setStoreData]);
+
 
   if (!storeData || notFound === 'true') {
     return (
