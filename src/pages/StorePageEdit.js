@@ -178,7 +178,8 @@ const StorePageEdit = () => {
         console.log("Attempting to update isLive status...");
         try {
             await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/stores/owner/update/${storedUserId}`, {
-                isLive: false
+                isLive: false,
+                isApproved: false
             });
             console.log("Successfully updated isLive status to false.");
         } catch (err) {
@@ -251,7 +252,7 @@ const StorePageEdit = () => {
 
     const handleGoLiveClick = async () => {
         try {
-            const storedUserId = JSON.parse(localStorage.getItem('user'))._id;  // Fetch the user ID from local storage
+            const storedUserId = JSON.parse(localStorage.getItem('user'))._id;  
 
             // Fetch the latest store data to get the current isApproved status
             const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/stores/owner/${storedUserId}`);
@@ -329,6 +330,7 @@ const StorePageEdit = () => {
     formData.append('ownerId', storedUserId);
     formData.append('storeName', editedData.storeName);
     formData.append('storeLogo', editedData.storeLogo);
+    console.log(storeData, storeData?.isApproved, storeData?.isLive);
 
     return (
         <div className="flex flex-col mt-4">
@@ -410,7 +412,7 @@ const StorePageEdit = () => {
                                         This is the status of your store's approval!
                                     </Typography>
                                     <Typography variant="body1">
-                                        {storeData.needsApproval ? 'Needs Approval' : 'Approved'}
+                                        {storeData.needsApproval ? 'Approved' : 'Needs Approval'}
                                     </Typography>
                                 </Card>
 
