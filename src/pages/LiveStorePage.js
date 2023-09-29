@@ -35,6 +35,25 @@ const LiveStorePage = () => {
       subdomain = storeUrl;
     }
 
+    // Check if the subdomain is empty
+    if (!subdomain) {
+      // Extract storeName from the path, assuming the format is "/storeName"
+      const pathParts = window.location.pathname.split('/');
+      if (pathParts.length > 1) {
+        subdomain = pathParts[1];
+      }
+    }
+
+    // Check if running on localhost and no subdomain was found
+    if (window.location.hostname === 'localhost' || !subdomain) {
+      // Extract subdomain from the URL in the format "localhost:3000/subdomain"
+      console.log('Running on localhost')
+      const pathParts = window.location.href.split('/');
+      if (pathParts.length > 3) {
+        subdomain = pathParts[3];
+      }
+    }
+
     if (subdomain) {
       console.log('Fetching data for store URL:', subdomain);
       const fetchStoreData = async () => {
@@ -116,7 +135,8 @@ const LiveStorePage = () => {
             </Button>
           </div>
         </div>
-        <div style={{ textAlign: 'center' }}>
+        <Outlet  />
+        <div style={{ textAlign: 'center', }}>
           <img
             src={storeData ? storeData.storeLogo : '/vortex_logo_black.png'}
             alt={`${storeData ? storeData.storeName : "Your Store"}'s Logo`}
@@ -126,8 +146,7 @@ const LiveStorePage = () => {
           <h1>{`${location.pathname}`}</h1>
 
           <Container>
-            <Outlet />
-
+            
             {/* Using Flexbox to Center the Items */}
             <div
               style={{
@@ -151,8 +170,8 @@ const LiveStorePage = () => {
                       justifyContent: 'center',
                     }}
                   >
-                    <Link href={`./bills`}>
-                      <img src={BillsImage} height="100px" alt="Home" />
+                    <Link href={window.location.hostname === 'localhost' ? `/${storeData.storeUrl}/bills` : '/bills'}>
+                       <img src={BillsImage} height="100px" alt="Home" />
                       <div className="menu--text">Bills</div>
                     </Link>
                   </div>
@@ -167,7 +186,7 @@ const LiveStorePage = () => {
                       justifyContent: 'center',
                     }}
                   >
-                    <Link href={`./topup`}>
+                   <Link href={window.location.hostname === 'localhost' ? `/${storeData.storeUrl}/topup` : '/topup'}>
                       <img src={LoadImage} height="100px" alt="Express" />
                       <div className="menu--text">Load</div>
                     </Link>
@@ -183,7 +202,7 @@ const LiveStorePage = () => {
                       justifyContent: 'center',
                     }}
                   >
-                    <Link href={`./voucher`}>
+                    <Link href={window.location.hostname === 'localhost' ? `/${storeData.storeUrl}/voucher` : '/voucher'}>
                       <img src={VoucherImage} height="100px" alt="Express" />
                       <div className="menu--text">Vouchers</div>
                     </Link>
@@ -192,12 +211,15 @@ const LiveStorePage = () => {
             </div>
 
             <Stack m={3} direction={'row'} justifyContent={'center'}>
-              <Link href={`./transactions`}>View transactions</Link>
+            <Link href={window.location.hostname === 'localhost' ? `/${storeData.storeName}/transactions` : '/transactions'}>
+                View transactions</Link>
             </Stack>
 
           </Container>
 
         </div>
+        
+
       </div>
     );
   }

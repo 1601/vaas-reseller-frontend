@@ -21,6 +21,7 @@ import AdminApproval from './pages/AdminPages/AdminApproval';
 import AdminStores from './pages/AdminPages/AdminStores';
 import AdminKYC from './pages/AdminPages/AdminKYC';
 import AdminKYCApproval from './pages/AdminPages/AdminKYCApproval';
+import VortexBills from './pages/VortexBills';
 
 // ----------------------------------------------------------------------
 
@@ -39,7 +40,7 @@ export default function Router() {
       path: '',
       element: isSubdomain ? <LiveStorePage /> : <LandingPage />,
       children: [
-        { path: 'bills', element: <div> Bills </div> },
+        { path: 'bills', element: <VortexBills/> },
         { path: 'topup', element: <div> Topup </div> },
         { path: 'voucher', element: <div> Voucher </div> },
         { path: 'transactions', element: <div> Transactions </div> },
@@ -102,7 +103,7 @@ export default function Router() {
       path: ':storeUrl',
       element: <LiveStorePage />,
       children: [
-        { path: 'bills', element: <div> Bills </div> },
+        { path: 'bills', element: <VortexBills/> },
         { path: 'topup', element: <div> Topup </div> },
         { path: 'voucher', element: <div> Voucher </div> },
         { path: 'transactions', element: <div> Transactions </div> },
