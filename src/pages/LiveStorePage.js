@@ -28,19 +28,28 @@ const LiveStorePage = () => {
   const notFound = queryParams.get('notFound');
   const user = JSON.parse(localStorage.getItem('user'));
   console.log('enableBills:', platformVariables.enableBills);
+  console.log('enableLoad:', platformVariables.enableLoad);
+  console.log('enableGift:', platformVariables.enableGift);
 
   useEffect(() => {
     let subdomainOrStoreUrl;
 
+    console.log('Current Hostname:', window.location.hostname);
+    const hostnameParts = window.location.hostname.split('.');
+    const subdomain = hostnameParts[0];
+
+    console.log('Subdomain:', subdomain);
+
     if (
-      window.location.hostname.includes('localhost') ||
-      window.location.hostname.includes('lvh.me') ||
-      window.location.hostname.includes('sevenstarjasem.com') ||
-      window.location.hostname.includes('pldt-vaas-frontend.pages.dev')
+      subdomain === 'localhost' ||
+      subdomain === 'lvh' ||
+      subdomain === 'sevenstarjasem' ||
+      subdomain === 'pldt-vaas-frontend'
     ) {
       subdomainOrStoreUrl = storeUrl;
     } else {
       const hostnameParts = window.location.hostname.split('.');
+      console.log('hostnameParts:', hostnameParts);
       subdomainOrStoreUrl = hostnameParts[0];
     }
 
@@ -60,7 +69,7 @@ const LiveStorePage = () => {
           setStoreData(response.data);
 
           if (response.data.platformVariables) {
-            console.log('platformVariables from API:', response.data.platformVariables); // Add this line
+            console.log('platformVariables from API:', response.data.platformVariables);
             setPlatformVariables(response.data.platformVariables);
           }
         } catch (error) {
