@@ -146,18 +146,6 @@ export default function SignUpPage() {
                             sx={{ mb: 3 }}
                         />
 
-                        <FormControl variant="outlined" fullWidth sx={{ mb: 3 }}>
-                            <InputLabel>Role</InputLabel>
-                            <Select
-                                label="Role"
-                                value={role}
-                                onChange={(e) => setRole(e.target.value)}
-                            >
-                                <MenuItem value="dealer">Dealer</MenuItem>
-                                <MenuItem value="admin">Admin</MenuItem>
-                            </Select>
-                        </FormControl>
-
                         <Button fullWidth size="large" color="inherit" variant="outlined" onClick={handleSignup}>
                             Sign Up
                         </Button>

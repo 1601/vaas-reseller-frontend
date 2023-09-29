@@ -66,6 +66,12 @@ export default function Nav({ openNav, onCloseNav }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
+  const role = localStorage.getItem('role');
+
+  const filteredNavConfigBottom = role === 'admin' 
+    ? navConfigBottom.filter(item => item.title !== 'upload document') 
+    : navConfigBottom;
+
   const renderContent = (
     <Scrollbar
       sx={{
@@ -97,7 +103,7 @@ export default function Nav({ openNav, onCloseNav }) {
       <Box sx={{ flexGrow: 1 }} />
 
       <Box sx={{ px: 2.5, pb: 3, mt: 10 }}>
-      <NavSection data={navConfigBottom} />
+      <NavSection data={filteredNavConfigBottom} />
       
         {/* <Stack alignItems="center" spacing={3} sx={{ pt: 5, borderRadius: 2, position: 'relative' }}>
           <Box

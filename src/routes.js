@@ -1,4 +1,4 @@
- import { Navigate, useRoutes } from 'react-router-dom';
+import { Navigate, Route, Routes, useRoutes } from 'react-router-dom';
 // layouts
 import DashboardLayout from './layouts/dashboard';
 import SimpleLayout from './layouts/simple';
@@ -15,19 +15,43 @@ import LiveStorePage from './pages/LiveStorePage';
 import StorePageEdit from './pages/StorePageEdit';
 import VerifyPage from './pages/VerifyPage';
 import KYC from './pages/KYC';
+import ForgotPasswordPage from './pages/ForgotPassword';
+import AdminDashboard from './pages/AdminPages/AdminHome';
+import AdminApproval from './pages/AdminPages/AdminApproval';
+import AdminStores from './pages/AdminPages/AdminStores';
+import AdminKYC from './pages/AdminPages/AdminKYC';
+import AdminKYCApproval from './pages/AdminPages/AdminKYCApproval';
 
 // ----------------------------------------------------------------------
 
+const excludedSubdomains = ['pldt-vaas-frontend', 'www'];
+
 export default function Router() {
+  const hostnameParts = window.location.hostname.split('.');
+  const subdomain = hostnameParts.length > 2 ? hostnameParts[0] : null;
+  const isExcludedSubdomain = subdomain ? excludedSubdomains.includes(subdomain) : false;
   const isLoggedIn = localStorage.getItem('token');
+  const isSubdomain = subdomain && !isExcludedSubdomain;
+  const role = localStorage.getItem('role');
+
   const routes = useRoutes([
     {
-      path: '', // This is the root path
-      element: <LandingPage />,
+      path: '',
+      element: isSubdomain ? <LiveStorePage /> : <LandingPage />,
+      children: [
+        { path: 'bills', element: <div> Bills </div> },
+        { path: 'topup', element: <div> Topup </div> },
+        { path: 'voucher', element: <div> Voucher </div> },
+        { path: 'transactions', element: <div> Transactions </div> },
+      ],
     },
     {
       path: '/dashboard',
-      element: isLoggedIn ? <DashboardLayout /> : <Navigate to="/login" />,
+      element: isLoggedIn
+        ? (role === 'admin'
+          ? <Navigate to="/dashboard/admin" replace />
+          : <DashboardLayout />)
+        : <Navigate to="/login" />,
       children: [
         { element: <Navigate to="/dashboard/app" />, index: true }, // This is the index route for the dashboard
         { path: 'app', element: <DashboardAppPage /> },
@@ -47,6 +71,18 @@ export default function Router() {
       ],
     },
     {
+      path: '/dashboard/admin',
+      element: role === 'admin' ? <DashboardLayout /> : <Navigate to="/404" />,
+      children: [
+        { element: <Navigate to="/dashboard/admin/home" />, index: true },
+        { path: 'home', element: <AdminDashboard /> },
+        { path: 'storeapproval', element: <AdminStores /> },
+        { path: 'approve/:storeId', element: <AdminApproval /> },
+        { path: 'kycapproval', element: <AdminKYC /> },
+        { path: 'kycapprove/:storeId', element: <AdminKYCApproval /> }
+      ]
+    },
+    {
       path: 'login',
       element: isLoggedIn ? <Navigate to="/dashboard/app" /> : <LoginPage />,
     },
@@ -55,9 +91,13 @@ export default function Router() {
       element: <SignUpPage />,
     },
     {
+      path: 'forgotpassword',
+      element: <ForgotPasswordPage />,
+    },
+    {
       path: 'verify',
       element: <VerifyPage />,
-    },    
+    },
     {
       path: ':storeUrl',
       element: <LiveStorePage />,

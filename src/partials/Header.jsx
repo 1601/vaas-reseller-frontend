@@ -10,8 +10,15 @@ import Hidden from '@mui/material/Hidden';
 import List from '@mui/material/List'; // Import List component
 import ListItem from '@mui/material/ListItem'; // Import ListItem component
 import ListItemText from '@mui/material/ListItemText';
+import {styled} from '@mui/material/styles'
 import VortexBlackLogo from '../assets/vortex_logo_black.png';
 
+
+const Responsive = styled('div')(({theme}) =>({
+  [theme.breakpoints.down('md')]:{
+    width:'100px'
+  }
+}))
 
 function Header() {
   const [top, setTop] = useState(true);
@@ -41,7 +48,7 @@ function Header() {
         <div className="flex items-center justify-between h-16 md:h-20">
 
           {/* Site branding */}
-          <div className="flex-shrink-0 mr-2 md:mr-4">
+          <Responsive >
             {/* Logo */}
             <Link to="/" className="block" aria-label="Cruip">
               <img
@@ -51,7 +58,7 @@ function Header() {
                 style={{ maxWidth: "100%", maxHeight: "3rem" }}  // Adjusted max width and max height for responsiveness
               />
             </Link>
-          </div>
+          </Responsive>
 
           {/* Site navigation */}
           <nav>
