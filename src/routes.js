@@ -54,14 +54,18 @@ export default function Router() {
       }
 
       fetch(`${process.env.REACT_APP_BACKEND_URL}/api/stores/url/${storeUrl}`)
-        .then(response => {
-          if (response.ok) {
+      .then(response => response.json()) 
+      .then(data => {
+        if (data.isLive === false) {
+          console.log('Store is not live.');
+          return;
+        }
             if (currentHostname.includes('lvh.me')) {
               window.location.href = `http://${storeUrl}.lvh.me:${currentPort}`;
             } else if (currentHostname.includes('sevenstarjasem.com')) {
               window.location.href = `https://${storeUrl}.sevenstarjasem.com`;
             } 
-          }
+
         })
     }
   }, []);
