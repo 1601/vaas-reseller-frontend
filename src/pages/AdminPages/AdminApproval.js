@@ -126,18 +126,28 @@ const AdminApproval = () => {
                                             Approve
                                         </Button>
                                     )}
-                                    {storeDetails && storeDetails.isLive ? (
-                                        <Button variant="contained" color="secondary" className="bg-red-600 text-white px-4 py-2 rounded" onClick={handleUnliveClick}>
-                                            Un-Live
-                                        </Button>
-                                    ) : (
-                                        <Button
-                                            variant="contained"
-                                            color="secondary"
-                                            className="bg-green-600 text-white px-4 py-2 rounded"
-                                            onClick={handleGoLiveClick}>
-                                            Go Live
-                                        </Button>
+                                    {storeDetails && storeDetails.isApproved && (
+                                        storeDetails.isLive ? (
+                                            <Button
+                                                variant="contained"
+                                                color="secondary"
+                                                className="bg-red-600 text-white px-4 py-2 rounded"
+                                                onClick={handleUnliveClick}
+                                                style={{ marginRight: '8px' }}
+                                            >
+                                                Un-Live
+                                            </Button>
+                                        ) : (
+                                            <Button
+                                                variant="contained"
+                                                color="secondary"
+                                                className="bg-green-600 text-white px-4 py-2 rounded"
+                                                onClick={handleGoLiveClick}
+                                                style={{ marginRight: '8px' }} 
+                                            >
+                                                Go Live
+                                            </Button>
+                                        )
                                     )}
                                     <Button
                                         onClick={handleGoBack}
@@ -147,6 +157,7 @@ const AdminApproval = () => {
                                         Go Back
                                     </Button>
                                 </div>
+
                             </div>
                             <div>
                                 <Card style={{ marginBottom: '20px', padding: '15px' }}>
@@ -181,7 +192,7 @@ const AdminApproval = () => {
                                         Status of Store's Approval.
                                     </Typography>
                                     <Typography variant="body1">
-                                        {storeDetails.needsApproval ? 'Needs Approval' : 'Approved'}
+                                        {storeDetails.needsApproval ? 'Pending Approval' : 'Approved'}
                                     </Typography>
                                 </Card>
 
