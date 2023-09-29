@@ -11,6 +11,7 @@ const LiveStorePage = () => {
   const { storeData, setStoreData } = useStore();
   const { storeUrl } = useParams();
   const location = useLocation();
+  const [showNotFoundError, setShowNotFoundError] = useState(false);
   const [platformVariables, setPlatformVariables] = useState({
     enableBills: true,
     enableLoad: true,
@@ -42,7 +43,7 @@ const LiveStorePage = () => {
       subdomainOrStoreUrl = hostnameParts[0];
     }
 
-    if (subdomainOrStoreUrl === 'www' || subdomainOrStoreUrl === 'sevenstarjasem' || ubdomainOrStoreUrl === 'pldt-vaas-frontend' ) {
+    if (subdomainOrStoreUrl === 'www' || subdomainOrStoreUrl === 'sevenstarjasem' || subdomainOrStoreUrl === 'pldt-vaas-frontend' ) {
       subdomainOrStoreUrl = storeUrl;
     }
 
@@ -67,8 +68,18 @@ const LiveStorePage = () => {
     }
   }, [storeUrl, setStoreData]);
 
+  useEffect(() => {
+    if (!storeData || notFound === 'true') {
+      const timer = setTimeout(() => {
+        setShowNotFoundError(true);
+      }, 2000);
+  
+      return () => clearTimeout(timer);
+    }
+    return undefined;
+  }, [storeData, notFound]);
 
-  if (!storeData || notFound === 'true') {
+  if (showNotFoundError) {
     return (
       <div
         style={{
@@ -85,7 +96,7 @@ const LiveStorePage = () => {
     );
   }
 
-  if (user && user._id === storeData.ownerId || storeData.isLive) {
+  if (storeData && (user && user._id === storeData.ownerId || storeData.isLive)) {
     return (
       <div
         style={{
@@ -214,7 +225,7 @@ const LiveStorePage = () => {
     );
   }
 
-  if (!storeData.isLive) {
+  if (storeData && !storeData.isLive) {
     return (
       <div
         style={{
