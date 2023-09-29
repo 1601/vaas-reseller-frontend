@@ -376,7 +376,11 @@ const StorePageEdit = () => {
                                     <>
                                         <Button onClick={handleEditClick} className="bg-blue-600 text-white px-4 py-2 rounded mr-2">Edit</Button>
                                         {storeData !== null && storeData.isApproved && !storeData.isLive && (
-                                            <Button variant="contained" color="secondary" className="bg-blue-600 text-white px-4 py-2 rounded" onClick={handleGoLiveClick}>
+                                            <Button
+                                                variant="contained"
+                                                color="secondary"
+                                                className="bg-green-600 text-white px-4 py-2 rounded"
+                                                onClick={handleGoLiveClick}>
                                                 Go Live
                                             </Button>
                                         )}
