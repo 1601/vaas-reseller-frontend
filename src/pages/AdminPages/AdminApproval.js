@@ -7,6 +7,7 @@ const AdminApproval = () => {
     const { storeId } = useParams();
     const navigate = useNavigate();
     const [storeDetails, setStoreDetails] = useState(null);
+    const [ownerId, setOwnerId] = useState(null);
 
     useEffect(() => {
         console.log('storeId:', storeId);
@@ -23,6 +24,7 @@ const AdminApproval = () => {
                 );
                 if (response.data) {
                     setStoreDetails(response.data);
+                    setOwnerId(response.data.ownerId);
                 } else {
                     console.error('Store details not found');
                 }
@@ -59,10 +61,53 @@ const AdminApproval = () => {
         navigate('/dashboard/admin/storeapproval');
     };
 
+    const handleGoLiveClick = async () => {
+        try {
+            const response = await axios.put(
+                `${process.env.REACT_APP_BACKEND_URL}/api/stores/owner/update/${ownerId}`,
+                { isLive: true },
+                {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                }
+            );
+            if (response.status === 200) {
+                setStoreDetails(prevStoreDetails => ({
+                    ...prevStoreDetails,
+                    isLive: true,
+                }));
+            }
+        } catch (error) {
+            console.error('Could not update isLive status', error);
+        }
+    };
+
+    const handleUnliveClick = async () => {
+        try {
+            const response = await axios.put(
+                `${process.env.REACT_APP_BACKEND_URL}/api/stores/owner/update/${ownerId}`,
+                { isLive: false },
+                {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                }
+            );
+            if (response.status === 200) {
+                setStoreDetails(prevStoreDetails => ({
+                    ...prevStoreDetails,
+                    isLive: false,
+                }));
+            }
+        } catch (error) {
+            console.error('Could not update isLive status', error);
+        }
+    };
+
     return (
         <div className="flex flex-col mt-4">
             <div className="flex-grow flex flex-col justify-center items-center transition-all duration-500 ease-in-out ml-0">
-
                 {storeDetails ? (
                     <div className="mb-4 w-full">
                         <Card variant="outlined" style={{ padding: '20px', marginBottom: '20px' }}>
@@ -79,6 +124,19 @@ const AdminApproval = () => {
                                             style={{ marginRight: '8px' }}
                                         >
                                             Approve
+                                        </Button>
+                                    )}
+                                    {storeDetails && storeDetails.isLive ? (
+                                        <Button variant="contained" color="secondary" className="bg-red-600 text-white px-4 py-2 rounded" onClick={handleUnliveClick}>
+                                            Un-Live
+                                        </Button>
+                                    ) : (
+                                        <Button
+                                            variant="contained"
+                                            color="secondary"
+                                            className="bg-green-600 text-white px-4 py-2 rounded"
+                                            onClick={handleGoLiveClick}>
+                                            Go Live
                                         </Button>
                                     )}
                                     <Button
@@ -158,8 +216,8 @@ const AdminApproval = () => {
                                         <div
                                             className="flex justify-center items-center"
                                             style={{
-                                                maxHeight: '230px', 
-                                                maxWidth: '230px',  
+                                                maxHeight: '230px',
+                                                maxWidth: '230px',
                                                 margin: 'auto'
                                             }}
                                         >
