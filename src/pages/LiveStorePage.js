@@ -72,6 +72,26 @@ const LiveStorePage = () => {
       subdomainOrStoreUrl = storeUrl;
     }
 
+    // Check if the subdomain is empty
+    if (!subdomainOrStoreUrl) {
+      // Extract storeName from the path, assuming the format is "/storeName"
+      const pathParts = window.location.pathname.split('/');
+      if (pathParts.length > 1) {
+        subdomainOrStoreUrl = pathParts[1];
+      }
+    }
+
+    // Check if running on localhost and no subdomainOrStoreUrl was found
+    if (window.location.hostname === 'localhost' || !subdomainOrStoreUrl) {
+      // Extract subdomainOrStoreUrl from the URL in the format "localhost:3000/subdomainOrStoreUrl"
+      console.log('Running on localhost')
+      const pathParts = window.location.href.split('/');
+      if (pathParts.length > 3) {
+        subdomainOrStoreUrl = pathParts[3];
+      }
+    }
+
+    
     if (subdomainOrStoreUrl) {
       console.log('Fetching data for store URL:', subdomainOrStoreUrl);
       const fetchStoreData = async () => {
@@ -167,7 +187,8 @@ const LiveStorePage = () => {
             </Button>
           </div>
         </div>
-        <div style={{ textAlign: 'center' }}>
+        <Outlet  />
+        <div style={{ textAlign: 'center', }}>
           <img
             src={storeData ? storeData.storeLogo : '/vortex_logo_black.png'}
             alt={`${storeData ? storeData.storeName : "Your Store"}'s Logo`}
@@ -177,8 +198,7 @@ const LiveStorePage = () => {
           <h1>{`${location.pathname}`}</h1>
 
           <Container>
-            <Outlet />
-
+            
             {/* Using Flexbox to Center the Items */}
             <div
               style={{
@@ -244,6 +264,8 @@ const LiveStorePage = () => {
             </Stack>
           </Container>
         </div>
+        
+
       </div>
     );
   }
