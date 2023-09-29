@@ -11,6 +11,7 @@ const LiveStorePage = () => {
   const { storeData, setStoreData } = useStore();
   const { storeUrl } = useParams();
   const location = useLocation();
+  const [showNotFoundError, setShowNotFoundError] = useState(false);
   const [platformVariables, setPlatformVariables] = useState({
     enableBills: true,
     enableLoad: true,
@@ -28,38 +29,50 @@ const LiveStorePage = () => {
   const user = JSON.parse(localStorage.getItem('user'));
 
   useEffect(() => {
-    const hostname = window.location.hostname;
-    let subdomain = hostname.split('.')[0];
+    let subdomainOrStoreUrl;
 
-    if (subdomain === 'www' || subdomain === 'website') {
-      subdomain = storeUrl;
+    if (
+      window.location.hostname.includes('localhost') ||
+      window.location.hostname.includes('lvh.me') ||
+      window.location.hostname.includes('sevenstarjasem.com') ||
+      window.location.hostname.includes('pldt-vaas-frontend.pages.dev')
+    ) {
+      subdomainOrStoreUrl = storeUrl;
+    } else {
+      const hostnameParts = window.location.hostname.split('.');
+      subdomainOrStoreUrl = hostnameParts[0];
+    }
+
+    if (subdomainOrStoreUrl === 'www' || subdomainOrStoreUrl === 'sevenstarjasem' || subdomainOrStoreUrl === 'pldt-vaas-frontend' ) {
+      subdomainOrStoreUrl = storeUrl;
     }
 
     // Check if the subdomain is empty
-    if (!subdomain) {
+    if (!subdomainOrStoreUrl) {
       // Extract storeName from the path, assuming the format is "/storeName"
       const pathParts = window.location.pathname.split('/');
       if (pathParts.length > 1) {
-        subdomain = pathParts[1];
+        subdomainOrStoreUrl = pathParts[1];
       }
     }
 
-    // Check if running on localhost and no subdomain was found
-    if (window.location.hostname === 'localhost' || !subdomain) {
-      // Extract subdomain from the URL in the format "localhost:3000/subdomain"
+    // Check if running on localhost and no subdomainOrStoreUrl was found
+    if (window.location.hostname === 'localhost' || !subdomainOrStoreUrl) {
+      // Extract subdomainOrStoreUrl from the URL in the format "localhost:3000/subdomainOrStoreUrl"
       console.log('Running on localhost')
       const pathParts = window.location.href.split('/');
       if (pathParts.length > 3) {
-        subdomain = pathParts[3];
+        subdomainOrStoreUrl = pathParts[3];
       }
     }
 
-    if (subdomain) {
-      console.log('Fetching data for store URL:', subdomain);
+    
+    if (subdomainOrStoreUrl) {
+      console.log('Fetching data for store URL:', subdomainOrStoreUrl);
       const fetchStoreData = async () => {
         try {
           const response = await axios.get(
-            `${process.env.REACT_APP_BACKEND_URL}/api/stores/url/${subdomain}`
+            `${process.env.REACT_APP_BACKEND_URL}/api/stores/url/${subdomainOrStoreUrl}`
           );
           setStoreData(response.data);
 
@@ -75,7 +88,18 @@ const LiveStorePage = () => {
     }
   }, [storeUrl, setStoreData]);
 
-  if (!storeData || notFound === 'true') {
+  useEffect(() => {
+    if (!storeData || notFound === 'true') {
+      const timer = setTimeout(() => {
+        setShowNotFoundError(true);
+      }, 2000);
+  
+      return () => clearTimeout(timer);
+    }
+    return undefined;
+  }, [storeData, notFound]);
+
+  if (showNotFoundError) {
     return (
       <div
         style={{
@@ -92,7 +116,7 @@ const LiveStorePage = () => {
     );
   }
 
-  if (user && user._id === storeData.ownerId || storeData.isLive) {
+  if (storeData && (user && user._id === storeData.ownerId || storeData.isLive)) {
     return (
       <div
         style={{
@@ -224,7 +248,7 @@ const LiveStorePage = () => {
     );
   }
 
-  if (!storeData.isLive) {
+  if (storeData && !storeData.isLive) {
     return (
       <div
         style={{
