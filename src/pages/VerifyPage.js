@@ -28,6 +28,31 @@ export default function VerifyPage() {
     const [code, setCode] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
+    const [countdown, setCountdown] = useState(180);
+    const [allowResend, setAllowResend] = useState(false);
+
+    useEffect(() => {
+        const timer = countdown > 0 && setInterval(() => setCountdown(countdown - 1), 1000);
+
+        if (countdown === 0) {
+            setAllowResend(true);
+        }
+
+        return () => clearInterval(timer);
+    }, [countdown]);
+
+    const resendCode = async () => {
+        try {
+            await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/resend-verification-email`, {
+                email
+            });
+            setCountdown(180);
+            setAllowResend(false);
+        } catch (error) {
+            console.error('Error while resending verification email:', error);
+            // Handle the error, e.g., show an error message to the user
+        }
+    };
 
     const verifyEmail = async () => {
         try {
@@ -107,6 +132,14 @@ export default function VerifyPage() {
                         </Button>
 
                         <Divider sx={{ my: 3 }} />
+
+                        <div>
+                            {allowResend ? (
+                                <a href="#" onClick={resendCode}>Resend Verification Code</a>
+                            ) : (
+                                <span>Resend code in {Math.floor(countdown / 60)}:{countdown % 60 < 10 ? '0' : ''}{countdown % 60} minutes</span>
+                            )}
+                        </div>
 
                         <Typography variant="body2" sx={{ mb: 5 }}>
                             Already verified?
