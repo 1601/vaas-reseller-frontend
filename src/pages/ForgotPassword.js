@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
@@ -23,14 +23,29 @@ const StyledContent = styled('div')(({ theme }) => ({
 }));
 
 export default function ForgotPasswordPage() {
-    const [step, setStep] = useState(0); 
+    const [step, setStep] = useState(0);
     const [email, setEmail] = useState('');
     const [verificationCode, setVerificationCode] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [isSendingVerificationCode, setIsSendingVerificationCode] = useState(false);
     const [successMessage, setSuccessMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
+    const [countdown, setCountdown] = useState(180);
+    const [allowResend, setAllowResend] = useState(false);
     const navigate = useNavigate();
+
+    useEffect(() => {
+        let timer;
+        if (countdown > 0 && !allowResend) {
+            timer = setInterval(() => {
+                setCountdown(countdown - 1);
+            }, 1000);
+        } else {
+            clearInterval(timer);
+            setAllowResend(true);
+        }
+        return () => clearInterval(timer);
+    }, [countdown, allowResend]);
 
     const handleRequestPasswordChange = async () => {
         try {
@@ -42,8 +57,10 @@ export default function ForgotPasswordPage() {
             if (response.status === 200) {
                 setSuccessMessage('Password change request sent! Check your email.');
                 console.log(response.data.message);
+                setCountdown(180);
+                setAllowResend(false);
                 setStep(1);
-                setErrorMessage(''); 
+                setErrorMessage('');
             }
         } catch (error) {
             if (error.response && error.response.data && error.response.data.message.includes("unregistered")) {
@@ -53,6 +70,12 @@ export default function ForgotPasswordPage() {
             }
             console.error('Error sending password change request:', error);
         }
+    };
+
+    const handleResendVerificationCode = async () => {
+        await handleRequestPasswordChange();
+        setCountdown(180);
+        setAllowResend(false);
     };
 
 
@@ -67,7 +90,7 @@ export default function ForgotPasswordPage() {
                 setSuccessMessage('Ownership verified successfully! Enter your new password.');
                 console.log("Ownership verified successfully!");
                 setStep(2);
-                setErrorMessage(''); 
+                setErrorMessage('');
             } else {
                 setErrorMessage('Verification failed. Please check the code and try again.');
                 console.error("Error during verification:", verifyResponse.data.message);
@@ -175,6 +198,23 @@ export default function ForgotPasswordPage() {
                                 >
                                     Verify Ownership
                                 </Button>
+                                <div style={{ textAlign: 'right' }}>
+                                    {allowResend ? (
+                                        <Typography variant="body2">
+                                            <a
+                                                href="#"
+                                                onClick={handleResendVerificationCode}
+                                                style={{ textDecoration: 'none', cursor: 'pointer' }}
+                                            >
+                                                Resend Verification Code
+                                            </a>
+                                        </Typography>
+                                    ) : (
+                                        <Typography variant="body2">
+                                            Resend code in {Math.floor(countdown / 60)}:{countdown % 60 < 10 ? '0' : ''}{countdown % 60}
+                                        </Typography>
+                                    )}
+                                </div>
                             </>
                         )}
 
