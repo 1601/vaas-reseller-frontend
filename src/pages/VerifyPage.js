@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Helmet } from 'react-helmet-async';
@@ -28,6 +28,31 @@ export default function VerifyPage() {
     const [code, setCode] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
+    const [countdown, setCountdown] = useState(180);
+    const [allowResend, setAllowResend] = useState(false);
+
+    useEffect(() => {
+        const timer = countdown > 0 && setInterval(() => setCountdown(countdown - 1), 1000);
+
+        if (countdown === 0) {
+            setAllowResend(true);
+        }
+
+        return () => clearInterval(timer);
+    }, [countdown]);
+
+    const resendCode = async () => {
+        try {
+            await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/resend-verification-email`, {
+                email
+            });
+            setCountdown(180);
+            setAllowResend(false);
+        } catch (error) {
+            console.error('Error while resending verification email:', error);
+            // Handle the error, e.g., show an error message to the user
+        }
+    };
 
     const verifyEmail = async () => {
         try {
@@ -43,7 +68,7 @@ export default function VerifyPage() {
 
                 setSuccessMessage('Successful Verification. Proceeding to login page...');
                 setTimeout(() => {
-                    navigate('/');
+                    navigate('/login');
                 }, 3000);
 
             } else {
@@ -101,19 +126,40 @@ export default function VerifyPage() {
                             variant="contained"
                             color="primary"
                             onClick={verifyEmail}
-                            style={{ opacity: 1, backgroundColor: "#3f51b5", color: "white" }} // Force styles for troubleshooting
+                            style={{ opacity: 1, backgroundColor: "#3f51b5", color: "white" }}
                         >
                             Verify
                         </Button>
 
                         <Divider sx={{ my: 3 }} />
 
-                        <Typography variant="body2" sx={{ mb: 5 }}>
-                            Already verified?
-                            <Stack direction="row" spacing={2}>
-                                <Typography variant="subtitle2" onClick={() => navigate('/login')} sx={{ cursor: 'pointer' }}>Login</Typography>
-                            </Stack>
-                        </Typography>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}> 
+                            <div>
+                                <Typography variant="body2">
+                                    Already verified?
+                                </Typography>
+                                <Stack direction="row" spacing={2}>
+                                    <Typography variant="subtitle2" onClick={() => navigate('/login')} sx={{ cursor: 'pointer' }}>Login</Typography>
+                                </Stack>
+                            </div>
+                            <div style={{ textAlign: 'right' }}>
+                                {allowResend ? (
+                                    <Typography variant="body2" style={{ fontWeight: 'bold' }}>
+                                        <a
+                                            href="#"
+                                            onClick={resendCode}
+                                            style={{ textDecoration: 'none', cursor: 'pointer' }}
+                                        >
+                                            Resend Verification Code
+                                        </a>
+                                    </Typography>
+                                ) : (
+                                    <Typography variant="body2">
+                                        Resend code in {Math.floor(countdown / 60)}:{countdown % 60 < 10 ? '0' : ''}{countdown % 60}
+                                    </Typography>
+                                )}
+                            </div>
+                        </div>
                     </StyledContent>
                 </Container>
             </StyledRoot>
