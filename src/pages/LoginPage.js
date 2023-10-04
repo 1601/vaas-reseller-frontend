@@ -39,6 +39,11 @@ const StyledContent = styled('div')(({ theme }) => ({
   padding: theme.spacing(12, 0),
 }));
 
+const StyledFooter = styled('div')({
+  alignSelf: 'flex-end',
+  mb: 2,
+});
+
 // ----------------------------------------------------------------------
 
 export default function LoginPage() {
@@ -52,8 +57,6 @@ export default function LoginPage() {
       </Helmet>
 
       <StyledRoot>
-
-
         {/* {mdUp && (
           <StyledSection>
             <Typography variant="h3" sx={{ px: 5, mt: 10, mb: 5 }}>
@@ -63,7 +66,7 @@ export default function LoginPage() {
           </StyledSection>
         )} */}
 
-        <Container maxWidth="sm" sx={{ backgroundColor: "#fff" }}>
+        <Container maxWidth="sm" sx={{ backgroundColor: '#fff' }}>
           <Logo
             sx={{
               alignSelf: 'center',
@@ -107,25 +110,23 @@ export default function LoginPage() {
             </Stack>
             <Stack direction="row" spacing={2}>
               <Typography variant="body2" sx={{ mb: 5 }}>
-                Don't have a Vortex ID? {''}
-                <Link variant="subtitle2" onClick={() => navigate('/signup')} sx={{ cursor: 'pointer' }}>Sign Up</Link>
-              </Typography>
-              <Typography variant="body2" sx={{ mb: 5, mr: 5 }}>
-                {''}
-                <Link variant="subtitle2">Help</Link>  {''}
-                <Link variant="subtitle2">Privacy</Link>  {''}
-                <Link variant="subtitle2">Terms of Service</Link>  {''}
+                Don't have a Vortex ID? 
+                <Link variant="subtitle2" onClick={() => navigate('/signup')} sx={{ cursor: 'pointer', ml: 1 }}>
+                  Sign Up
+                </Link>
               </Typography>
             </Stack>
-            <Typography variant="body2" sx={{ mt: 3 }}>
+
+            <Typography variant="body2" sx={{ mt: 0.25 }}>
               Not yet Verified?
-              <Link
-                variant="subtitle2"
-                onClick={() => navigate('/verify')}
-                sx={{ cursor: 'pointer', ml: 1 }}
-              >
+              <Link variant="subtitle2" onClick={() => navigate('/verify')} sx={{ cursor: 'pointer', ml: 1 }}>
                 Verify
               </Link>
+            </Typography>
+            <Typography variant="body2" sx={{ textAlign: 'center', mt: 2 }}>
+              <Link variant="subtitle2">Help</Link> {' | '}
+              <Link variant="subtitle2">Privacy</Link> {' | '}
+              <Link variant="subtitle2">Terms of Service</Link>
             </Typography>
           </StyledContent>
         </Container>
