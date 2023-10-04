@@ -431,16 +431,28 @@ const StorePageEdit = () => {
                                 </Typography>
                                 <div>
                                     {isEditing ? (
-                                        <Button onClick={handleSaveClick} className="bg-blue-600 text-white px-4 py-2 rounded mr-2">Save</Button>
+                                        <div className="flex"> {/* Wrap both buttons in a flex container */}
+                                            <Button onClick={handleSaveClick} className="bg-blue-600 text-white px-4 py-2 rounded mr-2">Save</Button>
+                                        </div>
                                     ) : (
                                         <>
+                                            <Button
+                                                variant="outlined"
+                                                color="primary"
+                                                className="mr-2" // Removed mb-2 and added the same padding and font size as Edit button
+                                                style={{ padding: '8px 16px', fontSize: '14px' }}
+                                                onClick={handlePreviewClick}
+                                            >
+                                                Preview Store
+                                            </Button>
                                             <Button onClick={handleEditClick} className="bg-blue-600 text-white px-4 py-2 rounded mr-2">Edit</Button>
                                             {storeData !== null && storeData.isApproved && !storeData.isLive && (
                                                 <Button
                                                     variant="contained"
                                                     color="secondary"
                                                     className="bg-green-600 text-white px-4 py-2 rounded"
-                                                    onClick={handleGoLiveClick}>
+                                                    onClick={handleGoLiveClick}
+                                                >
                                                     Go Live
                                                 </Button>
                                             )}
@@ -674,16 +686,10 @@ const StorePageEdit = () => {
                                     <Button onClick={handleSaveColorsClick} className="bg-blue-600 text-white px-4 py-2 rounded mr-2">
                                         Update Colors
                                     </Button>
-                                    <div>
-                                        <Button variant="outlined" color="primary" className="mr-2 mb-2" onClick={handlePreviewClick}>
-                                            Preview Store
-                                        </Button>
-                                    </div>
                                 </div>
                             </Card>
                         </div>
                     </div>
-
 
                     <div className="mb-4 w-full">
                         <div className="w-full">
