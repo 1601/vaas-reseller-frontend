@@ -43,7 +43,20 @@ export default function Router() {
     const currentPath = window.location.pathname;
     const storeUrlPattern = /^\/([a-zA-Z0-9_-]+)$/;
     const match = currentPath.match(storeUrlPattern);
-    const noRedirectPaths = ['/bills', '/voucher', '/gift', '/topup', '/transactions', '/reset-password', '/404'];
+    const noRedirectPaths = [
+      '/dashboard',
+      '/login',
+      '/signup',
+      '/forgotpassword',
+      '/reset-password',
+      '/verify',
+      '/bills',
+      '/voucher',
+      '/gift',
+      '/topup',
+      '/transactions',
+      '/404'
+    ];    
 
     if (noRedirectPaths.some(path => currentPath.includes(path))) {
       return;
