@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import axios from 'axios';
 import Box from '@mui/material/Box';
 import Stepper from '@mui/material/Stepper';
 import Step from '@mui/material/Step';
@@ -32,9 +33,10 @@ import KycImage from '../images/Rectangle 52.png'
 import { postDataKyc, putFileKyc } from '../api/public/kyc'
 
 
-const Responsive = styled('Typography')(({theme}) =>({
-  [theme.breakpoints.down('sm')]:{
-    fontSize:'.6rem'
+
+const Responsive = styled('Typography')(({ theme }) => ({
+  [theme.breakpoints.down('sm')]: {
+    fontSize: '.6rem'
   }
 }))
 
@@ -200,6 +202,15 @@ export default function KYC() {
         console.log("Sulod kaayu")
         const fileResult = await putFileKyc(mergeFileData)
         if (fileResult.status === 200) {
+          const userData = JSON.parse(localStorage.getItem('user'));
+          const userId = userData._id;
+
+          await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/kyc/submit`, {}, {
+            headers: {
+              Authorization: `Bearer ${userId}`
+            }
+          });
+          
           // console.log(result)
           setFormData(initialFormData)
           setLinkFieldsData([{ externalLinkAccount: '' }])
@@ -508,45 +519,45 @@ export default function KYC() {
                         <Grid container spacing={1}>
                           <Grid item xs={12} md={6}>
                             <HoverableCard onClick={() => handleClick('Individual')}>
-                            <CardContent>
-                            <PersonIcon style={{ fontSize: '4rem' }} />
-                            <Typography variant="h5" component="div">
-                                Individual
-                              </Typography>
-                              <Typography color="text.secondary">
-                              You are the only owner of a business, and you are not registered with the DTI.
-                              </Typography>
-                            </CardContent>
-                          </HoverableCard>
+                              <CardContent>
+                                <PersonIcon style={{ fontSize: '4rem' }} />
+                                <Typography variant="h5" component="div">
+                                  Individual
+                                </Typography>
+                                <Typography color="text.secondary">
+                                  You are the only owner of a business, and you are not registered with the DTI.
+                                </Typography>
+                              </CardContent>
+                            </HoverableCard>
                           </Grid>
                           <Grid item xs={12} md={6}>
                             <HoverableCard onClick={() => handleClick('Sole Proprietorship')} >
-                            <CardContent>
-                              <AccountBoxIcon style={{ fontSize: "4rem" }} />
-                              <Typography variant="h5" component="div">
-                                Sole Proprietorship
-                              </Typography>
-                              <Typography color="text.secondary">
-                              You are the sole owner of the business, and you have it registered with the DTI.
-                              </Typography>
-                            </CardContent>
+                              <CardContent>
+                                <AccountBoxIcon style={{ fontSize: "4rem" }} />
+                                <Typography variant="h5" component="div">
+                                  Sole Proprietorship
+                                </Typography>
+                                <Typography color="text.secondary">
+                                  You are the sole owner of the business, and you have it registered with the DTI.
+                                </Typography>
+                              </CardContent>
                             </HoverableCard>
                           </Grid>
                           <Grid item xs={12} md={6}>
                             <HoverableCard onClick={() => handleClick('Partnership')}>
-                            <CardContent>
-                              <GroupIcon style={{ fontSize: "4rem" }} />
-                              <Typography variant="h5" component="div">
-                                Partnership
-                              </Typography>
-                              <Typography color="text.secondary">
-                                Your businese owner by two or more individuals or partners, and it is registered with the SEC.
-                              </Typography>
-                            </CardContent>
+                              <CardContent>
+                                <GroupIcon style={{ fontSize: "4rem" }} />
+                                <Typography variant="h5" component="div">
+                                  Partnership
+                                </Typography>
+                                <Typography color="text.secondary">
+                                  Your businese owner by two or more individuals or partners, and it is registered with the SEC.
+                                </Typography>
+                              </CardContent>
                             </HoverableCard>
                           </Grid>
                           <Grid item xs={12} md={6}>
-                              <HoverableCard onClick={() => handleClick('Corporation')}>
+                            <HoverableCard onClick={() => handleClick('Corporation')}>
                               <CardContent>
                                 <CorporateFareIcon style={{ fontSize: "4rem" }} />
                                 <Typography variant="h5" component="div">

@@ -3,8 +3,10 @@ import axios from 'axios';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
-import { Link, Container, Typography, Divider, Stack, Button, TextField, FormControl, Select, MenuItem, InputLabel } from '@mui/material';
-import useResponsive from '../hooks/useResponsive';
+import { Link, Container, Typography, Divider, Stack, Button, TextField } from '@mui/material';
+import InputAdornment from '@mui/material/InputAdornment';
+import IconButton from '@mui/material/IconButton';
+import { Icon as Iconify } from '@iconify/react';
 import Logo from '../components/logo';
 
 const StyledRoot = styled('div')(({ theme }) => ({
@@ -25,60 +27,42 @@ const StyledContent = styled('div')(({ theme }) => ({
 
 export default function SignUpPage() {
     const navigate = useNavigate();
-    const [username, setUsername] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [role, setRole] = useState('dealer');
-    const [emailExists, setEmailExists] = useState(false);
-    const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+    const [formData, setFormData] = useState({
+        firstName: '',
+        middleName: '',
+        lastName: '',
+        designation: '',
+        email: '',
+        mobileNumber: '',
+        country: '',
+        ipAddress: '',
+        username: '',
+        password: ''
+    });
     const [errorMessage, setErrorMessage] = useState('');
-    const [showPassword, setShowPassword] = useState(false);
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData({
+            ...formData,
+            [name]: value
+        });
+    };
 
     const handleSignup = async () => {
         try {
-            setEmailExists(false);
+            const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/signup`, formData);
             setErrorMessage('');
-            console.log('Signing up user...');
-
-            const signupData = { username, email, password, role };
-            console.log('Signup data:', signupData);
-
-            const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/signup`, signupData);
-            console.log('Signup response:', response.data);
-
-            // Create default store page linked to the user
-            if (response.data._id && role !== 'admin') {
-                console.log('Creating default store...');
-                const storeData = {
-                    ownerId: response.data._id,
-                    storeName: email.split('@')[0],
-                    storeLogo: 'vortex_logo_black.png',
-                    needsApproval: false,
-                    isApproved: false,
-                    isLive: false
-                };
-                console.log('Store data:', storeData);
-
-                try {
-                    const storeResponse = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/createstore`, storeData);
-                    console.log('Store creation response:', storeResponse.data);
-                } catch (storeError) {
-                    console.error('Store creation error:', storeError);
-                    setErrorMessage('Error creating default store.');
-                }
-            }
-
             setShowSuccessMessage(true);
-            navigate('/verify'); // Redirect to the verify page
-
+            setTimeout(() => {
+                navigate('/verify');
+            }, 3000);
         } catch (error) {
-            console.error("Signup error:", error);
-
+            // Handle error, set error message to state
             if (error.response && error.response.data) {
-                console.log("Server response:", error.response.data);
                 setErrorMessage(error.response.data.message);
             } else {
-                console.error("Other error:", error);
                 setErrorMessage('An error occurred during signup.');
             }
         }
@@ -97,62 +81,132 @@ export default function SignUpPage() {
     return (
         <>
             <Helmet>
-                <title> Sign Up | VAAS </title>
+                <title> Sign Up | Your App </title>
             </Helmet>
-
             <StyledRoot>
                 <Container maxWidth="sm" sx={{ backgroundColor: "#fff" }}>
-                    <Logo
-                        sx={{
-                            alignSelf: 'center',
-                        }}
-                    />
+                    <Logo sx={{ alignSelf: 'center' }} />
                     <StyledContent>
                         <Typography variant="h4" gutterBottom>
                             Sign Up
                         </Typography>
-
                         <Typography variant="body2" sx={{ mb: 5 }}>
-                            Register to Vortex
+                            Register to Your App
                         </Typography>
-
-                        {errorMessage && <Typography variant="body2" color="error" sx={{ mb: 5 }}>{errorMessage}</Typography>}
-
                         <TextField
                             fullWidth
-                            label="Name"
+                            label="First Name"
                             variant="outlined"
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
+                            name="firstName"
+                            value={formData.firstName}
+                            onChange={handleInputChange}
                             sx={{ mb: 3 }}
                         />
-
+                        <TextField
+                            fullWidth
+                            label="Middle Name"
+                            variant="outlined"
+                            name="middleName"
+                            value={formData.middleName}
+                            onChange={handleInputChange}
+                            sx={{ mb: 3 }}
+                        />
+                        <TextField
+                            fullWidth
+                            label="Last Name"
+                            variant="outlined"
+                            name="lastName"
+                            value={formData.lastName}
+                            onChange={handleInputChange}
+                            sx={{ mb: 3 }}
+                        />
+                        <TextField
+                            fullWidth
+                            label="Designation"
+                            variant="outlined"
+                            name="designation"
+                            value={formData.designation}
+                            onChange={handleInputChange}
+                            sx={{ mb: 3 }}
+                        />
                         <TextField
                             fullWidth
                             label="Email"
                             variant="outlined"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            name="email"
+                            value={formData.email}
+                            onChange={handleInputChange}
                             sx={{ mb: 3 }}
                         />
-
+                        <TextField
+                            fullWidth
+                            label="Mobile Number"
+                            variant="outlined"
+                            name="mobileNumber"
+                            value={formData.mobileNumber}
+                            onChange={handleInputChange}
+                            sx={{ mb: 3 }}
+                        />
+                        <TextField
+                            fullWidth
+                            label="Country of Location"
+                            variant="outlined"
+                            name="country"
+                            value={formData.country}
+                            onChange={handleInputChange}
+                            sx={{ mb: 3 }}
+                        />
+                        <TextField
+                            fullWidth
+                            label="IP Address"
+                            variant="outlined"
+                            name="ipAddress"
+                            value={formData.ipAddress}
+                            onChange={handleInputChange}
+                            sx={{ mb: 3 }}
+                        />
+                        <TextField
+                            fullWidth
+                            label="Username"
+                            variant="outlined"
+                            name="username"
+                            value={formData.username}
+                            onChange={handleInputChange}
+                            sx={{ mb: 3 }}
+                        />
                         <TextField
                             fullWidth
                             label="Password"
                             variant="outlined"
-                            type={showPassword ? "text" : "password"}
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
+                            type={formData.showPassword ? 'text' : 'password'}
+                            name="password"
+                            value={formData.password}
+                            onChange={handleInputChange}
                             sx={{ mb: 3 }}
+                            InputProps={{
+                                endAdornment: (
+                                    <InputAdornment position="end">
+                                        <IconButton
+                                            onClick={() => setFormData({ ...formData, showPassword: !formData.showPassword })}
+                                            edge="end"
+                                        >
+                                            <Iconify icon={formData.showPassword ? 'eva:eye-fill' : 'eva:eye-off-fill'} />
+                                        </IconButton>
+                                    </InputAdornment>
+                                )
+                            }}
                         />
-
                         <Button fullWidth size="large" color="inherit" variant="outlined" onClick={handleSignup}>
                             Sign Up
                         </Button>
-
+                        {errorMessage && (
+                            <Typography variant="body2" color="error" sx={{ my: 2 }}>
+                                {errorMessage}
+                            </Typography>
+                        )}
                         {showSuccessMessage && (
                             <Stack spacing={2} sx={{ mt: 3 }}>
-                                <Typography variant="body2" color="success">
+                                <Typography variant="body2" color="primary">
                                     Successful Sign-Up!
                                 </Typography>
                                 <Typography variant="body2" color="textSecondary">
@@ -160,12 +214,10 @@ export default function SignUpPage() {
                                 </Typography>
                             </Stack>
                         )}
-
                         <Divider sx={{ my: 3 }} />
-
                         <Typography variant="body2" sx={{ mb: 5 }}>
-                            Already have a Vortex ID?
-                            <Link variant="subtitle2" onClick={() => navigate('/login')} sx={{ cursor: 'pointer' }}>Login</Link>
+                            Already have an account?
+                            <Link variant="subtitle2" onClick={() => navigate('/login')} sx={{ cursor: 'pointer', ml: 1 }}>Login</Link>
                         </Typography>
                     </StyledContent>
                 </Container>

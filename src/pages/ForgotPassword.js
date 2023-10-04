@@ -1,9 +1,9 @@
 import axios from 'axios';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
-import { Link, Container, Typography, Divider, Stack, Button, TextField } from '@mui/material';
+import { Link, Container, Typography, Button, TextField } from '@mui/material';
 import Logo from '../components/logo';
 
 const StyledRoot = styled('div')(({ theme }) => ({
@@ -23,29 +23,10 @@ const StyledContent = styled('div')(({ theme }) => ({
 }));
 
 export default function ForgotPasswordPage() {
-    const [step, setStep] = useState(0);
     const [email, setEmail] = useState('');
-    const [verificationCode, setVerificationCode] = useState('');
-    const [newPassword, setNewPassword] = useState('');
-    const [isSendingVerificationCode, setIsSendingVerificationCode] = useState(false);
     const [successMessage, setSuccessMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
-    const [countdown, setCountdown] = useState(180);
-    const [allowResend, setAllowResend] = useState(false);
     const navigate = useNavigate();
-
-    useEffect(() => {
-        let timer;
-        if (countdown > 0 && !allowResend) {
-            timer = setInterval(() => {
-                setCountdown(countdown - 1);
-            }, 1000);
-        } else {
-            clearInterval(timer);
-            setAllowResend(true);
-        }
-        return () => clearInterval(timer);
-    }, [countdown, allowResend]);
 
     const handleRequestPasswordChange = async () => {
         try {
@@ -55,12 +36,11 @@ export default function ForgotPasswordPage() {
             );
 
             if (response.status === 200) {
-                setSuccessMessage('Password change request sent! Check your email.');
-                console.log(response.data.message);
-                setCountdown(180);
-                setAllowResend(false);
-                setStep(1);
+                setSuccessMessage('Password change request sent! Redirecting to login...');
                 setErrorMessage('');
+                setTimeout(() => {
+                    navigate('/login');
+                }, 3000); // wait 3 seconds, then navigate
             }
         } catch (error) {
             if (error.response && error.response.data && error.response.data.message.includes("unregistered")) {
@@ -72,73 +52,10 @@ export default function ForgotPasswordPage() {
         }
     };
 
-    const handleResendVerificationCode = async () => {
-        await handleRequestPasswordChange();
-        setCountdown(180);
-        setAllowResend(false);
-    };
-
-
-    const handleVerifyOwnership = async () => {
-        try {
-            const verifyResponse = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/verify-password-change`, {
-                email,
-                code: verificationCode
-            });
-
-            if (verifyResponse.data.message === 'Code verified successfully. Proceed to change password.') {
-                setSuccessMessage('Ownership verified successfully! Enter your new password.');
-                console.log("Ownership verified successfully!");
-                setStep(2);
-                setErrorMessage('');
-            } else {
-                setErrorMessage('Verification failed. Please check the code and try again.');
-                console.error("Error during verification:", verifyResponse.data.message);
-
-            }
-        } catch (error) {
-            setErrorMessage('Error during verification.');
-            console.error("Error:", error);
-            if (error.response && error.response.data && error.response.data.message) {
-                console.error("Server Response:", error.response.data.message);
-            }
-        }
-    };
-
-    const handleChangePassword = async () => {
-        setIsSendingVerificationCode(true);
-        try {
-            const updateResponse = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/updateUserPassword`, {
-                email,
-                password: newPassword
-            });
-
-            if (updateResponse.data.message === 'Password updated successfully') {
-                setSuccessMessage('Password successfully updated! Redirecting to login...');
-                console.log("Password successfully updated!");
-                setTimeout(() => {
-                    navigate('/login');
-                }, 2000);
-            } else {
-                setErrorMessage(`Error during password update: ${updateResponse.data.message}`);
-                console.error("Error during password update:", updateResponse.data.message);
-            }
-        } catch (error) {
-            if (error.response && error.response.data && error.response.data.message) {
-                setErrorMessage(error.response.data.message);
-                console.error("Server Response:", error.response.data.message);
-            } else {
-                setErrorMessage('Error during password update.');
-                console.error("Error:", error);
-            }
-        }
-        setIsSendingVerificationCode(false);
-    };
-
     return (
         <>
             <Helmet>
-                <title> Forgot Password | VAAS </title>
+                <title> Forgot Password | Your App </title>
             </Helmet>
 
             <StyledRoot>
@@ -146,114 +63,26 @@ export default function ForgotPasswordPage() {
                     <Logo sx={{ alignSelf: 'center' }} />
                     <StyledContent>
                         <Typography variant="h4" gutterBottom>
-                            {step === 0 ? 'Forgot Password' : step === 1 ? 'Verify Ownership' : 'Change Password'}
+                            Forgot Password
                         </Typography>
 
-                        {step === 0 && (
-                            <>
-                                <TextField
-                                    fullWidth
-                                    label="Email"
-                                    variant="outlined"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    sx={{ mb: 3 }}
-                                />
-                                <Button
-                                    fullWidth
-                                    size="large"
-                                    color="inherit"
-                                    variant="outlined"
-                                    onClick={handleRequestPasswordChange}
-                                >
-                                    Request Password Change
-                                </Button>
-                            </>
-                        )}
-
-                        {step === 1 && (
-                            <>
-                                <TextField
-                                    fullWidth
-                                    label="Email"
-                                    variant="outlined"
-                                    value={email}
-                                    disabled
-                                    sx={{ mb: 3 }}
-                                />
-                                <TextField
-                                    fullWidth
-                                    label="Verification Code"
-                                    variant="outlined"
-                                    value={verificationCode}
-                                    onChange={(e) => setVerificationCode(e.target.value)}
-                                    sx={{ mb: 3 }}
-                                />
-                                <Button
-                                    fullWidth
-                                    size="large"
-                                    color="inherit"
-                                    variant="outlined"
-                                    onClick={handleVerifyOwnership}
-                                >
-                                    Verify Ownership
-                                </Button>
-                                <div style={{ textAlign: 'right' }}>
-                                    {allowResend ? (
-                                        <Typography variant="body2">
-                                            <a
-                                                href="#"
-                                                onClick={handleResendVerificationCode}
-                                                style={{ textDecoration: 'none', cursor: 'pointer' }}
-                                            >
-                                                Resend Verification Code
-                                            </a>
-                                        </Typography>
-                                    ) : (
-                                        <Typography variant="body2">
-                                            Resend code in {Math.floor(countdown / 60)}:{countdown % 60 < 10 ? '0' : ''}{countdown % 60}
-                                        </Typography>
-                                    )}
-                                </div>
-                            </>
-                        )}
-
-                        {step === 2 && (
-                            <>
-                                <TextField
-                                    fullWidth
-                                    label="Email"
-                                    variant="outlined"
-                                    value={email}
-                                    disabled
-                                    sx={{ mb: 3 }}
-                                />
-                                <TextField
-                                    fullWidth
-                                    label="New Password"
-                                    variant="outlined"
-                                    type="password"
-                                    value={newPassword}
-                                    onChange={(e) => setNewPassword(e.target.value)}
-                                    sx={{ mb: 3 }}
-                                />
-                                <Button
-                                    fullWidth
-                                    size="large"
-                                    color="inherit"
-                                    variant="outlined"
-                                    onClick={handleChangePassword}
-                                >
-                                    Change Password
-                                </Button>
-                            </>
-                        )}
-
-                        {isSendingVerificationCode && (
-                            <Typography variant="body2" color="secondary" sx={{ mt: 2 }}>
-                                Sending Verification Code...
-                            </Typography>
-                        )}
+                        <TextField
+                            fullWidth
+                            label="Email"
+                            variant="outlined"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            sx={{ mb: 3 }}
+                        />
+                        <Button
+                            fullWidth
+                            size="large"
+                            color="inherit"
+                            variant="outlined"
+                            onClick={handleRequestPasswordChange}
+                        >
+                            Request Password Change
+                        </Button>
 
                         {successMessage && (
                             <Typography variant="body2" color="primary" sx={{ mt: 2 }}>

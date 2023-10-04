@@ -23,6 +23,7 @@ import AdminStores from './pages/AdminPages/AdminStores';
 import AdminKYC from './pages/AdminPages/AdminKYC';
 import AdminKYCApproval from './pages/AdminPages/AdminKYCApproval';
 import VortexBills from './pages/VortexBills';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 
 // ----------------------------------------------------------------------
 
@@ -42,7 +43,7 @@ export default function Router() {
     const currentPath = window.location.pathname;
     const storeUrlPattern = /^\/([a-zA-Z0-9_-]+)$/;
     const match = currentPath.match(storeUrlPattern);
-    const noRedirectPaths = ['/bills', '/voucher', '/gift', '/topup', '/transactions'];
+    const noRedirectPaths = ['/bills', '/voucher', '/gift', '/topup', '/transactions', '/reset-password', '/404'];
 
     if (noRedirectPaths.some(path => currentPath.includes(path))) {
       return;
@@ -81,7 +82,7 @@ export default function Router() {
       path: '',
       element: isSubdomain ? <LiveStorePage /> : <LandingPage />,
       children: [
-        { path: 'bills', element: <VortexBills/> },
+        { path: 'bills', element: <VortexBills /> },
         { path: 'topup', element: <div> Topup </div> },
         { path: 'voucher', element: <div> Voucher </div> },
         { path: 'transactions', element: <div> Transactions </div> },
@@ -134,7 +135,11 @@ export default function Router() {
     },
     {
       path: 'forgotpassword',
-      element: <ForgotPasswordPage />,
+      element: <ForgotPasswordPage />
+    },
+    {
+      path: 'reset-password',
+      element: !isLoggedIn ? <ResetPasswordPage /> : <Navigate to="/dashboard/app" />
     },
     {
       path: 'verify',
@@ -144,7 +149,7 @@ export default function Router() {
       path: ':storeUrl',
       element: <LiveStorePage />,
       children: [
-        { path: 'bills', element: <VortexBills/> },
+        { path: 'bills', element: <VortexBills /> },
         { path: 'topup', element: <div> Topup </div> },
         { path: 'voucher', element: <div> Voucher </div> },
         { path: 'transactions', element: <div> Transactions </div> },
