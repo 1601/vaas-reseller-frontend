@@ -13,6 +13,11 @@ const SubdomainHandler = () => {
 
     let storeUrl;
 
+    if (pathname.includes('reset-password')) {
+      setHasSubdomain(false);
+      return;
+    }
+
     if (hostname.includes('localhost') && pathname !== '/') {
       storeUrl = pathname.slice(1);
     } else if (hostname.includes('lvh.me') || hostname.includes('localhost')) {
