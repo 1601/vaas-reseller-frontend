@@ -36,9 +36,9 @@ export default function LoginForm() {
 
       if (verifiedRole) {
         localStorage.setItem('role', verifiedRole);
-        console.log('Role saved to localStorage:', verifiedRole); // Add this line to log the role
+        console.log('Role saved to localStorage:', verifiedRole);
       } else {
-        console.error('No role received from verifyRole API'); // Add this line to log error
+        console.error('No role received from verifyRole API'); 
       }
   
       // Check if the email is active or not
