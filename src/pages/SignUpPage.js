@@ -6,8 +6,10 @@ import { styled } from '@mui/material/styles';
 import { Link, Container, Typography, Divider, Stack, Button, TextField } from '@mui/material';
 import InputAdornment from '@mui/material/InputAdornment';
 import IconButton from '@mui/material/IconButton';
+import Autocomplete from '@mui/lab/Autocomplete';
 import { Icon as Iconify } from '@iconify/react';
 import Logo from '../components/logo';
+import { countries } from '../components/country/CountriesList';
 
 const StyledRoot = styled('div')(({ theme }) => ({
     [theme.breakpoints.up('md')]: {
@@ -147,14 +149,20 @@ export default function SignUpPage() {
                             onChange={handleInputChange}
                             sx={{ mb: 3 }}
                         />
-                        <TextField
+                        <Autocomplete
                             fullWidth
-                            label="Country of Location"
-                            variant="outlined"
-                            name="country"
+                            options={countries}
+                            getOptionLabel={(option) => option}
                             value={formData.country}
-                            onChange={handleInputChange}
-                            sx={{ mb: 3 }}
+                            onChange={(_, newValue) => setFormData({ ...formData, country: newValue })}
+                            renderInput={(params) => (
+                                <TextField
+                                    {...params}
+                                    label="Country of Location"
+                                    variant="outlined"
+                                    sx={{ mb: 3 }}
+                                />
+                            )}
                         />
                         <TextField
                             fullWidth
