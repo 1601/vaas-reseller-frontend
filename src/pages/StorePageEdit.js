@@ -427,7 +427,7 @@ const StorePageEdit = () => {
                 </Typography>
               ) : (
                 <Typography variant="h6" mb={2} style={{ marginBottom: '20px', textAlign: 'center' }}>
-                  Please finish this step first before the store can be edited.
+                  Please finish this step first before the store can go Live.
                 </Typography>
               )}
 
