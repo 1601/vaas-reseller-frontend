@@ -38,26 +38,31 @@ export default function LoginForm() {
         localStorage.setItem('role', verifiedRole);
         console.log('Role saved to localStorage:', verifiedRole);
       } else {
-        console.error('No role received from verifyRole API'); 
+        console.error('No role received from verifyRole API');
       }
-  
+
       // Check if the email is active or not
       if (isActive === false) {
         setIsVerified(false);
         setVerificationMessage('Email not yet verified. Please proceed to verification');
         return;
       }
-  
+
       // Save token and user info to local storage
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(response.data));
-  
+
       // Navigate to the appropriate dashboard based on role
       navigate(role === 'admin' ? '/dashboard/admin' : '/dashboard/app', { replace: true });
       window.location.reload();
-  
+
     } catch (error) {
-      setError('Invalid email or password');
+      if (error.response && error.response.data) {
+        // Update to handle custom error messages from server
+        setError(error.response.data.message);
+      } else {
+        setError('Invalid email or password');
+      }
     }
   };
 
