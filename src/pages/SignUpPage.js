@@ -70,7 +70,7 @@ export default function SignUpPage() {
       }
     }
   };
-  
+
   // Update location state for email
   useEffect(() => {
     setEmail(location.state?.email || '');
@@ -80,10 +80,10 @@ export default function SignUpPage() {
   useEffect(() => {
     const fetchIPAddress = async () => {
       try {
-        const response = await axios.get('https://api.ipify.org?format=json');
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/fetch-ip`);
         setFormData((prevFormData) => ({
           ...prevFormData,
-          ipAddress: response.data.ip,
+          ipAddress: response.data.ipAddress,
         }));
       } catch (error) {
         console.error('Error fetching IP address: ', error);
@@ -159,8 +159,8 @@ export default function SignUpPage() {
               label="Email"
               variant="outlined"
               name="email"
-              value={email} 
-              onChange={(e) => setEmail(e.target.value)} 
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               sx={{ mb: 3 }}
             />
             <TextField
