@@ -1,19 +1,26 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
-import Box from '@mui/material/Box'
+import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Hidden from '@mui/material/Hidden';
 import Modal from '../utils/Modal';
-
 import Calling from '../images/calling.png';
-import Phone from '../images/phone.png'
-
+import Phone from '../images/phone.png';
 
 function HeroHome() {
-
   const [videoModalOpen, setVideoModalOpen] = useState(false);
+  const [email, setEmail] = useState('');
+  const navigate = useNavigate();
+
+  const handleEmailChange = (e) => {
+    setEmail(e.target.value);
+  };
+
+  const startStore = () => {
+    navigate('/signup', { state: { email } });
+  };
 
   return (
     <section className="relative">
@@ -35,25 +42,36 @@ function HeroHome() {
       </div>
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
-
         <Hidden mdDown>
           <div className="pt-32 pb-12 md:pt-40 md:pb-20">
             {/* Section header */}
             <div className="text-center pb-12 md:pb-16">
-              <h1 className="text-5xl md:text-6xl font-extrabold leading-tighter tracking-tighter mb-4" data-aos="zoom-y-out">The Philippines <br /> <span style={{ color: '#A83CE2' }}>e-fullfillment platform</span></h1>
+              <h1
+                className="text-5xl md:text-6xl font-extrabold leading-tighter tracking-tighter mb-4"
+                data-aos="zoom-y-out"
+              >
+                The Philippines <br /> <span style={{ color: '#A83CE2' }}>e-fullfillment platform</span>
+              </h1>
               <div className="max-w-3xl mx-auto">
-                <p className="text-sm text-gray-600 mb-8" data-aos="zoom-y-out" data-aos-delay="150">The Fastest and Most Convenient Way to Send Prepaid Mobile Load Anytime, Anywhere.</p>
-                <div className="max-w-xs mx-auto sm:max-w-none sm:flex sm:justify-center justify-center" data-aos="zoom-y-out" data-aos-delay="300">
+                <p className="text-sm text-gray-600 mb-8" data-aos="zoom-y-out" data-aos-delay="150">
+                  The Fastest and Most Convenient Way to Send Prepaid Mobile Load Anytime, Anywhere.
+                </p>
+                <div
+                  className="max-w-xs mx-auto sm:max-w-none sm:flex sm:justify-center justify-center"
+                  data-aos="zoom-y-out"
+                  data-aos-delay="300"
+                >
                   <div className="relative flex flex-col lg:flex-row items-center justify-center mt-7">
                     <form className="w-full lg:w-auto text-center">
                       <div className="flex flex-col sm:flex-row justify-center max-w-xs mx-auto sm:max-w-md lg:mx-0">
-
                         <div className="flex justify-center">
                           <TextField
                             type="email"
                             fullWidth
                             variant="outlined"
                             placeholder="Your email..."
+                            value={email}
+                            onChange={handleEmailChange}
                             InputLabelProps={{
                               shrink: true,
                             }}
@@ -71,10 +89,9 @@ function HeroHome() {
                           />
 
                           <Button
-                            component={Link}
-                            to="/login"
                             variant="contained"
                             color="primary"
+                            onClick={startStore}
                             style={{
                               fontFamily: 'Shopify Sans, sans-serif',
                               overflow: 'hidden',
@@ -89,21 +106,20 @@ function HeroHome() {
                               textAlign: 'center',
                               textDecoration: 'none',
                               whiteSpace: 'nowrap',
-                              marginLeft:'-45px'
+                              marginLeft: '-45px',
                             }}
                           >
                             Start Store
                           </Button>
                         </div>
-
                       </div>
                       <p style={{ fontSize: '.6rem', marginTop: '5px', textAlign: 'center' }}>
-                        Experience Vortex, no credit card required. By entering your email, you agree to receive marketing emails from Vortex.
+                        Experience Vortex, no credit card required. By entering your email, you agree to receive
+                        marketing emails from Vortex.
                       </p>
                     </form>
                   </div>
                 </div>
-
               </div>
             </div>
 
@@ -140,8 +156,20 @@ function HeroHome() {
                     </g>
                   </g>
                 </div>
-                <button className="absolute top-full flex items-center transform -translate-y-1/2 bg-white rounded-full font-medium group p-4 shadow-lg" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setVideoModalOpen(true); }} aria-controls="modal">
-                  <svg className="w-6 h-6 fill-current text-gray-400 group-hover:text-purple-600 flex-shrink-0" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <button
+                  className="absolute top-full flex items-center transform -translate-y-1/2 bg-white rounded-full font-medium group p-4 shadow-lg"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setVideoModalOpen(true);
+                  }}
+                  aria-controls="modal"
+                >
+                  <svg
+                    className="w-6 h-6 fill-current text-gray-400 group-hover:text-purple-600 flex-shrink-0"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
                     <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10zm0 2C5.373 24 0 18.627 0 12S5.373 0 12 0s12 5.373 12 12-5.373 12-12 12z" />
                     <path d="M10 17l6-5-6-5z" />
                   </svg>
@@ -150,13 +178,22 @@ function HeroHome() {
               </div>
 
               {/* Modal */}
-              <Modal id="modal" ariaLabel="modal-headline" show={videoModalOpen} handleClose={() => setVideoModalOpen(false)}>
+              <Modal
+                id="modal"
+                ariaLabel="modal-headline"
+                show={videoModalOpen}
+                handleClose={() => setVideoModalOpen(false)}
+              >
                 <div className="relative pb-9/16">
                   {/* eslint-disable-next-line */}
-                  <iframe className="absolute w-full h-full" src="https://player.vimeo.com/video/174002812" title="Video" allowFullScreen></iframe>
+                  <iframe
+                    className="absolute w-full h-full"
+                    src="https://player.vimeo.com/video/174002812"
+                    title="Video"
+                    allowFullScreen
+                  ></iframe>
                 </div>
               </Modal>
-
             </div>
 
             {/* Hero image */}
@@ -176,28 +213,37 @@ function HeroHome() {
                 </Modal>
 
               </div> */}
-
           </div>
           <div style={{ textAlign: 'center', marginTop: '2rem' }}>
             <Typography variant="h5">Explore the solutions</Typography>
-            <Typography variant='caption'>Looking for an easy and fast way to send prepaid mobile load to your friends and loved ones in the Philippines? Look no further! </Typography>
+            <Typography variant="caption">
+              Looking for an easy and fast way to send prepaid mobile load to your friends and loved ones in the
+              Philippines? Look no further!{' '}
+            </Typography>
           </div>
         </Hidden>
-
-
 
         {/* Hero content Mobile Screen */}
         <Hidden mdUp>
           <div className="pt-32 pb-12 md:pt-40 md:pb-20">
-
             {/* Section header */}
             <div className="text-left pb-12 md:pb-16">
-              <h1 className="text-5xl md:text-6xl font-extrabold leading-tighter tracking-tighter mb-4" data-aos="zoom-y-out">The Philippines <br /> <span style={{ color: '#A83CE2' }}>e-fullfillment platform</span></h1>
+              <h1
+                className="text-5xl md:text-6xl font-extrabold leading-tighter tracking-tighter mb-4"
+                data-aos="zoom-y-out"
+              >
+                The Philippines <br /> <span style={{ color: '#A83CE2' }}>e-fullfillment platform</span>
+              </h1>
               <div className="max-w-3xl mx-auto">
-                <p className="text-sm text-gray-600 mb-8" data-aos="zoom-y-out" data-aos-delay="150">The Fastest and Most Convenient Way to Send Prepaid Mobile Load Anytime, Anywhere.</p>
-                <div className="max-w-xs mx-auto sm:max-w-none sm:flex sm:justify-center" data-aos="zoom-y-out" data-aos-delay="300">
+                <p className="text-sm text-gray-600 mb-8" data-aos="zoom-y-out" data-aos-delay="150">
+                  The Fastest and Most Convenient Way to Send Prepaid Mobile Load Anytime, Anywhere.
+                </p>
+                <div
+                  className="max-w-xs mx-auto sm:max-w-none sm:flex sm:justify-center"
+                  data-aos="zoom-y-out"
+                  data-aos-delay="300"
+                >
                   <div className="relative flex flex-col lg:flex-row justify-between items-center">
-
                     {/* CTA form */}
                     {/* <form className="w-full lg:w-auto">
                       <div className="flex flex-col sm:flex-row justify-center max-w-xs mx-auto sm:max-w-md lg:mx-0">
@@ -226,7 +272,7 @@ function HeroHome() {
                               borderColor: '#0E121D',
                               borderRadius: '12px',
                               height: '2.5rem',
-                              width: '248.18px'
+                              width: '248.18px',
                             },
                           }}
                         />
@@ -255,17 +301,18 @@ function HeroHome() {
                         >
                           Start Store
                         </Button>
-
-
-
                       </div>
                       <p style={{ fontSize: '.5rem', marginTop: '5px', textAlign: 'center' }}>
-                        Experience Vortex, no credit card required. By entering your email, you agree to receive marketing emails from Vortex.
+                        Experience Vortex, no credit card required. By entering your email, you agree to receive
+                        marketing emails from Vortex.
                       </p>
                     </form>
                     <div style={{ textAlign: 'center', marginTop: '2rem' }}>
                       <Typography variant="h5">Explore the solutions</Typography>
-                      <Typography variant='caption'>Looking for an easy and fast way to send prepaid mobile load to your friends and loved ones in the Philippines? Look no further! </Typography>
+                      <Typography variant="caption">
+                        Looking for an easy and fast way to send prepaid mobile load to your friends and loved ones in
+                        the Philippines? Look no further!{' '}
+                      </Typography>
                     </div>
                   </div>
                 </div>
@@ -316,18 +363,25 @@ function HeroHome() {
               </div>
 
               {/* Modal */}
-              <Modal id="modal" ariaLabel="modal-headline" show={videoModalOpen} handleClose={() => setVideoModalOpen(false)}>
+              <Modal
+                id="modal"
+                ariaLabel="modal-headline"
+                show={videoModalOpen}
+                handleClose={() => setVideoModalOpen(false)}
+              >
                 <div className="relative pb-9/16">
                   {/* eslint-disable-next-line */}
-                  <iframe className="absolute w-full h-full" src="https://player.vimeo.com/video/174002812" title="Video" allowFullScreen></iframe>
+                  <iframe
+                    className="absolute w-full h-full"
+                    src="https://player.vimeo.com/video/174002812"
+                    title="Video"
+                    allowFullScreen
+                  ></iframe>
                 </div>
               </Modal>
-
             </div>
-
           </div>
         </Hidden>
-
       </div>
     </section>
   );
