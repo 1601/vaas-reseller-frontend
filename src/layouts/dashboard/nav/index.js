@@ -68,8 +68,8 @@ export default function Nav({ openNav, onCloseNav }) {
 
   const role = localStorage.getItem('role');
 
-  const filteredNavConfigBottom = role === 'admin' 
-    ? navConfigBottom.filter(item => item.title !== 'upload document') 
+  const filteredNavConfigBottom = role === 'admin'
+    ? navConfigBottom.filter(item => item.title !== 'upload document')
     : navConfigBottom;
 
   const renderContent = (
@@ -79,7 +79,7 @@ export default function Nav({ openNav, onCloseNav }) {
         '& .simplebar-content': { height: 1, display: 'flex', flexDirection: 'column' },
       }}
     >
-      
+
       <Box sx={{ mb: 5, mx: 2.5 }}>
         <Link underline="none">
           <StyledAccount>
@@ -87,13 +87,16 @@ export default function Nav({ openNav, onCloseNav }) {
 
             <Box sx={{ ml: 2 }}>
               <Typography variant="subtitle2" sx={{ color: 'text.primary' }}>
-                {account.displayName} Business
+                {account.displayName}
               </Typography>
-
+              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                {account.designation} 
+              </Typography>
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                 {account.email}
               </Typography>
             </Box>
+
           </StyledAccount>
         </Link>
       </Box>
@@ -103,8 +106,8 @@ export default function Nav({ openNav, onCloseNav }) {
       <Box sx={{ flexGrow: 1 }} />
 
       <Box sx={{ px: 2.5, pb: 3, mt: 10 }}>
-      <NavSection data={filteredNavConfigBottom} />
-      
+        <NavSection data={filteredNavConfigBottom} />
+
         {/* <Stack alignItems="center" spacing={3} sx={{ pt: 5, borderRadius: 2, position: 'relative' }}>
           <Box
             component="img"
@@ -127,7 +130,7 @@ export default function Nav({ openNav, onCloseNav }) {
           </Button>
         </Stack> */}
       </Box>
-     
+
       <Box sx={{ px: 2.5, py: 3, display: 'inline-flex' }}>
         <Logo />
       </Box>
