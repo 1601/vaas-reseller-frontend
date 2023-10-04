@@ -433,7 +433,7 @@ const StorePageEdit = () => {
 
               {!storeData.kycSubmitted && (
                 <Button variant="outlined" color="primary" className="mr-2 mb-2" onClick={handleNavigateToKyc}>
-                  Go to Documents Approval
+                  Go to Upload Documents
                 </Button>
               )}
             </Card>
