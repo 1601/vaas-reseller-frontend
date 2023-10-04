@@ -392,17 +392,22 @@ const StorePageEdit = () => {
                 <div style={overlayStyle}>
                     <div style={messageBoxStyle}>
                         <Typography variant="h4">
-                            Documents are not yet submitted/approved.
-                        </Typography>
-                        <Typography variant="h6" mb={2}>
-                            Please finish this step first before the store can be edited.
+                            {storeData.kycSubmitted ?
+                                "Documents are not yet Approved." :
+                                "Documents are not yet Submitted."}
                         </Typography>
 
                         {storeData.kycSubmitted ? (
-                            <Typography variant="h6">
-                                Documents submitted and are pending approval.
+                            <Typography variant="h6" mb={2}>
+                                Please wait for Admins to assess your submitted documents.
                             </Typography>
                         ) : (
+                            <Typography variant="h6" mb={2}>
+                                Please finish this step first before the store can be edited.
+                            </Typography>
+                        )}
+
+                        {!storeData.kycSubmitted && (
                             <Button
                                 variant="outlined"
                                 color="primary"
@@ -415,6 +420,7 @@ const StorePageEdit = () => {
                     </div>
                 </div>
             )}
+
             <div className="flex flex-col mt-4">
                 <div className="flex-grow flex flex-col justify-center items-center transition-all duration-500 ease-in-out ml-0">
                     <div className="mb-4 w-full">
