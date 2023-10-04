@@ -76,7 +76,7 @@ function Header() {
                 <Link to="/login" className="font-medium text-sm md:text-base text-gray-600 hover:text-gray-900 px-2 py-1 md:px-3 md:py-2 flex items-center transition duration-150 ease-in-out">Log in</Link>
               </li>
               <li>
-                <Link to="/login" className="btn text-white bg-gray-900 text-shopifysans font-bold inline-block leading-none overflow-hidden max-w-full transition-all focus-visible:outline-4 focus-visible:outline-focus focus-visible:outline-offset-[-2px] border-solid border-2 rounded-[20px] focus-visible:outline-none tracking-ff-tight border-[transparent] text-white bg-shade-100 hover:bg-shade-70 active:bg-shade-50 disabled:bg-shade-20 disabled:text-shade-30 text-xs md:text-sm px-2 md:px-3 py-1 md:py-2">Create Shop</Link>
+                <Link to="/signup" className="btn text-white bg-gray-900 text-shopifysans font-bold inline-block leading-none overflow-hidden max-w-full transition-all focus-visible:outline-4 focus-visible:outline-focus focus-visible:outline-offset-[-2px] border-solid border-2 rounded-[20px] focus-visible:outline-none tracking-ff-tight border-[transparent] text-white bg-shade-100 hover:bg-shade-70 active:bg-shade-50 disabled:bg-shade-20 disabled:text-shade-30 text-xs md:text-sm px-2 md:px-3 py-1 md:py-2">Create Shop</Link>
               </li>
               
               <li>
