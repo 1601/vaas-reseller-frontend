@@ -431,7 +431,7 @@ const StorePageEdit = () => {
                                 </Typography>
                                 <div>
                                     {isEditing ? (
-                                        <div className="flex"> {/* Wrap both buttons in a flex container */}
+                                        <div className="flex">
                                             <Button onClick={handleSaveClick} className="bg-blue-600 text-white px-4 py-2 rounded mr-2">Save</Button>
                                         </div>
                                     ) : (
@@ -439,7 +439,7 @@ const StorePageEdit = () => {
                                             <Button
                                                 variant="outlined"
                                                 color="primary"
-                                                className="mr-2" // Removed mb-2 and added the same padding and font size as Edit button
+                                                className="mr-2"
                                                 style={{ padding: '8px 16px', fontSize: '14px' }}
                                                 onClick={handlePreviewClick}
                                             >
