@@ -61,7 +61,6 @@ export default function SignUpPage() {
                 navigate('/verify');
             }, 3000);
         } catch (error) {
-            // Handle error, set error message to state
             if (error.response && error.response.data) {
                 setErrorMessage(error.response.data.message);
             } else {
@@ -69,6 +68,23 @@ export default function SignUpPage() {
             }
         }
     };
+
+    // Fetching IP Address
+    useEffect(() => {
+        const fetchIPAddress = async () => {
+            try {
+                const response = await axios.get('https://api.ipify.org?format=json');
+                setFormData((prevFormData) => ({
+                    ...prevFormData,
+                    ipAddress: response.data.ip
+                }));
+            } catch (error) {
+                console.error("Error fetching IP address: ", error);
+            }
+        };
+
+        fetchIPAddress();
+    }, []);
 
     useEffect(() => {
         if (showSuccessMessage) {
@@ -170,8 +186,9 @@ export default function SignUpPage() {
                             variant="outlined"
                             name="ipAddress"
                             value={formData.ipAddress}
-                            onChange={handleInputChange}
+                            // onChange={handleInputChange}
                             sx={{ mb: 3 }}
+                            disabled 
                         />
                         <TextField
                             fullWidth
