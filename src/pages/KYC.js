@@ -32,7 +32,6 @@ import { styled } from '@mui/material/styles';
 import Grid from '@mui/material/Grid';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
-import { useDropzone } from 'react-dropzone';
 import KycImage from '../images/Rectangle 52.png'
 import { postDataKyc, putFileKyc, autoCompleteAddress } from '../api/public/kyc'
 
