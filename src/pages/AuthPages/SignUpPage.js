@@ -68,6 +68,8 @@ export default function SignUpPage() {
     });
   };
 
+  const [errorDialogOpen, setErrorDialogOpen] = useState(false);
+
   const handleSignup = async () => {
     console.log(formData);
     try {
@@ -83,6 +85,7 @@ export default function SignUpPage() {
       } else {
         setErrorMessage('An error occurred during signup.');
       }
+      setErrorDialogOpen(true); // Open the error dialog
     }
   };
 
@@ -250,6 +253,20 @@ export default function SignUpPage() {
                 ),
               }}
             />
+            {/* Password Guidelines Dialog */}
+            {/* Error Dialog */}
+            <Dialog open={errorDialogOpen} onClose={() => setErrorDialogOpen(false)}>
+              <DialogTitle>Error</DialogTitle>
+              <DialogContent>
+                <DialogContentText>{errorMessage}</DialogContentText>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={() => setErrorDialogOpen(false)} color="primary">
+                  Close
+                </Button>
+              </DialogActions>
+            </Dialog>
+            
             <Button fullWidth size="large" color="inherit" variant="outlined" onClick={handleSignup}>
               Sign Up
             </Button>
