@@ -36,7 +36,7 @@ export default function SignUpPage() {
     middleName: '',
     lastName: '',
     designation: '',
-    email,
+    email: '',
     mobileNumber: '',
     country: '',
     ipAddress: '',
@@ -55,6 +55,7 @@ export default function SignUpPage() {
   };
 
   const handleSignup = async () => {
+    console.log(formData);
     try {
       const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/signup`, formData);
       setErrorMessage('');
@@ -71,9 +72,16 @@ export default function SignUpPage() {
     }
   };
 
+  // Update formData.email whenever email changes
+  useEffect(() => {
+    setFormData((prev) => ({ ...prev, email }));
+  }, [email]);
+
   // Update location state for email
   useEffect(() => {
-    setEmail(location.state?.email || '');
+    const newEmail = location.state?.email || '';
+    setEmail(newEmail);
+    setFormData((prev) => ({ ...prev, email: newEmail }));
   }, [location.state]);
 
   // Fetching IP Address
