@@ -124,7 +124,7 @@ const LiveStorePage = () => {
     if ((!storeData || storeData === 'domainNotFound') && notFound !== 'true') {
       const timer = setTimeout(() => {
         setShowNotFoundError(true);
-      }, 2000);
+      }, 1000);
 
       return () => clearTimeout(timer);
     }
@@ -136,7 +136,7 @@ const LiveStorePage = () => {
     return () => {};
   }, [storeData, notFound]);
 
-  if ((storeData === 'domainNotFound' || !storeData) && notFound !== 'true') {
+  if (showNotFoundError) {
     return (
       <div
         style={{
@@ -271,7 +271,7 @@ const LiveStorePage = () => {
     );
   }
 
-  if (storeData && !storeData.isLive) {
+  if (storeData && storeData !== 'domainNotFound' && !storeData.isLive) {
     return (
       <div
         style={{
