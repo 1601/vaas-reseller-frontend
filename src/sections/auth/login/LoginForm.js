@@ -2,7 +2,21 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 // @mui
-import { Button, Link, Stack, IconButton, InputAdornment, TextField, Checkbox, Typography } from '@mui/material';
+import {
+  Button,
+  Link,
+  Stack,
+  IconButton,
+  InputAdornment,
+  TextField,
+  Checkbox,
+  Typography,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+} from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 // components
 import Iconify from '../../../components/iconify';
@@ -16,12 +30,19 @@ export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isVerified, setIsVerified] = useState(true);
   const [verificationMessage, setVerificationMessage] = useState('');
+  const [dialogOpen, setDialogOpen] = useState(false);
+
+  const handleCloseDialog = () => {
+    setError('');
+    setVerificationMessage('');
+    setDialogOpen(false);
+  };
 
   const handleLogin = async () => {
     try {
       const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/login`, {
         email,
-        password
+        password,
       });
 
       const { token, username, _id, role, email: userEmail, isActive } = response.data;
@@ -55,7 +76,6 @@ export default function LoginForm() {
       // Navigate to the appropriate dashboard based on role
       navigate(role === 'admin' ? '/dashboard/admin' : '/dashboard/app', { replace: true });
       window.location.reload();
-
     } catch (error) {
       if (error.response && error.response.data) {
         // Update to handle custom error messages from server
@@ -70,8 +90,8 @@ export default function LoginForm() {
     try {
       const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/verifyRole`, {
         headers: {
-          'Authorization': `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
       return response.data.role;
     } catch (error) {
@@ -83,19 +103,14 @@ export default function LoginForm() {
   return (
     <>
       <Stack spacing={3}>
-        <TextField
-          name="email"
-          label="Email address"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-        />
+        <TextField name="email" label="Email address" value={email} onChange={(e) => setEmail(e.target.value)} />
 
         <TextField
           name="password"
           label="Password"
           type={showPassword ? 'text' : 'password'}
           value={password}
-          onChange={e => setPassword(e.target.value)}
+          onChange={(e) => setPassword(e.target.value)}
           InputProps={{
             endAdornment: (
               <InputAdornment position="end">
@@ -123,8 +138,27 @@ export default function LoginForm() {
         Login
       </Button>
 
-      {!isVerified && <Typography variant="body2" color="error" sx={{ mt: 2 }}>{verificationMessage}</Typography>}
-      {error && <Typography variant="body2" color="error" sx={{ mt: 2 }}>{error}</Typography>}
+      {!isVerified && (
+        <Typography variant="body2" color="error" sx={{ mt: 2 }}>
+          {verificationMessage}
+        </Typography>
+      )}
+      {error && (
+        <Typography variant="body2" color="error" sx={{ mt: 2 }}>
+          {error}
+        </Typography>
+      )}
+      <Dialog open={Boolean(error || verificationMessage)} onClose={handleCloseDialog}>
+        <DialogTitle>{error ? 'Error' : 'Notice'}</DialogTitle>
+        <DialogContent>
+          <DialogContentText>{error || verificationMessage}</DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialog} color="primary">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 }
