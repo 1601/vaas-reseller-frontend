@@ -1,6 +1,7 @@
 import {
     submitDataKyc,
-    submitFileKyc
+    submitFileKyc,
+    autocompleteAddress
 } from '../requests'
 
 export const postDataKyc = async(data) =>{
@@ -9,4 +10,8 @@ export const postDataKyc = async(data) =>{
 
 export const putFileKyc = async(data) =>{
     return submitFileKyc(data)
+}
+
+export const autoCompleteAddress = async(data)=>{
+    return autocompleteAddress(data)
 }

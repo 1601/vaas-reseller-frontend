@@ -43,7 +43,22 @@ const submitFileKyc = async (datas) =>{
     return response
 }
 
+const autocompleteAddress = async(data) =>{
+  const config = {
+    method: 'get',
+    url: `https://api.geoapify.com/v1/geocode/autocomplete?text=${data}&apiKey=db811e8a257b4256a5965eb22e43f936`,
+    headers: { }
+  };
+
+  const addressData =  await axios(config)
+  if(addressData){
+    return addressData;
+  }
+  return null;
+}
+
 export {
   submitDataKyc,
-  submitFileKyc
+  submitFileKyc,
+  autocompleteAddress
 };

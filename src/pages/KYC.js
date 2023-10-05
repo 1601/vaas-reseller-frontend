@@ -27,10 +27,14 @@ import GroupIcon from '@mui/icons-material/Group';
 import CorporateFareIcon from '@mui/icons-material/CorporateFare';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import CircularProgress from "@mui/material/CircularProgress";
+import PlaceIcon from '@mui/icons-material/Place';
 import { styled } from '@mui/material/styles';
 import Grid from '@mui/material/Grid';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
 import KycImage from '../images/Rectangle 52.png'
-import { postDataKyc, putFileKyc } from '../api/public/kyc'
+import { postDataKyc, putFileKyc, autoCompleteAddress} from '../api/public/kyc'
+
 
 
 
@@ -131,6 +135,7 @@ export default function KYC() {
   const [fileUploaded, setFileUploaded] = useState(false)
   const [preload, setPreload] = useState(0)
   const [isError, setIsError] = useState(false)
+  const [autoComplete, setAutoComplete] = useState()
 
   const handleAddTextField = () => {
     setLinkFieldsData([...linkFieldsData, { externalLinkAccount: '' }]);
@@ -161,17 +166,17 @@ export default function KYC() {
     setActiveStep((prevStep) => prevStep - 1);
   };
 
-  const handleChange = (event) => {
-    const { name, value, type, checked } = event.target;
+  // const handleChange = (event) => {
+  //   const { name, value, type, checked } = event.target;
 
-    // Handle different input types (text, checkbox, number)
-    const newValue = type === 'checkbox' ? checked : value;
+  //   // Handle different input types (text, checkbox, number)
+  //   const newValue = type === 'checkbox' ? checked : value;
 
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: newValue,
-    }));
-  };
+  //   setFormData((prevData) => ({
+  //     ...prevData,
+  //     [name]: newValue,
+  //   }));
+  // };
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -229,7 +234,16 @@ export default function KYC() {
   };
 
   const handleInputChange = (e) => {
+    
     const { name, value, type, checked } = e.target;
+    
+    if(name === 'streetAddress' && value !== ''){
+      autoCompleteAddress(value)
+      .then((result) =>{
+        setAutoComplete(result.data.features)  
+      })
+    }
+
     setFormData({
       ...formData,
       [name]: type === 'checkbox' ? checked : value,
@@ -241,6 +255,18 @@ export default function KYC() {
     setBusinessType(type)
     setFormData({ ...formData, businessType: type });
   }
+
+  const handleAddressClick = (datas) => {
+    // Update the selected address and the TextField value when an option is clicked
+   
+    setFormData({
+      ...formData,
+      streetAddress: datas.properties.address_line1,
+      cityAddress: datas.properties.city,
+      regionAddress: datas.properties.state,
+      zipCodeAddress: datas.properties.postcode
+    });
+  };
 
   const handleInputChangeLink = (index, event) => {
     const updatedData = [...linkFieldsData];
@@ -263,6 +289,12 @@ export default function KYC() {
     }
   }, [preload])
 
+  // useEffect(() =>{
+  //   autoCompleteAddress(autoComplete)
+  //   .then((result) =>{
+  //     console.log(result)
+  //   })
+  // },[autoComplete])
 
   return (
     <>
@@ -335,7 +367,6 @@ export default function KYC() {
                           ),
                         }}
                       />
-
                       {/* Street Address */}
                       <Typography variant="body1"> Business Address</Typography>
                       <TextField
@@ -357,6 +388,37 @@ export default function KYC() {
                           ),
                         }}
                       />
+
+                      {autoComplete && (
+                        autoComplete.map((datas, index) =>{
+                          return(
+                            <Box key={index}
+                              style={
+                                {
+                                  backgroundColor: '#f5f5f5',
+                                  border: '1px solid #ddd',
+                                  padding: '10px',
+                                  margin: '5px 0',
+                                  borderRadius: '4px',
+                                  cursor: 'pointer',
+                                  transition: 'background-color 0.2s ease',
+                                  fontSize:'.8rem',
+                                  display:'flex',
+                                  alignItems:'center'
+                                  
+                                }
+                              }
+                              onClick={() => {
+                                handleAddressClick(datas)
+                                setAutoComplete('')
+                              }}
+                            >
+                              <PlaceIcon sx={{fontSize:'14px'}}/>
+                              <p>{datas.properties.formatted}</p>
+                            </Box>
+                          )
+                        })
+                      )}
 
                       {/* City Address */}
                       <Grid container spacing={1}>
@@ -387,14 +449,15 @@ export default function KYC() {
                         <Grid item xs={12} md={4}>
                           <TextField
                             fullWidth
-                            label="Region Address"
+                            label="Region/State"
                             variant="outlined"
                             margin="normal"
-                            placeholder="Enter region address"
+                            placeholder="Region/State"
                             name="regionAddress"
                             value={formData.regionAddress}
                             onChange={handleInputChange}
                           />
+                           
                         </Grid>
 
                         {/* Zip Code Address */}
