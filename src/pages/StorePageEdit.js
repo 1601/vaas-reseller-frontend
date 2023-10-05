@@ -2,7 +2,22 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { ChromePicker } from 'react-color';
-import { Box, Stack, Card, Grid, Container, Divider, Switch, Typography, Button } from '@mui/material';
+import {
+  Box,
+  Stack,
+  Card,
+  Grid,
+  Container,
+  Divider,
+  Switch,
+  Typography,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+} from '@mui/material';
 
 const StorePageEdit = () => {
   const navigate = useNavigate();
@@ -70,7 +85,8 @@ const StorePageEdit = () => {
       const storedUserId = JSON.parse(localStorage.getItem('user'))._id;
 
       if (!isValidSubdomain(editedData.storeUrl)) {
-        alert('Please ensure only lowercase alphanumerical with no special symbols');
+        setErrorMessage('Please ensure only lowercase alphanumerical with no special symbols');
+        setErrorDialogOpen(true);
         return;
       }
 
@@ -105,8 +121,19 @@ const StorePageEdit = () => {
       }
     } catch (error) {
       console.error('Could not update store data', error);
+      // Set a default error message
+      let errorMessage = 'Could not update store data';
+      // If a message is provided in the error response, use it instead
+      if (error.response && error.response.data && error.response.data.message) {
+        errorMessage = error.response.data.message;
+      }
+      setErrorMessage(errorMessage);
+      setErrorDialogOpen(true);
     }
   };
+
+  const [errorDialogOpen, setErrorDialogOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleInputChange = (e, field) => {
     setEditedData({
@@ -793,6 +820,18 @@ const StorePageEdit = () => {
               <progress max="100" value={progress} />
             </div>
           )}
+
+          <Dialog open={errorDialogOpen} onClose={() => setErrorDialogOpen(false)}>
+            <DialogTitle>Error</DialogTitle>
+            <DialogContent>
+              <DialogContentText>{errorMessage}</DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setErrorDialogOpen(false)} color="primary">
+                Close
+              </Button>
+            </DialogActions>
+          </Dialog>
         </div>
       </div>
     </Container>
