@@ -4,7 +4,7 @@ import axios from 'axios';
 import { Helmet } from 'react-helmet-async';
 import { styled } from '@mui/material/styles';
 import { Container, Typography, Divider, TextField, Button, Stack } from '@mui/material';
-import Logo from '../components/logo';
+import Logo from '../../components/logo';
 
 const StyledRoot = styled('div')(({ theme }) => ({
     [theme.breakpoints.up('md')]: {

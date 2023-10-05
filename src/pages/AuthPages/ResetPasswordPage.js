@@ -5,7 +5,7 @@ import axios from 'axios';
 import { styled } from '@mui/material/styles';
 import { Container, Typography, Button, TextField, IconButton, InputAdornment } from '@mui/material';
 import { Icon as Iconify } from '@iconify/react';
-import Logo from '../components/logo';
+import Logo from '../../components/logo';
 
 const StyledRoot = styled('div')(({ theme }) => ({
     [theme.breakpoints.up('md')]: {

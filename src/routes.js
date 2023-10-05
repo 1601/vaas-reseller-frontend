@@ -6,24 +6,24 @@ import SimpleLayout from './layouts/simple';
 //
 import BlogPage from './pages/BlogPage';
 import UserPage from './pages/UserPage';
-import LoginPage from './pages/LoginPage';
-import SignUpPage from './pages/SignUpPage';
+import LoginPage from './pages/AuthPages/LoginPage';
+import SignUpPage from './pages/AuthPages/SignUpPage';
 import Page404 from './pages/Page404';
 import ProductsPage from './pages/ProductsPage';
 import DashboardAppPage from './pages/DashboardAppPage';
 import LandingPage from './pages/LandingPage';
 import LiveStorePage from './pages/LiveStorePage';
 import StorePageEdit from './pages/StorePageEdit';
-import VerifyPage from './pages/VerifyPage';
+import VerifyPage from './pages/AuthPages/VerifyPage';
 import KYC from './pages/KYC';
-import ForgotPasswordPage from './pages/ForgotPassword';
+import ForgotPasswordPage from './pages/AuthPages/ForgotPassword';
 import AdminDashboard from './pages/AdminPages/AdminHome';
 import AdminApproval from './pages/AdminPages/AdminApproval';
 import AdminStores from './pages/AdminPages/AdminStores';
 import AdminKYC from './pages/AdminPages/AdminKYC';
 import AdminKYCApproval from './pages/AdminPages/AdminKYCApproval';
 import VortexBills from './pages/VortexBills';
-import ResetPasswordPage from './pages/ResetPasswordPage';
+import ResetPasswordPage from './pages/AuthPages/ResetPasswordPage';
 
 // ----------------------------------------------------------------------
 

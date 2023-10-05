@@ -8,8 +8,8 @@ import InputAdornment from '@mui/material/InputAdornment';
 import IconButton from '@mui/material/IconButton';
 import Autocomplete from '@mui/lab/Autocomplete';
 import { Icon as Iconify } from '@iconify/react';
-import Logo from '../components/logo';
-import { countries } from '../components/country/CountriesList';
+import Logo from '../../components/logo';
+import { countries } from '../../components/country/CountriesList';
 
 const StyledRoot = styled('div')(({ theme }) => ({
   [theme.breakpoints.up('md')]: {

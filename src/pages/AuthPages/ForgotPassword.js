@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { useNavigate } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
 import { Link, Container, Typography, Button, TextField } from '@mui/material';
-import Logo from '../components/logo';
+import Logo from '../../components/logo';
 
 const StyledRoot = styled('div')(({ theme }) => ({
     [theme.breakpoints.up('md')]: {
