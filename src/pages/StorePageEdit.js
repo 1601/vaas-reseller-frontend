@@ -135,6 +135,8 @@ const StorePageEdit = () => {
           ...editedData,
           storeLogo: file,
           logoFileName: fileName,
+          needsApproval: true,
+          isApproved: false,
         });
       } else {
         alert('File size must not exceed 5MB');
