@@ -32,8 +32,9 @@ import { styled } from '@mui/material/styles';
 import Grid from '@mui/material/Grid';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
+import Dropzone from 'react-dropzone'
 import KycImage from '../images/Rectangle 52.png'
-import { postDataKyc, putFileKyc, autoCompleteAddress} from '../api/public/kyc'
+import { postDataKyc, putFileKyc, autoCompleteAddress } from '../api/public/kyc'
 
 
 
@@ -50,6 +51,10 @@ const HoverableCard = styled(Card)`
   height: 300px;
   transition: 0.3s; /* Add a smooth transition effect on hover */
 
+  color: ${(props) => (props.active ? '#BA61E8' : 'initial')}; /* Initial background color */
+  box-shadow: ${(props) =>
+    props.active ? '0px 0px 5px 0px rgba(0, 0, 0, 0.75)' : 'none'}; /* Box shadow when active */
+    
   &:hover {
     background-color: #f0f0f0; /* New background color on hover */
     box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.75); /* Box shadow on hover */
@@ -136,6 +141,10 @@ export default function KYC() {
   const [preload, setPreload] = useState(0)
   const [isError, setIsError] = useState(false)
   const [autoComplete, setAutoComplete] = useState()
+  const [isActive1, setIsActive1] = useState(false);
+  const [isActive2, setIsActive2] = useState(false);
+  const [isActive3, setIsActive3] = useState(false);
+  const [isActive4, setIsActive4] = useState(false);
 
   const handleAddTextField = () => {
     setLinkFieldsData([...linkFieldsData, { externalLinkAccount: '' }]);
@@ -215,7 +224,7 @@ export default function KYC() {
               Authorization: `Bearer ${userId}`
             }
           });
-          
+
           // console.log(result)
           setFormData(initialFormData)
           setLinkFieldsData([{ externalLinkAccount: '' }])
@@ -234,14 +243,14 @@ export default function KYC() {
   };
 
   const handleInputChange = (e) => {
-    
+
     const { name, value, type, checked } = e.target;
-    
-    if(name === 'streetAddress' && value !== ''){
+
+    if (name === 'streetAddress' && value !== '') {
       autoCompleteAddress(value)
-      .then((result) =>{
-        setAutoComplete(result.data.features)  
-      })
+        .then((result) => {
+          setAutoComplete(result.data.features)
+        })
     }
 
     setFormData({
@@ -251,14 +260,38 @@ export default function KYC() {
   };
 
 
-  const handleClick = (type) => {
+  const handleClick = (type, number) => {
+    if(number === 1){
+      setIsActive1(!isActive1)
+      setIsActive2(false)
+      setIsActive3(false)
+      setIsActive4(false)
+    }
+    if(number === 2){
+      setIsActive1(false)
+      setIsActive2(!isActive2)
+      setIsActive3(false)
+      setIsActive4(false)
+    }
+    if(number === 3){
+      setIsActive1(false)
+      setIsActive2(false)
+      setIsActive3(!isActive3)
+      setIsActive4(false)
+    }
+    if(number === 4){
+      setIsActive1(false)
+      setIsActive2(false)
+      setIsActive3(false)
+      setIsActive4(!isActive4)
+    }
     setBusinessType(type)
     setFormData({ ...formData, businessType: type });
   }
 
   const handleAddressClick = (datas) => {
     // Update the selected address and the TextField value when an option is clicked
-   
+
     setFormData({
       ...formData,
       streetAddress: datas.properties.address_line1,
@@ -390,8 +423,8 @@ export default function KYC() {
                       />
 
                       {autoComplete && (
-                        autoComplete.map((datas, index) =>{
-                          return(
+                        autoComplete.map((datas, index) => {
+                          return (
                             <Box key={index}
                               style={
                                 {
@@ -402,10 +435,10 @@ export default function KYC() {
                                   borderRadius: '4px',
                                   cursor: 'pointer',
                                   transition: 'background-color 0.2s ease',
-                                  fontSize:'.8rem',
-                                  display:'flex',
-                                  alignItems:'center'
-                                  
+                                  fontSize: '.8rem',
+                                  display: 'flex',
+                                  alignItems: 'center'
+
                                 }
                               }
                               onClick={() => {
@@ -413,7 +446,7 @@ export default function KYC() {
                                 setAutoComplete('')
                               }}
                             >
-                              <PlaceIcon sx={{fontSize:'14px'}}/>
+                              <PlaceIcon sx={{ fontSize: '14px' }} />
                               <p>{datas.properties.formatted}</p>
                             </Box>
                           )
@@ -457,7 +490,7 @@ export default function KYC() {
                             value={formData.regionAddress}
                             onChange={handleInputChange}
                           />
-                           
+
                         </Grid>
 
                         {/* Zip Code Address */}
@@ -581,7 +614,7 @@ export default function KYC() {
                       }}>
                         <Grid container spacing={1}>
                           <Grid item xs={12} md={6}>
-                            <HoverableCard onClick={() => handleClick('Individual')}>
+                            <HoverableCard active={isActive1} onClick={() => handleClick('Individual', 1)}>
                               <CardContent>
                                 <PersonIcon style={{ fontSize: '4rem' }} />
                                 <Typography variant="h5" component="div">
@@ -594,7 +627,7 @@ export default function KYC() {
                             </HoverableCard>
                           </Grid>
                           <Grid item xs={12} md={6}>
-                            <HoverableCard onClick={() => handleClick('Sole Proprietorship')} >
+                            <HoverableCard active={isActive2} onClick={() => handleClick('Sole Proprietorship', 2)} >
                               <CardContent>
                                 <AccountBoxIcon style={{ fontSize: "4rem" }} />
                                 <Typography variant="h5" component="div">
@@ -607,7 +640,7 @@ export default function KYC() {
                             </HoverableCard>
                           </Grid>
                           <Grid item xs={12} md={6}>
-                            <HoverableCard onClick={() => handleClick('Partnership')}>
+                            <HoverableCard active={isActive3} onClick={() => handleClick('Partnership', 3)}>
                               <CardContent>
                                 <GroupIcon style={{ fontSize: "4rem" }} />
                                 <Typography variant="h5" component="div">
@@ -620,7 +653,7 @@ export default function KYC() {
                             </HoverableCard>
                           </Grid>
                           <Grid item xs={12} md={6}>
-                            <HoverableCard onClick={() => handleClick('Corporation')}>
+                            <HoverableCard active={isActive4} onClick={() => handleClick('Corporation', 4)}>
                               <CardContent>
                                 <CorporateFareIcon style={{ fontSize: "4rem" }} />
                                 <Typography variant="h5" component="div">
@@ -671,14 +704,50 @@ export default function KYC() {
                       </div>
 
                       <HoverableButton>
-                        <input
+                        {/* <Dropzone onDrop={acceptedFiles => setSelectedImage([...selectedImage, acceptedFiles])}>
+                          {({ getRootProps, getInputProps }) => (
+                            <section>
+                              <div {...getRootProps()}>
+                                {/* <input {...getInputProps()} /> 
+                                <input
+                                  ref={fileInputRef}
+                                  type="file"
+                                  multiple
+                                  onChange={handleFileChange}
+                                  style={{ display: 'none' }}
+                                  id="file-input"
+                                  {...getInputProps()}
+                                />
+                                <div
+                                  style={{ display: 'flex', alignContent: 'flex-end' }}
+                                >
+                                  <Button
+                                    variant="contained"
+                                    color="primary"
+                                    component="span"
+                                    startIcon={<CloudUploadIcon />}
+                                    onClick={() => {
+                                      if (fileInputRef.current) {
+                                        fileInputRef.current.click();
+                                      }
+                                    }}
+                                  >
+                                    Select File
+                                  </Button>
+                                  <Typography style={{ alignSelf: 'center', justifySelf: 'center' }}> Or Drag 'n' Drop file here </Typography>
+                                </div>
+                              </div>
+                            </section>
+                          )}
+                        </Dropzone> */}
+                         <input
                           ref={fileInputRef}
                           type="file"
                           multiple
                           onChange={handleFileChange}
                           style={{ display: 'none' }}
                           id="file-input"
-                        />
+                        /> 
                         {/* <label htmlFor="file-input"> */}
                         <Button
                           variant="contained"
@@ -693,6 +762,7 @@ export default function KYC() {
                         >
                           Select File
                         </Button>
+
                         {/* </label> */}
 
                         <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', marginTop: '10px' }}>
