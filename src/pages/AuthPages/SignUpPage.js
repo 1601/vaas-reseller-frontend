@@ -3,7 +3,21 @@ import axios from 'axios';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
-import { Link, Container, Typography, Divider, Stack, Button, TextField } from '@mui/material';
+import Modal from '@mui/material/Modal';
+import {
+  Link,
+  Container,
+  Typography,
+  Divider,
+  Stack,
+  Button,
+  TextField,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+} from '@mui/material';
 import InputAdornment from '@mui/material/InputAdornment';
 import IconButton from '@mui/material/IconButton';
 import Autocomplete from '@mui/lab/Autocomplete';
@@ -54,6 +68,8 @@ export default function SignUpPage() {
     });
   };
 
+  const [errorDialogOpen, setErrorDialogOpen] = useState(false);
+
   const handleSignup = async () => {
     console.log(formData);
     try {
@@ -69,7 +85,13 @@ export default function SignUpPage() {
       } else {
         setErrorMessage('An error occurred during signup.');
       }
+      setErrorDialogOpen(true); // Open the error dialog
     }
+  };
+
+  const handleCloseModal = () => {
+    setShowSuccessMessage(false);
+    navigate('/login');
   };
 
   // Update formData.email whenever email changes
@@ -231,6 +253,20 @@ export default function SignUpPage() {
                 ),
               }}
             />
+            {/* Password Guidelines Dialog */}
+            {/* Error Dialog */}
+            <Dialog open={errorDialogOpen} onClose={() => setErrorDialogOpen(false)}>
+              <DialogTitle>Error</DialogTitle>
+              <DialogContent>
+                <DialogContentText>{errorMessage}</DialogContentText>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={() => setErrorDialogOpen(false)} color="primary">
+                  Close
+                </Button>
+              </DialogActions>
+            </Dialog>
+            
             <Button fullWidth size="large" color="inherit" variant="outlined" onClick={handleSignup}>
               Sign Up
             </Button>
@@ -239,16 +275,17 @@ export default function SignUpPage() {
                 {errorMessage}
               </Typography>
             )}
-            {showSuccessMessage && (
-              <Stack spacing={2} sx={{ mt: 3 }}>
-                <Typography variant="body2" color="primary">
-                  Successful Sign-Up!
-                </Typography>
-                <Typography variant="body2" color="textSecondary">
-                  Redirecting to Login...
-                </Typography>
-              </Stack>
-            )}
+            <Dialog open={showSuccessMessage} onClose={() => setShowSuccessMessage(false)}>
+              <DialogTitle>Successful Sign-Up!</DialogTitle>
+              <DialogContent>
+                <DialogContentText>Redirecting to Email Verification...</DialogContentText>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={() => setShowSuccessMessage(false)} color="primary">
+                  Close
+                </Button>
+              </DialogActions>
+            </Dialog>
             <Divider sx={{ my: 3 }} />
             <Typography variant="body2" sx={{ mb: 5 }}>
               Already have an account?
