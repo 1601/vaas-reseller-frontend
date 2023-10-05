@@ -35,8 +35,8 @@ const LiveStorePage = () => {
 
   const gradientStyle = storeData
     ? {
-      background: `linear-gradient(45deg, ${storeData.primaryColor}, ${storeData.secondaryColor})`,
-    }
+        background: `linear-gradient(45deg, ${storeData.primaryColor}, ${storeData.secondaryColor})`,
+      }
     : {};
 
   const queryParams = new URLSearchParams(location.search);
@@ -68,7 +68,11 @@ const LiveStorePage = () => {
       subdomainOrStoreUrl = hostnameParts[0];
     }
 
-    if (subdomainOrStoreUrl === 'www' || subdomainOrStoreUrl === 'sevenstarjasem' || subdomainOrStoreUrl === 'pldt-vaas-frontend') {
+    if (
+      subdomainOrStoreUrl === 'www' ||
+      subdomainOrStoreUrl === 'sevenstarjasem' ||
+      subdomainOrStoreUrl === 'pldt-vaas-frontend'
+    ) {
       subdomainOrStoreUrl = storeUrl;
     }
 
@@ -84,14 +88,13 @@ const LiveStorePage = () => {
     // Check if running on localhost and no subdomainOrStoreUrl was found
     if (window.location.hostname === 'localhost' || !subdomainOrStoreUrl) {
       // Extract subdomainOrStoreUrl from the URL in the format "localhost:3000/subdomainOrStoreUrl"
-      console.log('Running on localhost')
+      console.log('Running on localhost');
       const pathParts = window.location.href.split('/');
       if (pathParts.length > 3) {
         subdomainOrStoreUrl = pathParts[3];
       }
     }
 
-    
     if (subdomainOrStoreUrl) {
       console.log('Fetching data for store URL:', subdomainOrStoreUrl);
       const fetchStoreData = async () => {
@@ -110,6 +113,7 @@ const LiveStorePage = () => {
         } catch (error) {
           console.error('Could not fetch store data', error);
           setStoreData('domainNotFound');
+          console.log('setStoreData (incorrect):', storeData);
         }
       };
       fetchStoreData();
@@ -117,17 +121,22 @@ const LiveStorePage = () => {
   }, [storeUrl, setStoreData]);
 
   useEffect(() => {
-    if (!storeData || notFound === 'true') {
+    if ((!storeData || storeData === 'domainNotFound') && notFound !== 'true') {
       const timer = setTimeout(() => {
         setShowNotFoundError(true);
       }, 2000);
 
       return () => clearTimeout(timer);
     }
-    return undefined;
+
+    if ((storeData && storeData !== 'domainNotFound') || notFound === 'true') {
+      setShowNotFoundError(false);
+    }
+
+    return () => {};
   }, [storeData, notFound]);
 
-  if (showNotFoundError) {
+  if ((storeData === 'domainNotFound' || !storeData) && notFound !== 'true') {
     return (
       <div
         style={{
@@ -144,7 +153,7 @@ const LiveStorePage = () => {
     );
   }
 
-  if (storeData && (user && user._id === storeData.ownerId || storeData.isLive)) {
+  if (storeData && ((user && user._id === storeData.ownerId) || storeData.isLive)) {
     return (
       <div
         style={{
@@ -177,28 +186,22 @@ const LiveStorePage = () => {
           <div style={{ textAlign: 'center' }}>
             <h1>Preview Only</h1>
             <h3>This store is not yet live</h3>
-            <Button
-              variant="outlined"
-              color="inherit"
-              href={`/dashboard/store`}
-              style={{ pointerEvents: 'all' }}
-            >
+            <Button variant="outlined" color="inherit" href={`/dashboard/store`} style={{ pointerEvents: 'all' }}>
               Edit Store
             </Button>
           </div>
         </div>
-        <Outlet  />
-        <div style={{ textAlign: 'center', }}>
+        <Outlet />
+        <div style={{ textAlign: 'center' }}>
           <img
             src={storeData ? storeData.storeLogo : '/vortex_logo_black.png'}
-            alt={`${storeData ? storeData.storeName : "Your Store"}'s Logo`}
+            alt={`${storeData ? storeData.storeName : 'Your Store'}'s Logo`}
             style={{ maxWidth: '400px', maxHeight: '400px' }}
           />
           <h1>{storeData.storeName}</h1>
           <h1>{`${location.pathname}`}</h1>
 
           <Container>
-            
             {/* Using Flexbox to Center the Items */}
             <div
               style={{
@@ -264,8 +267,6 @@ const LiveStorePage = () => {
             </Stack>
           </Container>
         </div>
-        
-
       </div>
     );
   }
