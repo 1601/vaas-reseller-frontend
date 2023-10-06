@@ -7,8 +7,10 @@ const getNewToken = () => {
 const getOnwerId = () =>{
     const userData = localStorage.getItem('user')
     const ownerId = JSON.parse(userData)
+    console.log(ownerId)
     return ownerId._id
 }
+
 
 // Create an Axios instance with default headers including the token
 const axiosInstance = axios.create({
@@ -57,8 +59,18 @@ const autocompleteAddress = async(data) =>{
   return null;
 }
 
+const kycSubmittedStatus = async() =>{
+  let response
+  try{
+    response = await axiosInstance.get(`/store/${getOnwerId()}`)
+  }catch(error){
+    console.log(error)
+  }
+  return response
+}
 export {
   submitDataKyc,
   submitFileKyc,
-  autocompleteAddress
+  autocompleteAddress,
+  kycSubmittedStatus
 };

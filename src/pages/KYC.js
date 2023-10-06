@@ -33,7 +33,8 @@ import Grid from '@mui/material/Grid';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import KycImage from '../images/Rectangle 52.png'
-import { postDataKyc, putFileKyc, autoCompleteAddress } from '../api/public/kyc'
+import UnderReview from '../images/underReview.jpeg'
+import { postDataKyc, putFileKyc, autoCompleteAddress, kycSubmittedstatus } from '../api/public/kyc'
 
 
 
@@ -321,18 +322,22 @@ export default function KYC() {
     }
   }, [preload])
 
-  // useEffect(() =>{
-  //   autoCompleteAddress(autoComplete)
-  //   .then((result) =>{
-  //     console.log(result)
-  //   })
-  // },[autoComplete])
+  useEffect(() =>{
+    kycSubmittedstatus()
+    .then(datas =>{
+      const {kycApprove, kycSubmitted} = datas.data.body[0]
+      
+      if(kycApprove === false && kycSubmitted === true){
+        setFileUploaded(true)
+      }
+
+    })
+  },[])
 
   return (
     <>
       {preload === 1 ? <CircularLoading /> : <></>}
       <Container maxWidth="md" style={{ textAlign: 'center', marginTop: '50px' }}>
-
         <Card style={{ paddingTop: '50px', paddingBottom: '50px' }}>
           {fileUploaded === false ? <Box sx={{ width: '100%', backgroundColor: 'white' }}>
             <Stepper activeStep={activeStep} alternativeLabel>
@@ -912,9 +917,10 @@ export default function KYC() {
               </div>
             </form>
           </Box> :
-            <div style={{ marginTop: '50px', textAlign: 'center', height: '250px' }}>
+            <div style={{ marginTop: '50px', textAlign: 'center', height: '350px' }}>
               <Container maxWidth="md" style={{ marginTop: "50px" }}>
-                <Typography variant='h5'> Your Files are Successfuly Uploaded </Typography>
+                <img className="mx-auto" src={UnderReview} alt="Under review" style={{ width: "250px", height: "auto", borderRadius:'10px', marginBottom:'10px' }}/>
+                <Typography variant='h5'> Your Files are Successfuly Uploaded And it is Under Review  </Typography>
                 <Button onClick={handleProceed} style={{ color: "white", backgroundColor: "#873EC0", marginTop: '30px', paddingLeft: '30px', paddingRight: '30px' }}> PROCEED </Button>
               </Container>
             </div>

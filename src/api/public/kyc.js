@@ -1,7 +1,8 @@
 import {
     submitDataKyc,
     submitFileKyc,
-    autocompleteAddress
+    autocompleteAddress,
+    kycSubmittedStatus
 } from '../requests'
 
 export const postDataKyc = async(data) =>{
@@ -14,4 +15,8 @@ export const putFileKyc = async(data) =>{
 
 export const autoCompleteAddress = async(data)=>{
     return autocompleteAddress(data)
+}
+
+export const kycSubmittedstatus = async() =>{
+    return kycSubmittedStatus()
 }
