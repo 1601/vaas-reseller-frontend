@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 // @mui
@@ -31,14 +31,31 @@ export default function LoginForm() {
   const [isVerified, setIsVerified] = useState(true);
   const [verificationMessage, setVerificationMessage] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [emailError, setEmailError] = useState(false);
+  const [passwordError, setPasswordError] = useState(false);
 
   const handleCloseDialog = () => {
-    setError('');
-    setVerificationMessage('');
+    console.log('Closing dialog');
     setDialogOpen(false);
   };
 
+  useEffect(() => {
+    if (email.trim()) setEmailError(false);
+  }, [email]);
+
+  useEffect(() => {
+    if (password.trim()) setPasswordError(false);
+  }, [password]);
+
   const handleLogin = async () => {
+    // Check if the email and password are not empty
+    if (!email.trim() || !password.trim()) {
+      setError('Please supply all required fields');
+      setEmailError(!email.trim());
+      setPasswordError(!password.trim());
+      setDialogOpen(true);
+      return;
+    }
     try {
       const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/login`, {
         email,
@@ -78,11 +95,11 @@ export default function LoginForm() {
       window.location.reload();
     } catch (error) {
       if (error.response && error.response.data) {
-        // Update to handle custom error messages from server
         setError(error.response.data.message);
       } else {
         setError('Invalid email or password');
       }
+      setDialogOpen(true);
     }
   };
 
@@ -103,9 +120,15 @@ export default function LoginForm() {
   return (
     <>
       <Stack spacing={3}>
-        <TextField name="email" label="Email address" value={email} onChange={(e) => setEmail(e.target.value)} />
-
         <TextField
+          error={emailError}
+          name="email"
+          label="Email address"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <TextField
+          error={passwordError}
           name="password"
           label="Password"
           type={showPassword ? 'text' : 'password'}
@@ -133,11 +156,9 @@ export default function LoginForm() {
           Forgot password?
         </Link>
       </Stack>
-
       <Button fullWidth size="large" color="inherit" variant="outlined" onClick={handleLogin}>
         Login
       </Button>
-
       {!isVerified && (
         <Typography variant="body2" color="error" sx={{ mt: 2 }}>
           {verificationMessage}
@@ -148,7 +169,7 @@ export default function LoginForm() {
           {error}
         </Typography>
       )}
-      <Dialog open={Boolean(error || verificationMessage)} onClose={handleCloseDialog}>
+      <Dialog open={dialogOpen} onClose={handleCloseDialog}>
         <DialogTitle>{error ? 'Error' : 'Notice'}</DialogTitle>
         <DialogContent>
           <DialogContentText>{error || verificationMessage}</DialogContentText>
@@ -162,3 +183,4 @@ export default function LoginForm() {
     </>
   );
 }
+ 

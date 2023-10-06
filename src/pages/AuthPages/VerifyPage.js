@@ -40,8 +40,11 @@ export default function VerifyPage() {
   const [code, setCode] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [fieldError, setFieldError] = useState('');
   const [countdown, setCountdown] = useState(180);
   const [allowResend, setAllowResend] = useState(false);
+  const [emailError, setEmailError] = useState('');
+  const [codeError, setCodeError] = useState('');
 
   useEffect(() => {
     const timer = countdown > 0 && setInterval(() => setCountdown(countdown - 1), 1000);
@@ -67,6 +70,20 @@ export default function VerifyPage() {
   };
 
   const verifyEmail = async () => {
+    setEmailError('');
+    setCodeError('');
+    setFieldError('');
+    // Check for missing fields
+    if (!email.trim() || !code.trim()) {
+      setFieldError('Please fill out all fields.');
+      if (!email.trim()) {
+        setEmailError('Email is required');
+      }
+      if (!code.trim()) {
+        setCodeError('Verification code is required');
+      }
+      return;
+    }
     try {
       const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/verify`, {
         email,
@@ -80,6 +97,8 @@ export default function VerifyPage() {
 
         setSuccessMessage('Successful Verification. Proceeding to login page...');
         setTimeout(() => {
+          setFieldError('');
+          setErrorMessage('');
           navigate('/login');
         }, 3000);
       } else {
@@ -98,6 +117,7 @@ export default function VerifyPage() {
   const handleCloseDialog = () => {
     setErrorMessage('');
     setSuccessMessage('');
+    setFieldError('');
   };
 
   return (
@@ -122,6 +142,7 @@ export default function VerifyPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               sx={{ mb: 3 }}
+              error={Boolean(emailError)}
             />
 
             <TextField
@@ -131,8 +152,13 @@ export default function VerifyPage() {
               value={code}
               onChange={(e) => setCode(e.target.value)}
               sx={{ mb: 3 }}
+              error={Boolean(codeError)}
             />
-
+            {fieldError && (
+              <Typography variant="body2" color="error" sx={{ mb: 5 }}>
+                {fieldError}
+              </Typography>
+            )}
             {errorMessage && (
               <Typography variant="body2" color="error" sx={{ mb: 5 }}>
                 {errorMessage}
@@ -184,6 +210,20 @@ export default function VerifyPage() {
           </StyledContent>
         </Container>
       </StyledRoot>
+      {/* Dialog for field errors */}
+      <Dialog open={Boolean(fieldError)} onClose={handleCloseDialog}>
+        <DialogTitle>Error</DialogTitle>
+        <DialogContent>
+          <DialogContentText>{fieldError}</DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialog} color="primary">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Dialog for backend errors */}
       <Dialog open={Boolean(errorMessage)} onClose={handleCloseDialog}>
         <DialogTitle>Error</DialogTitle>
         <DialogContent>
@@ -196,6 +236,7 @@ export default function VerifyPage() {
         </DialogActions>
       </Dialog>
 
+      {/* Dialog for success message */}
       <Dialog open={Boolean(successMessage)} onClose={handleCloseDialog}>
         <DialogTitle>Success</DialogTitle>
         <DialogContent>

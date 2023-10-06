@@ -3,18 +3,20 @@ import axios from 'axios';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
-import Modal from '@mui/material/Modal';
 import {
   Link,
   Container,
   Typography,
   Divider,
-  Stack,
   Button,
   TextField,
   Dialog,
   DialogTitle,
   DialogContent,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
   DialogContentText,
   DialogActions,
 } from '@mui/material';
@@ -59,6 +61,21 @@ export default function SignUpPage() {
   });
   const [errorMessage, setErrorMessage] = useState('');
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [formErrors, setFormErrors] = useState({});
+  const [showErrorDialog, setShowErrorDialog] = useState(false);
+
+  const [fieldErrors, setFieldErrors] = useState({
+    firstName: false,
+    middleName: false,
+    lastName: false,
+    designation: false,
+    email: false,
+    mobileNumber: false,
+    country: false,
+    ipAddress: false,
+    username: false,
+    password: false,
+  });
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -66,12 +83,39 @@ export default function SignUpPage() {
       ...formData,
       [name]: value,
     });
+    // Reset error state on typing
+    setFieldErrors({
+      ...fieldErrors,
+      [name]: false,
+    });
+  };
+
+  const validateForm = () => {
+    const newFieldErrors = {
+      firstName: !formData.firstName.trim(),
+      middleName: !formData.middleName.trim(),
+      lastName: !formData.lastName.trim(),
+      designation: !formData.designation.trim(),
+      email: !formData.email.trim(),
+      mobileNumber: !formData.mobileNumber.trim(),
+      country: !formData.country.trim(),
+      ipAddress: !formData.ipAddress.trim(),
+      username: !formData.username.trim(),
+      password: !formData.password.trim(),
+    };
+    setFieldErrors(newFieldErrors);
+    return !Object.values(newFieldErrors).includes(true);
   };
 
   const [errorDialogOpen, setErrorDialogOpen] = useState(false);
 
   const handleSignup = async () => {
     console.log(formData);
+    if (!validateForm()) {
+      setShowErrorDialog(true);
+      return;
+    }
+
     try {
       const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/signup`, formData);
       setErrorMessage('');
@@ -149,6 +193,7 @@ export default function SignUpPage() {
               Register to Your App
             </Typography>
             <TextField
+              error={fieldErrors.firstName}
               fullWidth
               label="First Name"
               variant="outlined"
@@ -158,6 +203,7 @@ export default function SignUpPage() {
               sx={{ mb: 3 }}
             />
             <TextField
+              error={fieldErrors.middleName}
               fullWidth
               label="Middle Name"
               variant="outlined"
@@ -167,6 +213,7 @@ export default function SignUpPage() {
               sx={{ mb: 3 }}
             />
             <TextField
+              error={fieldErrors.lastName}
               fullWidth
               label="Last Name"
               variant="outlined"
@@ -175,16 +222,23 @@ export default function SignUpPage() {
               onChange={handleInputChange}
               sx={{ mb: 3 }}
             />
+            <FormControl fullWidth variant="outlined" sx={{ mb: 3 }}>
+              <InputLabel id="designation-label">Designation</InputLabel>
+              <Select
+                error={fieldErrors.designation}
+                labelId="designation-label"
+                label="Designation"
+                name="designation"
+                value={formData.designation}
+                onChange={handleInputChange}
+              >
+                <MenuItem value={'Mr.'}>Mr.</MenuItem>
+                <MenuItem value={'Ms.'}>Ms.</MenuItem>
+                <MenuItem value={'Mrs.'}>Mrs.</MenuItem>
+              </Select>
+            </FormControl>
             <TextField
-              fullWidth
-              label="Designation"
-              variant="outlined"
-              name="designation"
-              value={formData.designation}
-              onChange={handleInputChange}
-              sx={{ mb: 3 }}
-            />
-            <TextField
+              error={fieldErrors.email}
               fullWidth
               label="Email"
               variant="outlined"
@@ -194,6 +248,7 @@ export default function SignUpPage() {
               sx={{ mb: 3 }}
             />
             <TextField
+              error={fieldErrors.mobileNumber}
               fullWidth
               label="Mobile Number"
               variant="outlined"
@@ -203,6 +258,7 @@ export default function SignUpPage() {
               sx={{ mb: 3 }}
             />
             <Autocomplete
+              error={fieldErrors.country}
               fullWidth
               options={countries}
               getOptionLabel={(option) => option}
@@ -213,6 +269,7 @@ export default function SignUpPage() {
               )}
             />
             <TextField
+              error={fieldErrors.ipAddress}
               fullWidth
               label="IP Address"
               variant="outlined"
@@ -223,6 +280,7 @@ export default function SignUpPage() {
               disabled
             />
             <TextField
+              error={fieldErrors.username}
               fullWidth
               label="Username"
               variant="outlined"
@@ -232,6 +290,7 @@ export default function SignUpPage() {
               sx={{ mb: 3 }}
             />
             <TextField
+              error={fieldErrors.password}
               fullWidth
               label="Password"
               variant="outlined"
@@ -266,7 +325,18 @@ export default function SignUpPage() {
                 </Button>
               </DialogActions>
             </Dialog>
-            
+            <Dialog open={showErrorDialog} onClose={() => setShowErrorDialog(false)}>
+              <DialogTitle>Error</DialogTitle>
+              <DialogContent>
+                <DialogContentText>Please supply all required fields</DialogContentText>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={() => setShowErrorDialog(false)} color="primary">
+                  Close
+                </Button>
+              </DialogActions>
+            </Dialog>
+
             <Button fullWidth size="large" color="inherit" variant="outlined" onClick={handleSignup}>
               Sign Up
             </Button>
