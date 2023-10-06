@@ -63,6 +63,21 @@ export default function SignUpPage() {
   });
   const [errorMessage, setErrorMessage] = useState('');
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [formErrors, setFormErrors] = useState({});
+  const [showErrorDialog, setShowErrorDialog] = useState(false);
+
+  const validateForm = () => {
+    const newFormErrors = {};
+
+    Object.keys(formData).forEach((key) => {
+      if (!formData[key].trim()) {
+        newFormErrors[key] = 'This field is required';
+      }
+    });
+
+    setFormErrors(newFormErrors);
+    return Object.keys(newFormErrors).length === 0;
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -76,6 +91,11 @@ export default function SignUpPage() {
 
   const handleSignup = async () => {
     console.log(formData);
+    if (!validateForm()) {
+      setShowErrorDialog(true);
+      return;
+    }
+
     try {
       const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/signup`, formData);
       setErrorMessage('');
@@ -153,6 +173,7 @@ export default function SignUpPage() {
               Register to Your App
             </Typography>
             <TextField
+              error={!!formErrors.firstName}
               fullWidth
               label="First Name"
               variant="outlined"
@@ -162,6 +183,7 @@ export default function SignUpPage() {
               sx={{ mb: 3 }}
             />
             <TextField
+              error={!!formErrors.middleName}
               fullWidth
               label="Middle Name"
               variant="outlined"
@@ -171,6 +193,7 @@ export default function SignUpPage() {
               sx={{ mb: 3 }}
             />
             <TextField
+              error={!!formErrors.lastName}
               fullWidth
               label="Last Name"
               variant="outlined"
@@ -182,6 +205,7 @@ export default function SignUpPage() {
             <FormControl fullWidth variant="outlined" sx={{ mb: 3 }}>
               <InputLabel id="designation-label">Designation</InputLabel>
               <Select
+                error={!!formErrors.designation}
                 labelId="designation-label"
                 label="Designation"
                 name="designation"
@@ -194,6 +218,7 @@ export default function SignUpPage() {
               </Select>
             </FormControl>
             <TextField
+              error={!!formErrors.email}
               fullWidth
               label="Email"
               variant="outlined"
@@ -203,6 +228,7 @@ export default function SignUpPage() {
               sx={{ mb: 3 }}
             />
             <TextField
+              error={!!formErrors.mobileNumber}
               fullWidth
               label="Mobile Number"
               variant="outlined"
@@ -212,6 +238,7 @@ export default function SignUpPage() {
               sx={{ mb: 3 }}
             />
             <Autocomplete
+              error={!!formErrors.country}
               fullWidth
               options={countries}
               getOptionLabel={(option) => option}
@@ -222,6 +249,7 @@ export default function SignUpPage() {
               )}
             />
             <TextField
+              error={!!formErrors.ipAddress}
               fullWidth
               label="IP Address"
               variant="outlined"
@@ -232,6 +260,7 @@ export default function SignUpPage() {
               disabled
             />
             <TextField
+              error={!!formErrors.username}
               fullWidth
               label="Username"
               variant="outlined"
@@ -241,6 +270,7 @@ export default function SignUpPage() {
               sx={{ mb: 3 }}
             />
             <TextField
+              error={!!formErrors.password}
               fullWidth
               label="Password"
               variant="outlined"
@@ -271,6 +301,17 @@ export default function SignUpPage() {
               </DialogContent>
               <DialogActions>
                 <Button onClick={() => setErrorDialogOpen(false)} color="primary">
+                  Close
+                </Button>
+              </DialogActions>
+            </Dialog>
+            <Dialog open={showErrorDialog} onClose={() => setShowErrorDialog(false)}>
+              <DialogTitle>Error</DialogTitle>
+              <DialogContent>
+                <DialogContentText>Please supply all required fields</DialogContentText>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={() => setShowErrorDialog(false)} color="primary">
                   Close
                 </Button>
               </DialogActions>
