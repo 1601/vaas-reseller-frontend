@@ -15,6 +15,10 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
   DialogContentText,
   DialogActions,
 } from '@mui/material';
@@ -175,15 +179,20 @@ export default function SignUpPage() {
               onChange={handleInputChange}
               sx={{ mb: 3 }}
             />
-            <TextField
-              fullWidth
-              label="Designation"
-              variant="outlined"
-              name="designation"
-              value={formData.designation}
-              onChange={handleInputChange}
-              sx={{ mb: 3 }}
-            />
+            <FormControl fullWidth variant="outlined" sx={{ mb: 3 }}>
+              <InputLabel id="designation-label">Designation</InputLabel>
+              <Select
+                labelId="designation-label"
+                label="Designation"
+                name="designation"
+                value={formData.designation}
+                onChange={handleInputChange}
+              >
+                <MenuItem value={'Mr.'}>Mr.</MenuItem>
+                <MenuItem value={'Ms.'}>Ms.</MenuItem>
+                <MenuItem value={'Mrs.'}>Mrs.</MenuItem>
+              </Select>
+            </FormControl>
             <TextField
               fullWidth
               label="Email"
@@ -266,7 +275,7 @@ export default function SignUpPage() {
                 </Button>
               </DialogActions>
             </Dialog>
-            
+
             <Button fullWidth size="large" color="inherit" variant="outlined" onClick={handleSignup}>
               Sign Up
             </Button>
