@@ -3,13 +3,11 @@ import axios from 'axios';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
-import Modal from '@mui/material/Modal';
 import {
   Link,
   Container,
   Typography,
   Divider,
-  Stack,
   Button,
   TextField,
   Dialog,
@@ -66,18 +64,18 @@ export default function SignUpPage() {
   const [formErrors, setFormErrors] = useState({});
   const [showErrorDialog, setShowErrorDialog] = useState(false);
 
-  const validateForm = () => {
-    const newFormErrors = {};
-
-    Object.keys(formData).forEach((key) => {
-      if (!formData[key].trim()) {
-        newFormErrors[key] = 'This field is required';
-      }
-    });
-
-    setFormErrors(newFormErrors);
-    return Object.keys(newFormErrors).length === 0;
-  };
+  const [fieldErrors, setFieldErrors] = useState({
+    firstName: false,
+    middleName: false,
+    lastName: false,
+    designation: false,
+    email: false,
+    mobileNumber: false,
+    country: false,
+    ipAddress: false,
+    username: false,
+    password: false,
+  });
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -85,6 +83,28 @@ export default function SignUpPage() {
       ...formData,
       [name]: value,
     });
+    // Reset error state on typing
+    setFieldErrors({
+      ...fieldErrors,
+      [name]: false,
+    });
+  };
+
+  const validateForm = () => {
+    const newFieldErrors = {
+      firstName: !formData.firstName.trim(),
+      middleName: !formData.middleName.trim(),
+      lastName: !formData.lastName.trim(),
+      designation: !formData.designation.trim(),
+      email: !formData.email.trim(),
+      mobileNumber: !formData.mobileNumber.trim(),
+      country: !formData.country.trim(),
+      ipAddress: !formData.ipAddress.trim(),
+      username: !formData.username.trim(),
+      password: !formData.password.trim(),
+    };
+    setFieldErrors(newFieldErrors);
+    return !Object.values(newFieldErrors).includes(true);
   };
 
   const [errorDialogOpen, setErrorDialogOpen] = useState(false);
@@ -173,7 +193,7 @@ export default function SignUpPage() {
               Register to Your App
             </Typography>
             <TextField
-              error={!!formErrors.firstName}
+              error={fieldErrors.firstName}
               fullWidth
               label="First Name"
               variant="outlined"
@@ -183,7 +203,7 @@ export default function SignUpPage() {
               sx={{ mb: 3 }}
             />
             <TextField
-              error={!!formErrors.middleName}
+              error={fieldErrors.middleName}
               fullWidth
               label="Middle Name"
               variant="outlined"
@@ -193,7 +213,7 @@ export default function SignUpPage() {
               sx={{ mb: 3 }}
             />
             <TextField
-              error={!!formErrors.lastName}
+              error={fieldErrors.lastName}
               fullWidth
               label="Last Name"
               variant="outlined"
@@ -205,7 +225,7 @@ export default function SignUpPage() {
             <FormControl fullWidth variant="outlined" sx={{ mb: 3 }}>
               <InputLabel id="designation-label">Designation</InputLabel>
               <Select
-                error={!!formErrors.designation}
+                error={fieldErrors.designation}
                 labelId="designation-label"
                 label="Designation"
                 name="designation"
@@ -218,7 +238,7 @@ export default function SignUpPage() {
               </Select>
             </FormControl>
             <TextField
-              error={!!formErrors.email}
+              error={fieldErrors.email}
               fullWidth
               label="Email"
               variant="outlined"
@@ -228,7 +248,7 @@ export default function SignUpPage() {
               sx={{ mb: 3 }}
             />
             <TextField
-              error={!!formErrors.mobileNumber}
+              error={fieldErrors.mobileNumber}
               fullWidth
               label="Mobile Number"
               variant="outlined"
@@ -238,7 +258,7 @@ export default function SignUpPage() {
               sx={{ mb: 3 }}
             />
             <Autocomplete
-              error={!!formErrors.country}
+              error={fieldErrors.country}
               fullWidth
               options={countries}
               getOptionLabel={(option) => option}
@@ -249,7 +269,7 @@ export default function SignUpPage() {
               )}
             />
             <TextField
-              error={!!formErrors.ipAddress}
+              error={fieldErrors.ipAddress}
               fullWidth
               label="IP Address"
               variant="outlined"
@@ -260,7 +280,7 @@ export default function SignUpPage() {
               disabled
             />
             <TextField
-              error={!!formErrors.username}
+              error={fieldErrors.username}
               fullWidth
               label="Username"
               variant="outlined"
@@ -270,7 +290,7 @@ export default function SignUpPage() {
               sx={{ mb: 3 }}
             />
             <TextField
-              error={!!formErrors.password}
+              error={fieldErrors.password}
               fullWidth
               label="Password"
               variant="outlined"
