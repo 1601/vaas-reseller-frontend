@@ -39,6 +39,7 @@ export default function ForgotPasswordPage() {
   const [errorMessage, setErrorMessage] = useState('');
   const [fieldError, setFieldError] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [emailError, setEmailError] = useState(false);
   const navigate = useNavigate();
 
   const handleRequestPasswordChange = async () => {
@@ -49,10 +50,11 @@ export default function ForgotPasswordPage() {
 
     // Check for missing email
     if (!email.trim()) {
-      setFieldError('Please fill up the required field.');
-      setDialogOpen(true);
-      return;
-    }
+        setFieldError('Please fill up the required field.');
+        setEmailError(true); 
+        setDialogOpen(true);
+        return;
+      }
     try {
       const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/send-password-change-email`, {
         email,
@@ -80,6 +82,12 @@ export default function ForgotPasswordPage() {
     setDialogOpen(false);
   };
 
+  const handleEmailChange = (e) => {
+    setEmail(e.target.value);
+    setEmailError(false); 
+    setFieldError('');
+  };
+
   return (
     <>
       <Helmet>
@@ -99,9 +107,9 @@ export default function ForgotPasswordPage() {
               label="Email"
               variant="outlined"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={handleEmailChange}
               sx={{ mb: 3 }}
-              error={Boolean(fieldError)}
+              error={emailError}
               helperText={fieldError}
             />
             <Button fullWidth size="large" color="inherit" variant="outlined" onClick={handleRequestPasswordChange}>
