@@ -49,7 +49,7 @@ export default function ForgotPasswordPage() {
 
     // Check for missing email
     if (!email.trim()) {
-      setFieldError('Please fill up all required fields.');
+      setFieldError('Please fill up the required field.');
       setDialogOpen(true);
       return;
     }
