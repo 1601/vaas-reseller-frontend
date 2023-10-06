@@ -4,7 +4,6 @@ import axios from 'axios';
 import { ChromePicker } from 'react-color';
 import {
   Box,
-  Stack,
   Card,
   Grid,
   Container,
@@ -21,11 +20,9 @@ import {
 
 const StorePageEdit = () => {
   const navigate = useNavigate();
-  const [showMenu, setShowMenu] = useState(false);
   const [storeData, setStoreData] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editedData, setEditedData] = useState({});
-  const [isChanged, setIsChanged] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [progressText, setProgressText] = useState('Uploading...');
@@ -121,9 +118,7 @@ const StorePageEdit = () => {
       }
     } catch (error) {
       console.error('Could not update store data', error);
-      // Set a default error message
       let errorMessage = 'Could not update store data';
-      // If a message is provided in the error response, use it instead
       if (error.response && error.response.data && error.response.data.message) {
         errorMessage = error.response.data.message;
       }
@@ -228,7 +223,6 @@ const StorePageEdit = () => {
             clearInterval(interval);
             setProgressText('Successfully Uploaded!');
 
-            // Reload the page after progress reaches 100%.
             setTimeout(() => {
               window.location.reload();
             }, 1000);
@@ -391,7 +385,7 @@ const StorePageEdit = () => {
       }, 1000);
     } catch (error) {
       console.error('Error updating colors:', error.message);
-      alert('Failed to update colors. Please try again.'); // Notify the user of the error
+      alert('Failed to update colors. Please try again.'); 
     }
   };
 
@@ -672,7 +666,7 @@ const StorePageEdit = () => {
                           display: 'flex',
                           flexDirection: 'row',
                           alignItems: 'center',
-                          justifyContent: 'center', // Center the items horizontally
+                          justifyContent: 'center', 
                           padding: '20px',
                           marginBottom: '20px',
                         }}

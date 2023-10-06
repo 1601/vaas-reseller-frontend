@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, useParams, useLocation } from 'react-router-dom';
-import { Container, Grid, Stack, Link, Button } from '@mui/material';
+import { Container, Stack, Link, Button } from '@mui/material';
 import axios from 'axios';
 import BillsImage from '../images/logos/bills.svg';
 import LoadImage from '../images/logos/load.svg';
@@ -11,7 +11,6 @@ const LiveStorePage = () => {
   const { storeData, setStoreData } = useStore();
   const { storeUrl } = useParams();
   const location = useLocation();
-  const { pathname } = useLocation();
   const [previewStoreUrl, setPreviewStoreUrl] = useState(storeUrl);
   const [showNotFoundError, setShowNotFoundError] = useState(false);
   const [platformVariables, setPlatformVariables] = useState({
