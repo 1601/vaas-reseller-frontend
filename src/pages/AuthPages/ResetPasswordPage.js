@@ -37,7 +37,9 @@ const StyledContent = styled('div')(({ theme }) => ({
 
 export default function ResetPasswordPage() {
   const [newPassword, setNewPassword] = useState('');
+  const [newPasswordError, setNewPasswordError] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [confirmPasswordError, setConfirmPasswordError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
@@ -50,18 +52,27 @@ export default function ResetPasswordPage() {
   const token = new URLSearchParams(location.search).get('token');
 
   const handleChangePassword = async () => {
+    let isValid = true;
     setFieldError('');
     setErrorMessage('');
     setSuccessMessage('');
 
-    if (!newPassword.trim() || !confirmPassword.trim()) {
-      setFieldError('Please fill up all required fields.');
-      setDialogOpen(true);
-      return;
+    if (!newPassword.trim()) {
+      setNewPasswordError('New password is required');
+      isValid = false;
+    }
+    if (!confirmPassword.trim()) {
+      setConfirmPasswordError('Confirmation password is required');
+      isValid = false;
     }
 
+    // Check for matching passwords
     if (newPassword !== confirmPassword) {
-      setErrorMessage('Passwords do not match');
+      setConfirmPasswordError('Passwords do not match');
+      isValid = false;
+    }
+
+    if (!isValid) {
       setDialogOpen(true);
       return;
     }
@@ -116,13 +127,17 @@ export default function ResetPasswordPage() {
 
             <TextField
               fullWidth
-              error={Boolean(fieldError)}
               label="New Password"
               variant="outlined"
               type={showPassword ? 'text' : 'password'}
               value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
+              onChange={(e) => {
+                setNewPassword(e.target.value);
+                setNewPasswordError(e.target.value.trim() ? '' : 'New password is required');
+              }}
               sx={{ mb: 3 }}
+              error={Boolean(newPasswordError)}
+              helperText={newPasswordError}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
@@ -135,13 +150,17 @@ export default function ResetPasswordPage() {
             />
             <TextField
               fullWidth
-              error={Boolean(fieldError)}
               label="Confirm Password"
               variant="outlined"
               type={showConfirmPassword ? 'text' : 'password'}
               value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
+              onChange={(e) => {
+                setConfirmPassword(e.target.value);
+                setConfirmPasswordError(e.target.value.trim() ? '' : 'Confirmation password is required');
+              }}
               sx={{ mb: 3 }}
+              error={Boolean(confirmPasswordError)} 
+              helperText={confirmPasswordError}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
@@ -173,7 +192,7 @@ export default function ResetPasswordPage() {
       <Dialog open={dialogOpen} onClose={handleCloseDialog}>
         <DialogTitle>Error</DialogTitle>
         <DialogContent>
-          <DialogContentText>{errorMessage || successMessage || fieldError}</DialogContentText>
+          <DialogContentText>{ newPasswordError || confirmPasswordError || errorMessage || successMessage || fieldError}</DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDialog} color="primary">
