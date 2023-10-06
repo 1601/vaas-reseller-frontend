@@ -43,8 +43,10 @@ export default function VerifyPage() {
   const [fieldError, setFieldError] = useState('');
   const [countdown, setCountdown] = useState(180);
   const [allowResend, setAllowResend] = useState(false);
-  const [emailError, setEmailError] = useState('');
-  const [codeError, setCodeError] = useState('');
+  const [emailError, setEmailError] = useState(false);
+  const [codeError, setCodeError] = useState(false);
+  const [emailErrorMsg, setEmailErrorMsg] = useState('');
+  const [codeErrorMsg, setCodeErrorMsg] = useState('');
 
   useEffect(() => {
     const timer = countdown > 0 && setInterval(() => setCountdown(countdown - 1), 1000);
@@ -70,18 +72,22 @@ export default function VerifyPage() {
   };
 
   const verifyEmail = async () => {
-    setEmailError('');
-    setCodeError('');
+    let isValid = true;
+    setEmailError(false);
+    setCodeError(false);
     setFieldError('');
     // Check for missing fields
-    if (!email.trim() || !code.trim()) {
+    if (!email.trim()) {
+      setEmailErrorMsg('Email is required');
+      isValid = false;
+    }
+    if (!code.trim()) {
+      setCodeErrorMsg('Verification code is required');
+      isValid = false;
+    }
+
+    if (!isValid) {
       setFieldError('Please fill out all fields.');
-      if (!email.trim()) {
-        setEmailError('Email is required');
-      }
-      if (!code.trim()) {
-        setCodeError('Verification code is required');
-      }
       return;
     }
     try {
@@ -140,19 +146,24 @@ export default function VerifyPage() {
               label="Email"
               variant="outlined"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setEmailErrorMsg(e.target.value.trim() ? '' : 'Email is required'); // Clear or set error message
+              }}
               sx={{ mb: 3 }}
-              error={Boolean(emailError)}
+              error={!!emailErrorMsg} 
             />
-
             <TextField
               fullWidth
               label="Verification Code"
               variant="outlined"
               value={code}
-              onChange={(e) => setCode(e.target.value)}
+              onChange={(e) => {
+                setCode(e.target.value);
+                setCodeErrorMsg(e.target.value.trim() ? '' : 'Verification code is required'); // Clear or set error message
+              }}
               sx={{ mb: 3 }}
-              error={Boolean(codeError)}
+              error={!!codeErrorMsg} 
             />
             {fieldError && (
               <Typography variant="body2" color="error" sx={{ mb: 5 }}>
