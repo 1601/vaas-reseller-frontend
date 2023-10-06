@@ -31,16 +31,28 @@ export default function LoginForm() {
   const [isVerified, setIsVerified] = useState(true);
   const [verificationMessage, setVerificationMessage] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [emailError, setEmailError] = useState(false);
+  const [passwordError, setPasswordError] = useState(false);
 
   const handleCloseDialog = () => {
     console.log('Closing dialog');
     setDialogOpen(false);
   };
 
+  useEffect(() => {
+    if (email.trim()) setEmailError(false);
+  }, [email]);
+
+  useEffect(() => {
+    if (password.trim()) setPasswordError(false);
+  }, [password]);
+
   const handleLogin = async () => {
     // Check if the email and password are not empty
     if (!email.trim() || !password.trim()) {
       setError('Please supply all required fields');
+      setEmailError(!email.trim());
+      setPasswordError(!password.trim());
       setDialogOpen(true);
       return;
     }
@@ -109,14 +121,14 @@ export default function LoginForm() {
     <>
       <Stack spacing={3}>
         <TextField
-          error={!email.trim() && dialogOpen}
+          error={emailError}
           name="email"
           label="Email address"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
         <TextField
-          error={!password.trim() && dialogOpen}
+          error={passwordError}
           name="password"
           label="Password"
           type={showPassword ? 'text' : 'password'}
