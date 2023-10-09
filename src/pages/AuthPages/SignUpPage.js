@@ -63,6 +63,7 @@ export default function SignUpPage() {
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [formErrors, setFormErrors] = useState({});
   const [showErrorDialog, setShowErrorDialog] = useState(false);
+  const [showIpAddress, setShowIpAddress] = useState(true);
 
   const [fieldErrors, setFieldErrors] = useState({
     firstName: false,
@@ -161,6 +162,8 @@ export default function SignUpPage() {
         }));
       } catch (error) {
         console.error('Error fetching IP address: ', error);
+      } finally {
+        setShowIpAddress(false);
       }
     };
 
@@ -275,9 +278,10 @@ export default function SignUpPage() {
               variant="outlined"
               name="ipAddress"
               value={formData.ipAddress}
-              // onChange={handleInputChange}
+              onChange={handleInputChange}
               sx={{ mb: 3 }}
-              disabled
+              disabled={!showIpAddress}
+              hidden 
             />
             <TextField
               error={fieldErrors.username}
