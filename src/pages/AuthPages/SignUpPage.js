@@ -137,6 +137,16 @@ export default function SignUpPage() {
     window.location.href = googleLoginUrl;
   };
 
+  const handleFacebookSignUp = () => {
+    const clientId = process.env.REACT_APP_FACEBOOK_CLIENT_ID;
+    const redirectUri = encodeURIComponent(process.env.REACT_APP_FACEBOOK_REDIRECT_URI);
+    const scope = encodeURIComponent('email'); // request access to the user's email
+
+    const facebookLoginUrl = `https://www.facebook.com/v12.0/dialog/oauth?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&response_type=code`;
+
+    window.location.href = facebookLoginUrl;
+  };
+
   const validateForm = () => {
     const newFieldErrors = {
       firstName: !formData.firstName.trim(),
@@ -473,9 +483,7 @@ export default function SignUpPage() {
               color="inherit"
               variant="outlined"
               startIcon={<Iconify icon="eva:facebook-fill" color="#1877F2" width={22} height={22} />}
-              onClick={() => {
-                // Handle Sign Up with Facebook
-              }}
+              onClick={handleFacebookSignUp}
             >
               Sign Up with Facebook
             </Button>
