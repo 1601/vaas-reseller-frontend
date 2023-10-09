@@ -325,11 +325,14 @@ export default function KYC() {
   useEffect(() =>{
     kycSubmittedstatus()
     .then(datas =>{
-      const {kycApprove, kycSubmitted} = datas.data.body[0]
-      
-      if(kycApprove === false && kycSubmitted === true){
-        setFileUploaded(true)
+      if(datas){
+        const {kycApprove, kycSubmitted} = datas.data.body[0]
+        console.log(kycApprove, kycSubmitted)
+        if(kycApprove === false && kycSubmitted === true){
+          setFileUploaded(true)
+        }
       }
+      
 
     })
   },[])
