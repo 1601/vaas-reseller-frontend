@@ -66,6 +66,8 @@ export default function SignUpPage() {
   const [showErrorDialog, setShowErrorDialog] = useState(false);
   const [showIpAddress, setShowIpAddress] = useState(true);
   const [isFormValid, setIsFormValid] = useState(false);
+  const [passwordError, setPasswordError] = useState(false);
+  const [passwordHelperText, setPasswordHelperText] = useState('');
 
   const [fieldErrors, setFieldErrors] = useState({
     firstName: false,
@@ -105,8 +107,6 @@ export default function SignUpPage() {
     const googleLoginUrl = `https://accounts.google.com/o/oauth2/v2/auth?scope=${scope}&access_type=offline&include_granted_scopes=true&redirect_uri=${redirectUri}&response_type=code&client_id=${clientId}`;
 
     console.log('Redirecting to: ', googleLoginUrl);
-
-    // Redirect user to Google login
     window.location.href = googleLoginUrl;
   };
 
@@ -146,10 +146,14 @@ export default function SignUpPage() {
     } catch (error) {
       if (error.response && error.response.data) {
         setErrorMessage(error.response.data.message);
+        if (error.response.data.message.includes('Password')) {
+          setPasswordError(true);
+          setPasswordHelperText(error.response.data.message);
+        }
       } else {
         setErrorMessage('An error occurred during signup.');
       }
-      setErrorDialogOpen(true); // Open the error dialog
+      setErrorDialogOpen(true);
     }
   };
 
@@ -159,14 +163,11 @@ export default function SignUpPage() {
   };
 
   useEffect(() => {
-    // Set email based on URL parameter
     const queryParams = new URLSearchParams(location.search);
     const emailParam = queryParams.get('email');
 
-    // Set email based on location.state, if it exists
     const newEmail = location.state?.email || emailParam || '';
 
-    // Update states
     setEmail(newEmail);
     setFormData((prev) => ({ ...prev, email: newEmail }));
   }, [location.search, location.state]);
@@ -197,7 +198,6 @@ export default function SignUpPage() {
     setIsFormValid(isValid);
   }, [formData]);
 
-  // Update formData.email whenever email changes
   useEffect(() => {
     setFormData((prev) => ({ ...prev, email }));
   }, [email]);
@@ -359,7 +359,7 @@ export default function SignUpPage() {
               helperText={fieldErrors.username && 'Username is required'}
             />
             <TextField
-              error={fieldErrors.password}
+              error={fieldErrors.password || passwordError}
               fullWidth
               label="Password"
               variant="outlined"
@@ -368,7 +368,7 @@ export default function SignUpPage() {
               value={formData.password}
               onChange={handleInputChange}
               sx={{ mb: 3 }}
-              helperText={fieldErrors.password && 'Password is required'}
+              helperText={passwordHelperText || (fieldErrors.password && 'Password is required')}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
@@ -383,7 +383,6 @@ export default function SignUpPage() {
               }}
             />
             {/* Password Guidelines Dialog */}
-            {/* Error Dialog */}
             <Dialog open={errorDialogOpen} onClose={() => setErrorDialogOpen(false)}>
               <DialogTitle>Error</DialogTitle>
               <DialogContent>
@@ -448,11 +447,11 @@ export default function SignUpPage() {
               Sign Up with Facebook
             </Button>
 
-            {errorMessage && (
-              <Typography variant="body2" color="error" sx={{ my: 2 }}>
-                {errorMessage}
-              </Typography>
-            )}
+            {/* {errorMessage && (
+                  <Typography variant="body2" color="error" sx={{ my: 2 }}>
+                  {errorMessage}
+                   </Typography>
+                )} */}
             <Dialog open={showSuccessMessage} onClose={() => setShowSuccessMessage(false)}>
               <DialogTitle>Successful Sign-Up!</DialogTitle>
               <DialogContent>
