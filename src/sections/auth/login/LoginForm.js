@@ -33,6 +33,16 @@ export default function LoginForm() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [emailError, setEmailError] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
+  const [emailErrorMessage, setEmailErrorMessage] = useState('');
+
+  const validateEmail = (email) => {
+    const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i;
+    return emailRegex.test(email);
+  };
+
+  const handleEmailChange = (e) => {
+    setEmail(e.target.value);
+  };
 
   const handleCloseDialog = () => {
     console.log('Closing dialog');
@@ -53,6 +63,14 @@ export default function LoginForm() {
       setError('Please supply all required fields');
       setEmailError(!email.trim());
       setPasswordError(!password.trim());
+      setDialogOpen(true);
+      return;
+    }
+
+    // Check if the email format is valid
+    if (!validateEmail(email)) {
+      setEmailError(true);
+      setVerificationMessage('Invalid email format');
       setDialogOpen(true);
       return;
     }
@@ -121,11 +139,12 @@ export default function LoginForm() {
     <>
       <Stack spacing={3}>
         <TextField
-          error={emailError}
+          error={emailError || !!verificationMessage}
           name="email"
           label="Email address"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={handleEmailChange}
+          helperText={emailErrorMessage || verificationMessage}
         />
         <TextField
           error={passwordError}
@@ -134,6 +153,7 @@ export default function LoginForm() {
           type={showPassword ? 'text' : 'password'}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          helperText={passwordError && 'Password is required'}
           InputProps={{
             endAdornment: (
               <InputAdornment position="end">
@@ -183,4 +203,3 @@ export default function LoginForm() {
     </>
   );
 }
- 
