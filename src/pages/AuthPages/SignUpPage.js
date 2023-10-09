@@ -14,6 +14,7 @@ import {
   DialogTitle,
   DialogContent,
   FormControl,
+  FormHelperText,
   InputLabel,
   Select,
   MenuItem,
@@ -204,6 +205,7 @@ export default function SignUpPage() {
               value={formData.firstName}
               onChange={handleInputChange}
               sx={{ mb: 3 }}
+              helperText={fieldErrors.firstName && 'First Name is required'}
             />
             <TextField
               error={fieldErrors.middleName}
@@ -214,6 +216,7 @@ export default function SignUpPage() {
               value={formData.middleName}
               onChange={handleInputChange}
               sx={{ mb: 3 }}
+              helperText={fieldErrors.middleName && 'Middle Name is required'}
             />
             <TextField
               error={fieldErrors.lastName}
@@ -224,6 +227,7 @@ export default function SignUpPage() {
               value={formData.lastName}
               onChange={handleInputChange}
               sx={{ mb: 3 }}
+              helperText={fieldErrors.lastName && 'Last Name is required'}
             />
             <FormControl fullWidth variant="outlined" sx={{ mb: 3 }}>
               <InputLabel id="designation-label">Designation</InputLabel>
@@ -239,6 +243,7 @@ export default function SignUpPage() {
                 <MenuItem value={'Ms.'}>Ms.</MenuItem>
                 <MenuItem value={'Mrs.'}>Mrs.</MenuItem>
               </Select>
+              {fieldErrors.designation && <FormHelperText error>Designation is required</FormHelperText>}
             </FormControl>
             <TextField
               error={fieldErrors.email}
@@ -249,6 +254,7 @@ export default function SignUpPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               sx={{ mb: 3 }}
+              helperText={fieldErrors.email && 'Email is required'}
             />
             <TextField
               error={fieldErrors.mobileNumber}
@@ -259,6 +265,7 @@ export default function SignUpPage() {
               value={formData.mobileNumber}
               onChange={handleInputChange}
               sx={{ mb: 3 }}
+              helperText={fieldErrors.mobileNumber && 'Mobile Number is required'}
             />
             <Autocomplete
               error={fieldErrors.country}
@@ -268,7 +275,14 @@ export default function SignUpPage() {
               value={formData.country}
               onChange={(_, newValue) => setFormData({ ...formData, country: newValue })}
               renderInput={(params) => (
-                <TextField {...params} label="Country of Location" variant="outlined" sx={{ mb: 3 }} />
+                <TextField
+                  {...params}
+                  label="Country of Location"
+                  variant="outlined"
+                  sx={{ mb: 3 }}
+                  error={fieldErrors.country}
+                  helperText={fieldErrors.country && 'Country is required'}
+                />
               )}
             />
             <TextField
@@ -281,7 +295,7 @@ export default function SignUpPage() {
               onChange={handleInputChange}
               sx={{ mb: 3 }}
               disabled={!showIpAddress}
-              hidden 
+              hidden
             />
             <TextField
               error={fieldErrors.username}
@@ -292,6 +306,7 @@ export default function SignUpPage() {
               value={formData.username}
               onChange={handleInputChange}
               sx={{ mb: 3 }}
+              helperText={fieldErrors.username && 'Username is required'}
             />
             <TextField
               error={fieldErrors.password}
@@ -303,6 +318,7 @@ export default function SignUpPage() {
               value={formData.password}
               onChange={handleInputChange}
               sx={{ mb: 3 }}
+              helperText={fieldErrors.password && 'Password is required'}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
