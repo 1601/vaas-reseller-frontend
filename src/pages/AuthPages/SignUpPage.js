@@ -93,6 +93,23 @@ export default function SignUpPage() {
     });
   };
 
+  const handleGoogleSignUp = () => {
+    console.log('Environment Variables: ', process.env);
+    const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
+    const redirectUri = process.env.REACT_APP_GOOGLE_REDIRECT_URI;
+    console.log('Redirect Url: ', redirectUri);
+    const scope = encodeURIComponent(
+      'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile'
+    );
+
+    const googleLoginUrl = `https://accounts.google.com/o/oauth2/v2/auth?scope=${scope}&access_type=offline&include_granted_scopes=true&redirect_uri=${redirectUri}&response_type=code&client_id=${clientId}`;
+
+    console.log('Redirecting to: ', googleLoginUrl);
+
+    // Redirect user to Google login
+    window.location.href = googleLoginUrl;
+  };
+
   const validateForm = () => {
     const newFieldErrors = {
       firstName: !formData.firstName.trim(),
@@ -142,6 +159,34 @@ export default function SignUpPage() {
   };
 
   useEffect(() => {
+    // Set email based on URL parameter
+    const queryParams = new URLSearchParams(location.search);
+    const emailParam = queryParams.get('email');
+
+    // Set email based on location.state, if it exists
+    const newEmail = location.state?.email || emailParam || '';
+
+    // Update states
+    setEmail(newEmail);
+    setFormData((prev) => ({ ...prev, email: newEmail }));
+  }, [location.search, location.state]);
+
+  useEffect(() => {
+    const queryParams = new URLSearchParams(location.search);
+
+    const firstNameParam = queryParams.get('firstName');
+    const lastNameParam = queryParams.get('lastName');
+
+    if (firstNameParam || lastNameParam) {
+      setFormData((prev) => ({
+        ...prev,
+        firstName: firstNameParam || prev.firstName,
+        lastName: lastNameParam || prev.lastName,
+      }));
+    }
+  }, [location.search]);
+
+  useEffect(() => {
     const isValid = Object.keys(formData).some((key) => {
       if (key === 'ipAddress') {
         return false;
@@ -156,13 +201,6 @@ export default function SignUpPage() {
   useEffect(() => {
     setFormData((prev) => ({ ...prev, email }));
   }, [email]);
-
-  // Update location state for email
-  useEffect(() => {
-    const newEmail = location.state?.email || '';
-    setEmail(newEmail);
-    setFormData((prev) => ({ ...prev, email: newEmail }));
-  }, [location.state]);
 
   // Fetching IP Address
   useEffect(() => {
@@ -392,9 +430,7 @@ export default function SignUpPage() {
               color="inherit"
               variant="outlined"
               startIcon={<Iconify icon="eva:google-fill" color="#DF3E30" width={22} height={22} />}
-              onClick={() => {
-                // Handle Sign Up with Google
-              }}
+              onClick={handleGoogleSignUp}
             >
               Sign Up with Google
             </Button>
@@ -411,7 +447,7 @@ export default function SignUpPage() {
             >
               Sign Up with Facebook
             </Button>
-            
+
             {errorMessage && (
               <Typography variant="body2" color="error" sx={{ my: 2 }}>
                 {errorMessage}
