@@ -219,7 +219,7 @@ export default function KYC() {
           const userData = JSON.parse(localStorage.getItem('user'));
           const userId = userData._id;
 
-          await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/kyc/submit`, {}, {
+          await axios.put(`${process.env.REACT_APP_BACKEND_URL}/v1/api/kyc/submit`, {}, {
             headers: {
               Authorization: `Bearer ${userId}`
             }
