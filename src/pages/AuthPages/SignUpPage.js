@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { debounce } from 'lodash';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
@@ -68,6 +69,8 @@ export default function SignUpPage() {
   const [isFormValid, setIsFormValid] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
   const [passwordHelperText, setPasswordHelperText] = useState('');
+  const [isEmailValid, setIsEmailValid] = useState(true);
+  const [emailErrorMessage, setEmailErrorMessage] = useState('');
 
   const [fieldErrors, setFieldErrors] = useState({
     firstName: false,
@@ -93,6 +96,30 @@ export default function SignUpPage() {
       ...fieldErrors,
       [name]: false,
     });
+  };
+
+  const checkEmail = async () => {
+    try {
+      await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/check-email`, {
+        params: { email },
+      });
+      setIsEmailValid(true);
+      setEmailErrorMessage('');
+    } catch (error) {
+      if (error.response && error.response.status === 400) {
+        setIsEmailValid(false);
+        setEmailErrorMessage(error.response.data.message);
+      } else {
+        console.error('Error checking email: ', error);
+      }
+    }
+  };
+
+  const debouncedCheckEmail = debounce(checkEmail, 400);
+
+  const handleEmailChange = (e) => {
+    setEmail(e.target.value);
+    // debouncedCheckEmail();
   };
 
   const handleGoogleSignUp = () => {
@@ -131,6 +158,12 @@ export default function SignUpPage() {
 
   const handleSignup = async () => {
     console.log(formData);
+
+    setPasswordError(false);
+    setPasswordHelperText('');
+    // Check email when Sign Up button is clicked
+    await checkEmail();
+
     if (!validateForm()) {
       setShowErrorDialog(true);
       return;
@@ -296,15 +329,15 @@ export default function SignUpPage() {
               {fieldErrors.designation && <FormHelperText error>Designation is required</FormHelperText>}
             </FormControl>
             <TextField
-              error={fieldErrors.email}
+              error={!isEmailValid}
               fullWidth
               label="Email"
               variant="outlined"
               name="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={handleEmailChange}
               sx={{ mb: 3 }}
-              helperText={fieldErrors.email && 'Email is required'}
+              helperText={isEmailValid ? '' : emailErrorMessage}
             />
             <TextField
               error={fieldErrors.mobileNumber}
