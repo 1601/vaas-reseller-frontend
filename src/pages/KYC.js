@@ -34,6 +34,7 @@ import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import KycImage from '../images/Rectangle 52.png'
 import UnderReview from '../images/underReview.jpeg'
+import Approved from '../images/approved.png'
 import { postDataKyc, putFileKyc, autoCompleteAddress, kycSubmittedstatus } from '../api/public/kyc'
 
 
@@ -95,6 +96,16 @@ const initialFormData = {
   documentLink: '',
 };
 
+const initialErrorMessage = {
+  customerServiceNumber:'',
+  streetAddress:'',
+  cityAddress:'',
+  regionAddress:'',
+  zipCodeAddress:'',
+  numberOfEmployees:'',
+  uniqueIdentifier:'',
+  externalLinkAccount:''
+}
 const CircularLoading = () => (
   <>
     <Box
@@ -138,13 +149,14 @@ export default function KYC() {
   const [businessType, setBusinessType] = useState('');
   const [linkFieldsData, setLinkFieldsData] = useState([{ externalLinkAccount: '' }]);
   const [fileUploaded, setFileUploaded] = useState(false)
+  const [approvalStatus, setApprovalStatus] = useState(0)
   const [preload, setPreload] = useState(0)
-  const [isError, setIsError] = useState(false)
   const [autoComplete, setAutoComplete] = useState()
   const [isActive1, setIsActive1] = useState(false);
   const [isActive2, setIsActive2] = useState(false);
   const [isActive3, setIsActive3] = useState(false);
   const [isActive4, setIsActive4] = useState(false);
+  const [isError, setIsError] = useState(initialErrorMessage)
 
   const handleAddTextField = () => {
     setLinkFieldsData([...linkFieldsData, { externalLinkAccount: '' }]);
@@ -158,34 +170,82 @@ export default function KYC() {
 
   const handleNext = () => {
     const values = Object.values(formData);
+    // handleErrorMessage()
     if (activeStep === 1) {
-      if (values[0] === '' ||
-        values[1] === '' ||
-        values[2] === '' ||
-        values[3] === '' ||
-        values[4] === '' ||
-        values[7] === '') {
-        return setIsError(true)
+      if(values[0] !== ''){
+        const regex = /[a-zA-Z]+/g; // Regular expression to match one or more letters
+        const letters = values[0].match(regex);
+        if(letters){
+          return setIsError({
+            ...isError,
+            customerServiceNumber:'Only valid numbers'
+          })
+        }
+      }else{
+       
+        return setIsError({
+          ...isError,
+          customerServiceNumber: 'Please fill service number field'
+        })
+      }
+
+      if(values[1] === ''){
+        return setIsError({
+          ...isError,
+          streetAddress: 'Please fill street address field'
+        })
+      }
+      if(values[2] === ''){
+        return setIsError({
+          ...isError,
+          cityAddress:'Please fill city address field'
+        })
+      }
+      if(values[3] === ''){
+        return setIsError({
+          ...isError,
+          regionAddress:'Please fill region/state address form'
+        })
+      }
+      if(values[4] === ''){
+        return setIsError({
+          ...isError,
+          zipCodeAddress:'Please fill zip code field'
+        })
+      }
+      if(values[7] === ''){
+        return setIsError({
+          ...isError,
+          uniqueIdentifier:'Please fill unique identifier field'
+        })
       }
     }
     setActiveStep((prevStep) => prevStep + 1);
-    return setIsError(false)
+    return setIsError(initialErrorMessage)
   };
+
+  const ErrorMessage = (label) =>{
+    return(
+        <Container maxWidth='md'>
+          <Box style={{
+            marginTop: '0px',
+            textAlign: 'center',
+            backgroundColor: '#fde4f2',
+            border: 'solid #eea1cd 1px',
+            borderRadius: '10px',
+            width: '30%'
+          }}>
+            <Typography
+              variant='caption'
+              color='#ff6b6b'
+            > {label.label}!</Typography>
+          </Box>
+        </Container>
+      )
+  }
   const handleBack = () => {
     setActiveStep((prevStep) => prevStep - 1);
   };
-
-  // const handleChange = (event) => {
-  //   const { name, value, type, checked } = event.target;
-
-  //   // Handle different input types (text, checkbox, number)
-  //   const newValue = type === 'checkbox' ? checked : value;
-
-  //   setFormData((prevData) => ({
-  //     ...prevData,
-  //     [name]: newValue,
-  //   }));
-  // };
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -200,11 +260,14 @@ export default function KYC() {
   const handleSubmit = async (e) => {
     e.preventDefault()
 
+    
+    
     // Merge textFieldsData into formData
     const mergedFormData = {
       ...formData,
       externalLinkAccount: linkFieldsData.map((item) => item.externalLinkAccount),
     };
+
     // Send formData to the backend API
     try {
       const result = await postDataKyc(mergedFormData);
@@ -213,7 +276,7 @@ export default function KYC() {
         const mergeFileData = [
           ...selectedImage,
           ...selectedDocs]
-        console.log("Sulod kaayu")
+      
         const fileResult = await putFileKyc(mergeFileData)
         if (fileResult.status === 200) {
           const userData = JSON.parse(localStorage.getItem('user'));
@@ -233,7 +296,7 @@ export default function KYC() {
           setPreload(1)
           setTimeout(() => {
             setPreload(2)
-          }, 3000)
+          }, 1000)
 
         }
       }
@@ -243,7 +306,6 @@ export default function KYC() {
   };
 
   const handleInputChange = (e) => {
-
     const { name, value, type, checked } = e.target;
 
     if (name === 'streetAddress' && value !== '') {
@@ -326,10 +388,20 @@ export default function KYC() {
     kycSubmittedstatus()
     .then(datas =>{
       if(datas){
-        const {kycApprove, kycSubmitted} = datas.data.body[0]
-        console.log(kycApprove, kycSubmitted)
-        if(kycApprove === false && kycSubmitted === true){
-          setFileUploaded(true)
+        const {kycApprove} = datas.data.body[0]
+        console.log(kycApprove)
+        switch(kycApprove){
+          case 1: 
+            setApprovalStatus(1);
+            break;
+          case 2: 
+            setApprovalStatus(2);
+            break;
+          case 3:  
+            setApprovalStatus(3);
+            break;
+          default: 
+          setApprovalStatus(0);
         }
       }
       
@@ -339,10 +411,11 @@ export default function KYC() {
 
   return (
     <>
-      {preload === 1 ? <CircularLoading /> : <></>}
+      {preload === 1 && (<CircularLoading />)}
       <Container maxWidth="md" style={{ textAlign: 'center', marginTop: '50px' }}>
         <Card style={{ paddingTop: '50px', paddingBottom: '50px' }}>
-          {fileUploaded === false ? <Box sx={{ width: '100%', backgroundColor: 'white' }}>
+          {(approvalStatus === 0 || approvalStatus === 3 )&& (
+            <Box sx={{ width: '100%', backgroundColor: 'white' }}>
             <Stepper activeStep={activeStep} alternativeLabel>
               {steps.map((label, index) => (
                 <Step key={label}>
@@ -384,7 +457,7 @@ export default function KYC() {
                   {/* Step 2: General Information */}
                   <Container maxWidth="md" style={{ textAlign: "left", marginTop: "50px" }}>
                     <Typography variant="h6" style={{ marginBottom: '10px' }}>General Information</Typography>
-                    <form>
+                    
                       {/* Customer Service Number */}
                       <Typography variant="body1"> Customer Service Number </Typography>
                       <Typography variant="caption" color='text.secondary'> This is a landline or mobile number your customer can contact</Typography>
@@ -407,6 +480,7 @@ export default function KYC() {
                           ),
                         }}
                       />
+                      {isError.customerServiceNumber && (<ErrorMessage label={isError.customerServiceNumber}/>)}
                       {/* Street Address */}
                       <Typography variant="body1"> Business Address</Typography>
                       <TextField
@@ -428,7 +502,7 @@ export default function KYC() {
                           ),
                         }}
                       />
-
+                      {isError.streetAddress && (<ErrorMessage label={isError.streetAddress}/>)}
                       {autoComplete && (
                         autoComplete.map((datas, index) => {
                           return (
@@ -484,6 +558,7 @@ export default function KYC() {
                             }}
                           />
                         </Grid>
+                        {isError.cityAddress &&(<ErrorMessage label={isError.cityAddress}/>)}
 
                         {/* Region Address */}
                         <Grid item xs={12} md={4}>
@@ -497,8 +572,8 @@ export default function KYC() {
                             value={formData.regionAddress}
                             onChange={handleInputChange}
                           />
-
                         </Grid>
+                        {isError.regionAddress &&(<ErrorMessage label={isError.regionAddress}/>)}
 
                         {/* Zip Code Address */}
                         <Grid item xs={12} md={4}>
@@ -514,7 +589,7 @@ export default function KYC() {
                           />
                         </Grid>
                       </Grid>
-
+                      {isError.regionAddress &&(<ErrorMessage label={isError.zipCodeAddress}/>)}
                       {/* Physical Store Checkbox */}
                       <FormControlLabel
                         control={<Checkbox name="physicalStore" checked={formData.physicalStore} onChange={handleInputChange} />}
@@ -542,7 +617,7 @@ export default function KYC() {
                           ),
                         }}
                       />
-
+                      {isError.numberOfEmployees && (<ErrorMessage label={isError.numberOfEmployees}/>)}
                       <Typography variant="body1" style={{ marginTop: "30px" }}> Online Presence </Typography>
                       <Typography variant="caption" color='text.secondary'> Help us get to know your businese more by
                         providing atleast one link for either business website or social media
@@ -595,7 +670,6 @@ export default function KYC() {
                           onChange={handleInputChange}
                         />
                       </Box>
-                    </form>
                   </Container>
                 </div>
               )}
@@ -884,23 +958,7 @@ export default function KYC() {
                   </Container>
                 </div>
               )}
-              {isError === true && (
-                <Container maxWidth='md'>
-                  <Box style={{
-                    marginTop: '20px',
-                    textAlign: 'center',
-                    backgroundColor: '#fde4f2',
-                    border: 'solid #eea1cd 1px',
-                    borderRadius: '10px',
-                    width: '100%'
-                  }}>
-                    <Typography
-                      variant='subtitle1'
-                      color='#ff6b6b'
-                    > Please fill all necessary fields!</Typography>
-                  </Box>
-                </Container>
-              )}
+              
               <div style={{ marginTop: '40px' }}>
                 <Button
                   disabled={activeStep === 0}
@@ -919,15 +977,26 @@ export default function KYC() {
                 </Button>
               </div>
             </form>
-          </Box> :
+          </Box>
+          )}
+          {approvalStatus === 1 &&(
             <div style={{ marginTop: '50px', textAlign: 'center', height: '350px' }}>
               <Container maxWidth="md" style={{ marginTop: "50px" }}>
                 <img className="mx-auto" src={UnderReview} alt="Under review" style={{ width: "250px", height: "auto", borderRadius:'10px', marginBottom:'10px' }}/>
                 <Typography variant='h5'> Your Files are Successfuly Uploaded And it is Under Review  </Typography>
                 <Button onClick={handleProceed} style={{ color: "white", backgroundColor: "#873EC0", marginTop: '30px', paddingLeft: '30px', paddingRight: '30px' }}> PROCEED </Button>
               </Container>
+          </div>
+          )}
+          {approvalStatus === 2 &&(
+            <div style={{ marginTop: '50px', textAlign: 'center', height: '350px' }}>
+            <Container maxWidth="md" style={{ marginTop: "50px" }}>
+              <img className="mx-auto" src={Approved} alt="Under review" style={{ width: "250px", height: "auto", borderRadius:'10px', marginBottom:'10px' }}/>
+              <Typography variant='h5'> Submitted files are approved  </Typography>
+              <Button onClick={handleProceed} style={{ color: "white", backgroundColor: "#873EC0", marginTop: '30px', paddingLeft: '30px', paddingRight: '30px' }}> PROCEED </Button>
+            </Container>
             </div>
-          }
+          )}
         </Card>
       </Container>
     </>

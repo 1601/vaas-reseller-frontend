@@ -7,7 +7,6 @@ const getNewToken = () => {
 const getOnwerId = () =>{
     const userData = localStorage.getItem('user')
     const ownerId = JSON.parse(userData)
-    console.log(ownerId)
     return ownerId._id
 }
 
