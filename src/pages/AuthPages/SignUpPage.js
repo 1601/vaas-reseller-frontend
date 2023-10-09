@@ -379,6 +379,39 @@ export default function SignUpPage() {
             >
               Sign Up
             </Button>
+
+            <Divider sx={{ my: 3 }}>
+              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                OR
+              </Typography>
+            </Divider>
+
+            <Button
+              fullWidth
+              size="large"
+              color="inherit"
+              variant="outlined"
+              startIcon={<Iconify icon="eva:google-fill" color="#DF3E30" width={22} height={22} />}
+              onClick={() => {
+                // Handle Sign Up with Google
+              }}
+            >
+              Sign Up with Google
+            </Button>
+
+            <Button
+              fullWidth
+              size="large"
+              color="inherit"
+              variant="outlined"
+              startIcon={<Iconify icon="eva:facebook-fill" color="#1877F2" width={22} height={22} />}
+              onClick={() => {
+                // Handle Sign Up with Facebook
+              }}
+            >
+              Sign Up with Facebook
+            </Button>
+            
             {errorMessage && (
               <Typography variant="body2" color="error" sx={{ my: 2 }}>
                 {errorMessage}
