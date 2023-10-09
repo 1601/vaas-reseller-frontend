@@ -176,7 +176,14 @@ export default function LoginForm() {
           Forgot password?
         </Link>
       </Stack>
-      <Button fullWidth size="large" color="inherit" variant="outlined" onClick={handleLogin}>
+      <Button
+        fullWidth
+        size="large"
+        color="inherit"
+        variant="outlined"
+        onClick={handleLogin}
+        disabled={!email.trim() || !password.trim()}
+      >
         Login
       </Button>
       {!isVerified && (
