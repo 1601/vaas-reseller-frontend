@@ -65,6 +65,7 @@ export default function SignUpPage() {
   const [formErrors, setFormErrors] = useState({});
   const [showErrorDialog, setShowErrorDialog] = useState(false);
   const [showIpAddress, setShowIpAddress] = useState(true);
+  const [isFormValid, setIsFormValid] = useState(false);
 
   const [fieldErrors, setFieldErrors] = useState({
     firstName: false,
@@ -139,6 +140,17 @@ export default function SignUpPage() {
     setShowSuccessMessage(false);
     navigate('/login');
   };
+
+  useEffect(() => {
+    const isValid = Object.keys(formData).some((key) => {
+      if (key === 'ipAddress') {
+        return false;
+      }
+      return Boolean(formData[key].trim());
+    });
+
+    setIsFormValid(isValid);
+  }, [formData]);
 
   // Update formData.email whenever email changes
   useEffect(() => {
@@ -357,7 +369,14 @@ export default function SignUpPage() {
               </DialogActions>
             </Dialog>
 
-            <Button fullWidth size="large" color="inherit" variant="outlined" onClick={handleSignup}>
+            <Button
+              fullWidth
+              size="large"
+              color="inherit"
+              variant="outlined"
+              onClick={handleSignup}
+              disabled={!isFormValid}
+            >
               Sign Up
             </Button>
             {errorMessage && (
