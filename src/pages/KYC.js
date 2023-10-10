@@ -28,6 +28,7 @@ import CorporateFareIcon from '@mui/icons-material/CorporateFare';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import CircularProgress from "@mui/material/CircularProgress";
 import PlaceIcon from '@mui/icons-material/Place';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import { styled } from '@mui/material/styles';
 import Grid from '@mui/material/Grid';
 import KycImage from '../images/Rectangle 52.png'
@@ -167,7 +168,7 @@ export default function KYC() {
 
   const handleNext = () => {
     const values = Object.values(formData);
-    // handleErrorMessage()
+    console.log(values)
     if (activeStep === 1) {
       if(values[0] !== ''){
         const regex = /[a-zA-Z]+/g; // Regular expression to match one or more letters
@@ -182,38 +183,44 @@ export default function KYC() {
        
         return setIsError({
           ...isError,
-          customerServiceNumber: 'Please fill service number field'
+          customerServiceNumber: 'This is a required field'
         })
       }
 
       if(values[1] === ''){
         return setIsError({
           ...isError,
-          streetAddress: 'Please fill street address field'
+          streetAddress: 'This is a required field'
         })
       }
       if(values[2] === ''){
         return setIsError({
           ...isError,
-          cityAddress:'Please fill city address field'
+          cityAddress:'This is a required field'
         })
       }
       if(values[3] === ''){
         return setIsError({
           ...isError,
-          regionAddress:'Please fill region/state address form'
+          regionAddress:'This is a required field'
         })
       }
       if(values[4] === ''){
         return setIsError({
           ...isError,
-          zipCodeAddress:'Please fill zip code field'
+          zipCodeAddress:'This is a required field'
+        })
+      }
+      if(values[6] <= 0){
+        return setIsError({
+          ...isError,
+          numberOfEmployees:'Invalid input, need to have greater than 0'
         })
       }
       if(values[7] === ''){
         return setIsError({
           ...isError,
-          uniqueIdentifier:'Please fill unique identifier field'
+          uniqueIdentifier:'This is a required field'
         })
       }
     }
@@ -223,21 +230,20 @@ export default function KYC() {
 
   function ErrorMessage(label){
     return(
-        <Container maxWidth='md'>
-          <Box style={{
-            marginTop: '0px',
-            textAlign: 'center',
-            backgroundColor: '#fde4f2',
-            border: 'solid #eea1cd 1px',
-            borderRadius: '10px',
-            width: '30%'
-          }}>
-            <Typography
-              variant='caption'
-              color='#ff6b6b'
-            > {label.label}!</Typography>
-          </Box>
-        </Container>
+      <Box style={{
+        marginTop: '0px',
+        marginBottom:'20px',
+        textAlign: 'left',
+        borderRadius: '10px',
+        width: '100%',
+        color:'#ff6b6b'
+      }}>
+        <ErrorOutlineIcon/>
+        <Typography
+          variant='caption'
+          color='#ff6b6b'
+        > {label.label}</Typography>
+      </Box>
       )
   }
   const handleBack = () => {
@@ -421,9 +427,22 @@ export default function KYC() {
             </Stepper>
             <form onSubmit={(e) => e.preventDefault()}>
               {activeStep === 0 && (
-                <Container maxWidth="md" style={{ textAlign: 'center', marginTop: '50px' }}>
+                <Container maxWidth="md" style={{ textAlign: 'center', marginTop: '50px'}}>
                   <Typography variant="h3" style={{ color: "#BA61E8" }}>Welcome to Vortex!</Typography>
                   <img className="mx-auto" src={KycImage} width="150" height="auto" alt="Hero" />
+                  {approvalStatus === 3 &&(<Box
+                    style={{
+                      marginTop:'50px',
+                      textAlign: 'center',
+                      backgroundColor: '#fde4f2',
+                      border: 'solid #eea1cd 1px',
+                      borderRadius: '10px',
+                      width:'50%'
+                    }}
+                  >
+                    <Typography variant='subtitle2' color='#ff6b6b'> Please resubmit, rejected application </Typography>
+                    </Box>  )
+                  }
                   <div style={{ marginTop: '20px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
                       <CheckCircleOutlineIcon style={{ color: 'green', marginRight: '10px' }} />
