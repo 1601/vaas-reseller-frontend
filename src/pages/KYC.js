@@ -30,8 +30,6 @@ import CircularProgress from "@mui/material/CircularProgress";
 import PlaceIcon from '@mui/icons-material/Place';
 import { styled } from '@mui/material/styles';
 import Grid from '@mui/material/Grid';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
 import KycImage from '../images/Rectangle 52.png'
 import UnderReview from '../images/underReview.jpeg'
 import Approved from '../images/approved.png'
@@ -148,7 +146,6 @@ export default function KYC() {
   const docsInputRef = useRef(null);
   const [businessType, setBusinessType] = useState('');
   const [linkFieldsData, setLinkFieldsData] = useState([{ externalLinkAccount: '' }]);
-  const [fileUploaded, setFileUploaded] = useState(false)
   const [approvalStatus, setApprovalStatus] = useState(0)
   const [preload, setPreload] = useState(0)
   const [autoComplete, setAutoComplete] = useState()
@@ -224,7 +221,7 @@ export default function KYC() {
     return setIsError(initialErrorMessage)
   };
 
-  const ErrorMessage = (label) =>{
+  function ErrorMessage(label){
     return(
         <Container maxWidth='md'>
           <Box style={{
@@ -308,6 +305,13 @@ export default function KYC() {
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
 
+    if(isError){
+      setIsError({
+        ...isError,
+        [name]:''
+      })
+    }
+
     if (name === 'streetAddress' && value !== '') {
       autoCompleteAddress(value)
         .then((result) => {
@@ -371,28 +375,20 @@ export default function KYC() {
 
 
   const handleProceed = () => {
-    setFileUploaded(false)
     window.location.href = "/dashboard/app"
   }
 
   const isLastStep = activeStep === steps.length - 1;
 
 
-  useEffect(() => {
-    if (preload === 2) {
-      setFileUploaded(true)
-    }
-  }, [preload])
-
   useEffect(() =>{
     kycSubmittedstatus()
     .then(datas =>{
       if(datas){
         const {kycApprove} = datas.data.body[0]
-        console.log(kycApprove)
         switch(kycApprove){
           case 1: 
-            setApprovalStatus(1);
+            setApprovalStatus(0);
             break;
           case 2: 
             setApprovalStatus(2);
@@ -417,7 +413,7 @@ export default function KYC() {
           {(approvalStatus === 0 || approvalStatus === 3 )&& (
             <Box sx={{ width: '100%', backgroundColor: 'white' }}>
             <Stepper activeStep={activeStep} alternativeLabel>
-              {steps.map((label, index) => (
+              {steps.map((label) => (
                 <Step key={label}>
                   <StepLabel><Responsive>{label}</Responsive></StepLabel>
                 </Step>
@@ -504,8 +500,7 @@ export default function KYC() {
                       />
                       {isError.streetAddress && (<ErrorMessage label={isError.streetAddress}/>)}
                       {autoComplete && (
-                        autoComplete.map((datas, index) => {
-                          return (
+                        autoComplete.map((datas, index) => (
                             <Box key={index}
                               style={
                                 {
@@ -530,8 +525,7 @@ export default function KYC() {
                               <PlaceIcon sx={{ fontSize: '14px' }} />
                               <p>{datas.properties.formatted}</p>
                             </Box>
-                          )
-                        })
+                        ))
                       )}
 
                       {/* City Address */}
@@ -651,6 +645,7 @@ export default function KYC() {
                           }}
                         />
                       ))}
+                      {isError.externalLinkAccount &&(<ErrorMessage label={isError.externalLinkAccount}/>)}
 
                       <Button style={{ color: "#BA61E8", fontSize: '.7rem' }} onClick={handleAddTextField}><AddLinkIcon /> Add another link</Button>
 
@@ -669,6 +664,7 @@ export default function KYC() {
                           value={formData.uniqueIdentifier}
                           onChange={handleInputChange}
                         />
+                        {isError.uniqueIdentifier &&(<ErrorMessage label={isError.uniqueIdentifier}/>)}
                       </Box>
                   </Container>
                 </div>
