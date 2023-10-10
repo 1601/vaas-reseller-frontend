@@ -388,7 +388,7 @@ export default function KYC() {
         const {kycApprove} = datas.data.body[0]
         switch(kycApprove){
           case 1: 
-            setApprovalStatus(0);
+            setApprovalStatus(1);
             break;
           case 2: 
             setApprovalStatus(2);
