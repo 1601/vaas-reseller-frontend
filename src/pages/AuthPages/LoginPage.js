@@ -49,6 +49,7 @@ const StyledFooter = styled('div')({
 export default function LoginPage() {
   const mdUp = useResponsive('up', 'md');
   const navigate = useNavigate();
+  const handleNavigation = (path) => {navigate(path);};
 
   return (
     <>
@@ -124,9 +125,9 @@ export default function LoginPage() {
               </Link>
             </Typography>
             <Typography variant="body2" sx={{ textAlign: 'center', mt: 2 }}>
-              <Link variant="subtitle2">Help</Link> {' | '}
-              <Link variant="subtitle2">Privacy</Link> {' | '}
-              <Link variant="subtitle2">Terms of Service</Link>
+              <Link variant="subtitle2" component="button" onClick={() => handleNavigation('/help')}>Help</Link> {' | '}
+              <Link variant="subtitle2" component="button" onClick={() => handleNavigation('/data-privacy-policy')}>Privacy</Link> {' | '}
+               <Link variant="subtitle2" component="button" onClick={() => handleNavigation('/terms-and-conditions')}>Terms of Service</Link>
             </Typography>
           </StyledContent>
         </Container>
