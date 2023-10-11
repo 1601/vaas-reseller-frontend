@@ -27,10 +27,10 @@ function Footer() {
               </Link>
             </div> */}
             <div className="text-sm text-gray-600 text-center">
-              <Link to="#" className="text-gray-600 hover:text-gray-900 hover:underline transition duration-150 ease-in-out">Terms and Conditions</Link> · 
-              <Link to="#" className="text-gray-600 hover:text-gray-900 hover:underline transition duration-150 ease-in-out">Data Privacy Policy</Link> ·
-              <Link to="#" className="text-gray-600 hover:text-gray-900 hover:underline transition duration-150 ease-in-out">Cookie Policy</Link> ·
-              <Link to="#" className="text-gray-600 hover:text-gray-900 hover:underline transition duration-150 ease-in-out">Survey Privacy Policy</Link>
+              <Link to="/terms-and-conditions" className="text-gray-600 hover:text-gray-900 hover:underline transition duration-150 ease-in-out">Terms and Conditions</Link> ·
+              <Link to="/data-privacy-policy" className="text-gray-600 hover:text-gray-900 hover:underline transition duration-150 ease-in-out">Data Privacy Policy</Link> ·
+              <Link to="/cookie-policy" className="text-gray-600 hover:text-gray-900 hover:underline transition duration-150 ease-in-out">Cookie Policy</Link> ·
+              <Link to="/survey-privacy-policy" className="text-gray-600 hover:text-gray-900 hover:underline transition duration-150 ease-in-out">Survey Privacy Policy</Link>
             </div>
           </div>
 
