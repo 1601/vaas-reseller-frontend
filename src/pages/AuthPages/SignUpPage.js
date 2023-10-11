@@ -142,10 +142,10 @@ export default function SignUpPage() {
     const redirectUri = encodeURIComponent(process.env.REACT_APP_FACEBOOK_REDIRECT_URI);
     const scope = encodeURIComponent('email'); // request access to the user's email
 
-    const facebookLoginUrl = `https://www.facebook.com/v12.0/dialog/oauth?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&response_type=code`;
+    const facebookLoginUrl = `https://www.facebook.com/v18.0/dialog/oauth?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&response_type=code`;
 
     window.location.href = facebookLoginUrl;
-  };
+};
 
   const validateForm = () => {
     const newFieldErrors = {
