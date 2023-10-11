@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import Box from '@mui/material/Box';
 import Stepper from '@mui/material/Stepper';
@@ -31,6 +31,7 @@ import PlaceIcon from '@mui/icons-material/Place';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import { styled } from '@mui/material/styles';
 import Grid from '@mui/material/Grid';
+import {useDropzone} from 'react-dropzone'
 import KycImage from '../images/Rectangle 52.png'
 import UnderReview from '../images/underReview.jpeg'
 import Approved from '../images/approved.png'
@@ -71,6 +72,8 @@ const HoverableButton = styled(Box)`
     padding: 10px; /* Remove quotes and use camelCase */
   }
 `;
+
+
 
 
 
@@ -144,7 +147,7 @@ export default function KYC() {
   const [selectedDocs, setSelectedDocs] = useState([]);
   const [formData, setFormData] = useState(initialFormData);
   const fileInputRef = useRef(null);
-  const docsInputRef = useRef(null);
+  // const docsInputRef = useRef(null);
   const [businessType, setBusinessType] = useState('');
   const [linkFieldsData, setLinkFieldsData] = useState([{ externalLinkAccount: '' }]);
   const [approvalStatus, setApprovalStatus] = useState(0)
@@ -168,7 +171,6 @@ export default function KYC() {
 
   const handleNext = () => {
     const values = Object.values(formData);
-    console.log(values)
     if (activeStep === 1) {
       if(values[0] !== ''){
         const regex = /[a-zA-Z]+/g; // Regular expression to match one or more letters
@@ -250,15 +252,15 @@ export default function KYC() {
     setActiveStep((prevStep) => prevStep - 1);
   };
 
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    setSelectedImage([...selectedImage, file]);
-  };
+  // const handleFileChange = (event) => {
+  //   const file = event.target.files[0];
+  //   setSelectedImage([...selectedImage, file]);
+  // };
 
-  const handleDocsChange = (event) => {
-    const file = event.target.files[0];
-    setSelectedDocs([...selectedDocs, file])
-  }
+  // const handleDocsChange = (event) => {
+  //   const file = event.target.files[0];
+  //   setSelectedDocs([...selectedDocs, file])
+  // }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -384,6 +386,18 @@ export default function KYC() {
     window.location.href = "/dashboard/app"
   }
 
+  const onDrop = useCallback(acceptedFiles => {
+    // Do something with the files
+    console.log(acceptedFiles[0])
+    const file = acceptedFiles[0]
+    if(file.type === 'image/png' || file.type === 'image/jpeg'){
+      setSelectedImage((selectedImage) => [...selectedImage, acceptedFiles[0]])
+    }else{
+      setSelectedDocs((selectedDocs) =>[...selectedDocs, acceptedFiles[0]])
+    }
+    
+  }, [])
+  const {getRootProps, getInputProps, isDragActive} = useDropzone({onDrop})
   const isLastStep = activeStep === steps.length - 1;
 
 
@@ -799,44 +813,39 @@ export default function KYC() {
                         <Typography variant='caption' color='text.secondary'> Upload one(1) Primary ID or two(2) Secondary IDs( only if you cannot provide a primary ID)</Typography>
                       </div>
 
-                      <HoverableButton>
-                        {/* <Dropzone onDrop={acceptedFiles => setSelectedImage([...selectedImage, acceptedFiles])}>
-                          {({ getRootProps, getInputProps }) => (
-                            <section>
-                              <div {...getRootProps()}>
-                                {/* <input {...getInputProps()} /> 
-                                <input
-                                  ref={fileInputRef}
-                                  type="file"
-                                  multiple
-                                  onChange={handleFileChange}
-                                  style={{ display: 'none' }}
-                                  id="file-input"
-                                  {...getInputProps()}
-                                />
-                                <div
-                                  style={{ display: 'flex', alignContent: 'flex-end' }}
-                                >
-                                  <Button
-                                    variant="contained"
-                                    color="primary"
-                                    component="span"
-                                    startIcon={<CloudUploadIcon />}
-                                    onClick={() => {
-                                      if (fileInputRef.current) {
-                                        fileInputRef.current.click();
-                                      }
-                                    }}
-                                  >
-                                    Select File
-                                  </Button>
-                                  <Typography style={{ alignSelf: 'center', justifySelf: 'center' }}> Or Drag 'n' Drop file here </Typography>
-                                </div>
-                              </div>
-                            </section>
-                          )}
-                        </Dropzone> */}
-                         <input
+                      <HoverableButton {...getRootProps()}>
+                        <div>
+                          <input {...getInputProps()} />
+                          {/* <input
+                            ref={fileInputRef}
+                            type="file"
+                            multiple
+                            onChange={handleFileChange}
+                            style={{ display: 'none' }}
+                            id="file-input"
+                          />  */}
+                          <Button
+                            variant="contained"
+                            color="primary"
+                            component="span"
+                            startIcon={<CloudUploadIcon />}
+                            onClick={() => {
+                              if (fileInputRef.current) {
+                                fileInputRef.current.click();
+                              }
+                            }}
+                          >
+                            Select Image
+                          </Button>
+                          <Box style={{color:'gray', fontSize:'.7rem'}}>
+                            {
+                              isDragActive ?
+                                <p>Drop the files here ...</p> :
+                                <p>Drag 'n' drop some files here, or click to select files</p>
+                            }
+                          </Box>
+                        </div>
+                         {/* <input
                           ref={fileInputRef}
                           type="file"
                           multiple
@@ -844,7 +853,6 @@ export default function KYC() {
                           style={{ display: 'none' }}
                           id="file-input"
                         /> 
-                        {/* <label htmlFor="file-input"> */}
                         <Button
                           variant="contained"
                           color="primary"
@@ -857,7 +865,7 @@ export default function KYC() {
                           }}
                         >
                           Select File
-                        </Button>
+                        </Button> */}
 
                         {/* </label> */}
 
@@ -919,31 +927,62 @@ export default function KYC() {
                       <div style={{ marginTop: '30px', marginBottom: '30px' }}>
                         <Typography variant='body2'> DTI Business Name Registration certificate </Typography>
                       </div>
-
-                      <HoverableButton>
-                        <input
-                          ref={docsInputRef}
+                      <HoverableButton {...getRootProps()}>
+                        <div>
+                          <input {...getInputProps()} />
+                          {/* <input
+                            ref={fileInputRef}
+                            type="file"
+                            multiple
+                            onChange={handleFileChange}
+                            style={{ display: 'none' }}
+                            id="file-input"
+                          />  */}
+                          <Button
+                            variant="contained"
+                            color="primary"
+                            component="span"
+                            startIcon={<CloudUploadIcon />}
+                            onClick={() => {
+                              if (fileInputRef.current) {
+                                fileInputRef.current.click();
+                              }
+                            }}
+                          >
+                            Select Image
+                          </Button>
+                          <Box style={{color:'gray', fontSize:'.7rem'}}>
+                            {
+                              isDragActive ?
+                                <p>Drop the files here ...</p> :
+                                <p>Drag 'n' drop some files here, or click to select files</p>
+                            }
+                          </Box>
+                        </div>
+                         {/* <input
+                          ref={fileInputRef}
                           type="file"
                           multiple
-                          onChange={handleDocsChange}
+                          onChange={handleFileChange}
                           style={{ display: 'none' }}
                           id="file-input"
-                        />
-                        {/* <label htmlFor="file-input"> */}
+                        /> 
                         <Button
                           variant="contained"
                           color="primary"
                           component="span"
                           startIcon={<CloudUploadIcon />}
                           onClick={() => {
-                            if (docsInputRef.current) {
-                              docsInputRef.current.click();
+                            if (fileInputRef.current) {
+                              fileInputRef.current.click();
                             }
                           }}
                         >
                           Select File
-                        </Button>
+                        </Button> */}
+
                         {/* </label> */}
+
                         <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', marginTop: '10px' }}>
                           {selectedDocs.map((item, index) => (
                             <div
@@ -969,6 +1008,54 @@ export default function KYC() {
                           ))}
                         </div>
                       </HoverableButton>
+                      {/* <HoverableButton>
+                        <input
+                          ref={docsInputRef}
+                          type="file"
+                          multiple
+                          onChange={handleDocsChange}
+                          style={{ display: 'none' }}
+                          id="file-input"
+                        />
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          component="span"
+                          startIcon={<CloudUploadIcon />}
+                          onClick={() => {
+                            if (docsInputRef.current) {
+                              docsInputRef.current.click();
+                            }
+                          }}
+                        >
+                          Select File
+                        </Button>
+                        {/* </label>
+                        <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', marginTop: '10px' }}>
+                          {selectedDocs.map((item, index) => (
+                            <div
+                              key={index}
+                              style={{
+                                backgroundColor: '#873EC0',
+                                borderRadius: '5px',
+                                color: 'white', // Changed text color to white for better contrast
+                                width: '100px', // Increased the width for more space
+                                padding: '8px', // Added padding for better spacing
+                                fontSize: '14px', // Adjusted font size
+                                textAlign: 'center', // Center-align text
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                marginRight: '10px',
+                                marginBottom: '10px',
+                                boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.2)', // Added a subtle shadow
+                              }}
+                            >
+                              {item.name}
+                            </div>
+                          ))}
+                        </div>
+                      </HoverableButton> */}
                     </div>
                   </Container>
                 </div>
