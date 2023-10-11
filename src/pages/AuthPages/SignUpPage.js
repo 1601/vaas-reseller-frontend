@@ -96,31 +96,50 @@ export default function SignUpPage() {
       ...fieldErrors,
       [name]: false,
     });
-  };
+  }; 
 
-  const checkEmail = async () => {
-    try {
-      await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/check-email`, {
-        params: { email },
-      });
-      setIsEmailValid(true);
-      setEmailErrorMessage('');
-    } catch (error) {
-      if (error.response && error.response.status === 400) {
-        setIsEmailValid(false);
-        setEmailErrorMessage(error.response.data.message);
-      } else {
-        console.error('Error checking email: ', error);
+  const validateEmailAndCheckExistence = async (email) => {
+    let valid = true;
+    let message = '';
+  
+    // Client-side validation first
+    if (!email) {
+      valid = false;
+      message = 'Email is required';
+    } else {
+      const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+      if (!emailRegex.test(email)) {
+        valid = false;
+        message = 'Invalid email format';
       }
     }
+  
+    // If client-side validation passes, check with the server
+    if (valid) {
+      try {
+        await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/check-email`, {
+          params: { email },
+        });
+      } catch (error) {
+        if (error.response && error.response.status === 400) {
+          valid = false;
+          message = error.response.data.message;
+        } else {
+          console.error('Error checking email: ', error);
+        }
+      }
+    }
+  
+    // Update the state once, based on both checks
+    setIsEmailValid(valid);
+    setEmailErrorMessage(message);
+    setFieldErrors((prev) => ({ ...prev, email: !valid }));
   };
-
-  const debouncedCheckEmail = debounce(checkEmail, 400);
-
+  
   const handleEmailChange = (e) => {
     setEmail(e.target.value);
-    // debouncedCheckEmail();
-  };
+    validateEmailAndCheckExistence(e.target.value);
+  };  
 
   const handleGoogleSignUp = () => {
     console.log('Environment Variables: ', process.env);
@@ -145,7 +164,7 @@ export default function SignUpPage() {
     const facebookLoginUrl = `https://www.facebook.com/v18.0/dialog/oauth?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&response_type=code`;
 
     window.location.href = facebookLoginUrl;
-};
+  };
 
   const validateForm = () => {
     const newFieldErrors = {
@@ -168,37 +187,37 @@ export default function SignUpPage() {
 
   const handleSignup = async () => {
     console.log(formData);
-
+  
     setPasswordError(false);
     setPasswordHelperText('');
-    // Check email when Sign Up button is clicked
-    await checkEmail();
-
-    if (!validateForm()) {
-      setShowErrorDialog(true);
-      return;
-    }
-
-    try {
-      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/signup`, formData);
-      setErrorMessage('');
-      setShowSuccessMessage(true);
-      setTimeout(() => {
-        navigate('/verify');
-      }, 3000);
-    } catch (error) {
-      if (error.response && error.response.data) {
-        setErrorMessage(error.response.data.message);
-        if (error.response.data.message.includes('Password')) {
-          setPasswordError(true);
-          setPasswordHelperText(error.response.data.message);
+  
+    await validateEmailAndCheckExistence(email);
+  
+    if (isEmailValid && validateForm()) {
+      try {
+        const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/signup`, formData);
+        setErrorMessage('');
+        setShowSuccessMessage(true);
+        setTimeout(() => {
+          navigate('/verify');
+        }, 3000);
+      } catch (error) {
+        if (error.response && error.response.data) {
+          setErrorMessage(error.response.data.message);
+          if (error.response.data.message.includes('Password')) {
+            setPasswordError(true);
+            setPasswordHelperText(error.response.data.message);
+          }
+        } else {
+          setErrorMessage('An error occurred during signup.');
         }
-      } else {
-        setErrorMessage('An error occurred during signup.');
+        setErrorDialogOpen(true);
       }
-      setErrorDialogOpen(true);
+    } else {
+      setShowErrorDialog(true);
     }
   };
+  
 
   const handleCloseModal = () => {
     setShowSuccessMessage(false);
@@ -322,8 +341,10 @@ export default function SignUpPage() {
               sx={{ mb: 3 }}
               helperText={fieldErrors.lastName && 'Last Name is required'}
             />
-            <FormControl fullWidth variant="outlined" sx={{ mb: 3 }}>
-              <InputLabel id="designation-label">Designation</InputLabel>
+            <FormControl fullWidth variant="outlined" sx={{ mb: 3 }} error={fieldErrors.designation}>
+              <InputLabel id="designation-label" error={fieldErrors.designation}>
+                Designation
+              </InputLabel>
               <Select
                 error={fieldErrors.designation}
                 labelId="designation-label"
@@ -339,7 +360,7 @@ export default function SignUpPage() {
               {fieldErrors.designation && <FormHelperText error>Designation is required</FormHelperText>}
             </FormControl>
             <TextField
-              error={!isEmailValid}
+              error={fieldErrors.email}
               fullWidth
               label="Email"
               variant="outlined"
@@ -347,7 +368,7 @@ export default function SignUpPage() {
               value={email}
               onChange={handleEmailChange}
               sx={{ mb: 3 }}
-              helperText={isEmailValid ? '' : emailErrorMessage}
+              helperText={emailErrorMessage}
             />
             <TextField
               error={fieldErrors.mobileNumber}
