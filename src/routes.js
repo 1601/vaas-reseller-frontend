@@ -24,6 +24,10 @@ import AdminKYC from './pages/AdminPages/AdminKYC';
 import AdminKYCApproval from './pages/AdminPages/AdminKYCApproval';
 import VortexBills from './pages/VortexBills';
 import ResetPasswordPage from './pages/AuthPages/ResetPasswordPage';
+import TermsAndConditions from './pages/OtherPages/TermsAndConditions';
+import DataPrivacyPolicy from './pages/OtherPages/DataPrivacyPolicy';
+import CookiePolicy from './pages/OtherPages/CookiePolicy';
+import SurveyPrivacyPolicy from './pages/OtherPages/SurveyPrivacyPolicy';
 
 // ----------------------------------------------------------------------
 
@@ -158,6 +162,22 @@ export default function Router() {
       path: 'verify',
       element: <VerifyPage />,
     },
+    {
+      path: 'terms-and-conditions',
+      element: <TermsAndConditions />,
+    },   
+    {
+      path: 'data-privacy-policy',
+      element: <DataPrivacyPolicy />,
+    },
+    {
+      path: 'cookie-policy',
+      element: <CookiePolicy />,
+    },
+    {
+      path: 'survey-privacy-policy',
+      element: <SurveyPrivacyPolicy />,
+    }, 
     {
       path: ':storeUrl',
       element: <LiveStorePage />,
