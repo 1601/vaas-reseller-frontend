@@ -34,6 +34,15 @@ export default function LoginForm() {
   const [emailError, setEmailError] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
   const [emailErrorMessage, setEmailErrorMessage] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
+
+  // Load email from localStorage when the component mounts
+  useEffect(() => {
+    const savedEmail = localStorage.getItem('rememberMeEmail');
+    if (savedEmail) {
+      setEmail(savedEmail);
+    }
+  }, []);
 
   const validateEmail = (email) => {
     const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i;
@@ -57,8 +66,19 @@ export default function LoginForm() {
     if (password.trim()) setPasswordError(false);
   }, [password]);
 
+  const handleRememberMeChange = (e) => {
+    setRememberMe(e.target.checked);
+  
+    if (e.target.checked) {
+      localStorage.setItem('rememberMeEmail', email);
+      localStorage.setItem('rememberMe', 'true');
+    } else {
+      localStorage.removeItem('rememberMeEmail');
+      localStorage.removeItem('rememberMe');
+    }
+  };
+
   const handleLogin = async () => {
-    // Check if the email and password are not empty
     if (!email.trim() || !password.trim()) {
       setError('Please supply all required fields');
       setEmailError(!email.trim());
@@ -67,7 +87,6 @@ export default function LoginForm() {
       return;
     }
 
-    // Check if the email format is valid
     if (!validateEmail(email)) {
       setEmailError(true);
       setVerificationMessage('Invalid email format');
@@ -81,6 +100,10 @@ export default function LoginForm() {
       });
 
       const { token, username, _id, role, email: userEmail, isActive } = response.data;
+
+      if (rememberMe) {
+        localStorage.setItem('rememberMeEmail', email);
+      }
 
       if (isActive === false) {
         setIsVerified(false);
@@ -166,7 +189,10 @@ export default function LoginForm() {
         />
       </Stack>
       <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ my: 2 }}>
-        <Checkbox name="remember" label="Remember me" />
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <Checkbox name="remember" checked={rememberMe} onChange={handleRememberMeChange} />
+          <Typography variant="body2">Remember Me</Typography>
+        </div>
         <Link
           variant="subtitle2"
           underline="hover"
