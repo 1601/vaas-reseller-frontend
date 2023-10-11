@@ -1,8 +1,10 @@
 import { Helmet } from 'react-helmet-async';
 import { faker } from '@faker-js/faker';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 // @mui
 import { useTheme } from '@mui/material/styles';
-import { Grid, Container, Typography } from '@mui/material';
+import { Grid, Container, Typography, Card, CardContent } from '@mui/material';
 // components
 import Iconify from '../components/iconify';
 // sections
@@ -22,6 +24,58 @@ import {
 
 export default function DashboardAppPage() {
   const theme = useTheme();
+  const [kycApprove, setKycApprove] = useState(null);
+  const [daysLeft, setDaysLeft] = useState(null);
+  const [displayMessage, setDisplayMessage] = useState('');
+  const [storeData, setStoreData] = useState(null);
+
+  useEffect(() => {
+    const storedUserId = JSON.parse(localStorage.getItem('user'))._id;
+
+    const fetchStoreData = async () => {
+      try {
+        console.log(storedUserId);
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/stores/owner/${storedUserId}`);
+        setStoreData(response.data);
+      } catch (error) {
+        console.error('Could not fetch store data', error);
+      }
+    };
+
+    fetchStoreData();
+  }, []);
+
+  useEffect(() => {
+    if (storeData && storeData._id) {
+      console.log('Fetching store status for _id:', storeData._id); // Add this log
+      fetch(`${process.env.REACT_APP_BACKEND_URL}/api/store-status/${storeData._id}`)
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`Network response was not ok: ${response.statusText}`);
+          }
+          return response.json();
+        })
+        .then((data) => {
+          console.log('Received store status data:', data); // Add this log
+          setKycApprove(data.kycApprove);
+          setDaysLeft(data.daysLeft);
+          setDisplayMessage(data.displayMessage);
+        })
+        .catch((error) => {
+          console.error('Error fetching data: ', error);
+        });
+    }
+  }, [storeData]);  
+
+  const trialMessageCard = kycApprove !== 2 && daysLeft !== null ? (
+    <Card sx={{ mb: 5, p: 3, textAlign: 'center', backgroundColor: 'error.light' }}>
+      <CardContent>
+        <Typography variant="h5" color="error.dark">
+          Your Free Trial Account has {daysLeft} days left to submit documents for Approval
+        </Typography>
+      </CardContent>
+    </Card>
+  ) : null;
 
   return (
     <>
@@ -33,6 +87,8 @@ export default function DashboardAppPage() {
         <Typography variant="h4" sx={{ mb: 5 }}>
           Hi, Welcome back
         </Typography>
+
+        {trialMessageCard}
 
         <Grid container spacing={3}>
           <Grid item xs={12} sm={6} md={3}>
@@ -144,36 +200,36 @@ export default function DashboardAppPage() {
           <Grid item xs={12} md={6} lg={8}>
             <AppNewsUpdate
               title="News Update"
-              list={[                 
-                  {
-                    title: "New Egifts Available",
-                    description: "Exciting news! New Egifts from your favorite brands are now available in our store.",
-                  },
-                  {
-                    title: "Instant Top-up",
-                    description: "Top-up made easy! Instantly recharge your mobile with our fast and secure service.",
-                  },
-                  {
-                    title: "Bill Payment Update",
-                    description: "Important update: Our platform now supports bill payments for over 100+ providers in the Philippines.",
-                  },
-                  {
-                    title: "Exclusive Offer Alert",
-                    description: "Exclusive offer alert! Save 20% on your next Egift purchase. Limited time only!",
-                  },
-                  {
-                    title: "Global Accessibility",
-                    description: "Expanding horizons! Our services are now accessible worldwide. Enjoy convenience no matter where you are.",
-                  },
-              ]
-              .map((item, index) => ({
+              list={[
+                {
+                  title: 'New Egifts Available',
+                  description: 'Exciting news! New Egifts from your favorite brands are now available in our store.',
+                },
+                {
+                  title: 'Instant Top-up',
+                  description: 'Top-up made easy! Instantly recharge your mobile with our fast and secure service.',
+                },
+                {
+                  title: 'Bill Payment Update',
+                  description:
+                    'Important update: Our platform now supports bill payments for over 100+ providers in the Philippines.',
+                },
+                {
+                  title: 'Exclusive Offer Alert',
+                  description: 'Exclusive offer alert! Save 20% on your next Egift purchase. Limited time only!',
+                },
+                {
+                  title: 'Global Accessibility',
+                  description:
+                    'Expanding horizons! Our services are now accessible worldwide. Enjoy convenience no matter where you are.',
+                },
+              ].map((item, index) => ({
                 id: faker.datatype.uuid(),
                 title: item.title, // Use the provided title
                 description: item.description, // Use the provided description
                 image: `/assets/images/covers/cover_${index + 1}.jpg`, // Replace with your image source
                 postedAt: faker.date.recent(), // You can replace this with the actual post date if needed
               }))}
-              
             />
           </Grid>
 
