@@ -27,11 +27,6 @@ const StorePageEdit = () => {
   const [progress, setProgress] = useState(0);
   const [progressText, setProgressText] = useState('Uploading...');
 
-  const [color, setColor] = useState({
-    primary: { hex: '#FFFFFF' },
-    secondary: { hex: '#FFFFFF' },
-  });
-
   const [platformVariables, setPlatformVariables] = useState({
     enableBills: true,
     enableLoad: true,
@@ -66,6 +61,20 @@ const StorePageEdit = () => {
       return null;
     };
   }, []);
+
+  const [color, setColor] = useState({
+    primary: { hex: storeData ? storeData.primaryColor : '#FFFFFF' },
+    secondary: { hex: storeData ? storeData.secondaryColor : '#FFFFFF' },
+  });
+
+  useEffect(() => {
+    if (storeData) {
+      setColor({
+        primary: { hex: storeData.primaryColor || '#FFFFFF' },
+        secondary: { hex: storeData.secondaryColor || '#FFFFFF' },
+      });
+    }
+  }, [storeData]);
 
   const handleEditClick = () => {
     setIsEditing(true);
@@ -691,7 +700,7 @@ const StorePageEdit = () => {
                           <Box
                             width="100px"
                             height="30px"
-                            bgcolor={storeData ? storeData.primaryColor : '#FFF'}
+                            bgcolor={storeData ? storeData.primaryColor : '#FFFFFF'}
                             mb={2}
                             border="1px solid #000"
                           />
