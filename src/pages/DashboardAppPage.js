@@ -9,6 +9,7 @@ import { Grid, Container, Typography, Card, CardContent } from '@mui/material';
 import Iconify from '../components/iconify';
 import AccountStatusModal from '../components/user-account/AccountStatusModal';
 import UserDataFetch from '../components/user-account/UserDataFetch';
+import StoreDataFetch from '../components/user-account/StoreDataFetch';
 // sections
 import {
   AppTasks,
@@ -29,24 +30,9 @@ export default function DashboardAppPage() {
   const [kycApprove, setKycApprove] = useState(null);
   const [daysLeft, setDaysLeft] = useState(null);
   const [displayMessage, setDisplayMessage] = useState('');
-  const [storeData, setStoreData] = useState(null);
   const userId = JSON.parse(localStorage.getItem('user'))._id;
 
-  useEffect(() => {
-    const storedUserId = JSON.parse(localStorage.getItem('user'))._id;
-
-    const fetchStoreData = async () => {
-      try {
-        console.log(storedUserId);
-        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/stores/owner/${storedUserId}`);
-        setStoreData(response.data);
-      } catch (error) {
-        console.error('Could not fetch store data', error);
-      }
-    };
-
-    fetchStoreData();
-  }, []);
+  const { storeData, editedData, platformVariables, error } = StoreDataFetch(userId);
 
   const userData = UserDataFetch(userId);
 
