@@ -52,51 +52,51 @@ const AccountStatusModal = ({ open, onClose, userData, storeData}) => {
   };
 
   return (
-    <Modal open={open} onClose={onClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
-      <div style={modalBodyStyle}>
-        {isSuspended ? (
-          <>
-            <Typography id="modal-modal-title" variant="h6" component="h2" color="error.dark" sx={{ fontWeight: 'bold' }}>
-              Account Suspended
-            </Typography>
-            <Typography id="modal-modal-description" sx={{ mt: 2, mb: 2 }}>
-              Account has been Suspended. You have {remainingDays} days to submit and get your documents approved.
-            </Typography>
-            <Button
-              variant="outlined"
-              color="primary"
-              style={{ padding: '8px 16px', fontSize: '14px', mt: 5 }}
-              onClick={() => {
-                window.location.href = '/dashboard/kyc';
-              }}
-            >
-              Submit Documents
-            </Button>
-          </>
-        ) : isDeactivated ? (
-          <>
-            <Typography id="modal-modal-title" variant="h6" component="h2" color="error.dark" sx={{ fontWeight: 'bold' }}>
-              Account Deactivated
-            </Typography>
-            <Typography id="modal-modal-description" sx={{ mt: 2, mb: 2 }}>
-              Account has been Deactivated due to insufficient documents. Please create a new account if you wish to continue using our services.
-            </Typography>
-            <Button
-              variant="outlined"
-              color="primary"
-              style={{ padding: '8px 16px', fontSize: '14px', mt: 5 }}
-              onClick={handleDeactivationLogout}
-            >
-              Logout
-            </Button>
-          </>
-        ) : (
-          <Typography id="modal-modal-description" sx={{ mt: 2, mb: 2 }}>
-            Account is active.
-          </Typography>
-        )}
-      </div>
-    </Modal>
+    <>
+      {(isSuspended || isDeactivated) && (
+        <Modal open={open} onClose={onClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
+          <div style={modalBodyStyle}>
+            {isSuspended ? (
+              <>
+                <Typography id="modal-modal-title" variant="h6" component="h2" color="error.dark" sx={{ fontWeight: 'bold' }}>
+                  Account Suspended
+                </Typography>
+                <Typography id="modal-modal-description" sx={{ mt: 2, mb: 2 }}>
+                  Account has been Suspended. You have {remainingDays} days to submit and get your documents approved.
+                </Typography>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  style={{ padding: '8px 16px', fontSize: '14px', mt: 5 }}
+                  onClick={() => {
+                    window.location.href = '/dashboard/kyc';
+                  }}
+                >
+                  Submit Documents
+                </Button>
+              </>
+            ) : isDeactivated ? (
+              <>
+                <Typography id="modal-modal-title" variant="h6" component="h2" color="error.dark" sx={{ fontWeight: 'bold' }}>
+                  Account Deactivated
+                </Typography>
+                <Typography id="modal-modal-description" sx={{ mt: 2, mb: 2 }}>
+                  Account has been Deactivated due to insufficient documents. Please create a new account if you wish to continue using our services.
+                </Typography>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  style={{ padding: '8px 16px', fontSize: '14px', mt: 5 }}
+                  onClick={handleDeactivationLogout}
+                >
+                  Logout
+                </Button>
+              </>
+            ) : null}
+          </div>
+        </Modal>
+      )}
+    </>
   );
 };
 
