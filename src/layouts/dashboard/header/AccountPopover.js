@@ -14,6 +14,7 @@ const MENU_OPTIONS = [
   {
     label: 'Home',
     icon: 'eva:home-fill',
+    path: '/dashboard/app',
   },
   {
     label: 'Profile',
@@ -37,6 +38,11 @@ export default function AccountPopover() {
 
   const handleClose = () => {
     setOpen(null);
+  };
+
+  const handleMenuClick = (path) => {
+    handleClose();
+    navigate(path);
   };
 
   return (
@@ -93,7 +99,10 @@ export default function AccountPopover() {
 
         <Stack sx={{ p: 1 }}>
           {MENU_OPTIONS.map((option) => (
-            <MenuItem key={option.label} onClick={handleClose}>
+            <MenuItem
+              key={option.label}
+              onClick={() => handleMenuClick(option.path)}
+            >
               {option.label}
             </MenuItem>
           ))}
