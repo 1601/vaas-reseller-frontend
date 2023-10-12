@@ -17,6 +17,8 @@ import {
   DialogContentText,
   DialogActions,
 } from '@mui/material';
+import AccountStatusModal from '../components/user-account/AccountStatusModal';
+import UserDataFetch from '../components/user-account/UserDataFetch';
 
 const StorePageEdit = () => {
   const navigate = useNavigate();
@@ -26,6 +28,8 @@ const StorePageEdit = () => {
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [progressText, setProgressText] = useState('Uploading...');
+  const userId = JSON.parse(localStorage.getItem('user'))._id;
+  const userData = UserDataFetch(userId);
 
   const [platformVariables, setPlatformVariables] = useState({
     enableBills: true,
@@ -394,7 +398,7 @@ const StorePageEdit = () => {
       }, 1000);
     } catch (error) {
       console.error('Error updating colors:', error.message);
-      alert('Failed to update colors. Please try again.'); 
+      alert('Failed to update colors. Please try again.');
     }
   };
 
@@ -675,7 +679,7 @@ const StorePageEdit = () => {
                           display: 'flex',
                           flexDirection: 'row',
                           alignItems: 'center',
-                          justifyContent: 'center', 
+                          justifyContent: 'center',
                           padding: '20px',
                           marginBottom: '20px',
                         }}
@@ -837,6 +841,7 @@ const StorePageEdit = () => {
           </Dialog>
         </div>
       </div>
+      <AccountStatusModal open userData={userData} storeData={storeData} />
     </Container>
   );
 };
