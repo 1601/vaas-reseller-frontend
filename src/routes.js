@@ -142,7 +142,6 @@ export default function Router() {
       },
         { path: 'wallet', element: <WalletAndPayout /> },
         { path: 'reports', element: <UserPage /> },
-        { path: 'livedata', element: <UserPage /> },
         { path: 'kyc', element: <KYC /> },
         { path: 'securitylogs', element: <UserPage /> },
         { path: 'settings', element: <UserPage /> },

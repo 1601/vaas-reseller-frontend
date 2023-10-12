@@ -106,8 +106,8 @@ const navConfig = role === 'admin' ?
     },
     {
       title: 'View Live Data',
-      path: '/dashboard/livedata',
       icon: icon('ic_toggle'),
+      isToggle: true,
     },
     // {
     //   title: 'login',
