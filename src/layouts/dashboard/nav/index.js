@@ -25,7 +25,7 @@ const navConfigBottom = [
   {
     title: 'upload document',
     path: '/dashboard/kyc',
-    icon: icon('ic_user'),
+    icon: icon('ic_docu'),
   },
   {
     title: 'security logs',
