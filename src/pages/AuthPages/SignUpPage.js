@@ -28,6 +28,7 @@ import Autocomplete from '@mui/lab/Autocomplete';
 import { Icon as Iconify } from '@iconify/react';
 import Logo from '../../components/logo';
 import { countries } from '../../components/country/CountriesList';
+import VerifyPage from './VerifyPage'
 
 const StyledRoot = styled('div')(({ theme }) => ({
   [theme.breakpoints.up('md')]: {
@@ -71,6 +72,8 @@ export default function SignUpPage() {
   const [passwordHelperText, setPasswordHelperText] = useState('');
   const [isEmailValid, setIsEmailValid] = useState(true);
   const [emailErrorMessage, setEmailErrorMessage] = useState('');
+  const [succesSignup, setSuccesSignup] = useState(false)
+  const [errorDialogOpen, setErrorDialogOpen] = useState(false);
 
   const [fieldErrors, setFieldErrors] = useState({
     firstName: false,
@@ -183,8 +186,6 @@ export default function SignUpPage() {
     return !Object.values(newFieldErrors).includes(true);
   };
 
-  const [errorDialogOpen, setErrorDialogOpen] = useState(false);
-
   const handleSignup = async () => {
     console.log(formData);
   
@@ -199,7 +200,7 @@ export default function SignUpPage() {
         setErrorMessage('');
         setShowSuccessMessage(true);
         setTimeout(() => {
-          navigate('/verify');
+          setSuccesSignup(true)
         }, 3000);
       } catch (error) {
         if (error.response && error.response.data) {
@@ -219,10 +220,10 @@ export default function SignUpPage() {
   };
   
 
-  const handleCloseModal = () => {
-    setShowSuccessMessage(false);
-    navigate('/login');
-  };
+  // const handleCloseModal = () => {
+  //   setShowSuccessMessage(false);
+  //   navigate('/login');
+  // };
 
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
@@ -283,15 +284,15 @@ export default function SignUpPage() {
     fetchIPAddress();
   }, []);
 
-  useEffect(() => {
-    if (showSuccessMessage) {
-      const redirectTimer = setTimeout(() => {
-        navigate('/login');
-      }, 5000);
-      return () => clearTimeout(redirectTimer);
-    }
-    return undefined;
-  }, [showSuccessMessage, navigate]);
+  // useEffect(() => {
+  //   if (showSuccessMessage) {
+  //     const redirectTimer = setTimeout(() => {
+  //       navigate('/login');
+  //     }, 5000);
+  //     return () => clearTimeout(redirectTimer);
+  //   }
+  //   return undefined;
+  // }, [showSuccessMessage, navigate]);
 
   return (
     <>
@@ -301,7 +302,12 @@ export default function SignUpPage() {
       <StyledRoot>
         <Container maxWidth="sm" sx={{ backgroundColor: '#fff' }}>
           <Logo sx={{ alignSelf: 'center' }} />
-          <StyledContent>
+          {succesSignup === true? <VerifyPage 
+            email={formData.email} 
+            firstName={formData.firstName} 
+            lastName={formData.lastName}/>: 
+  
+            <StyledContent>
             <Typography variant="h4" gutterBottom>
               Sign Up
             </Typography>
@@ -532,7 +538,7 @@ export default function SignUpPage() {
                 Login
               </Link>
             </Typography>
-          </StyledContent>
+          </StyledContent>}
         </Container>
       </StyledRoot>
     </>

@@ -34,9 +34,9 @@ const StyledContent = styled('div')(({ theme }) => ({
   padding: theme.spacing(12, 0),
 }));
 
-export default function VerifyPage() {
+export default function VerifyPage({email, firstName, lastName}) {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
+  const [credential, setCredential] = useState({});
   const [code, setCode] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
@@ -62,6 +62,8 @@ export default function VerifyPage() {
     try {
       await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/resend-verification-email`, {
         email,
+        firstName,
+        lastName
       });
       setCountdown(180);
       setAllowResend(false);
@@ -134,14 +136,14 @@ export default function VerifyPage() {
 
       <StyledRoot>
         <Container maxWidth="sm" sx={{ backgroundColor: '#fff' }}>
-          <Logo sx={{ alignSelf: 'center' }} />
+          {/* <Logo sx={{ alignSelf: 'center' }} /> */}
 
           <StyledContent>
             <Typography variant="h4" gutterBottom>
               Email Verification
             </Typography>
 
-            <TextField
+            {/* <TextField
               fullWidth
               label="Email"
               variant="outlined"
@@ -152,7 +154,7 @@ export default function VerifyPage() {
               }}
               sx={{ mb: 3 }}
               error={!!emailErrorMsg} 
-            />
+            /> */}
             <TextField
               fullWidth
               label="Verification Code"
@@ -205,10 +207,8 @@ export default function VerifyPage() {
               </div>
               <div style={{ textAlign: 'right' }}>
                 {allowResend ? (
-                  <Typography variant="body2" style={{ fontWeight: 'bold' }}>
-                    <a href="#" onClick={resendCode} style={{ textDecoration: 'none', cursor: 'pointer' }}>
-                      Resend Verification Code
-                    </a>
+                  <Typography variant="body2" style={{ fontWeight: 'bold' }} onClick={resendCode}>
+                    Resend Verification Code
                   </Typography>
                 ) : (
                   <Typography variant="body2">
