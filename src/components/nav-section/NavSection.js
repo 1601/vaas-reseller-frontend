@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import { NavLink as RouterLink, useLocation } from 'react-router-dom';
 import { useState } from 'react';
 // @mui
-import { Box, List, ListItemText, IconButton, Collapse } from '@mui/material';
+import { Box, List, ListItemText, IconButton, Collapse, Switch } from '@mui/material';
 import { ExpandMore } from '@mui/icons-material';
 //
 import { StyledNavItem, StyledNavItemIcon } from './styles';
@@ -33,11 +33,15 @@ NavItem.propTypes = {
 };
 
 function NavItem({ item }) {
-  const { title, path, icon, children } = item;
+  const { title, path, icon, children, isToggle } = item;
   const [open, setOpen] = useState(false);
+  const [isToggled, setIsToggled] = useState(false);
   const location = useLocation();
-  const isActive = location.pathname === path || 
-                   (children?.some(child => location.pathname.startsWith(child.path)));
+  const isActive = location.pathname === path || children?.some((child) => location.pathname.startsWith(child.path));
+
+  const handleToggleChange = (e) => {
+    setIsToggled(e.target.checked);
+  };
 
   const handleClick = (e) => {
     if (children) {
@@ -49,20 +53,24 @@ function NavItem({ item }) {
   return (
     <>
       <StyledNavItem
-        component={RouterLink}
-        to={path || '#'}
-        onClick={children && handleClick}
+        component={isToggle ? 'div' : RouterLink}
+        to={isToggle ? undefined : path || '#'}
+        onClick={handleClick}
         sx={{
           '&.active': {
             color: 'text.primary',
             bgcolor: 'action.selected',
             fontWeight: 'fontWeightBold',
           },
-          color: isActive ? 'text.primary' : undefined, 
-          fontWeight: isActive ? 'fontWeightBold' : undefined, 
+          color: isActive ? 'text.primary' : undefined,
+          fontWeight: isActive ? 'fontWeightBold' : undefined,
         }}
       >
-        <StyledNavItemIcon>{icon && icon}</StyledNavItemIcon>
+        {isToggle ? (
+          <Switch checked={isToggled} onChange={handleToggleChange} sx={{ mr: 1 }} />
+        ) : (
+          <StyledNavItemIcon>{icon && icon}</StyledNavItemIcon>
+        )}
         <ListItemText disableTypography primary={title} />
 
         {children && (
