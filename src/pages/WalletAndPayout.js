@@ -4,7 +4,7 @@ import { Container, Typography, Card, CardContent } from '@mui/material';
 import { Helmet } from 'react-helmet-async';
 
 export default function WalletAndPayout() {
-  const [userBalance, setUserBalance] = useState(0);
+  const [userBalance, setUserBalance] = useState({ accountBalance: 0, testBalance: 0 });
   const [user, setUser] = useState(null);
 
   useEffect(() => {
@@ -16,8 +16,11 @@ export default function WalletAndPayout() {
       // Fetch the user's data from the server using their ID
       axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/user/${storedUser._id}`)
         .then((response) => {
-          // Update the state with the user's balance
-          setUserBalance(response.data.testBalance);
+          // Update the state with the user's balances
+          setUserBalance({
+            accountBalance: response.data.accountBalance,
+            testBalance: response.data.testBalance
+          });
         })
         .catch((error) => {
           console.error('Error fetching user data: ', error);
@@ -39,12 +42,13 @@ export default function WalletAndPayout() {
         <Card sx={{ mb: 5, p: 3 }}>
           <CardContent>
             <Typography variant="h5">
-              Balance: ${userBalance}
+              Balance: ${userBalance.accountBalance}
+            </Typography>
+            <Typography variant="body2" color="textSecondary">
+              Test Balance: ${userBalance.testBalance}
             </Typography>
           </CardContent>
         </Card>
-
-        {/* Additional payout functionality here */}
       </Container>
     </>
   );
