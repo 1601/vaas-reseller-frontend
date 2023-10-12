@@ -1,9 +1,13 @@
 import { Helmet } from 'react-helmet-async';
+import React, { useEffect, useState } from 'react';
 // @mui
 import { Grid, Button, Container, Stack, Typography } from '@mui/material';
 // components
 import Iconify from '../components/iconify';
 import { BlogPostCard, BlogPostsSort, BlogPostsSearch } from '../sections/@dashboard/blog';
+import UserDataFetch from '../components/user-account/UserDataFetch';
+import AccountStatusModal from '../components/user-account/AccountStatusModal';
+import StoreDataFetch from '../components/user-account/StoreDataFetch';
 // mock
 import POSTS from '../_mock/blog';
 
@@ -18,6 +22,10 @@ const SORT_OPTIONS = [
 // ----------------------------------------------------------------------
 
 export default function BlogPage() {
+  const userId = JSON.parse(localStorage.getItem('user'))._id;
+
+const userData = UserDataFetch(userId);
+const { storeData, editedData, platformVariables, error } = StoreDataFetch(userId);
   return (
     <>
       <Helmet>
@@ -44,6 +52,7 @@ export default function BlogPage() {
             <BlogPostCard key={post.id} post={post} index={index} />
           ))}
         </Grid>
+        <AccountStatusModal open userData={userData} storeData={storeData} />
       </Container>
     </>
   );

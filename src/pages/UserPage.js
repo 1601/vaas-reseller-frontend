@@ -26,6 +26,9 @@ import {
 import Label from '../components/label';
 import Iconify from '../components/iconify';
 import Scrollbar from '../components/scrollbar';
+import UserDataFetch from '../components/user-account/UserDataFetch';
+import AccountStatusModal from '../components/user-account/AccountStatusModal';
+import StoreDataFetch from '../components/user-account/StoreDataFetch';
 // sections
 import { UserListHead, UserListToolbar } from '../sections/@dashboard/user';
 // mock
@@ -87,6 +90,12 @@ export default function UserPage() {
   const [filterName, setFilterName] = useState('');
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
+
+  const userId = JSON.parse(localStorage.getItem('user'))._id;
+
+  const userData = UserDataFetch(userId);
+
+  const { storeData, editedData, platformVariables, error } = StoreDataFetch(userId);
 
   const handleOpenMenu = (event) => {
     setOpen(event.currentTarget);
@@ -289,6 +298,7 @@ export default function UserPage() {
           Delete
         </MenuItem>
       </Popover>
+      <AccountStatusModal open userData={userData} storeData={storeData} />
     </>
   );
 }
