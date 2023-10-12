@@ -28,6 +28,7 @@ import TermsAndConditions from './pages/OtherPages/TermsAndConditions';
 import DataPrivacyPolicy from './pages/OtherPages/DataPrivacyPolicy';
 import CookiePolicy from './pages/OtherPages/CookiePolicy';
 import SurveyPrivacyPolicy from './pages/OtherPages/SurveyPrivacyPolicy';
+import WalletAndPayout from './pages/WalletAndPayout';
 
 // ----------------------------------------------------------------------
 
@@ -116,13 +117,21 @@ export default function Router() {
         { element: <Navigate to="/dashboard/app" />, index: true }, // This is the index route for the dashboard
         { path: 'app', element: <DashboardAppPage /> },
         { path: 'user', element: <UserPage /> },
-        { path: 'products', element: <ProductsPage /> },
+        {
+          path: 'products',
+          children: [
+            { path: '/dashboard/products', element: <Navigate to="bills-payment" replace />, index: true },
+            { path: 'bills-payment', element: <ProductsPage /> },
+            { path: 'top-up', element: <ProductsPage /> },
+            { path: 'e-gifts', element: <ProductsPage /> }
+          ]
+        },
         { path: 'blog', element: <BlogPage /> },
         { path: 'store', element: <StorePageEdit /> },
         { path: 'customer', element: <UserPage /> },
         { path: 'developer', element: <UserPage /> },
         { path: 'transact', element: <UserPage /> },
-        { path: 'wallet', element: <UserPage /> },
+        { path: 'wallet', element: <WalletAndPayout /> },
         { path: 'reports', element: <UserPage /> },
         { path: 'livedata', element: <UserPage /> },
         { path: 'kyc', element: <KYC /> },
