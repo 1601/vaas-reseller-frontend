@@ -130,7 +130,16 @@ export default function Router() {
         { path: 'store', element: <StorePageEdit /> },
         { path: 'customer', element: <UserPage /> },
         { path: 'developer', element: <UserPage /> },
-        { path: 'transact', element: <UserPage /> },
+        {
+          path: 'sales',
+          children: [
+              { path: '/dashboard/sales', element: <Navigate to="transactions" replace />, index: true },
+              { path: 'transactions', element: <ProductsPage /> },
+              { path: 'my-wallet', element: <ProductsPage /> },
+              { path: 'reports', element: <ProductsPage /> },
+              { path: 'point-of-sale', element: <ProductsPage /> },
+          ]
+      },
         { path: 'wallet', element: <WalletAndPayout /> },
         { path: 'reports', element: <UserPage /> },
         { path: 'livedata', element: <UserPage /> },
