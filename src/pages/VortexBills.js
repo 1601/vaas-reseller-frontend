@@ -2,6 +2,7 @@ import { useReducer, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 // @mui
+
 import { styled } from '@mui/material/styles';
 import { Button, Typography, Container, Box, List, AppBar, Toolbar, IconButton, 
   Accordion,
@@ -9,7 +10,8 @@ import { Button, Typography, Container, Box, List, AppBar, Toolbar, IconButton,
   AccordionSummary,
   Slider,
   Stack,
-  Grid, } from '@mui/material';
+  Grid,
+  Divider, } from '@mui/material';
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft"
@@ -776,7 +778,6 @@ export default function VortexBills() {
       setExpanded(isExpanded ? panel.name : false)
     }
   
-
   return (
     <>
       <Helmet>
@@ -841,7 +842,7 @@ export default function VortexBills() {
     </AppBar>
 
       {/* <Container sx={{backgroundColor: "#fff"}}> */}
-        <div  style={{
+        <div style={{
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'center',
@@ -856,49 +857,95 @@ export default function VortexBills() {
             color: 'white',
             fontSize: '1.5rem',
           }}>
+            {/* center the whole content using 50% of the screen on desktop and full on mobile */}
+            <div className="flex flex-col justify-center items-center w-full md:w-1/2 mx-auto">
+              <Box style={{
+                width: '100%',
+              }}>
+              {categories1.map((category, index) => (
+                <Accordion key={index} expanded={expanded === `${category.name}`}
+                onChange={handleChange(category)}>
+                  <AccordionSummary 
+                  expandIcon={<ExpandMoreIcon />}
+                  aria-controls="panel1a-content"
+                  id="panel1a-header">
+
+                   <Stack direction={"row"} alignItems="center">
+                      {/* <BillerIcon categoryName={category} /> */}
+                      <Typography
+                        sx={{ textTransform: "capitalize" }}
+                        fontWeight="bold"
+                      >
+                        {category.name}
+                      </Typography>
+                    </Stack>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                  <div
+                      style={{
+                        display: "flex",
+                        overflowY: "scroll",
+                        height: "7em",
+                      }}
+                    >
+                      {/* <Grid container spacing={2}> */}
+                        {category.products.map((product) => (
+                          // <Grid item key={product.id}>
+                          //   <div>
+                          //     <Typography variant="subtitle1">{product.name}</Typography>
+                          //     <img src={`https://sparkle-vortex.imgix.net/${product.id}.png?w=60&h=60`} alt={product.name} />
+                          //   </div>
+                          // </Grid>
+                          <>
+                          <Stack
+                            // onClick = {onClick}
+                            padding={"0.5em"}
+                            direction={"row"}
+                            justifyContent={"space-between"}
+                            alignItems={"center"}
+                            style = {{
+                              width: '100px',
+                              height: '100%',
+                              textAlign: 'center',
+                              padding: '2px', 
+                              marginLeft: '0.5em', 
+                              marginRight: '0.5em'
+                            }}
+                          >
+                            <Stack direction={"column"} alignItems={"center"} spacing={2}>
+                             <img src={`https://sparkle-vortex.imgix.net/${product.id}.png?w=60&h=60`} alt={product.name} />
+
+                              <Typography
+                                component="div"
+                                sx={{ flexGrow: 1 }}
+                                style={{
+                                  height: '2em', 
+                                  fontWeight: "bold",
+                                  fontSize: '0.6em',
+                                  color: "blue",
+                                }}
+                              >
+                                {product.name}
+                              </Typography>
+                            </Stack>
+                          </Stack>
+                          <Divider />
+                          
+                          </>
+                        ))}
+                      {/* </Grid>            */}
+
+                  </div>
+                  </AccordionDetails>
+                </Accordion>
+              ))}
+
+              </Box>
+
+            </div>
             
-      {categories1.map((category, index) => (
-        <Accordion key={index} expanded={expanded === `${category.name}`}
-        onChange={handleChange(category)}>
-          <AccordionSummary 
-          expandIcon={<ExpandMoreIcon />}
-          aria-controls="panel1a-content"
-          id="panel1a-header">
-
-          <Stack direction={"row"} alignItems="center">
-              {/* <BillerIcon categoryName={category} /> */}
-              <Typography
-                sx={{ textTransform: "capitalize" }}
-                fontWeight="bold"
-              >
-                {category.name}
-              </Typography>
-            </Stack>
-          </AccordionSummary>
-          <AccordionDetails>
-          <div
-              style={{
-                display: "flex",
-                overflowY: "scroll",
-                height: "7em",
-              }}
-            >
-              <Grid container spacing={2}>
-                {category.products.map((product) => (
-                  <Grid item key={product.id}>
-                    <div>
-                      <Typography variant="subtitle1">{product.name}</Typography>
-                      <img src={`https://sparkle-vortex.imgix.net/${product.id}.png?w=60&h=60`} alt={product.name} />
-                    </div>
-                  </Grid>
-                ))}
-              </Grid>           
-
-          </div>
-          </AccordionDetails>
-        </Accordion>
-      ))}
-    </div>
+        </div>
+      {/* </Container> */}
             {/* accordion from material UI to show categories and inside is a horizontal scroller with products */}
             {/* <VortexBillerAccordionList
                   categories={categories}
@@ -915,7 +962,7 @@ export default function VortexBills() {
                 /> */}
 
         
-      {/* </Container> */}
+      
     </>
   );
 }
