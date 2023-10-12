@@ -31,14 +31,28 @@ const navConfig = role === 'admin' ?
       icon: icon('ic_analytics'),
     },
     {
-      title: 'Store',
+      title: 'Storefront',
       path: '/dashboard/store',
       icon: icon('ic_blog'),
     },
     {
       title: 'Products',
-      path: '/dashboard/products',
+      path: '/dashboard/products/bills-payment',
       icon: icon('ic_cart'),
+      children: [
+        {
+          title: 'Bills Payment',
+          path: '/dashboard/products/bills-payment',
+        },
+        {
+          title: 'Top-up',
+          path: '/dashboard/products/top-up',
+        },
+        {
+          title: 'E-gifts',
+          path: '/dashboard/products/e-gifts',
+        },
+      ]
     },
     {
       title: 'Customers',
