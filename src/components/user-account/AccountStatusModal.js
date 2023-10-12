@@ -7,11 +7,12 @@ const AccountStatusModal = ({ open, onClose, userData, storeData}) => {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: 400,
+    width: '80%',
+    maxWidth: 400,
     backgroundColor: 'white',
     p: 4,
     textAlign: 'center',
-    borderRadius: '8px',
+    borderRadius: '20px',
   };
 
   // Define the constants and logic here
