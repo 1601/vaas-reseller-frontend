@@ -7,6 +7,8 @@ import { useTheme } from '@mui/material/styles';
 import { Grid, Container, Typography, Card, CardContent } from '@mui/material';
 // components
 import Iconify from '../components/iconify';
+import AccountStatusModal from '../components/user-account/AccountStatusModal';
+import UserDataFetch from '../components/user-account/UserDataFetch';
 // sections
 import {
   AppTasks,
@@ -28,6 +30,7 @@ export default function DashboardAppPage() {
   const [daysLeft, setDaysLeft] = useState(null);
   const [displayMessage, setDisplayMessage] = useState('');
   const [storeData, setStoreData] = useState(null);
+  const userId = JSON.parse(localStorage.getItem('user'))._id;
 
   useEffect(() => {
     const storedUserId = JSON.parse(localStorage.getItem('user'))._id;
@@ -45,9 +48,11 @@ export default function DashboardAppPage() {
     fetchStoreData();
   }, []);
 
+  const userData = UserDataFetch(userId);
+
   useEffect(() => {
     if (storeData && storeData._id) {
-      console.log('Fetching store status for _id:', storeData._id); // Add this log
+      console.log('Fetching store status for _id:', storeData._id);
       fetch(`${process.env.REACT_APP_BACKEND_URL}/api/store-status/${storeData._id}`)
         .then((response) => {
           if (!response.ok) {
@@ -56,7 +61,7 @@ export default function DashboardAppPage() {
           return response.json();
         })
         .then((data) => {
-          console.log('Received store status data:', data); // Add this log
+          console.log('Received store status data:', data);
           setKycApprove(data.kycApprove);
           setDaysLeft(data.daysLeft);
           setDisplayMessage(data.displayMessage);
@@ -65,17 +70,22 @@ export default function DashboardAppPage() {
           console.error('Error fetching data: ', error);
         });
     }
-  }, [storeData]);  
+  }, [storeData]);
 
-  const trialMessageCard = kycApprove !== 2 && daysLeft !== null ? (
-    <Card sx={{ mb: 5, p: 3, textAlign: 'center', backgroundColor: 'error.light' }}>
-      <CardContent>
-        <Typography variant="h5" color="error.dark">
-          Your Free Trial Account has {daysLeft} days left to submit documents for Approval
-        </Typography>
-      </CardContent>
-    </Card>
-  ) : null;
+  const trialMessageCard =
+    kycApprove !== 2 &&
+    daysLeft !== null &&
+    userData &&
+    userData.accountStatus !== 'Suspended' &&
+    userData.accountStatus !== 'Deactivated' ? (
+      <Card sx={{ mb: 5, p: 3, textAlign: 'center', backgroundColor: 'error.light' }}>
+        <CardContent>
+          <Typography variant="h5" color="error.dark">
+            Your Free Trial Account has {daysLeft} days left to submit documents for Approval
+          </Typography>
+        </CardContent>
+      </Card>
+    ) : null;
 
   return (
     <>
@@ -293,6 +303,7 @@ export default function DashboardAppPage() {
           </Grid>
         </Grid>
       </Container>
+      <AccountStatusModal open userData={userData} storeData={storeData} />
     </>
   );
 }
