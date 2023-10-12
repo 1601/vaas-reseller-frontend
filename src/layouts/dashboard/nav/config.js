@@ -28,28 +28,31 @@ const navConfig = role === 'admin' ?
     {
       title: 'Home',
       path: '/dashboard/app',
-      icon: icon('ic_analytics'),
+      icon: icon('ic_home'),
     },
     {
       title: 'Storefront',
       path: '/dashboard/store',
-      icon: icon('ic_blog'),
+      icon: icon('ic_store'),
     },
     {
       title: 'Products',
       path: '/dashboard/products/bills-payment',
-      icon: icon('ic_cart'),
+      icon: icon('ic_product'),
       children: [
         {
           title: 'Bills Payment',
+          icon: icon('ic_bills'),
           path: '/dashboard/products/bills-payment',
         },
         {
           title: 'Top-up',
+          icon: icon('ic_topup'),
           path: '/dashboard/products/top-up',
         },
         {
           title: 'E-gifts',
+          icon: icon('ic_egift'),
           path: '/dashboard/products/e-gifts',
         },
       ]
@@ -57,12 +60,34 @@ const navConfig = role === 'admin' ?
     {
       title: 'Customers',
       path: '/dashboard/customer',
-      icon: icon('ic_user'),
+      icon: icon('ic_customer'),
     },
     {
-      title: 'Transaction Directory',
-      path: '/dashboard/transact',
-      icon: icon('ic_transact'),
+      title: 'Sales Channel',
+      path: '/dashboard/sales/transactions', 
+      icon: icon('ic_sales'), 
+      children: [
+        {
+          title: 'Transactions',
+          icon: icon('ic_transact'), 
+          path: '/dashboard/sales/transactions',
+        },
+       // {
+       //   title: 'My Wallet',
+       //   icon: icon('ic_wallet'), 
+       //   path: '/dashboard/sales/my-wallet',
+       // },
+       // {
+       //   title: 'Reports',
+       //   icon: icon('ic_report'), 
+       //   path: '/dashboard/sales/reports',
+       // },
+        {
+          title: 'Point of Sale',
+          icon: icon('ic_pos'),
+          path: '/dashboard/sales/point-of-sale',
+        },
+      ]
     },
     {
       title: 'Wallets & Payouts',
