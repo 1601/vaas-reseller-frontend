@@ -1,7 +1,9 @@
 import PropTypes from 'prop-types';
-import { NavLink as RouterLink } from 'react-router-dom';
+import { NavLink as RouterLink, useLocation } from 'react-router-dom';
+import { useState } from 'react';
 // @mui
-import { Box, List, ListItemText } from '@mui/material';
+import { Box, List, ListItemText, IconButton, Collapse } from '@mui/material';
+import { ExpandMore } from '@mui/icons-material';
 //
 import { StyledNavItem, StyledNavItemIcon } from './styles';
 
@@ -27,28 +29,57 @@ export default function NavSection({ data = [], ...other }) {
 
 NavItem.propTypes = {
   item: PropTypes.object,
+  exact: PropTypes.bool,
 };
 
 function NavItem({ item }) {
-  const { title, path, icon, info } = item;
+  const { title, path, icon, children } = item;
+  const [open, setOpen] = useState(false);
+  const location = useLocation();
+  const isActive = location.pathname === path || 
+                   (children?.some(child => location.pathname.startsWith(child.path)));
+
+  const handleClick = (e) => {
+    if (children) {
+      e.preventDefault();
+      setOpen((prev) => !prev);
+    }
+  };
 
   return (
-    <StyledNavItem
-      component={RouterLink}
-      to={path}
-      sx={{
-        '&.active': {
-          color: 'text.primary',
-          bgcolor: 'action.selected',
-          fontWeight: 'fontWeightBold',
-        },
-      }}
-    >
-      <StyledNavItemIcon>{icon && icon}</StyledNavItemIcon>
+    <>
+      <StyledNavItem
+        component={RouterLink}
+        to={path || '#'}
+        onClick={children && handleClick}
+        sx={{
+          '&.active': {
+            color: 'text.primary',
+            bgcolor: 'action.selected',
+            fontWeight: 'fontWeightBold',
+          },
+          color: isActive ? 'text.primary' : undefined, 
+          fontWeight: isActive ? 'fontWeightBold' : undefined, 
+        }}
+      >
+        <StyledNavItemIcon>{icon && icon}</StyledNavItemIcon>
+        <ListItemText disableTypography primary={title} />
 
-      <ListItemText disableTypography primary={title} />
+        {children && (
+          <IconButton
+            size="small"
+            sx={{ ml: 1, transition: '0.2s', transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}
+          >
+            <ExpandMore fontSize="small" />
+          </IconButton>
+        )}
+      </StyledNavItem>
 
-      {info && info}
-    </StyledNavItem>
+      {children && (
+        <Collapse in={open} timeout="auto" unmountOnExit>
+          <NavSection data={children} sx={{ pl: 1.5 }} />
+        </Collapse>
+      )}
+    </>
   );
 }
