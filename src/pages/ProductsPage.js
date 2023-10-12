@@ -1,9 +1,12 @@
 import { Helmet } from 'react-helmet-async';
-import { useState } from 'react';
+import React, { useState } from 'react';
 // @mui
 import { Container, Stack, Typography } from '@mui/material';
 // components
 import { ProductSort, ProductList, ProductCartWidget, ProductFilterSidebar } from '../sections/@dashboard/products';
+import UserDataFetch from '../components/user-account/UserDataFetch';
+import AccountStatusModal from '../components/user-account/AccountStatusModal';
+import StoreDataFetch from '../components/user-account/StoreDataFetch';
 // mock
 import PRODUCTS from '../_mock/products';
 
@@ -11,6 +14,10 @@ import PRODUCTS from '../_mock/products';
 
 export default function ProductsPage() {
   const [openFilter, setOpenFilter] = useState(false);
+  const userId = JSON.parse(localStorage.getItem('user'))._id;
+
+  const userData = UserDataFetch(userId);
+  const { storeData, editedData, platformVariables, error } = StoreDataFetch(userId);
 
   const handleOpenFilter = () => {
     setOpenFilter(true);
@@ -44,6 +51,7 @@ export default function ProductsPage() {
 
         <ProductList products={PRODUCTS} />
         <ProductCartWidget />
+        <AccountStatusModal open userData={userData} storeData={storeData} />
       </Container>
     </>
   );
