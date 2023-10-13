@@ -33,6 +33,7 @@ import Autocomplete from '@mui/lab/Autocomplete';
 import { Icon as Iconify } from '@iconify/react';
 import Logo from '../../components/logo';
 import { countries } from '../../components/country/CountriesList';
+import termsAndAgreement from '../../components/agreements/termsAndAgreement';
 import VerifyPage from './VerifyPage';
 
 const StyledRoot = styled('div')(({ theme }) => ({
@@ -50,6 +51,45 @@ const StyledContent = styled('div')(({ theme }) => ({
   flexDirection: 'column',
   padding: theme.spacing(12, 0),
 }));
+
+function TermsDialog({ open, onClose, onAgree }) {
+  const [isScrolledToEnd, setIsScrolledToEnd] = useState(false);
+
+  const handleScroll = (e) => {
+    const bottom = e.target.scrollHeight - e.target.scrollTop === e.target.clientHeight;
+    setIsScrolledToEnd(bottom);
+  };
+
+  return (
+    <Dialog open={open} onClose={onClose} scroll="paper">
+      <DialogTitle>Terms and Conditions</DialogTitle>
+      <DialogContent dividers>
+        <div 
+          style={{ 
+            overflowY: 'auto', 
+            maxHeight: 400, 
+            whiteSpace: 'pre-line'
+          }} 
+          onScroll={handleScroll}
+        >
+          <p>{termsAndAgreement}</p>
+        </div>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose} color="primary">
+          Close
+        </Button>
+        <Button 
+          onClick={onAgree} 
+          color="primary" 
+          disabled={!isScrolledToEnd} 
+        >
+          Agree to Terms
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+}
 
 export default function SignUpPage() {
   const location = useLocation();
@@ -81,6 +121,13 @@ export default function SignUpPage() {
   const [succesSignup, setSuccesSignup] = useState(false);
   const [errorDialogOpen, setErrorDialogOpen] = useState(false);
   const [isTermsAccepted, setIsTermsAccepted] = useState(false);
+  const [isTermsDialogOpen, setIsTermsDialogOpen] = useState(false);
+  const [isScrolledToEnd, setIsScrolledToEnd] = useState(false);
+
+  const handleScroll = (e) => {
+    const bottom = e.target.scrollHeight - e.target.scrollTop === e.target.clientHeight;
+    setIsScrolledToEnd(bottom);
+  };
 
   const [fieldErrors, setFieldErrors] = useState({
     firstName: false,
@@ -95,6 +142,15 @@ export default function SignUpPage() {
     password: false,
     confirmPassword: false,
   });
+
+  const openTermsDialog = () => {
+    setIsTermsDialogOpen(true);
+  };
+
+  const agreeToTerms = () => {
+    setIsTermsDialogOpen(false);
+    setIsTermsAccepted(true);
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -495,6 +551,19 @@ export default function SignUpPage() {
                   />
                 </CardContent>
               </Card>
+              {/* Accept Terms and Conditions */}
+              <FormControlLabel
+                control={<Checkbox checked={isTermsAccepted} onChange={() => setIsTermsAccepted((prev) => !prev)} />}
+                label={
+                  <>
+                    I agree to the
+                    <Link component="button" onClick={openTermsDialog} sx={{ pl: 1 }}>
+                      Terms and Conditions
+                    </Link>
+                  </>
+                }
+              />
+
               <TextField
                 error={fieldErrors.ipAddress}
                 fullWidth
@@ -508,22 +577,10 @@ export default function SignUpPage() {
                 hidden
               />
 
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={isTermsAccepted}
-                    onChange={(e) => setIsTermsAccepted(e.target.checked)}
-                    name="termsAndConditions"
-                  />
-                }
-                label={
-                  <>
-                    I agree to the{' '}
-                    <Link href="/terms-and-conditions" target="_blank" rel="noopener">
-                      Terms and Conditions
-                    </Link>
-                  </>
-                }
+              <TermsDialog
+                open={isTermsDialogOpen}
+                onClose={() => setIsTermsDialogOpen(false)}
+                onAgree={agreeToTerms}
               />
 
               {/* Password Guidelines Dialog */}
