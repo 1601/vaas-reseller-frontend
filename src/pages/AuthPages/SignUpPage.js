@@ -553,6 +553,7 @@ export default function SignUpPage() {
                 variant="outlined"
                 startIcon={<Iconify icon="eva:google-fill" color="#DF3E30" width={22} height={22} />}
                 onClick={handleGoogleSignUp}
+                sx={{ mb: 1 }}
               >
                 Sign Up with Google
               </Button>
