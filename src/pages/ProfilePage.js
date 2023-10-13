@@ -8,7 +8,14 @@ const ProfilePage = () => {
   const userData = UserDataFetch(userId);
   const { storeData, error } = StoreDataFetch(userId);
 
-  const kycStatuses = ['Unsubmitted documents', 'Pending Approval', 'Approved', 'Rejected'];
+  const kycStatuses = ['Unsubmitted Documents', 'Pending Approval', 'Approved', 'Rejected'];
+
+  const accountStatusDisplay = {
+    FreeTrial: 'Free Trial',
+    Active: 'Active',
+    Suspended: 'Suspended',
+    Deactivated: 'Deactivated',
+  };
 
   if (!userData || !storeData) {
     return <Typography>Loading...</Typography>;
@@ -21,9 +28,7 @@ const ProfilePage = () => {
   return (
     <Container>
       <Box mt={4} mb={4}>
-        <Typography variant="h4">
-          User Profile
-        </Typography>
+        <Typography variant="h4">User Profile</Typography>
       </Box>
 
       <Grid container spacing={4}>
@@ -61,7 +66,7 @@ const ProfilePage = () => {
               <Box mt={2}>
                 <Typography>Balance: {userData.accountBalance}</Typography>
                 <Typography>KYC Status: {kycStatuses[storeData.kycApprove]}</Typography>
-                <Typography>Account Status: {userData.accountStatus}</Typography>
+                <Typography>Account Status: {accountStatusDisplay[userData.accountStatus]}</Typography>
               </Box>
             </CardContent>
           </Card>
