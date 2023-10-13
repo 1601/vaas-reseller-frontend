@@ -120,6 +120,7 @@ export default function SignUpPage() {
   const [isTermsAccepted, setIsTermsAccepted] = useState(false);
   const [isTermsDialogOpen, setIsTermsDialogOpen] = useState(false);
   const [isScrolledToEnd, setIsScrolledToEnd] = useState(false);
+  const [mobileError, setMobileError] = useState(false);
 
   const handleScroll = (e) => {
     const bottom = e.target.scrollHeight - e.target.scrollTop === e.target.clientHeight;
@@ -159,6 +160,23 @@ export default function SignUpPage() {
     setFieldErrors({
       ...fieldErrors,
       [name]: false,
+    });
+  };
+
+  const handleMobileChange = (e) => {
+    const value = e.target.value;
+
+    // Validate mobile number with regex
+    const mobileRegex = /^[\d+-]+$/;
+    if (!mobileRegex.test(value) || value.replace(countryCodes[formData.country] || '', '').trim() === '') {
+      setMobileError(true);
+    } else {
+      setMobileError(false);
+    }
+
+    setFormData({
+      ...formData,
+      mobileNumber: value,
     });
   };
 
@@ -232,16 +250,16 @@ export default function SignUpPage() {
 
   const validateForm = () => {
     const newFieldErrors = {
-      firstName: !formData.firstName.trim(),
-      // middleName: !formData.middleName.trim(),
-      lastName: !formData.lastName.trim(),
-      designation: !formData.designation.trim(),
-      email: !formData.email.trim(),
-      mobileNumber: !formData.mobileNumber.trim(),
-      country: !formData.country.trim(),
-      ipAddress: !formData.ipAddress.trim(),
-      username: !formData.username.trim(),
-      password: !formData.password.trim(),
+      firstName: !formData.firstName?.trim(),
+      // middleName: !formData.middleName?.trim(),
+      lastName: !formData.lastName?.trim(),
+      designation: !formData.designation?.trim(),
+      email: !formData.email?.trim(),
+      mobileNumber: !formData.mobileNumber?.replace(countryCodes[formData.country] || '', '').trim(),
+      country: !formData.country?.trim(),
+      ipAddress: !formData.ipAddress?.trim(),
+      username: !formData.username?.trim(),
+      password: !formData.password?.trim(),
       confirmPassword: formData.password !== formData.confirmPassword,
     };
     setFieldErrors(newFieldErrors);
@@ -488,15 +506,18 @@ export default function SignUpPage() {
                     helperText={emailErrorMessage}
                   />
                   <TextField
-                    error={fieldErrors.mobileNumber}
+                    error={fieldErrors.mobileNumber || mobileError}
                     fullWidth
                     label="Mobile Number"
                     variant="outlined"
                     name="mobileNumber"
                     value={formData.mobileNumber?.replace(countryCodes[formData.country] || '', '')}
-                    onChange={handleInputChange}
+                    onChange={handleMobileChange}
                     sx={{ mb: 3 }}
-                    helperText={fieldErrors.mobileNumber && 'Mobile Number is required'}
+                    helperText={
+                      (fieldErrors.mobileNumber && 'Mobile Number is required') ||
+                      (mobileError && 'Invalid mobile number')
+                    }
                     disabled={!formData.country}
                     InputProps={{
                       startAdornment: (
@@ -508,7 +529,7 @@ export default function SignUpPage() {
                       ),
                     }}
                     InputLabelProps={{
-                      shrink: !!formData.mobileNumber,
+                      shrink: !!formData.mobileNumber || !!formData.country,
                     }}
                   />
                 </CardContent>
