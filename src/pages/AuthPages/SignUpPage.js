@@ -33,6 +33,7 @@ import Autocomplete from '@mui/lab/Autocomplete';
 import { Icon as Iconify } from '@iconify/react';
 import Logo from '../../components/logo';
 import { countries } from '../../components/country/CountriesList';
+import { countryCodes } from '../../components/country/countryNumCodes';
 import termsAndAgreement from '../../components/agreements/termsAndAgreement';
 import VerifyPage from './VerifyPage';
 
@@ -64,12 +65,12 @@ function TermsDialog({ open, onClose, onAgree }) {
     <Dialog open={open} onClose={onClose} scroll="paper">
       <DialogTitle>Terms and Conditions</DialogTitle>
       <DialogContent dividers>
-        <div 
-          style={{ 
-            overflowY: 'auto', 
-            maxHeight: 400, 
-            whiteSpace: 'pre-line'
-          }} 
+        <div
+          style={{
+            overflowY: 'auto',
+            maxHeight: 400,
+            whiteSpace: 'pre-line',
+          }}
           onScroll={handleScroll}
         >
           <p>{termsAndAgreement}</p>
@@ -79,11 +80,7 @@ function TermsDialog({ open, onClose, onAgree }) {
         <Button onClick={onClose} color="primary">
           Close
         </Button>
-        <Button 
-          onClick={onAgree} 
-          color="primary" 
-          disabled={!isScrolledToEnd} 
-        >
+        <Button onClick={onAgree} color="primary" disabled={!isScrolledToEnd}>
           Agree to Terms
         </Button>
       </DialogActions>
@@ -101,7 +98,7 @@ export default function SignUpPage() {
     lastName: '',
     designation: '',
     email: '',
-    mobileNumber: '',
+    mobileNumber: undefined,
     country: '',
     ipAddress: '',
     username: '',
@@ -263,7 +260,12 @@ export default function SignUpPage() {
 
     if (isEmailValid && validateForm()) {
       try {
-        const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/signup`, formData);
+        const submissionData = {
+          ...formData,
+          mobileNumber: countryCodes[formData.country] + formData.mobileNumber,
+        };
+
+        const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/signup`, submissionData);
         setErrorMessage('');
         setShowSuccessMessage(true);
         setTimeout(() => {
@@ -318,8 +320,17 @@ export default function SignUpPage() {
   }, [location.search]);
 
   useEffect(() => {
+    if (formData.country) {
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        mobileNumber: countryCodes[formData.country] || '',
+      }));
+    }
+  }, [formData.country]);
+
+  useEffect(() => {
     const isValid = Object.keys(formData).some((key) => {
-      if (key === 'ipAddress') {
+      if (key === 'ipAddress' || !formData[key]) {
         return false;
       }
       return Boolean(formData[key].trim());
@@ -478,10 +489,22 @@ export default function SignUpPage() {
                     label="Mobile Number"
                     variant="outlined"
                     name="mobileNumber"
-                    value={formData.mobileNumber}
+                    value={formData.mobileNumber?.replace(countryCodes[formData.country] || '', '')}
                     onChange={handleInputChange}
                     sx={{ mb: 3 }}
                     helperText={fieldErrors.mobileNumber && 'Mobile Number is required'}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          {formData.country && countryCodes[formData.country]
+                            ? `${countryCodes[formData.country]} |`
+                            : ''}
+                        </InputAdornment>
+                      ),
+                    }}
+                    InputLabelProps={{
+                      shrink: !!formData.mobileNumber,
+                  }}
                   />
                 </CardContent>
               </Card>
