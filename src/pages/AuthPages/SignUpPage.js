@@ -233,7 +233,7 @@ export default function SignUpPage() {
   const validateForm = () => {
     const newFieldErrors = {
       firstName: !formData.firstName.trim(),
-      middleName: !formData.middleName.trim(),
+      // middleName: !formData.middleName.trim(),
       lastName: !formData.lastName.trim(),
       designation: !formData.designation.trim(),
       email: !formData.email.trim(),
@@ -415,13 +415,12 @@ export default function SignUpPage() {
                   <TextField
                     error={fieldErrors.middleName}
                     fullWidth
-                    label="Middle Name"
+                    label="Middle Name (Optional)"
                     variant="outlined"
                     name="middleName"
                     value={formData.middleName}
                     onChange={handleInputChange}
                     sx={{ mb: 3 }}
-                    helperText={fieldErrors.middleName && 'Middle Name is required'}
                   />
                   <TextField
                     error={fieldErrors.lastName}
