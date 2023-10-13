@@ -16,6 +16,7 @@ import {
   DialogContent,
   FormControl,
   FormHelperText,
+  FormControlLabel,
   InputLabel,
   Select,
   MenuItem,
@@ -24,6 +25,7 @@ import {
   Card,
   CardHeader,
   CardContent,
+  Checkbox,
 } from '@mui/material';
 import InputAdornment from '@mui/material/InputAdornment';
 import IconButton from '@mui/material/IconButton';
@@ -78,6 +80,7 @@ export default function SignUpPage() {
   const [emailErrorMessage, setEmailErrorMessage] = useState('');
   const [succesSignup, setSuccesSignup] = useState(false);
   const [errorDialogOpen, setErrorDialogOpen] = useState(false);
+  const [isTermsAccepted, setIsTermsAccepted] = useState(false);
 
   const [fieldErrors, setFieldErrors] = useState({
     firstName: false,
@@ -505,6 +508,24 @@ export default function SignUpPage() {
                 hidden
               />
 
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={isTermsAccepted}
+                    onChange={(e) => setIsTermsAccepted(e.target.checked)}
+                    name="termsAndConditions"
+                  />
+                }
+                label={
+                  <>
+                    I agree to the{' '}
+                    <Link href="/terms-and-conditions" target="_blank" rel="noopener">
+                      Terms and Conditions
+                    </Link>
+                  </>
+                }
+              />
+
               {/* Password Guidelines Dialog */}
               <Dialog open={errorDialogOpen} onClose={() => setErrorDialogOpen(false)}>
                 <DialogTitle>Error</DialogTitle>
@@ -535,7 +556,7 @@ export default function SignUpPage() {
                 color="inherit"
                 variant="outlined"
                 onClick={handleSignup}
-                disabled={!isFormValid}
+                disabled={!isFormValid || !isTermsAccepted}
               >
                 Sign Up
               </Button>
