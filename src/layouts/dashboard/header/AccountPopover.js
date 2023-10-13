@@ -19,6 +19,7 @@ const MENU_OPTIONS = [
   {
     label: 'Profile',
     icon: 'eva:person-fill',
+    path: '/dashboard/profile',
   },
   {
     label: 'Settings',
