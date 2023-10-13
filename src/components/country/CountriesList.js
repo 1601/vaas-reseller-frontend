@@ -1,4 +1,5 @@
 export const countries = [
+    'Abkhazia',
     'Afghanistan',
     'Albania',
     'Algeria',
@@ -144,7 +145,7 @@ export const countries = [
     'Romania',
     'Russia',
     'Rwanda',
-    'Saint Kitts and Nevis',
+    'Saint Kitts And Nevis',
     'Saint Lucia',
     'Saint Vincent and the Grenadines',
     'Samoa',
