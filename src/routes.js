@@ -30,6 +30,7 @@ import CookiePolicy from './pages/OtherPages/CookiePolicy';
 import SurveyPrivacyPolicy from './pages/OtherPages/SurveyPrivacyPolicy';
 import WalletAndPayout from './pages/WalletAndPayout';
 import ProfilePage from './pages/ProfilePage';
+import VerifyInLoginPage from './pages/AuthPages/VerifyInLoginPage';
 
 // ----------------------------------------------------------------------
 
@@ -179,7 +180,7 @@ export default function Router() {
     },
     {
       path: 'verify',
-      element: <VerifyPage />,
+      element: <VerifyInLoginPage />,
     },
     {
       path: 'terms-and-conditions',
