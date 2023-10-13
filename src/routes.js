@@ -29,6 +29,7 @@ import DataPrivacyPolicy from './pages/OtherPages/DataPrivacyPolicy';
 import CookiePolicy from './pages/OtherPages/CookiePolicy';
 import SurveyPrivacyPolicy from './pages/OtherPages/SurveyPrivacyPolicy';
 import WalletAndPayout from './pages/WalletAndPayout';
+import ProfilePage from './pages/ProfilePage';
 
 // ----------------------------------------------------------------------
 
@@ -141,6 +142,7 @@ export default function Router() {
           ]
       },
         { path: 'wallet', element: <WalletAndPayout /> },
+        { path: 'profile', element: <ProfilePage /> },
         { path: 'reports', element: <UserPage /> },
         { path: 'kyc', element: <KYC /> },
         { path: 'securitylogs', element: <UserPage /> },
