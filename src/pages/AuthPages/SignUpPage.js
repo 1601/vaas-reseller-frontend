@@ -258,6 +258,11 @@ export default function SignUpPage() {
 
     const isFormFullyValid = validateForm() && formData.password === formData.confirmPassword;
 
+    // If the password is empty, also set an error for confirm password
+    if (!formData.password.trim()) {
+      setFieldErrors((prev) => ({ ...prev, confirmPassword: true }));
+    }
+
     if (isEmailValid && validateForm()) {
       try {
         const submissionData = {
@@ -388,7 +393,7 @@ export default function SignUpPage() {
                 Sign Up
               </Typography>
               <Typography variant="body2" sx={{ mb: 5 }}>
-                Register to Your App
+                Register now to your Vaas Experience
               </Typography>
 
               {/* Basic Information Section */}
@@ -493,6 +498,7 @@ export default function SignUpPage() {
                     onChange={handleInputChange}
                     sx={{ mb: 3 }}
                     helperText={fieldErrors.mobileNumber && 'Mobile Number is required'}
+                    disabled={!formData.country}
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">
@@ -504,7 +510,7 @@ export default function SignUpPage() {
                     }}
                     InputLabelProps={{
                       shrink: !!formData.mobileNumber,
-                  }}
+                    }}
                   />
                 </CardContent>
               </Card>
