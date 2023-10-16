@@ -151,16 +151,35 @@ export default function SignUpPage() {
     setIsTermsAccepted(true);
   };
 
+  const validateName = (name) => {
+    // Allows only letters, hyphens, apostrophes, and spaces
+    const nameRegex = /^[a-zA-Z-' ]+$/;
+    return nameRegex.test(name);
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
+    const isNameField = ['firstName', 'middleName', 'lastName'].includes(name);
+
+    // Update the form data immediately
+    setFormData((prevFormData) => ({
+      ...prevFormData,
       [name]: value,
-    });
-    // Reset error state on typing
-    setFieldErrors({
-      ...fieldErrors,
-      [name]: false,
+    }));
+
+    // Update field errors based on new input
+    setFieldErrors((prevFieldErrors) => {
+      const newErrorState = { ...prevFieldErrors };
+
+      // If it's a name field, validate against the name regex
+      if (isNameField) {
+        newErrorState[name] = !value.trim() || !validateName(value);
+      } else {
+        // For other fields, you might want to validate differently or not at all
+        newErrorState[name] = !value.trim();
+      }
+
+      return newErrorState;
     });
   };
 
@@ -276,9 +295,9 @@ export default function SignUpPage() {
 
   const validateForm = () => {
     const newFieldErrors = {
-      firstName: !formData.firstName?.trim(),
-      // middleName: !formData.middleName?.trim(),
-      lastName: !formData.lastName?.trim(),
+      firstName: !formData.firstName?.trim() || !validateName(formData.firstName),
+      middleName: formData.middleName && !validateName(formData.middleName),
+      lastName: !formData.lastName?.trim() || !validateName(formData.lastName),
       designation: !formData.designation?.trim(),
       email: !formData.email?.trim(),
       mobileNumber: !formData.mobileNumber?.replace(countryCodes[formData.country] || '', '').trim(),
@@ -301,6 +320,11 @@ export default function SignUpPage() {
     await validateEmailAndCheckExistence(email);
 
     const isFormFullyValid = validateForm() && formData.password === formData.confirmPassword;
+
+    if (!validateForm()) {
+      // Stop here and do not proceed with signup if form is invalid
+      return;
+    }
 
     // If the password is empty, also set an error for confirm password
     if (!formData.password.trim()) {
@@ -454,7 +478,13 @@ export default function SignUpPage() {
                     value={formData.firstName}
                     onChange={handleInputChange}
                     sx={{ mb: 3 }}
-                    helperText={fieldErrors.firstName && 'First Name is required'}
+                    helperText={
+                      fieldErrors.firstName
+                        ? formData.firstName.trim()
+                          ? 'First Name contains invalid characters'
+                          : 'First Name is required'
+                        : ''
+                    }
                   />
                   <TextField
                     error={fieldErrors.middleName}
@@ -465,6 +495,11 @@ export default function SignUpPage() {
                     value={formData.middleName}
                     onChange={handleInputChange}
                     sx={{ mb: 3 }}
+                    helperText={
+                      fieldErrors.middleName && formData.middleName.trim()
+                        ? 'Middle Name contains invalid characters'
+                        : ''
+                    }
                   />
                   <TextField
                     error={fieldErrors.lastName}
@@ -475,7 +510,13 @@ export default function SignUpPage() {
                     value={formData.lastName}
                     onChange={handleInputChange}
                     sx={{ mb: 3 }}
-                    helperText={fieldErrors.lastName && 'Last Name is required'}
+                    helperText={
+                      fieldErrors.lastName
+                        ? formData.lastName.trim()
+                          ? 'Last Name contains invalid characters'
+                          : 'Last Name is required'
+                        : ''
+                    }
                   />
                   <FormControl fullWidth variant="outlined" sx={{ mb: 3 }} error={fieldErrors.designation}>
                     <InputLabel id="designation-label" error={fieldErrors.designation}>
