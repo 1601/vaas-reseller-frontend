@@ -2,6 +2,7 @@ import { Helmet } from 'react-helmet-async';
 import { faker } from '@faker-js/faker';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import Cookies from 'js-cookie';
 // @mui
 import { useTheme } from '@mui/material/styles';
 import { Grid, Container, Typography, Card, CardContent } from '@mui/material';
@@ -33,8 +34,16 @@ export default function DashboardAppPage() {
   const userId = JSON.parse(localStorage.getItem('user'))._id;
 
   const { storeData, editedData, platformVariables, error } = StoreDataFetch(userId);
-
   const userData = UserDataFetch(userId);
+
+  useEffect(() => {
+    if (userData) {
+      const existingData = JSON.parse(localStorage.getItem('user')) || {};
+      const mergedData = { ...existingData, ...userData };
+  
+      localStorage.setItem('user', JSON.stringify(mergedData));
+    }
+  }, [userData]);
 
   useEffect(() => {
     if (storeData && storeData._id) {
@@ -55,6 +64,14 @@ export default function DashboardAppPage() {
         .catch((error) => {
           console.error('Error fetching data: ', error);
         });
+    }
+    const userToken = Cookies.get('userToken');
+    if (userToken) {
+      // Save the token to local storage
+      localStorage.setItem('token', userToken);
+
+      // Remove the userToken cookie
+      Cookies.remove('userToken');
     }
   }, [storeData]);
 
