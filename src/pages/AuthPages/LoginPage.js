@@ -118,12 +118,12 @@ export default function LoginPage() {
               </Typography>
             </Stack>
 
-            <Typography variant="body2" sx={{ mt: 0.25 }}>
+            {/*<Typography variant="body2" sx={{ mt: 0.25 }}>
               Not yet Verified?
               <Link variant="subtitle2" onClick={() => navigate('/verify')} sx={{ cursor: 'pointer', ml: 1 }}>
                 Verify
               </Link>
-            </Typography>
+            </Typography>*/}
             <Typography variant="body2" sx={{ textAlign: 'center', mt: 2 }}>
               <Link variant="subtitle2" component="button" onClick={() => handleNavigation('/help')}>Help</Link> {' | '}
               <Link variant="subtitle2" component="button" onClick={() => handleNavigation('/data-privacy-policy')}>Privacy</Link> {' | '}
