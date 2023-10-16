@@ -99,6 +99,18 @@ export default function LoginPage() {
     }
   }, [location, navigate]);
 
+  const handleGoogleLogin = () => {
+    const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
+    const redirectUri = process.env.REACT_APP_GOOGLE_REDIRECT_URI;
+    const scope = encodeURIComponent(
+      'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile'
+    );
+
+    const googleLoginUrl = `https://accounts.google.com/o/oauth2/v2/auth?scope=${scope}&access_type=offline&include_granted_scopes=true&redirect_uri=${redirectUri}&response_type=code&client_id=${clientId}`;
+
+    window.location.href = googleLoginUrl;
+  };
+
   return (
     <>
       <Helmet>
@@ -143,7 +155,13 @@ export default function LoginPage() {
             </Divider>
 
             <Stack direction="column" spacing={2}>
-              <Button fullWidth size="large" color="inherit" variant="outlined">
+              <Button
+                fullWidth
+                size="large"
+                color="inherit"
+                variant="outlined"
+                onClick={handleGoogleLogin}
+              >
                 <Iconify icon="eva:google-fill" color="#DF3E30" width={22} height={22} />
                 Continue with Google
               </Button>
