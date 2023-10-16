@@ -36,6 +36,7 @@ import { countries } from '../../components/country/CountriesList';
 import { countryCodes } from '../../components/country/countryNumCodes';
 import termsAndAgreement from '../../components/agreements/termsAndAgreement';
 import VerifyPage from './VerifyPage';
+import { mobileNumberLengths } from '../../components/country/countryNumLength';
 
 const StyledRoot = styled('div')(({ theme }) => ({
   [theme.breakpoints.up('md')]: {
@@ -163,6 +164,23 @@ export default function SignUpPage() {
     });
   };
 
+  const validateMobileNumber = (country, number) => {
+    const expectedLength = mobileNumberLengths[country];
+    const actualLength = number.length;
+
+    if (!expectedLength) {
+      return 'Unsupported country';
+    }
+    if (actualLength < expectedLength) {
+      return 'Number is too short';
+    }
+    if (actualLength > expectedLength) {
+      return 'Number is too long';
+    }
+
+    return '';
+  };
+
   const handleMobileChange = (e) => {
     const value = e.target.value;
 
@@ -170,8 +188,16 @@ export default function SignUpPage() {
     const mobileRegex = /^[\d+-]+$/;
     if (!mobileRegex.test(value) || value.replace(countryCodes[formData.country] || '', '').trim() === '') {
       setMobileError(true);
+      setErrorMessage("Wrong Number format. Please use only digits and optional '+'.");
     } else {
-      setMobileError(false);
+      const errorMessage = validateMobileNumber(formData.country, value);
+      if (errorMessage) {
+        setMobileError(true);
+        setErrorMessage(errorMessage);
+      } else {
+        setMobileError(false);
+        setErrorMessage('');
+      }
     }
 
     setFormData({
@@ -515,8 +541,7 @@ export default function SignUpPage() {
                     onChange={handleMobileChange}
                     sx={{ mb: 3 }}
                     helperText={
-                      (fieldErrors.mobileNumber && 'Mobile Number is required') ||
-                      (mobileError && 'Invalid mobile number')
+                      (fieldErrors.mobileNumber && 'Mobile Number is required') || (mobileError && errorMessage)
                     }
                     disabled={!formData.country}
                     InputProps={{
