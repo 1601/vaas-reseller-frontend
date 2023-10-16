@@ -144,134 +144,146 @@ const ProfilePage = () => {
           <Grid container spacing={4}>
             {/* Personal Information */}
             <Grid item xs={12} md={6}>
-              <Card style={{ borderColor: '#333', borderWidth: '2px' }}>
+              <Card style={{ borderColor: 'purple', borderWidth: '2px' }}>
                 <CardContent>
                   <Typography variant="h6">Personal Information</Typography>
-                  {editMode ? (
-                    <>
-                      <TextField
-                        label="First Name"
-                        name="firstName"
-                        value={formState.firstName}
-                        onChange={handleInputChange}
-                        fullWidth
-                        sx={{ mb: 2, mt: 2 }}
-                        error={!!validationErrors.firstName}
-                        helperText={validationErrors.firstName}
-                      />
-                      <TextField
-                        label="Middle Name (Optional)"
-                        name="middleName"
-                        value={formState.middleName}
-                        onChange={handleInputChange}
-                        fullWidth
-                        sx={{ mb: 2 }}
-                      />
-                      <TextField
-                        label="Last Name"
-                        name="lastName"
-                        value={formState.lastName}
-                        onChange={handleInputChange}
-                        fullWidth
-                        sx={{ mb: 2 }}
-                        error={!!validationErrors.lastName}
-                        helperText={validationErrors.lastName}
-                      />
-                      <FormControl fullWidth variant="outlined" sx={{ mb: 2 }}>
-                        <InputLabel id="designation-label">Designation</InputLabel>
-                        <Select
-                          labelId="designation-label"
-                          label="Designation"
-                          name="designation"
-                          value={formState.designation}
+                  <Card style={{ marginBottom: '20px', padding: '15px' }}>
+                    {editMode ? (
+                      <>
+                        <TextField
+                          label="First Name"
+                          name="firstName"
+                          value={formState.firstName}
                           onChange={handleInputChange}
-                          error={!!validationErrors.designation}
-                        >
-                          <MenuItem value={'Mr.'}>Mr.</MenuItem>
-                          <MenuItem value={'Ms.'}>Ms.</MenuItem>
-                          <MenuItem value={'Mrs.'}>Mrs.</MenuItem>
-                        </Select>
-                        {validationErrors.designation && (
-                          <Typography color="error" variant="caption">
-                            {validationErrors.designation}
-                          </Typography>
-                        )}
-                      </FormControl>
-                      <Autocomplete
-                        fullWidth
-                        options={countries}
-                        getOptionLabel={(option) => option}
-                        value={formState.country}
-                        onChange={(event, newValue) => {
-                          handleInputChange({
-                            target: { name: 'country', value: newValue },
-                          });
-                        }}
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            label="Country"
-                            variant="outlined"
-                            sx={{ mb: 2 }}
-                            error={!!validationErrors.country}
-                            helperText={validationErrors.country}
-                          />
-                        )}
-                      />
-                    </>
-                  ) : (
-                    <>
-                      <Typography>First Name: {userData.firstName}</Typography>
-                      {userData.middleName && <Typography>Middle Name: {userData.middleName}</Typography>}
-                      <Typography>Last Name: {userData.lastName}</Typography>
-                      <Typography>Designation: {userData.designation}</Typography>
-                      <Typography>Country: {userData.country}</Typography>
-                    </>
-                  )}
+                          fullWidth
+                          sx={{ mb: 2, mt: 2 }}
+                          error={!!validationErrors.firstName}
+                          helperText={validationErrors.firstName}
+                        />
+                        <TextField
+                          label="Middle Name (Optional)"
+                          name="middleName"
+                          value={formState.middleName}
+                          onChange={handleInputChange}
+                          fullWidth
+                          sx={{ mb: 2 }}
+                        />
+                        <TextField
+                          label="Last Name"
+                          name="lastName"
+                          value={formState.lastName}
+                          onChange={handleInputChange}
+                          fullWidth
+                          sx={{ mb: 2 }}
+                          error={!!validationErrors.lastName}
+                          helperText={validationErrors.lastName}
+                        />
+                        <FormControl fullWidth variant="outlined" sx={{ mb: 2 }}>
+                          <InputLabel id="designation-label">Designation</InputLabel>
+                          <Select
+                            labelId="designation-label"
+                            label="Designation"
+                            name="designation"
+                            value={formState.designation}
+                            onChange={handleInputChange}
+                            error={!!validationErrors.designation}
+                          >
+                            <MenuItem value={'Mr.'}>Mr.</MenuItem>
+                            <MenuItem value={'Ms.'}>Ms.</MenuItem>
+                            <MenuItem value={'Mrs.'}>Mrs.</MenuItem>
+                          </Select>
+                          {validationErrors.designation && (
+                            <Typography color="error" variant="caption">
+                              {validationErrors.designation}
+                            </Typography>
+                          )}
+                        </FormControl>
+                        <Autocomplete
+                          fullWidth
+                          options={countries}
+                          getOptionLabel={(option) => option}
+                          value={formState.country}
+                          onChange={(event, newValue) => {
+                            handleInputChange({
+                              target: { name: 'country', value: newValue },
+                            });
+                          }}
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              label="Country"
+                              variant="outlined"
+                              sx={{ mb: 2 }}
+                              error={!!validationErrors.country}
+                              helperText={validationErrors.country}
+                            />
+                          )}
+                        />
+                      </>
+                    ) : (
+                      <>
+                        <Typography>First Name: {userData.firstName}</Typography>
+                        {userData.middleName && <Typography>Middle Name: {userData.middleName}</Typography>}
+                        <Typography>Last Name: {userData.lastName}</Typography>
+                        <Typography>Designation: {userData.designation}</Typography>
+                        <Typography>Country: {userData.country}</Typography>
+                      </>
+                    )}
+                  </Card>
                 </CardContent>
               </Card>
             </Grid>
 
             {/* Credentials */}
             <Grid item xs={12} md={6}>
-              <Card style={{ borderColor: '#333', borderWidth: '2px' }}>
+              <Card style={{ borderColor: 'purple', borderWidth: '2px' }}>
                 <CardContent>
                   <Typography variant="h6">Credentials</Typography>
-                  {editMode ? (
-                    <>
-                      <TextField 
-                        label="Username"
-                        name="username"
-                        value={formState.username}
-                        onChange={handleInputChange}
-                        fullWidth
-                        error={!!validationErrors.username}
-                        helperText={validationErrors.username}
-                      />
-                      <Typography>Email: {userData.email}</Typography>
-                      <Typography>Mobile Number: {userData.mobileNumber}</Typography>
-                      {/* TODO: Add password change fields here */}
-                    </>
-                  ) : (
-                    <>
-                      <Typography>Username: {userData.username}</Typography>
-                      <Typography>Email: {userData.email}</Typography>
-                      <Typography>Mobile Number: {userData.mobileNumber}</Typography>
-                    </>
-                  )}
+                  <Card style={{ marginBottom: '20px', padding: '15px' }}>
+                    {editMode ? (
+                      <>
+                        <TextField
+                          label="Username"
+                          name="username"
+                          value={formState.username}
+                          onChange={handleInputChange}
+                          fullWidth
+                          error={!!validationErrors.username}
+                          helperText={validationErrors.username}
+                        />
+                        <TextField label="Email" value={userData.email} fullWidth disabled sx={{ mb: 2, mt: 2 }} />
+                        <TextField
+                          label="Mobile Number"
+                          value={userData.mobileNumber}
+                          fullWidth
+                          disabled
+                          sx={{ mb: 2 }}
+                        />
+                        {/* TODO: Add password change fields here */}
+                      </>
+                    ) : (
+                      <>
+                        <Typography>Username: {userData.username}</Typography>
+                        <Typography>Email: {userData.email}</Typography>
+                        <Typography>Mobile Number: {userData.mobileNumber}</Typography>
+                      </>
+                    )}
+                  </Card>
                 </CardContent>
               </Card>
             </Grid>
             {/* Store Details */}
             <Grid item xs={12} md={6}>
-              <Card style={{ borderColor: '#333', borderWidth: '2px' }}>
+              <Card style={{ borderColor: 'purple', borderWidth: '2px' }}>
                 <CardContent>
                   <Typography variant="h6">Account Status and Balances</Typography>
-                  <Box mt={2}>
-                    <Typography>Balance: {userData.accountBalance}</Typography>
-                    <Typography>KYC Status: {kycStatuses[storeData.kycApprove]}</Typography>
-                    <Typography>Account Status: {accountStatusDisplay[userData.accountStatus]}</Typography>
-                  </Box>
+                  <Card style={{ marginBottom: '20px', padding: '15px' }}>
+                    <Box mt={2}>
+                      <Typography>Balance: {userData.accountBalance}</Typography>
+                      <Typography>KYC Status: {kycStatuses[storeData.kycApprove]}</Typography>
+                      <Typography>Account Status: {accountStatusDisplay[userData.accountStatus]}</Typography>
+                    </Box>
+                  </Card>
                 </CardContent>
               </Card>
             </Grid>
