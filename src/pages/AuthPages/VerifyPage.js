@@ -180,6 +180,20 @@ export default function VerifyPage({ email, firstName, lastName }) {
               Verify
             </Button>
 
+            {/* Skip for Now Button */}
+            <Button
+              fullWidth
+              size="large"
+              variant="outlined"
+              color="primary"
+              onClick={() => {
+                navigate('/login')
+              }}
+              style={{ opacity: 1, borderColor: '#3f51b5', color: '#3f51b5', marginTop: '10px' }}
+            >
+              Skip for Now
+            </Button>
+
             <Divider sx={{ my: 3 }} />
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>

@@ -183,6 +183,10 @@ export default function Router() {
       element: <VerifyInLoginPage />,
     },
     {
+      path: 'verify-email',
+      element: <VerifyPage />,
+    },
+    {
       path: 'terms-and-conditions',
       element: <TermsAndConditions />,
     },   
