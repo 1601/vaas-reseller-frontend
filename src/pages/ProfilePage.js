@@ -84,6 +84,11 @@ const ProfilePage = () => {
     setCurrentPassword('');
     setNewPassword('');
     setConfirmNewPassword('');
+    setPasswordErrors({
+      currentPassword: '',
+      newPassword: '',
+      confirmNewPassword: '',
+    });
   };
 
   const [passwordErrors, setPasswordErrors] = useState({
@@ -92,12 +97,46 @@ const ProfilePage = () => {
     confirmNewPassword: '',
   });
 
+  const validatePassword = (password) => {
+    if (!password || password.length < 8 || password.length > 12) {
+      return 'Password must be between 8 to 12 characters.';
+    }
+    if (!/[A-Z]/.test(password)) {
+      return 'Password must contain at least one uppercase letter.';
+    }
+    if (!/[0-9]/.test(password)) {
+      return 'Password must contain at least one number.';
+    }
+    if (!/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]+/.test(password)) {
+      return 'Password must contain at least one special character.';
+    }
+    return '';
+  };  
+
   const handleChangePassword = async () => {
     const baseUrl = process.env.REACT_APP_BACKEND_URL;
     let endpoint = `${baseUrl}/api/change-password`;
 
     if (!userData.hasPassword) {
       endpoint = `${baseUrl}/api/set-password`;
+    }
+
+    const newPasswordValidationError = validatePassword(newPassword);
+    if (newPasswordValidationError) {
+      setPasswordErrors((prevErrors) => ({
+        ...prevErrors,
+        newPassword: newPasswordValidationError,
+      }));
+      return;
+    }
+
+    // Check if newPassword and confirmNewPassword match
+    if (newPassword !== confirmNewPassword) {
+      setPasswordErrors((prevErrors) => ({
+        ...prevErrors,
+        confirmNewPassword: 'New and Confirm Passwords does not Match',
+      }));
+      return;
     }
 
     try {
@@ -120,7 +159,7 @@ const ProfilePage = () => {
         closeChangePasswordDialog();
       } else {
         const newErrors = {};
-      
+
         if (data.message.includes('New password')) {
           newErrors.newPassword = data.message;
         } else if (data.message.includes('Confirm new password')) {
@@ -139,6 +178,7 @@ const ProfilePage = () => {
       });
     }
   };
+
 
   const handleMobileNumberChange = (event) => {
     const { value } = event.target;
