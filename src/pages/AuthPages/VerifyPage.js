@@ -34,9 +34,8 @@ const StyledContent = styled('div')(({ theme }) => ({
   padding: theme.spacing(12, 0),
 }));
 
-export default function VerifyPage({email, firstName, lastName}) {
+export default function VerifyPage({ email, firstName, lastName }) {
   const navigate = useNavigate();
-  const [credential, setCredential] = useState({});
   const [code, setCode] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
@@ -63,7 +62,7 @@ export default function VerifyPage({email, firstName, lastName}) {
       await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/resend-verification-email`, {
         email,
         firstName,
-        lastName
+        lastName,
       });
       setCountdown(180);
       setAllowResend(false);
@@ -136,25 +135,11 @@ export default function VerifyPage({email, firstName, lastName}) {
 
       <StyledRoot>
         <Container maxWidth="sm" sx={{ backgroundColor: '#fff' }}>
-          {/* <Logo sx={{ alignSelf: 'center' }} /> */}
-
           <StyledContent>
             <Typography variant="h4" gutterBottom>
               Email Verification
             </Typography>
 
-            {/* <TextField
-              fullWidth
-              label="Email"
-              variant="outlined"
-              value={email}
-              onChange={(e) => {
-                setEmail(e.target.value);
-                setEmailErrorMsg(e.target.value.trim() ? '' : 'Email is required'); // Clear or set error message
-              }}
-              sx={{ mb: 3 }}
-              error={!!emailErrorMsg} 
-            /> */}
             <TextField
               fullWidth
               label="Verification Code"
@@ -165,7 +150,8 @@ export default function VerifyPage({email, firstName, lastName}) {
                 setCodeErrorMsg(e.target.value.trim() ? '' : 'Verification code is required'); // Clear or set error message
               }}
               sx={{ mb: 3 }}
-              error={!!codeErrorMsg} 
+              error={!!codeErrorMsg}
+              helperText={codeErrorMsg}
             />
             {fieldError && (
               <Typography variant="body2" color="error" sx={{ mb: 5 }}>
@@ -207,7 +193,7 @@ export default function VerifyPage({email, firstName, lastName}) {
               </div>
               <div style={{ textAlign: 'right' }}>
                 {allowResend ? (
-                  <Typography variant="body2" style={{ fontWeight: 'bold' }} onClick={resendCode}>
+                  <Typography variant="body2" style={{ fontWeight: 'bold', cursor: 'pointer' }} onClick={resendCode}>
                     Resend Verification Code
                   </Typography>
                 ) : (
@@ -221,19 +207,6 @@ export default function VerifyPage({email, firstName, lastName}) {
           </StyledContent>
         </Container>
       </StyledRoot>
-      {/* Dialog for field errors */}
-      <Dialog open={Boolean(fieldError)} onClose={handleCloseDialog}>
-        <DialogTitle>Error</DialogTitle>
-        <DialogContent>
-          <DialogContentText>{fieldError}</DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDialog} color="primary">
-            Close
-          </Button>
-        </DialogActions>
-      </Dialog>
-
       {/* Dialog for backend errors */}
       <Dialog open={Boolean(errorMessage)} onClose={handleCloseDialog}>
         <DialogTitle>Error</DialogTitle>
