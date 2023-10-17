@@ -22,7 +22,7 @@ import {
   MenuItem,
   DialogContentText,
   DialogActions,
-  Card,
+  Card, CardMedia, Grid, Paper,
   CardHeader,
   CardContent,
   Checkbox,
@@ -30,13 +30,32 @@ import {
 import InputAdornment from '@mui/material/InputAdornment';
 import IconButton from '@mui/material/IconButton';
 import Autocomplete from '@mui/lab/Autocomplete';
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css"; 
+import "slick-carousel/slick/slick-theme.css";
+import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 import { Icon as Iconify } from '@iconify/react';
+import { allBanner } from '../../api/public/banner';
 import Logo from '../../components/logo';
 import { countries } from '../../components/country/CountriesList';
 import { countryCodes } from '../../components/country/countryNumCodes';
 import termsAndAgreement from '../../components/agreements/termsAndAgreement';
 import VerifyPage from './VerifyPage';
 import { mobileNumberLengths } from '../../components/country/countryNumLength';
+
+const StyledCard = styled(Card)(({ theme }) => ({
+  padding: theme.spacing(2),
+  textAlign: 'center',
+}));
+
+const StyledCardMedia = styled(CardMedia)({
+  height: 150,
+});
+
+const StyledPaper = styled(Paper)({
+  width: '80%',
+  margin: '0 auto',
+});
 
 const StyledRoot = styled('div')(({ theme }) => ({
   [theme.breakpoints.up('md')]: {
@@ -89,6 +108,18 @@ function TermsDialog({ open, onClose, onAgree }) {
   );
 }
 
+const Slide = ({ image, alt }) => {
+  return (
+    <StyledCard>
+      <StyledCardMedia
+        component="img"
+        alt={alt}
+        image={image}
+      />
+    </StyledCard>
+  );
+};
+
 export default function SignUpPage() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -122,6 +153,7 @@ export default function SignUpPage() {
   const [isTermsDialogOpen, setIsTermsDialogOpen] = useState(false);
   const [isScrolledToEnd, setIsScrolledToEnd] = useState(false);
   const [mobileError, setMobileError] = useState(false);
+  const [banners, setBanners] = useState()
 
   const handleScroll = (e) => {
     const bottom = e.target.scrollHeight - e.target.scrollTop === e.target.clientHeight;
@@ -447,9 +479,31 @@ export default function SignUpPage() {
       }
     };
 
+    const fetchAllBanner = async() =>{
+      try{
+        const banners = await allBanner();
+
+        setBanners(banners.data.body)
+      }catch(error){
+        console.log(error)
+      }
+    }
+
     fetchIPAddress();
+    fetchAllBanner();
   }, []);
 
+  const settings = {
+    dots: true,
+    infinite: true,
+    slidesToShow: 2, // Adjust the number of slides shown
+    slidesToScroll: 1,
+    nextArrow: <ChevronRight />,
+    prevArrow: <ChevronLeft />,
+    autoplay: true,
+    autoplaySpeed: 2000,
+    speed: 2000
+  }
   // useEffect(() => {
   //   if (showSuccessMessage) {
   //     const redirectTimer = setTimeout(() => {
@@ -472,6 +526,15 @@ export default function SignUpPage() {
             <VerifyPage email={formData.email} firstName={formData.firstName} lastName={formData.lastName} />
           ) : (
             <StyledContent>
+              <Paper>
+                <Slider {...settings}>
+                 { banners && (banners.map((data, index) =>(
+                    <Slide image={data.url} />
+                    )))
+                  }
+                </Slider>
+              </Paper>
+              <br/>
               <Typography variant="h4" gutterBottom>
                 Sign Up
               </Typography>
