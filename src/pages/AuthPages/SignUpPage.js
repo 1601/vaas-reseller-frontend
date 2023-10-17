@@ -269,17 +269,13 @@ export default function SignUpPage() {
   };
 
   const handleGoogleSignUp = () => {
-    console.log('Environment Variables: ', process.env);
     const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
     const redirectUri = process.env.REACT_APP_GOOGLE_REDIRECT_URI;
-    console.log('Redirect Url: ', redirectUri);
     const scope = encodeURIComponent(
       'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile'
     );
 
     const googleLoginUrl = `https://accounts.google.com/o/oauth2/v2/auth?scope=${scope}&access_type=offline&include_granted_scopes=true&redirect_uri=${redirectUri}&response_type=code&client_id=${clientId}`;
-
-    console.log('Redirecting to: ', googleLoginUrl);
     window.location.href = googleLoginUrl;
   };
 
@@ -312,8 +308,6 @@ export default function SignUpPage() {
   };
 
   const handleSignup = async () => {
-    console.log(formData);
-
     setPasswordError(false);
     setPasswordHelperText('');
 

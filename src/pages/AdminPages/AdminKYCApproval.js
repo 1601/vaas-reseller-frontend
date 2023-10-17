@@ -109,7 +109,6 @@ const AdminKYCApproval = () => {
               </div>
               <div>
                 {/* Display KYC details from kycDetails object */}
-                {console.log('kycDetails:', kycDetails)}
                 <DisplayKYCDetails kycDetails={kycDetails} />
               </div>
             </Card>

@@ -54,7 +54,6 @@ export default function LoginForm() {
   };
 
   const handleCloseDialog = () => {
-    console.log('Closing dialog');
     setDialogOpen(false);
   };
 
@@ -115,7 +114,6 @@ export default function LoginForm() {
 
       if (verifiedRole) {
         localStorage.setItem('role', verifiedRole);
-        console.log('Role saved to localStorage:', verifiedRole);
       } else {
         console.error('No role received from verifyRole API');
       }

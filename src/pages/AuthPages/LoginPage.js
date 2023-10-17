@@ -75,7 +75,6 @@ export default function LoginPage() {
           const { firstName, lastName, testBalance, accountBalance, accountStatus, _id } = response.data;
 
           // Save user details in localStorage as 'user'
-          console.log('Received data from backend:', response.data);
           localStorage.setItem(
             'user',
             JSON.stringify({
@@ -88,7 +87,6 @@ export default function LoginPage() {
               accountStatus,
             })
           );
-          console.log('User details set to localStorage');
 
           // Navigate to the desired page (e.g., dashboard)
           navigate('/dashboard/app');

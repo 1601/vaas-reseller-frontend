@@ -20,11 +20,6 @@ function useAccount() {
         photoURL: '/assets/images/avatars/avatar_default.jpg',
       };
       setAccount(updatedAccount);
-      
-      console.log("Email from localStorage:", user.email);
-      console.log("First Name from localStorage:", user.firstName);
-      console.log("Last Name from localStorage:", user.lastName);
-      console.log("Role from localStorage:", role);
     }
   }, []);
 
