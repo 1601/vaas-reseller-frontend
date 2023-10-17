@@ -13,7 +13,7 @@ const getOnwerId = () =>{
 
 // Create an Axios instance with default headers including the token
 const axiosInstance = axios.create({
-  baseURL: `${process.env.REACT_APP_BACKEND_URL}/v1/api/kyc-business/`,
+  baseURL: `${process.env.REACT_APP_BACKEND_URL}/v1/api/`,
   headers: {
     'Authorization': `Bearer ${getNewToken()}`
   }
@@ -22,7 +22,7 @@ const axiosInstance = axios.create({
 const submitDataKyc = async (data) => {
   let response
   try {
-    response = await axiosInstance.post(`${getOnwerId()}`, data);
+    response = await axiosInstance.post(`kyc-business/${getOnwerId()}`, data);
   } catch (error) {
     console.error(error);
   }
@@ -37,7 +37,7 @@ const submitFileKyc = async (datas) =>{
         datas.map((data) =>{
           return formData.append('file', data);
         }); 
-        response = await axiosInstance.put(`kyc/${getOnwerId()}`, formData);
+        response = await axiosInstance.put(`kyc-business/kyc/${getOnwerId()}`, formData);
     }catch(error){
         console.log(error)
     }
@@ -61,7 +61,17 @@ const autocompleteAddress = async(data) =>{
 const kycSubmittedStatus = async() =>{
   let response
   try{
-    response = await axiosInstance.get(`/store/${getOnwerId()}`)
+    response = await axiosInstance.get(`kyc-business/store/${getOnwerId()}`)
+  }catch(error){
+    console.log(error)
+  }
+  return response
+}
+
+const getAllBanner = async() =>{
+  let response
+  try{
+    response = await axiosInstance.get(`banner/all-active`)
   }catch(error){
     console.log(error)
   }
@@ -71,5 +81,6 @@ export {
   submitDataKyc,
   submitFileKyc,
   autocompleteAddress,
-  kycSubmittedStatus
+  kycSubmittedStatus,
+  getAllBanner,
 };

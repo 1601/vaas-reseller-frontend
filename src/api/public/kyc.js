@@ -20,3 +20,4 @@ export const autoCompleteAddress = async(data)=>{
 export const kycSubmittedstatus = async() =>{
     return kycSubmittedStatus()
 }
+
