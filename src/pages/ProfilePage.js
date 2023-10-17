@@ -15,6 +15,10 @@ import {
   TextField,
   Button,
   InputAdornment,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
 } from '@mui/material';
 import UserDataFetch from '../components/user-account/UserDataFetch';
 import StoreDataFetch from '../components/user-account/StoreDataFetch';
@@ -55,6 +59,59 @@ const ProfilePage = () => {
     setValidationErrors(errors);
 
     return Object.keys(errors).length === 0;
+  };
+
+  // State for Change Password Dialog
+  const [changePasswordDialogOpen, setChangePasswordDialogOpen] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
+
+  const openChangePasswordDialog = () => {
+    setChangePasswordDialogOpen(true);
+  };
+
+  const closeChangePasswordDialog = () => {
+    setChangePasswordDialogOpen(false);
+    setCurrentPassword('');
+    setNewPassword('');
+    setConfirmNewPassword('');
+  };
+
+  const handleChangePassword = async () => {
+    // Check if new password and confirm password are the same
+    if (newPassword !== confirmNewPassword) {
+      alert('New password and confirm password do not match');
+      return;
+    }
+
+    const baseUrl = process.env.REACT_APP_BACKEND_URL;
+    try {
+      const response = await fetch(`${baseUrl}/api/change-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          // 'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          userId, // Add this
+          currentPassword,
+          newPassword,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert('Password changed successfully');
+        closeChangePasswordDialog();
+      } else {
+        alert(`Failed to change password: ${data.message}`);
+      }
+    } catch (error) {
+      console.error('Error changing password:', error);
+      alert('Failed to change password. Please try again later.');
+    }
   };
 
   const handleMobileNumberChange = (event) => {
@@ -370,6 +427,11 @@ const ProfilePage = () => {
                       </>
                     )}
                   </Card>
+                  {!editMode && (
+                    <Button variant="outlined" className="mt-2 mr-2" onClick={openChangePasswordDialog}>
+                      Change Password
+                    </Button>
+                  )}
                   {!editMode && !userData.mobileNumberVerified && (
                     <Button variant="outlined" className="mt-2 mr-2">
                       Verify Mobile Number
@@ -383,6 +445,7 @@ const ProfilePage = () => {
                 </CardContent>
               </Card>
             </Grid>
+
             {/* Store Details */}
             <Grid item xs={12}>
               <Card style={{ borderColor: 'purple', borderWidth: '2px' }}>
@@ -398,6 +461,45 @@ const ProfilePage = () => {
                 </CardContent>
               </Card>
             </Grid>
+
+            {/* Change Password Dialog */}
+            <Dialog open={changePasswordDialogOpen} onClose={closeChangePasswordDialog}>
+              <DialogTitle>Change Password</DialogTitle>
+              <DialogContent>
+                <TextField
+                  label="Current Password"
+                  type="password"
+                  fullWidth
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  sx={{ mb: 2 }}
+                />
+                <TextField
+                  label="New Password"
+                  type="password"
+                  fullWidth
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  sx={{ mb: 2 }}
+                />
+                <TextField
+                  label="Confirm New Password"
+                  type="password"
+                  fullWidth
+                  value={confirmNewPassword}
+                  onChange={(e) => setConfirmNewPassword(e.target.value)}
+                  sx={{ mb: 2 }}
+                />
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={closeChangePasswordDialog} color="primary">
+                  Cancel
+                </Button>
+                <Button onClick={handleChangePassword} color="primary">
+                  Change Password
+                </Button>
+              </DialogActions>
+            </Dialog>
           </Grid>
         </Card>
       </Box>
