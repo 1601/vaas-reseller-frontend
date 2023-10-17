@@ -39,9 +39,10 @@ const ProfilePage = () => {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
-  const [currentPasswordError, setCurrentPasswordError] = useState('');
-  const [newPasswordError, setNewPasswordError] = useState('');
-  const [confirmNewPasswordError, setConfirmNewPasswordError] = useState('');
+  const [otpDialogOpen, setOtpDialogOpen] = useState(false);
+  const [otp, setOtp] = useState('');
+  const [otpError, setOtpError] = useState('');
+  const [resendOtpCooldown, setResendOtpCooldown] = useState(0);
 
   const kycStatuses = ['Unsubmitted Documents', 'Pending Approval', 'Approved', 'Rejected'];
 
@@ -67,6 +68,39 @@ const ProfilePage = () => {
     setValidationErrors(errors);
 
     return Object.keys(errors).length === 0;
+  };
+
+  const openOtpDialog = async () => {
+    // Call API to send OTP
+    // If successful, open the dialog
+    setOtpDialogOpen(true);
+  };
+
+  const closeOtpDialog = () => {
+    setOtpDialogOpen(false);
+    setOtp('');
+    setOtpError('');
+  };
+
+  const resendOtp = async () => {
+    // Call API to resend OTP
+    // Set a cooldown for the resend button
+    setResendOtpCooldown(180); // 3 minutes in seconds
+    const interval = setInterval(() => {
+      setResendOtpCooldown((prev) => {
+        if (prev === 1) {
+          clearInterval(interval);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
+  const verifyOtp = async () => {
+    // Call API to verify OTP
+    // If successful, close the dialog and mark the mobile number as verified
+    // If not, set an error
   };
 
   // State for Change Password Dialog
@@ -111,7 +145,7 @@ const ProfilePage = () => {
       return 'Password must contain at least one special character.';
     }
     return '';
-  };  
+  };
 
   const handleChangePassword = async () => {
     const baseUrl = process.env.REACT_APP_BACKEND_URL;
@@ -178,7 +212,6 @@ const ProfilePage = () => {
       });
     }
   };
-
 
   const handleMobileNumberChange = (event) => {
     const { value } = event.target;
@@ -499,7 +532,7 @@ const ProfilePage = () => {
                     </Button>
                   )}
                   {!editMode && !userData.mobileNumberVerified && (
-                    <Button variant="outlined" className="mt-2 mr-2">
+                    <Button variant="outlined" className="mt-2 mr-2" onClick={openOtpDialog}>
                       Verify Mobile Number
                     </Button>
                   )}
@@ -598,6 +631,40 @@ const ProfilePage = () => {
                 </Button>
                 <Button onClick={handleChangePassword} color="primary">
                   Change Password
+                </Button>
+              </DialogActions>
+            </Dialog>
+
+            {/* Verify Mobile Number Dialog */}
+            <Dialog open={otpDialogOpen} onClose={closeOtpDialog}>
+              <DialogTitle>Verify Mobile Number</DialogTitle>
+              <DialogContent>
+                <TextField
+                  label="Enter OTP"
+                  fullWidth
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                  sx={{ mt: 2 }}
+                  error={!!otpError}
+                  helperText={otpError}
+                />
+                {resendOtpCooldown > 0 ? (
+                  <Typography variant="body2" style={{ marginTop: '10px' }}>
+                    Resend OTP in {Math.floor(resendOtpCooldown / 60)}:{resendOtpCooldown % 60 < 10 ? '0' : ''}
+                    {resendOtpCooldown % 60}
+                  </Typography>
+                ) : (
+                  <Button onClick={resendOtp} color="primary" variant="text" style={{ marginTop: '10px' }}>
+                    Resend OTP
+                  </Button>
+                )}
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={closeOtpDialog} color="primary">
+                  Cancel
+                </Button>
+                <Button onClick={verifyOtp} color="primary">
+                  Verify Number
                 </Button>
               </DialogActions>
             </Dialog>
