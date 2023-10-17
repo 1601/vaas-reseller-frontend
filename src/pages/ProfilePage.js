@@ -19,7 +19,9 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  IconButton,
 } from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import UserDataFetch from '../components/user-account/UserDataFetch';
 import StoreDataFetch from '../components/user-account/StoreDataFetch';
 import { countries } from '../components/country/CountriesList';
@@ -34,6 +36,12 @@ const ProfilePage = () => {
   const userData = UserDataFetch(userId);
   const { storeData, error } = StoreDataFetch(userId);
   const [validationErrors, setValidationErrors] = useState({});
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
+  const [currentPasswordError, setCurrentPasswordError] = useState('');
+  const [newPasswordError, setNewPasswordError] = useState('');
+  const [confirmNewPasswordError, setConfirmNewPasswordError] = useState('');
 
   const kycStatuses = ['Unsubmitted Documents', 'Pending Approval', 'Approved', 'Rejected'];
 
@@ -78,23 +86,28 @@ const ProfilePage = () => {
     setConfirmNewPassword('');
   };
 
+  const [passwordErrors, setPasswordErrors] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmNewPassword: '',
+  });
+
   const handleChangePassword = async () => {
-    // Check if new password and confirm password are the same
-    if (newPassword !== confirmNewPassword) {
-      alert('New password and confirm password do not match');
-      return;
+    const baseUrl = process.env.REACT_APP_BACKEND_URL;
+    let endpoint = `${baseUrl}/api/change-password`;
+
+    if (!userData.hasPassword) {
+      endpoint = `${baseUrl}/api/set-password`;
     }
 
-    const baseUrl = process.env.REACT_APP_BACKEND_URL;
     try {
-      const response = await fetch(`${baseUrl}/api/change-password`, {
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          // 'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({
-          userId, // Add this
+          userId,
           currentPassword,
           newPassword,
         }),
@@ -106,11 +119,24 @@ const ProfilePage = () => {
         alert('Password changed successfully');
         closeChangePasswordDialog();
       } else {
-        alert(`Failed to change password: ${data.message}`);
+        const newErrors = {};
+      
+        if (data.message.includes('New password')) {
+          newErrors.newPassword = data.message;
+        } else if (data.message.includes('Confirm new password')) {
+          newErrors.confirmNewPassword = data.message;
+        } else {
+          newErrors.currentPassword = data.message;
+        }
+
+        setPasswordErrors(newErrors);
       }
     } catch (error) {
       console.error('Error changing password:', error);
-      alert('Failed to change password. Please try again later.');
+      setPasswordErrors({
+        ...passwordErrors,
+        currentPassword: 'Failed to change password. Please try again later.',
+      });
     }
   };
 
@@ -466,29 +492,64 @@ const ProfilePage = () => {
             <Dialog open={changePasswordDialogOpen} onClose={closeChangePasswordDialog}>
               <DialogTitle>Change Password</DialogTitle>
               <DialogContent>
-                <TextField
-                  label="Current Password"
-                  type="password"
-                  fullWidth
-                  value={currentPassword}
-                  onChange={(e) => setCurrentPassword(e.target.value)}
-                  sx={{ mb: 2 }}
-                />
+                {userData.hasPassword && (
+                  <TextField
+                    label="Current Password"
+                    type={showCurrentPassword ? 'text' : 'password'}
+                    fullWidth
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    sx={{ mt: 2 }}
+                    error={!!passwordErrors.currentPassword}
+                    helperText={passwordErrors.currentPassword}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton onClick={() => setShowCurrentPassword(!showCurrentPassword)} edge="end">
+                            {showCurrentPassword ? <VisibilityOff /> : <Visibility />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                )}
                 <TextField
                   label="New Password"
-                  type="password"
+                  type={showNewPassword ? 'text' : 'password'}
                   fullWidth
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  sx={{ mb: 2 }}
+                  sx={{ mb: 2, mt: 2 }}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton onClick={() => setShowNewPassword(!showNewPassword)} edge="end">
+                          {showNewPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                  error={!!passwordErrors.newPassword}
+                  helperText={passwordErrors.newPassword}
                 />
                 <TextField
                   label="Confirm New Password"
-                  type="password"
+                  type={showConfirmNewPassword ? 'text' : 'password'}
                   fullWidth
                   value={confirmNewPassword}
                   onChange={(e) => setConfirmNewPassword(e.target.value)}
                   sx={{ mb: 2 }}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton onClick={() => setShowConfirmNewPassword(!showConfirmNewPassword)} edge="end">
+                          {showConfirmNewPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                  error={!!passwordErrors.confirmNewPassword}
+                  helperText={passwordErrors.confirmNewPassword}
                 />
               </DialogContent>
               <DialogActions>
