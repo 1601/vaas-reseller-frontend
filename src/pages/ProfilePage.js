@@ -19,6 +19,9 @@ import UserDataFetch from '../components/user-account/UserDataFetch';
 import StoreDataFetch from '../components/user-account/StoreDataFetch';
 import { countries } from '../components/country/CountriesList';
 import { countryCodes } from '../components/country/countryNumCodes';
+import { mobileNumberLengths } from '../components/country/countryNumLength';
+import ValidatedTextField from '../components/validation/ValidatedTextField';
+import { validateName, validateEmail, validateMobileNumber } from '../components/validation/validationUtils';
 
 const ProfilePage = () => {
   const userId = JSON.parse(localStorage.getItem('user'))._id;
@@ -52,14 +55,27 @@ const ProfilePage = () => {
     return Object.keys(errors).length === 0;
   };
 
+  const handleMobileNumberChange = (event) => {
+    const { value } = event.target;
+    const strippedNumber = value?.replace(countryCodes[formState.country] || '', '');
+
+    const validationError = validateMobileNumber(formState.country, strippedNumber, countryCodes, mobileNumberLengths);
+    setValidationErrors((prevErrors) => ({ ...prevErrors, mobileNumber: validationError }));
+
+    handleInputChange(event);
+  };
+
   const handleEditClick = () => {
+    const countryCode = countryCodes[userData?.country];
+    const strippedMobileNumber = userData?.mobileNumber?.replace(countryCode, '') || '';
+
     setFormState({
       firstName: userData?.firstName || '',
       lastName: userData?.lastName || '',
       middleName: userData?.middleName || '',
       designation: userData?.designation || '',
       country: userData?.country || '',
-      mobileNumber: userData?.mobileNumber || '',
+      mobileNumber: strippedMobileNumber,
       username: userData?.username || '',
     });
     setEditMode(true);
@@ -67,6 +83,7 @@ const ProfilePage = () => {
 
   const handleSaveChanges = async () => {
     const baseUrl = process.env.REACT_APP_BACKEND_URL;
+    const fullMobileNumber = countryCodes[formState.country] + formState.mobileNumber;
 
     if (!validateForm()) {
       return;
@@ -85,6 +102,7 @@ const ProfilePage = () => {
           middleName: formState.middleName,
           designation: formState.designation,
           country: formState.country,
+          mobileNumber: fullMobileNumber,
         }),
       });
 
@@ -103,8 +121,20 @@ const ProfilePage = () => {
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
+
+    if (name === 'mobileNumber' || name === 'country') {
+      const strippedNumber = value?.replace(countryCodes[formState.country] || '', '');
+      const validationError = validateMobileNumber(
+        formState.country,
+        strippedNumber,
+        countryCodes,
+        mobileNumberLengths
+      );
+      setValidationErrors((prevErrors) => ({ ...prevErrors, mobileNumber: validationError }));
+    }
+
     setFormState((prevState) => ({ ...prevState, [name]: value }));
-};
+  };
 
   if (!userData || !storeData) {
     return <Typography>Loading...</Typography>;
@@ -153,15 +183,14 @@ const ProfilePage = () => {
                   <Card style={{ marginBottom: '20px', padding: '15px' }}>
                     {editMode ? (
                       <>
-                        <TextField
+                        <ValidatedTextField
+                          validationFunction={validateName}
                           label="First Name"
                           name="firstName"
                           value={formState.firstName}
                           onChange={handleInputChange}
                           fullWidth
                           sx={{ mb: 2, mt: 2 }}
-                          error={!!validationErrors.firstName}
-                          helperText={validationErrors.firstName}
                         />
                         <TextField
                           label="Middle Name (Optional)"
@@ -171,15 +200,14 @@ const ProfilePage = () => {
                           fullWidth
                           sx={{ mb: 2 }}
                         />
-                        <TextField
+                        <ValidatedTextField
+                          validationFunction={validateName}
                           label="Last Name"
                           name="lastName"
                           value={formState.lastName}
                           onChange={handleInputChange}
                           fullWidth
                           sx={{ mb: 2 }}
-                          error={!!validationErrors.lastName}
-                          helperText={validationErrors.lastName}
                         />
                         <FormControl fullWidth variant="outlined" sx={{ mb: 2 }}>
                           <InputLabel id="designation-label">Designation</InputLabel>
@@ -254,13 +282,14 @@ const ProfilePage = () => {
                           error={!!validationErrors.username}
                           helperText={validationErrors.username}
                         />
-                        <TextField label="Email" value={userData.email} fullWidth disabled sx={{ mb: 2, mt: 2 }} />
-                        <TextField
-                          label="Mobile Number"
-                          value={userData.mobileNumber}
+                        <ValidatedTextField
+                          validationFunction={validateEmail}
+                          label="Email"
+                          name="email"
+                          value={formState.email || userData.email}
+                          onChange={handleInputChange}
                           fullWidth
-                          disabled
-                          sx={{ mb: 2 }}
+                          sx={{ mb: 2, mt: 2 }}
                         />
                         <TextField
                           error={!!validationErrors.mobileNumber}
@@ -284,6 +313,7 @@ const ProfilePage = () => {
                           InputLabelProps={{
                             shrink: !!formState.mobileNumber || !!formState.country,
                           }}
+                          helperText={validationErrors.mobileNumber}
                         />
                       </>
                     ) : (
@@ -300,12 +330,12 @@ const ProfilePage = () => {
                       </>
                     )}
                   </Card>
-                  {!userData.mobileNumberVerified && (
+                  {!editMode && !userData.mobileNumberVerified && (
                     <Button variant="outlined" className="mt-2 mr-2">
                       Verify Mobile Number
                     </Button>
                   )}
-                  {!userData.isActive && (
+                  {!editMode && !userData.isActive && (
                     <Button variant="outlined" className="mt-2">
                       Verify Email
                     </Button>
