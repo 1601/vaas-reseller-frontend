@@ -71,9 +71,32 @@ const ProfilePage = () => {
   };
 
   const openOtpDialog = async () => {
-    // Call API to send OTP
-    // If successful, open the dialog
-    setOtpDialogOpen(true);
+    const baseUrl = process.env.REACT_APP_BACKEND_URL;
+    const endpoint = `${baseUrl}/api/send-otp`;
+
+    try {
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setOtpDialogOpen(true);
+      } else {
+        console.error('Error sending OTP:', data.message);
+        alert('Failed to send OTP. Please try again later.');
+      }
+    } catch (error) {
+      console.error('There was an error:', error);
+      alert('Failed to send OTP. Please try again later.');
+    }
   };
 
   const closeOtpDialog = () => {
@@ -98,9 +121,34 @@ const ProfilePage = () => {
   };
 
   const verifyOtp = async () => {
-    // Call API to verify OTP
-    // If successful, close the dialog and mark the mobile number as verified
-    // If not, set an error
+    const baseUrl = process.env.REACT_APP_BACKEND_URL;
+    const endpoint = `${baseUrl}/api/verify-otp`;
+  
+    try {
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId,
+          otpCode: otp, 
+        }),
+      });
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        // Handle successful OTP verification, like updating the UI to show the mobile number as verified
+        setOtpDialogOpen(false);
+      } else {
+        // Handle failed OTP verification by setting an error message
+        setOtpError(data.message);
+      }
+    } catch (error) {
+      console.error('Error verifying OTP:', error);
+      setOtpError('Failed to verify OTP. Please try again later.');
+    }
   };
 
   // State for Change Password Dialog
