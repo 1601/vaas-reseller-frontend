@@ -138,6 +138,36 @@ const ProfilePage = () => {
     setFormState((prevState) => ({ ...prevState, [name]: value }));
   };
 
+  const sendVerificationEmailAndNavigate = async () => {
+    const baseUrl = process.env.REACT_APP_BACKEND_URL;
+
+    try {
+      const response = await fetch(`${baseUrl}/api/send-verification-email`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: userData.email,
+          firstName: userData.firstName,
+          lastName: userData.lastName,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        navigate('/verify', { state: { email: userData.email } });
+      } else {
+        console.error('Error sending verification email:', data.message);
+        alert('Failed to send verification email. Please try again later.');
+      }
+    } catch (error) {
+      console.error('There was an error:', error);
+      alert('Failed to send verification email. Please try again later.');
+    }
+  };
+
   if (!userData || !storeData) {
     return <Typography>Loading...</Typography>;
   }
@@ -323,11 +353,19 @@ const ProfilePage = () => {
                         <Typography>Username: {userData.username}</Typography>
                         <Typography>
                           Email: {userData.email}{' '}
-                          {userData.isActive ? '' : <span style={{ color: 'red' }}>(Unverified)</span>}
+                          {userData.isActive ? (
+                            <span style={{ color: 'green' }}>(Verified)</span>
+                          ) : (
+                            <span style={{ color: 'red' }}>(Unverified)</span>
+                          )}
                         </Typography>
                         <Typography>
                           Mobile Number: {userData.mobileNumber}{' '}
-                          {userData.mobileNumberVerified ? '' : <span style={{ color: 'red' }}>(Unverified)</span>}
+                          {userData.mobileNumberVerified ? (
+                            <span style={{ color: 'green' }}>(Verified)</span>
+                          ) : (
+                            <span style={{ color: 'red' }}>(Unverified)</span>
+                          )}
                         </Typography>
                       </>
                     )}
@@ -337,12 +375,8 @@ const ProfilePage = () => {
                       Verify Mobile Number
                     </Button>
                   )}
-                  {!editMode && userData.isActive && (
-                    <Button
-                      variant="outlined"
-                      className="mt-2"
-                      onClick={() => navigate('/verify', { state: { email: userData.email } })}
-                    >
+                  {!editMode && !userData.isActive && (
+                    <Button variant="outlined" className="mt-2" onClick={sendVerificationEmailAndNavigate}>
                       Verify Email
                     </Button>
                   )}
