@@ -13,10 +13,12 @@ import {
   CardContent,
   TextField,
   Button,
+  InputAdornment,
 } from '@mui/material';
 import UserDataFetch from '../components/user-account/UserDataFetch';
 import StoreDataFetch from '../components/user-account/StoreDataFetch';
 import { countries } from '../components/country/CountriesList';
+import { countryCodes } from '../components/country/countryNumCodes';
 
 const ProfilePage = () => {
   const userId = JSON.parse(localStorage.getItem('user'))._id;
@@ -57,6 +59,7 @@ const ProfilePage = () => {
       middleName: userData?.middleName || '',
       designation: userData?.designation || '',
       country: userData?.country || '',
+      mobileNumber: userData?.mobileNumber || '',
       username: userData?.username || '',
     });
     setEditMode(true);
@@ -101,7 +104,7 @@ const ProfilePage = () => {
   const handleInputChange = (event) => {
     const { name, value } = event.target;
     setFormState((prevState) => ({ ...prevState, [name]: value }));
-  };
+};
 
   if (!userData || !storeData) {
     return <Typography>Loading...</Typography>;
@@ -143,7 +146,7 @@ const ProfilePage = () => {
           </div>
           <Grid container spacing={4}>
             {/* Personal Information */}
-            <Grid item xs={12} md={6}>
+            <Grid item xs={12}>
               <Card style={{ borderColor: 'purple', borderWidth: '2px' }}>
                 <CardContent>
                   <Typography variant="h6">Personal Information</Typography>
@@ -235,7 +238,7 @@ const ProfilePage = () => {
             </Grid>
 
             {/* Credentials */}
-            <Grid item xs={12} md={6}>
+            <Grid item xs={12}>
               <Card style={{ borderColor: 'purple', borderWidth: '2px' }}>
                 <CardContent>
                   <Typography variant="h6">Credentials</Typography>
@@ -259,21 +262,59 @@ const ProfilePage = () => {
                           disabled
                           sx={{ mb: 2 }}
                         />
-                        {/* TODO: Add password change fields here */}
+                        <TextField
+                          error={!!validationErrors.mobileNumber}
+                          fullWidth
+                          label="Mobile Number"
+                          variant="outlined"
+                          name="mobileNumber"
+                          value={formState.mobileNumber?.replace(countryCodes[formState.country] || '', '')}
+                          onChange={handleInputChange}
+                          sx={{ mb: 2 }}
+                          disabled={!formState.country}
+                          InputProps={{
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                {formState.country && countryCodes[formState.country]
+                                  ? `${countryCodes[formState.country]} |`
+                                  : ''}
+                              </InputAdornment>
+                            ),
+                          }}
+                          InputLabelProps={{
+                            shrink: !!formState.mobileNumber || !!formState.country,
+                          }}
+                        />
                       </>
                     ) : (
                       <>
                         <Typography>Username: {userData.username}</Typography>
-                        <Typography>Email: {userData.email}</Typography>
-                        <Typography>Mobile Number: {userData.mobileNumber}</Typography>
+                        <Typography>
+                          Email: {userData.email}{' '}
+                          {userData.isActive ? '' : <span style={{ color: 'red' }}>(Unverified)</span>}
+                        </Typography>
+                        <Typography>
+                          Mobile Number: {userData.mobileNumber}{' '}
+                          {userData.mobileNumberVerified ? '' : <span style={{ color: 'red' }}>(Unverified)</span>}
+                        </Typography>
                       </>
                     )}
                   </Card>
+                  {!userData.mobileNumberVerified && (
+                    <Button variant="outlined" className="mt-2 mr-2">
+                      Verify Mobile Number
+                    </Button>
+                  )}
+                  {!userData.isActive && (
+                    <Button variant="outlined" className="mt-2">
+                      Verify Email
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
             </Grid>
             {/* Store Details */}
-            <Grid item xs={12} md={6}>
+            <Grid item xs={12}>
               <Card style={{ borderColor: 'purple', borderWidth: '2px' }}>
                 <CardContent>
                   <Typography variant="h6">Account Status and Balances</Typography>
