@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   FormControl,
   InputLabel,
@@ -24,6 +25,7 @@ import ValidatedTextField from '../components/validation/ValidatedTextField';
 import { validateName, validateEmail, validateMobileNumber } from '../components/validation/validationUtils';
 
 const ProfilePage = () => {
+  const navigate = useNavigate();
   const userId = JSON.parse(localStorage.getItem('user'))._id;
   const userData = UserDataFetch(userId);
   const { storeData, error } = StoreDataFetch(userId);
@@ -335,8 +337,12 @@ const ProfilePage = () => {
                       Verify Mobile Number
                     </Button>
                   )}
-                  {!editMode && !userData.isActive && (
-                    <Button variant="outlined" className="mt-2">
+                  {!editMode && userData.isActive && (
+                    <Button
+                      variant="outlined"
+                      className="mt-2"
+                      onClick={() => navigate('/verify', { state: { email: userData.email } })}
+                    >
                       Verify Email
                     </Button>
                   )}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { Helmet } from 'react-helmet-async';
 import { styled } from '@mui/material/styles';
@@ -36,7 +36,6 @@ const StyledContent = styled('div')(({ theme }) => ({
 
 export default function VerifyInLoginPage() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
@@ -47,6 +46,15 @@ export default function VerifyInLoginPage() {
   const [codeError, setCodeError] = useState(false);
   const [emailErrorMsg, setEmailErrorMsg] = useState('');
   const [codeErrorMsg, setCodeErrorMsg] = useState('');
+  const location = useLocation();
+  const userEmail = location.state?.email || '';
+  const [email, setEmail] = useState('');
+
+  useEffect(() => {
+    if (location.state?.email) {
+      setEmail(location.state.email);
+    }
+  }, [location.state]);
 
   useEffect(() => {
     const timer = countdown > 0 && setInterval(() => setCountdown(countdown - 1), 1000);
@@ -101,11 +109,11 @@ export default function VerifyInLoginPage() {
           email,
         });
 
-        setSuccessMessage('Successful Verification. Proceeding to login page...');
+        setSuccessMessage('Successful Verification. Proceeding to profile page...');
         setTimeout(() => {
           setFieldError('');
           setErrorMessage('');
-          navigate('/login');
+          navigate('/dashboard/profile');
         }, 3000);
       } else {
         setErrorMessage('Invalid email or verification code.');
@@ -113,7 +121,7 @@ export default function VerifyInLoginPage() {
     } catch (error) {
       console.error('Verification error:', error);
       if (error.response && error.response.status === 400) {
-        setErrorMessage('Invalid email or verification code.');
+        setCodeErrorMsg('Invalid email or verification code.');
       } else {
         setErrorMessage('An error occurred during verification.');
       }
@@ -160,16 +168,12 @@ export default function VerifyInLoginPage() {
               value={code}
               onChange={(e) => {
                 setCode(e.target.value);
-                setCodeErrorMsg(e.target.value.trim() ? '' : 'Verification code is required'); // Clear or set error message
+                setCodeErrorMsg(e.target.value.trim() ? '' : 'Verification code is required');
               }}
               sx={{ mb: 3 }}
               error={!!codeErrorMsg}
+              helperText={codeErrorMsg}
             />
-            {fieldError && (
-              <Typography variant="body2" color="error" sx={{ mb: 5 }}>
-                {fieldError}
-              </Typography>
-            )}
             {errorMessage && (
               <Typography variant="body2" color="error" sx={{ mb: 5 }}>
                 {errorMessage}
@@ -195,17 +199,20 @@ export default function VerifyInLoginPage() {
             <Divider sx={{ my: 3 }} />
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <div>
-                <Typography variant="body2">Already verified?</Typography>
-                <Stack direction="row" spacing={2}>
-                  <Typography variant="subtitle2" onClick={() => navigate('/login')} sx={{ cursor: 'pointer' }}>
-                    Login
-                  </Typography>
-                </Stack>
-              </div>
               <div style={{ textAlign: 'right' }}>
                 {allowResend ? (
-                  <Typography variant="body2" style={{ fontWeight: 'bold' }} onClick={resendCode}>
+                  <Typography
+                    variant="body2"
+                    style={{
+                      fontWeight: 'bold',
+                      cursor: 'pointer',
+                      transition: 'color 0.3s',
+                      '&:hover': {
+                        color: '#3f51b5',
+                      },
+                    }}
+                    onClick={resendCode}
+                  >
                     Resend Verification Code
                   </Typography>
                 ) : (
@@ -219,18 +226,6 @@ export default function VerifyInLoginPage() {
           </StyledContent>
         </Container>
       </StyledRoot>
-      {/* Dialog for field errors */}
-      <Dialog open={Boolean(fieldError)} onClose={handleCloseDialog}>
-        <DialogTitle>Error</DialogTitle>
-        <DialogContent>
-          <DialogContentText>{fieldError}</DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDialog} color="primary">
-            Close
-          </Button>
-        </DialogActions>
-      </Dialog>
 
       {/* Dialog for backend errors */}
       <Dialog open={Boolean(errorMessage)} onClose={handleCloseDialog}>
