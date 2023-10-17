@@ -332,12 +332,33 @@ export default function SignUpPage() {
           mobileNumber: countryCodes[formData.country] + formData.mobileNumber,
         };
 
-        const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/signup`, submissionData);
-        setErrorMessage('');
-        setShowSuccessMessage(true);
-        setTimeout(() => {
-          setSuccesSignup(true);
-        }, 3000);
+        const signupResponse = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/signup`, submissionData);
+
+        if (signupResponse.status === 200) {
+          // If signup is successful, send the verification email
+          try {
+            const verificationResponse = await axios.post(
+              `${process.env.REACT_APP_BACKEND_URL}/api/send-verification-email`,
+              {
+                email: formData.email,
+                firstName: formData.firstName,
+                lastName: formData.lastName,
+              }
+            );
+
+            if (verificationResponse.status === 200) {
+              setErrorMessage('');
+              setShowSuccessMessage(true);
+              setTimeout(() => {
+                setSuccesSignup(true);
+              }, 3000);
+            }
+          } catch (error) {
+            console.error('Error while sending verification email:', error);
+            setErrorMessage('Failed to send verification email.');
+            setErrorDialogOpen(true);
+          }
+        }
       } catch (error) {
         if (error.response && error.response.data) {
           setErrorMessage(error.response.data.message);
