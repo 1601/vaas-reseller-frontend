@@ -32,6 +32,7 @@ import WalletAndPayout from './pages/WalletAndPayout';
 import ProfilePage from './pages/DealerPages/ProfilePage';
 import VerifyInLoginPage from './pages/AuthPages/VerifyInLoginPage';
 import ProfileSettings from './pages/DealerPages/ProfileSettings';
+import FAQs from './pages/OtherPages/FAQs';
 
 // ----------------------------------------------------------------------
 
@@ -163,7 +164,7 @@ export default function Router() {
           children: [
             { path: '/dashboard/settings', element: <Navigate to="profile" replace />, index: true },
             { path: 'profile', element: <ProfileSettings /> },
-            { path: 'faq', element: <ProfileSettings /> },
+            { path: 'faq', element: <FAQs /> },
             { path: 'support', element: <ProfileSettings /> },
           ],
         },
