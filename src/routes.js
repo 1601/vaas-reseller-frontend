@@ -31,6 +31,7 @@ import SurveyPrivacyPolicy from './pages/OtherPages/SurveyPrivacyPolicy';
 import WalletAndPayout from './pages/WalletAndPayout';
 import ProfilePage from './pages/DealerPages/ProfilePage';
 import VerifyInLoginPage from './pages/AuthPages/VerifyInLoginPage';
+import ProfileSettings from './pages/DealerPages/ProfileSettings';
 
 // ----------------------------------------------------------------------
 
@@ -157,7 +158,15 @@ export default function Router() {
         { path: 'reports', element: <UserPage /> },
         { path: 'kyc', element: <KYC /> },
         { path: 'securitylogs', element: <UserPage /> },
-        { path: 'settings', element: <UserPage /> },
+        {
+          path: 'settings',
+          children: [
+            { path: '/dashboard/settings', element: <Navigate to="profile" replace />, index: true },
+            { path: 'profile', element: <ProfileSettings /> },
+            { path: 'faq', element: <ProfileSettings /> },
+            { path: 'support', element: <ProfileSettings /> },
+          ],
+        },
       ],
     },
     {
