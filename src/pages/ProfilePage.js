@@ -43,6 +43,7 @@ const ProfilePage = () => {
   const [otp, setOtp] = useState('');
   const [otpError, setOtpError] = useState('');
   const [resendOtpCooldown, setResendOtpCooldown] = useState(0);
+  const [originalMobileNumber, setOriginalMobileNumber] = useState('');
 
   const kycStatuses = ['Unsubmitted Documents', 'Pending Approval', 'Approved', 'Rejected'];
 
@@ -274,6 +275,7 @@ const ProfilePage = () => {
   const handleEditClick = () => {
     const countryCode = countryCodes[userData?.country];
     const strippedMobileNumber = userData?.mobileNumber?.replace(countryCode, '') || '';
+    setOriginalMobileNumber(userData.mobileNumber || '');
 
     setFormState({
       firstName: userData?.firstName || '',
@@ -291,6 +293,11 @@ const ProfilePage = () => {
     const baseUrl = process.env.REACT_APP_BACKEND_URL;
     const fullMobileNumber = countryCodes[formState.country] + formState.mobileNumber;
 
+    let mobileNumberChanged = false;
+    if (originalMobileNumber !== fullMobileNumber) {
+        mobileNumberChanged = true;
+    }
+    
     if (!validateForm()) {
       return;
     }
