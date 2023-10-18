@@ -914,7 +914,7 @@ export default function SignUpPage() {
               </Typography>
             </StyledContent>
           )}
-        </Container>
+        </Container> 
       </StyledRoot>
     </>
   );
