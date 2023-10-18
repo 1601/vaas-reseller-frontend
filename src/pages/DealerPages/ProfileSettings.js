@@ -264,13 +264,21 @@ const ProfileSettings = () => {
 
   const handleMobileNumberChange = (event) => {
     const { value } = event.target;
+
+    if (!formState.country) {
+        setValidationErrors((prevErrors) => ({ ...prevErrors, mobileNumber: 'Country is required to validate mobile number.' }));
+        handleInputChange(event);
+        return;
+    }
+
     const strippedNumber = value?.replace(countryCodes[formState.country] || '', '');
 
     const validationError = validateMobileNumber(formState.country, strippedNumber, countryCodes, mobileNumberLengths);
     setValidationErrors((prevErrors) => ({ ...prevErrors, mobileNumber: validationError }));
 
     handleInputChange(event);
-  };
+};
+
 
   const handleEditClick = () => {
     const countryCode = countryCodes[userData?.country];
