@@ -36,6 +36,20 @@ const navConfigBottom = [
     title: 'settings',
     path: '/dashboard/settings',
     icon: icon('ic_settings'),
+    children: [
+      {
+        title: 'My Profile',
+        path: '/dashboard/settings/profile',
+      },
+      {
+        title: 'Frequently Asked Questions',
+        path: '/dashboard/settings/faq',
+      },
+      {
+        title: 'Support',
+        path: '/dashboard/settings/support',
+      },
+    ]
   },
 ];
 
