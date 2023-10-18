@@ -29,7 +29,7 @@ import DataPrivacyPolicy from './pages/OtherPages/DataPrivacyPolicy';
 import CookiePolicy from './pages/OtherPages/CookiePolicy';
 import SurveyPrivacyPolicy from './pages/OtherPages/SurveyPrivacyPolicy';
 import WalletAndPayout from './pages/WalletAndPayout';
-import ProfilePage from './pages/ProfilePage';
+import ProfilePage from './pages/DealerPages/ProfilePage';
 import VerifyInLoginPage from './pages/AuthPages/VerifyInLoginPage';
 
 // ----------------------------------------------------------------------
@@ -62,10 +62,10 @@ export default function Router() {
       '/gift',
       '/topup',
       '/transactions',
-      '/404'
-    ];    
+      '/404',
+    ];
 
-    if (noRedirectPaths.some(path => currentPath.includes(path))) {
+    if (noRedirectPaths.some((path) => currentPath.includes(path))) {
       return;
     }
 
@@ -81,8 +81,8 @@ export default function Router() {
       }
 
       fetch(`${process.env.REACT_APP_BACKEND_URL}/api/stores/url/${storeUrl}`)
-        .then(response => response.json())
-        .then(data => {
+        .then((response) => response.json())
+        .then((data) => {
           if (data.isLive === false) {
             console.log('Store is not live.');
             return;
@@ -92,8 +92,7 @@ export default function Router() {
           } else if (currentHostname.includes('sevenstarjasem.com')) {
             window.location.href = `https://${storeUrl}.sevenstarjasem.com`;
           }
-
-        })
+        });
     }
   }, []);
 
@@ -110,11 +109,15 @@ export default function Router() {
     },
     {
       path: '/dashboard',
-      element: isLoggedIn
-        ? (role === 'admin'
-          ? <Navigate to="/dashboard/admin" replace />
-          : <DashboardLayout />)
-        : <Navigate to="/login" />,
+      element: isLoggedIn ? (
+        role === 'admin' ? (
+          <Navigate to="/dashboard/admin" replace />
+        ) : (
+          <DashboardLayout />
+        )
+      ) : (
+        <Navigate to="/login" />
+      ),
       children: [
         { element: <Navigate to="/dashboard/app" />, index: true }, // This is the index route for the dashboard
         { path: 'app', element: <DashboardAppPage /> },
@@ -125,23 +128,30 @@ export default function Router() {
             { path: '/dashboard/products', element: <Navigate to="bills-payment" replace />, index: true },
             { path: 'bills-payment', element: <ProductsPage /> },
             { path: 'top-up', element: <ProductsPage /> },
-            { path: 'e-gifts', element: <ProductsPage /> }
-          ]
+            { path: 'e-gifts', element: <ProductsPage /> },
+          ],
         },
         { path: 'blog', element: <BlogPage /> },
-        { path: 'store', element: <StorePageEdit /> },
+        {
+          path: 'store',
+          children: [
+            { path: '/dashboard/store', element: <Navigate to="storefront" replace />, index: true },
+            { path: 'storefront', element: <StorePageEdit /> },
+            { path: 'resellers', element: <StorePageEdit /> },
+          ],
+        },
         { path: 'customer', element: <UserPage /> },
         { path: 'developer', element: <UserPage /> },
         {
           path: 'sales',
           children: [
-              { path: '/dashboard/sales', element: <Navigate to="transactions" replace />, index: true },
-              { path: 'transactions', element: <ProductsPage /> },
-              { path: 'my-wallet', element: <ProductsPage /> },
-              { path: 'reports', element: <ProductsPage /> },
-              { path: 'point-of-sale', element: <ProductsPage /> },
-          ]
-      },
+            { path: '/dashboard/sales', element: <Navigate to="transactions" replace />, index: true },
+            { path: 'transactions', element: <ProductsPage /> },
+            { path: 'my-wallet', element: <ProductsPage /> },
+            { path: 'reports', element: <ProductsPage /> },
+            { path: 'point-of-sale', element: <ProductsPage /> },
+          ],
+        },
         { path: 'wallet', element: <WalletAndPayout /> },
         { path: 'profile', element: <ProfilePage /> },
         { path: 'reports', element: <UserPage /> },
@@ -159,8 +169,8 @@ export default function Router() {
         { path: 'storeapproval', element: <AdminStores /> },
         { path: 'approve/:storeId', element: <AdminApproval /> },
         { path: 'kycapproval', element: <AdminKYC /> },
-        { path: 'kycapprove/:storeId', element: <AdminKYCApproval /> }
-      ]
+        { path: 'kycapprove/:storeId', element: <AdminKYCApproval /> },
+      ],
     },
     {
       path: 'login',
@@ -172,11 +182,11 @@ export default function Router() {
     },
     {
       path: 'forgotpassword',
-      element: <ForgotPasswordPage />
+      element: <ForgotPasswordPage />,
     },
     {
       path: 'reset-password',
-      element: !isLoggedIn ? <ResetPasswordPage /> : <Navigate to="/dashboard/app" />
+      element: !isLoggedIn ? <ResetPasswordPage /> : <Navigate to="/dashboard/app" />,
     },
     {
       path: 'verify',
@@ -189,7 +199,7 @@ export default function Router() {
     {
       path: 'terms-and-conditions',
       element: <TermsAndConditions />,
-    },   
+    },
     {
       path: 'data-privacy-policy',
       element: <DataPrivacyPolicy />,
@@ -201,7 +211,7 @@ export default function Router() {
     {
       path: 'survey-privacy-policy',
       element: <SurveyPrivacyPolicy />,
-    }, 
+    },
     {
       path: ':storeUrl',
       element: <LiveStorePage />,
