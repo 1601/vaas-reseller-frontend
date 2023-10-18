@@ -5,34 +5,37 @@ import { Helmet } from 'react-helmet-async';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
 import {
-  Link,
-  Container,
-  Typography,
-  Divider,
   Button,
-  TextField,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  FormControl,
-  FormHelperText,
-  FormControlLabel,
-  InputLabel,
-  Select,
-  MenuItem,
-  DialogContentText,
-  DialogActions,
-  Card, CardMedia, Grid, Paper,
-  CardHeader,
+  Card,
   CardContent,
+  CardHeader,
+  CardMedia,
   Checkbox,
+  Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Divider,
+  FormControl,
+  FormControlLabel,
+  FormHelperText,
+  Grid,
+  InputLabel,
+  Link,
+  MenuItem,
+  Paper,
+  Select,
+  TextField,
+  Typography,
 } from '@mui/material';
 import InputAdornment from '@mui/material/InputAdornment';
 import IconButton from '@mui/material/IconButton';
 import Autocomplete from '@mui/lab/Autocomplete';
-import Slider from "react-slick";
-import "slick-carousel/slick/slick.css"; 
-import "slick-carousel/slick/slick-theme.css";
+import Slider from 'react-slick';
+import 'slick-carousel/slick/slick.css';
+import 'slick-carousel/slick/slick-theme.css';
 import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 import { Icon as Iconify } from '@iconify/react';
 import { allBanner } from '../../api/public/banner';
@@ -111,11 +114,7 @@ function TermsDialog({ open, onClose, onAgree }) {
 const Slide = ({ image, alt }) => {
   return (
     <StyledCard>
-      <StyledCardMedia
-        component="img"
-        alt={alt}
-        image={image}
-      />
+      <StyledCardMedia component="img" alt={alt} image={image} />
     </StyledCard>
   );
 };
@@ -153,7 +152,7 @@ export default function SignUpPage() {
   const [isTermsDialogOpen, setIsTermsDialogOpen] = useState(false);
   const [isScrolledToEnd, setIsScrolledToEnd] = useState(false);
   const [mobileError, setMobileError] = useState(false);
-  const [banners, setBanners] = useState()
+  const [banners, setBanners] = useState();
 
   const handleScroll = (e) => {
     const bottom = e.target.scrollHeight - e.target.scrollTop === e.target.clientHeight;
@@ -169,6 +168,17 @@ export default function SignUpPage() {
     mobileNumber: false,
     country: false,
     ipAddress: false,
+    username: false,
+    password: false,
+    confirmPassword: false,
+  });
+
+  const [dirtyFields, setDirtyFields] = useState({
+    firstName: false,
+    middleName: false,
+    lastName: false,
+    email: false,
+    mobileNumber: false,
     username: false,
     password: false,
     confirmPassword: false,
@@ -479,15 +489,15 @@ export default function SignUpPage() {
       }
     };
 
-    const fetchAllBanner = async() =>{
-      try{
+    const fetchAllBanner = async () => {
+      try {
         const banners = await allBanner();
 
-        setBanners(banners.data.body)
-      }catch(error){
-        console.log(error)
+        setBanners(banners.data.body);
+      } catch (error) {
+        console.log(error);
       }
-    }
+    };
 
     fetchIPAddress();
     fetchAllBanner();
@@ -502,8 +512,8 @@ export default function SignUpPage() {
     prevArrow: <ChevronLeft />,
     autoplay: true,
     autoplaySpeed: 2000,
-    speed: 2000
-  }
+    speed: 2000,
+  };
   // useEffect(() => {
   //   if (showSuccessMessage) {
   //     const redirectTimer = setTimeout(() => {
@@ -520,22 +530,16 @@ export default function SignUpPage() {
         <title> Sign Up | Your App </title>
       </Helmet>
       <StyledRoot>
-        <Container maxWidth="sm" sx={{ backgroundColor: '#fff' }}>
-          <Logo sx={{ alignSelf: 'center' }} />
+        <Container maxWidth="sm" sx={{ backgroundColor: '#fff', p: { xs: 2, sm: 3, md: 4 } }}>
+          <Logo sx={{ alignSelf: 'center', width: ['80%', null, '100%'], mx: 'auto', display: 'block' }} />
           {succesSignup === true ? (
             <VerifyPage email={formData.email} firstName={formData.firstName} lastName={formData.lastName} />
           ) : (
             <StyledContent>
-              <Paper>
-                <Slider {...settings}>
-                 { banners && (banners.map((data, index) =>(
-                    <Slide image={data.url} />
-                    )))
-                  }
-                </Slider>
+              <Paper sx={{ borderRadius: 2 }}>
+                <Slider {...settings}>{banners && banners.map((data, index) => <Slide image={data.url} />)}</Slider>
               </Paper>
-              <br/>
-              <Typography variant="h4" gutterBottom>
+              <Typography variant="h4" gutterBottom sx={{ fontSize: { xs: '1.6rem', md: '2rem' }, mt: 2 }}>
                 Sign Up
               </Typography>
               <Typography variant="body2" sx={{ mb: 5 }}>
@@ -555,12 +559,20 @@ export default function SignUpPage() {
                     name="firstName"
                     value={formData.firstName}
                     onChange={handleInputChange}
+                    onFocus={() => setDirtyFields((prev) => ({ ...prev, firstName: true }))}
+                    onBlur={() => {
+                      if (dirtyFields.firstName && !formData.firstName.trim()) {
+                        setFieldErrors((prevErrors) => ({ ...prevErrors, firstName: true }));
+                      }
+                    }}
                     sx={{ mb: 3 }}
                     helperText={
                       fieldErrors.firstName
                         ? formData.firstName.trim()
                           ? 'First Name contains invalid characters'
-                          : 'First Name is required'
+                          : dirtyFields.firstName
+                          ? 'First Name is required'
+                          : ''
                         : ''
                     }
                   />
@@ -587,6 +599,12 @@ export default function SignUpPage() {
                     name="lastName"
                     value={formData.lastName}
                     onChange={handleInputChange}
+                    onFocus={() => setDirtyFields((prev) => ({ ...prev, lastName: true }))}
+                    onBlur={() => {
+                      if (dirtyFields.lastName && !formData.lastName.trim()) {
+                        setFieldErrors((prevErrors) => ({ ...prevErrors, lastName: true }));
+                      }
+                    }}
                     sx={{ mb: 3 }}
                     helperText={
                       fieldErrors.lastName
@@ -647,8 +665,22 @@ export default function SignUpPage() {
                     name="email"
                     value={email}
                     onChange={handleEmailChange}
+                    onFocus={() => setDirtyFields((prev) => ({ ...prev, email: true }))}
+                    onBlur={() => {
+                      if (dirtyFields.email && !email.trim()) {
+                        setFieldErrors((prevErrors) => ({ ...prevErrors, email: true }));
+                      }
+                    }}
                     sx={{ mb: 3 }}
-                    helperText={emailErrorMessage}
+                    helperText={
+                      fieldErrors.email
+                        ? email.trim()
+                          ? emailErrorMessage
+                          : dirtyFields.email
+                          ? 'Email is required'
+                          : ''
+                        : ''
+                    }
                   />
                   <TextField
                     error={fieldErrors.mobileNumber || mobileError}
@@ -691,8 +723,22 @@ export default function SignUpPage() {
                     name="username"
                     value={formData.username}
                     onChange={handleInputChange}
+                    onFocus={() => setDirtyFields((prev) => ({ ...prev, username: true }))}
+                    onBlur={() => {
+                      if (dirtyFields.username && !formData.username.trim()) {
+                        setFieldErrors((prevErrors) => ({ ...prevErrors, username: true }));
+                      }
+                    }}
                     sx={{ mb: 3 }}
-                    helperText={fieldErrors.username && 'Username is required'}
+                    helperText={
+                      fieldErrors.username
+                        ? formData.username.trim()
+                          ? 'Username contains invalid characters'
+                          : dirtyFields.username
+                          ? 'Username is required'
+                          : ''
+                        : ''
+                    }
                   />
                   <TextField
                     error={fieldErrors.password || passwordError}
@@ -807,6 +853,7 @@ export default function SignUpPage() {
                 variant="outlined"
                 onClick={handleSignup}
                 disabled={!isFormValid || !isTermsAccepted}
+                sx={{ py: [1.5, 1] }}
               >
                 Sign Up
               </Button>
@@ -859,7 +906,7 @@ export default function SignUpPage() {
                 </DialogActions>
               </Dialog>
               <Divider sx={{ my: 3 }} />
-              <Typography variant="body2" sx={{ mb: 5 }}>
+              <Typography variant="body2" sx={{ mb: 5, mt: 3 }}>
                 Already have an account?
                 <Link variant="subtitle2" onClick={() => navigate('/login')} sx={{ cursor: 'pointer', ml: 1 }}>
                   Login
