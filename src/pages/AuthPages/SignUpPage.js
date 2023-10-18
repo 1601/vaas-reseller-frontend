@@ -824,6 +824,7 @@ export default function SignUpPage() {
                 variant="outlined"
                 startIcon={<Iconify icon="eva:google-fill" color="#DF3E30" width={22} height={22} />}
                 onClick={handleGoogleSignUp}
+                disabled={!isTermsAccepted}
                 sx={{ mb: 1 }}
               >
                 Sign Up with Google
@@ -835,6 +836,7 @@ export default function SignUpPage() {
                 color="inherit"
                 variant="outlined"
                 startIcon={<Iconify icon="eva:facebook-fill" color="#1877F2" width={22} height={22} />}
+                disabled={!isTermsAccepted}
                 onClick={handleFacebookSignUp}
               >
                 Sign Up with Facebook
