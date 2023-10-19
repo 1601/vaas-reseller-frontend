@@ -22,6 +22,8 @@ import {
   DialogTitle,
   InputAdornment,
   Autocomplete,
+  Menu,
+  MenuItem,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -83,6 +85,31 @@ const ManageReseller = () => {
   const [disabledCount, setDisabledCount] = useState(0);
   const [deactivatedCount, setDeactivatedCount] = useState(0);
   const [currentTab, setCurrentTab] = useState('All');
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [editingResellerId, setEditingResellerId] = useState(null);
+
+  const handleStatusClick = (event, resellerId) => {
+    setAnchorEl(event.currentTarget);
+    setEditingResellerId(resellerId);
+  };
+
+  const handleCloseStatusMenu = () => {
+    setAnchorEl(null);
+    setEditingResellerId(null);
+  };
+
+  const handleStatusChange = async (newStatus) => {
+    try {
+      await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/users/${userId}/resellers/${editingResellerId}`, {
+        status: newStatus,
+      });
+      const updatedResellers = await fetchResellersForUser(userId);
+      setResellers(updatedResellers);
+    } catch (error) {
+      console.error('Error updating reseller status:', error);
+    }
+    handleCloseStatusMenu();
+  };
 
   const handleOpen = () => {
     setOpen(true);
@@ -94,7 +121,7 @@ const ManageReseller = () => {
 
   const handleTabChange = (event, newValue) => {
     setCurrentTab(newValue);
-};
+  };
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -388,33 +415,45 @@ const ManageReseller = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-            {resellers.filter(reseller => currentTab === 'All' || reseller.status === currentTab).map(reseller => (
-                <TableRow key={reseller._id}>
-                  <TableCell padding="checkbox">
-                    <Checkbox />
-                  </TableCell>
-                  <TableCell>
-                    {reseller.firstName} {reseller.lastName}
-                  </TableCell>
-                  <TableCell>{reseller.mobileNumber}</TableCell>
-                  <TableCell>{reseller.companyName}</TableCell>
-                  <TableCell>
-                    <StatusLabel status={reseller.status} />
-                    <IconButton size="small" style={{ marginLeft: '8px' }}>
-                      <EditIcon fontSize="inherit" />
-                    </IconButton>
-                  </TableCell>
-                  <TableCell>
-                    <IconButton size="small">
-                      <MoreVertIcon fontSize="inherit" />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))}
+              {resellers
+                .filter((reseller) => currentTab === 'All' || reseller.status === currentTab)
+                .map((reseller) => (
+                  <TableRow key={reseller._id}>
+                    <TableCell padding="checkbox">
+                      <Checkbox />
+                    </TableCell>
+                    <TableCell>
+                      {reseller.firstName} {reseller.lastName}
+                    </TableCell>
+                    <TableCell>{reseller.mobileNumber}</TableCell>
+                    <TableCell>{reseller.companyName}</TableCell>
+                    <TableCell>
+                      <StatusLabel status={reseller.status} />
+                      <IconButton
+                        size="small"
+                        style={{ marginLeft: '8px' }}
+                        onClick={(e) => handleStatusClick(e, reseller._id)}
+                      >
+                        <EditIcon fontSize="inherit" />
+                      </IconButton>
+                    </TableCell>
+                    <TableCell>
+                      <IconButton size="small">
+                        <MoreVertIcon fontSize="inherit" />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
             </TableBody>
           </Table>
         </CardContent>
       </Card>
+
+      <Menu id="simple-menu" anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleCloseStatusMenu}>
+        <MenuItem onClick={() => handleStatusChange('Active')}>Active</MenuItem>
+        <MenuItem onClick={() => handleStatusChange('Disabled')}>Disabled</MenuItem>
+        <MenuItem onClick={() => handleStatusChange('Deactivated')}>Deactivated</MenuItem>
+      </Menu>
 
       {/* Modal/Dialog for adding a new reseller */}
       <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
