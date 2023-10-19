@@ -79,6 +79,10 @@ const ManageReseller = () => {
   };
   const [formState, setFormState] = useState(initialFormState);
   const [validationErrors, setValidationErrors] = useState({});
+  const [activeCount, setActiveCount] = useState(0);
+  const [disabledCount, setDisabledCount] = useState(0);
+  const [deactivatedCount, setDeactivatedCount] = useState(0);
+  const [currentTab, setCurrentTab] = useState('All');
 
   const handleOpen = () => {
     setOpen(true);
@@ -87,6 +91,10 @@ const ManageReseller = () => {
   const handleClose = () => {
     setOpen(false);
   };
+
+  const handleTabChange = (event, newValue) => {
+    setCurrentTab(newValue);
+};
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -264,6 +272,16 @@ const ManageReseller = () => {
     fetchData();
   }, [userId]);
 
+  useEffect(() => {
+    const activeResellers = resellers.filter((r) => r.status === 'Active');
+    const disabledResellers = resellers.filter((r) => r.status === 'Disabled');
+    const deactivatedResellers = resellers.filter((r) => r.status === 'Deactivated');
+
+    setActiveCount(activeResellers.length);
+    setDisabledCount(disabledResellers.length);
+    setDeactivatedCount(deactivatedResellers.length);
+  }, [resellers]);
+
   return (
     <div style={{ padding: '20px' }}>
       <Card>
@@ -275,11 +293,83 @@ const ManageReseller = () => {
             </Button>
           </Box>
 
-          <Tabs value={0} indicatorColor="primary" textColor="primary">
-            <Tab label="All" />
-            <Tab label="Active" />
-            <Tab label="Disabled" />
-            <Tab label="Deactivated" />
+          <Tabs value={currentTab} onChange={handleTabChange} indicatorColor="primary" textColor="primary">
+            <Tab
+              label={
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  All
+                  <span
+                    style={{
+                      color: 'white',
+                      backgroundColor: 'black',
+                      padding: '2px 5px',
+                      borderRadius: '3px',
+                      marginLeft: '5px',
+                    }}
+                  >
+                    {resellers.length}
+                  </span>
+                </div>
+              }
+              value="All"
+            />
+            <Tab
+              label={
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  Active
+                  <span
+                    style={{
+                      color: 'green',
+                      backgroundColor: '#e8f5e9',
+                      padding: '2px 5px',
+                      borderRadius: '3px',
+                      marginLeft: '5px',
+                    }}
+                  >
+                    {activeCount}
+                  </span>
+                </div>
+              }
+              value="Active"
+            />
+            <Tab
+              label={
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  Disabled
+                  <span
+                    style={{
+                      color: 'darkorange',
+                      backgroundColor: '#fff8e1',
+                      padding: '2px 5px',
+                      borderRadius: '3px',
+                      marginLeft: '5px',
+                    }}
+                  >
+                    {disabledCount}
+                  </span>
+                </div>
+              }
+              value="Disabled"
+            />
+            <Tab
+              label={
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  Deactivated
+                  <span
+                    style={{
+                      color: 'red',
+                      backgroundColor: '#ffebee',
+                      padding: '2px 5px',
+                      borderRadius: '3px',
+                      marginLeft: '5px',
+                    }}
+                  >
+                    {deactivatedCount}
+                  </span>
+                </div>
+              }
+              value="Deactivated"
+            />
           </Tabs>
 
           <TextField label="Search Roles" variant="outlined" fullWidth style={{ margin: '20px 0' }} />
@@ -298,7 +388,7 @@ const ManageReseller = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {resellers.map((reseller) => (
+            {resellers.filter(reseller => currentTab === 'All' || reseller.status === currentTab).map(reseller => (
                 <TableRow key={reseller._id}>
                   <TableCell padding="checkbox">
                     <Checkbox />
