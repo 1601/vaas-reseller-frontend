@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Button,
   Tabs,
@@ -15,24 +15,35 @@ import {
   CardContent,
   Typography,
   Box,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  InputAdornment,
+  Autocomplete,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import ValidatedManageReseller from '../../components/validation/ValidatedManageReseller';
+import { validateName, validateEmail, validateMobileNumber } from '../../components/validation/validationUtils';
+import { countryCodes } from '../../components/country/countryNumCodes';
+import { countries } from '../../components/country/CountriesList';
+import { mobileNumberLengths } from '../../components/country/countryNumLength';
 
 const StatusLabel = ({ status }) => {
   const colorMap = {
     Active: {
       text: 'green',
-      background: '#e8f5e9'
+      background: '#e8f5e9',
     },
     Disabled: {
       text: 'darkorange',
-      background: '#fff8e1'
+      background: '#fff8e1',
     },
     Deactivated: {
       text: 'red',
-      background: '#ffebee'
-    }
+      background: '#ffebee',
+    },
   };
 
   const colors = colorMap[status];
@@ -44,7 +55,7 @@ const StatusLabel = ({ status }) => {
         backgroundColor: colors.background,
         borderRadius: '8px',
         padding: '2px 8px',
-        color: colors.text
+        color: colors.text,
       }}
     >
       {status}
@@ -53,13 +64,177 @@ const StatusLabel = ({ status }) => {
 };
 
 const ManageReseller = () => {
+  const [open, setOpen] = useState(false);
+  const initialFormState = {
+    email: '',
+    firstName: '',
+    lastName: '',
+    country: '',
+    mobileNumber: '',
+    companyName: '',
+  };
+  const [formState, setFormState] = useState(initialFormState);
+  const [validationErrors, setValidationErrors] = useState({});
+
+  const handleOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
+    setFormState((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+    setTouchedFields((prevState) => ({
+      ...prevState,
+      [name]: true,
+    }));
+
+    validateField(name, value);
+  };
+
+  const [touchedFields, setTouchedFields] = useState({
+    email: false,
+    firstName: false,
+    lastName: false,
+    country: false,
+    mobileNumber: false,
+    companyName: false,
+  });
+
+  const handleBlur = (event) => {
+    const { name, value } = event.target;
+    setTouchedFields((prevState) => ({
+      ...prevState,
+      [name]: true,
+    }));
+    validateField(name, value);
+  };
+
+  const validateField = (name, value) => {
+    let error = '';
+    switch (name) {
+      case 'email': {
+        if (value === '' || !validateEmail(value)) {
+          error = value === '' ? 'Email is required' : 'Invalid Email';
+        }
+        break;
+      }
+      case 'firstName': {
+        if (value === '' || !validateName(value)) {
+          error = value === '' ? 'First Name is required' : 'Invalid First Name';
+        }
+        break;
+      }
+      case 'lastName': {
+        if (value === '' || !validateName(value)) {
+          error = value === '' ? 'Last Name is required' : 'Invalid Last Name';
+        }
+        break;
+      }
+      case 'country': {
+        if (value === '') {
+          error = 'Country is required';
+        }
+        break;
+      }
+      case 'mobileNumber': {
+        const mobileValidationError = validateMobileNumber(formState.country, value, countryCodes, mobileNumberLengths);
+        if (value === '' || mobileValidationError) {
+          error = value === '' ? 'Mobile Number is required' : mobileValidationError;
+        }
+        break;
+      }
+      case 'companyName': {
+        if (value === '') {
+          error = 'Company Name is required';
+        }
+        break;
+      }
+      default:
+        break;
+    }
+    setValidationErrors((prevErrors) => ({
+      ...prevErrors,
+      [name]: error,
+    }));
+  };
+
+  const validateForm = () => {
+    return Object.keys(validationErrors).every((key) => !validationErrors[key]);
+  };
+
+  const handleAddReseller = () => {
+    setTouchedFields({
+      email: true,
+      firstName: true,
+      lastName: true,
+      country: true,
+      mobileNumber: true,
+      companyName: true,
+    });
+
+    const tempValidationErrors = {};
+
+    Object.keys(formState).forEach((field) => {
+      const error = getValidationError(field, formState[field]);
+      if (error) {
+        tempValidationErrors[field] = error;
+      }
+    });
+
+    setValidationErrors(tempValidationErrors);
+
+    if (Object.keys(tempValidationErrors).length === 0) {
+      // Checking if there are no errors
+      console.log('Adding a new reseller with the following data:', formState);
+      setFormState(initialFormState);
+      handleClose();
+    }
+  };
+
+  const getValidationError = (name, value) => {
+    switch (name) {
+      case 'email': {
+        return value === '' ? 'Email is required' : validateEmail(value) ? '' : 'Invalid Email';
+      }
+      case 'firstName': {
+        return value === '' ? 'First Name is required' : validateName(value) ? '' : 'Invalid First Name';
+      }
+      case 'lastName': {
+        return value === '' ? 'Last Name is required' : validateName(value) ? '' : 'Invalid Last Name';
+      }
+      case 'country': {
+        return value === '' ? 'Country is required' : '';
+      }
+      case 'mobileNumber': {
+        const mobileValidationError = validateMobileNumber(formState.country, value, countryCodes, mobileNumberLengths);
+        return value === '' ? 'Mobile Number is required' : mobileValidationError;
+      }
+      case 'companyName': {
+        return value === '' ? 'Company Name is required' : '';
+      }
+      default:
+        return '';
+    }
+  };
+
   return (
     <div style={{ padding: '20px' }}>
       <Card>
         <CardContent>
           <Box display="flex" justifyContent="space-between" alignItems="center" marginBottom="20px">
             <Typography variant="h5">My Resellers</Typography>
-            <Button variant="contained" style={{ backgroundColor: '#000', color: '#fff' }}>
+            <Button
+              variant="contained"
+              style={{ backgroundColor: '#000', color: '#fff' }}
+              onClick={handleOpen} // Add this onClick to open the modal
+            >
               + Add Reseller
             </Button>
           </Box>
@@ -83,11 +258,10 @@ const ManageReseller = () => {
                 <TableCell>Phone Number</TableCell>
                 <TableCell>Company</TableCell>
                 <TableCell>Status</TableCell>
-                <TableCell /> {/* Corrected this line */}
+                <TableCell />
               </TableRow>
             </TableHead>
             <TableBody>
-              {/* This is just sample data for demonstration */}
               <TableRow>
                 <TableCell padding="checkbox">
                   <Checkbox />
@@ -107,11 +281,122 @@ const ManageReseller = () => {
                   </IconButton>
                 </TableCell>
               </TableRow>
-              {/* Repeat similar rows for other resellers */}
+              {/* ... Additional rows */}
             </TableBody>
           </Table>
         </CardContent>
       </Card>
+
+      {/* Modal/Dialog for adding a new reseller */}
+      <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
+        <DialogTitle id="form-dialog-title">Add Reseller</DialogTitle>
+        <DialogContent>
+          <ValidatedManageReseller
+            validationFunction={validateEmail}
+            label="Email"
+            name="email"
+            value={formState.email}
+            onChange={handleInputChange}
+            onBlur={handleBlur}
+            fullWidth
+            sx={{ mt: 2 }}
+            error={!!validationErrors.email}
+            helperText={validationErrors.email}
+          />
+          <ValidatedManageReseller
+            validationFunction={validateName}
+            label="First Name"
+            name="firstName"
+            value={formState.firstName}
+            onChange={handleInputChange}
+            onBlur={handleBlur}
+            fullWidth
+            sx={{ mt: 2 }}
+            error={!!validationErrors.firstName}
+            helperText={validationErrors.firstName}
+          />
+          <ValidatedManageReseller
+            validationFunction={validateName}
+            label="Last Name"
+            name="lastName"
+            value={formState.lastName}
+            onChange={handleInputChange}
+            onBlur={handleBlur}
+            fullWidth
+            sx={{ mt: 2, mb: 2 }}
+            error={!!validationErrors.lastName}
+            helperText={validationErrors.lastName}
+          />
+          <Autocomplete
+            fullWidth
+            options={countries}
+            getOptionLabel={(option) => option}
+            value={formState.country}
+            onChange={(event, newValue) => {
+              handleInputChange({
+                target: { name: 'country', value: newValue },
+              });
+            }}
+            onBlur={handleBlur}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Country"
+                variant="outlined"
+                sx={{ mb: 2 }}
+                error={!!validationErrors.country}
+                helperText={validationErrors.country}
+              />
+            )}
+          />
+          <ValidatedManageReseller
+            validationFunction={(value) =>
+              validateMobileNumber(formState.country, value, countryCodes, mobileNumberLengths) === ''
+            }
+            fullWidth
+            label="Mobile Number"
+            variant="outlined"
+            name="mobileNumber"
+            value={formState.mobileNumber}
+            onChange={handleInputChange}
+            onBlur={handleBlur}
+            sx={{ mb: 2 }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  {formState.country && countryCodes[formState.country] ? `${countryCodes[formState.country]} |` : ''}
+                </InputAdornment>
+              ),
+            }}
+            InputLabelProps={{
+              shrink: !!formState.mobileNumber || !!formState.country,
+            }}
+            error={!!validationErrors.mobileNumber}
+            helperText={validationErrors.mobileNumber}
+            disabled={!formState.country}
+          />
+          <TextField
+            fullWidth
+            variant="outlined"
+            label="Company Name"
+            name="companyName"
+            value={formState.companyName}
+            onChange={handleInputChange}
+            onBlur={handleBlur}
+            sx={{ mt: 2, mb: 2 }}
+            error={!!validationErrors.companyName}
+            helperText={validationErrors.companyName}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleAddReseller} color="primary">
+            Add
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };
