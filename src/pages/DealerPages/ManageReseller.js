@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import {
   Button,
@@ -25,6 +25,7 @@ import {
   Menu,
   MenuItem,
 } from '@mui/material';
+import { ArrowLeft, ArrowRight } from '@mui/icons-material';
 import EditIcon from '@mui/icons-material/Edit';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import ValidatedManageReseller from '../../components/validation/ValidatedManageReseller';
@@ -87,6 +88,7 @@ const ManageReseller = () => {
   const [currentTab, setCurrentTab] = useState('All');
   const [anchorEl, setAnchorEl] = useState(null);
   const [editingResellerId, setEditingResellerId] = useState(null);
+  const tabsRef = useRef(null);
 
   const handleStatusClick = (event, resellerId) => {
     setAnchorEl(event.currentTarget);
@@ -320,132 +322,137 @@ const ManageReseller = () => {
             </Button>
           </Box>
 
-          <Tabs value={currentTab} onChange={handleTabChange} indicatorColor="primary" textColor="primary">
-            <Tab
-              label={
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  All
-                  <span
-                    style={{
-                      color: 'white',
-                      backgroundColor: 'black',
-                      padding: '2px 5px',
-                      borderRadius: '3px',
-                      marginLeft: '5px',
-                    }}
-                  >
-                    {resellers.length}
-                  </span>
-                </div>
-              }
-              value="All"
-            />
-            <Tab
-              label={
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  Active
-                  <span
-                    style={{
-                      color: 'green',
-                      backgroundColor: '#e8f5e9',
-                      padding: '2px 5px',
-                      borderRadius: '3px',
-                      marginLeft: '5px',
-                    }}
-                  >
-                    {activeCount}
-                  </span>
-                </div>
-              }
-              value="Active"
-            />
-            <Tab
-              label={
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  Disabled
-                  <span
-                    style={{
-                      color: 'darkorange',
-                      backgroundColor: '#fff8e1',
-                      padding: '2px 5px',
-                      borderRadius: '3px',
-                      marginLeft: '5px',
-                    }}
-                  >
-                    {disabledCount}
-                  </span>
-                </div>
-              }
-              value="Disabled"
-            />
-            <Tab
-              label={
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  Deactivated
-                  <span
-                    style={{
-                      color: 'red',
-                      backgroundColor: '#ffebee',
-                      padding: '2px 5px',
-                      borderRadius: '3px',
-                      marginLeft: '5px',
-                    }}
-                  >
-                    {deactivatedCount}
-                  </span>
-                </div>
-              }
-              value="Deactivated"
-            />
-          </Tabs>
+          <div style={{ display: 'flex', alignItems: 'center', overflowX: 'auto' }}>
+            <div ref={tabsRef} style={{ flexGrow: 1 }}>
+              <Tabs value={currentTab} onChange={handleTabChange} indicatorColor="primary" textColor="primary">
+                <Tab
+                  label={
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                      All
+                      <span
+                        style={{
+                          color: 'white',
+                          backgroundColor: 'black',
+                          padding: '2px 5px',
+                          borderRadius: '3px',
+                          marginLeft: '5px',
+                        }}
+                      >
+                        {resellers.length}
+                      </span>
+                    </div>
+                  }
+                  value="All"
+                />
+                <Tab
+                  label={
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                      Active
+                      <span
+                        style={{
+                          color: 'green',
+                          backgroundColor: '#e8f5e9',
+                          padding: '2px 5px',
+                          borderRadius: '3px',
+                          marginLeft: '5px',
+                        }}
+                      >
+                        {activeCount}
+                      </span>
+                    </div>
+                  }
+                  value="Active"
+                />
+                <Tab
+                  label={
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                      Disabled
+                      <span
+                        style={{
+                          color: 'darkorange',
+                          backgroundColor: '#fff8e1',
+                          padding: '2px 5px',
+                          borderRadius: '3px',
+                          marginLeft: '5px',
+                        }}
+                      >
+                        {disabledCount}
+                      </span>
+                    </div>
+                  }
+                  value="Disabled"
+                />
+                <Tab
+                  label={
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                      Deactivated
+                      <span
+                        style={{
+                          color: 'red',
+                          backgroundColor: '#ffebee',
+                          padding: '2px 5px',
+                          borderRadius: '3px',
+                          marginLeft: '5px',
+                        }}
+                      >
+                        {deactivatedCount}
+                      </span>
+                    </div>
+                  }
+                  value="Deactivated"
+                />
+              </Tabs>
+            </div>
+          </div>
 
           <TextField label="Search Roles" variant="outlined" fullWidth style={{ margin: '20px 0' }} />
-
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell padding="checkbox">
-                  <Checkbox />
-                </TableCell>
-                <TableCell>Name</TableCell>
-                <TableCell>Phone Number</TableCell>
-                <TableCell>Company</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell />
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {resellers
-                .filter((reseller) => currentTab === 'All' || reseller.status === currentTab)
-                .map((reseller) => (
-                  <TableRow key={reseller._id}>
-                    <TableCell padding="checkbox">
-                      <Checkbox />
-                    </TableCell>
-                    <TableCell>
-                      {reseller.firstName} {reseller.lastName}
-                    </TableCell>
-                    <TableCell>{reseller.mobileNumber}</TableCell>
-                    <TableCell>{reseller.companyName}</TableCell>
-                    <TableCell>
-                      <StatusLabel status={reseller.status} />
-                      <IconButton
-                        size="small"
-                        style={{ marginLeft: '8px' }}
-                        onClick={(e) => handleStatusClick(e, reseller._id)}
-                      >
-                        <EditIcon fontSize="inherit" />
-                      </IconButton>
-                    </TableCell>
-                    <TableCell>
-                      <IconButton size="small">
-                        <MoreVertIcon fontSize="inherit" />
-                      </IconButton>
-                    </TableCell>
-                  </TableRow>
-                ))}
-            </TableBody>
-          </Table>
+          <div style={{ overflowX: 'auto' }}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell padding="checkbox">
+                    <Checkbox />
+                  </TableCell>
+                  <TableCell>Name</TableCell>
+                  <TableCell>Phone Number</TableCell>
+                  <TableCell>Company</TableCell>
+                  <TableCell>Status</TableCell>
+                  <TableCell />
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {resellers
+                  .filter((reseller) => currentTab === 'All' || reseller.status === currentTab)
+                  .map((reseller) => (
+                    <TableRow key={reseller._id}>
+                      <TableCell padding="checkbox">
+                        <Checkbox />
+                      </TableCell>
+                      <TableCell>
+                        {reseller.firstName} {reseller.lastName}
+                      </TableCell>
+                      <TableCell>{reseller.mobileNumber}</TableCell>
+                      <TableCell>{reseller.companyName}</TableCell>
+                      <TableCell>
+                        <StatusLabel status={reseller.status} />
+                        <IconButton
+                          size="small"
+                          style={{ marginLeft: '8px' }}
+                          onClick={(e) => handleStatusClick(e, reseller._id)}
+                        >
+                          <EditIcon fontSize="inherit" />
+                        </IconButton>
+                      </TableCell>
+                      <TableCell>
+                        <IconButton size="small">
+                          <MoreVertIcon fontSize="inherit" />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
 
