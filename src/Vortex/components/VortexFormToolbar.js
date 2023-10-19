@@ -44,16 +44,8 @@ const VortexFormToolbar = ({ title = "", onClickBack = () => {} }) => (
           display: 'flex', 
           fontSize: '10px'
         }}>
-          <p >powered by </p>
-          <img
-            style={{
-              width: "61px",
-              height: "21.4px",
-              marginTop: '6px'
-            }}
-            src={primaryVortexTheme.logo}
-            alt="Spark Waving burstless"
-          />
+          <p>powered by &nbsp; </p>
+           Vortex
         </div>
       </Toolbar>
     </AppBar>

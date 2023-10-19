@@ -424,6 +424,7 @@ const VortexBillsPaymentPage = () => {
           onClickBack={() => {
             // navigate(-1)
             console.log(" navigate back")
+            window.history.back()
           }}
         />
         <Toolbar />
@@ -499,7 +500,7 @@ const VortexBillsPaymentPage = () => {
         }}
       >
         <div className="heading-search-container">
-          <div className="heading-search-shape">
+          <div className="heading-search-shape" style={{display: "flex"}}>
             <InputBase
               disabled={false}
               style={{
@@ -1121,7 +1122,7 @@ const VortexBillsPaymentPage = () => {
             </Backdrop>
           </div>
         )}
-      </Box>
+       </Box>
     )
   }
 
@@ -1140,9 +1141,35 @@ const VortexBillsPaymentPage = () => {
 
   return (
     <>
-    <div> hello world</div>
-    {FormRender(activeStep)}
-    <VortexBottomGradient />
+    <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            // pointerEvents: 'none',
+            alignItems: 'center',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            background: '#fff',
+            color: 'white',
+            fontSize: '1.5rem',
+          }}>
+            {/* center the whole content using 50% of the screen on desktop and full on mobile */}
+            {/* <div className="flex flex-col justify-center items-center w-full md:w-1/2 mx-auto"> */}
+              <Box style={{
+                width: '100%',
+                height: '100%',
+                // marginTop: '14em',
+              }}>
+                {FormRender(activeStep)}
+              </Box>
+          {/* </div> */}
+      </div>
+      <VortexBottomGradient />
+
+
       {platformVariables?.enableBills === false && <ServiceDisabledPrompt />}
       {storeStatus === 0 && <StoreBlockPrompt />}
       {userStatus === 0 && <BlockPrompt />}
