@@ -11,44 +11,32 @@ import {
   TextField,
   Typography,
 } from "@mui/material"
-import useLoggedUser from '../../../custom-hooks/useLoggedUser'
-import { API } from "../../../api/api-config"
 import { Form, Formik } from "formik"
-import Lottie from 'react-lottie'
-import animationData from '../../../assets/lottie/error-dino.json'
+import { API } from "../../api/api-config"
 
 
 
 const discordRefundRequest = async ({ name, phone, email }) => {
-  var myHeaders = new Headers();
+  const myHeaders = new Headers();
   myHeaders.append("Content-Type", "application/json");
 
-  var raw = JSON.stringify({
+  const raw = JSON.stringify({
     "username": name,
     "phone": phone,
     "email": email
   });
 
-  var requestOptions = {
+  const requestOptions = {
     method: 'POST',
     headers: myHeaders,
     body: raw,
     redirect: 'follow'
   };
 
-  try {
-    let response = await fetch(`${API}/vortex/discord/refund`, requestOptions)
+  const response = await fetch(`${API}/vortex/discord/refund`, requestOptions)
+  const result = await response.json()
 
-    let result = await response.json()
-
-
-    return result
-
-
-  } catch (error) {
-    throw error
-  }
-
+  return result
 }
 
 
@@ -62,9 +50,9 @@ const VortexError = ({
     setShow(false)
   }
 
-  const { getUser } = useLoggedUser()
 
-  const { token, userId, email, name, address, photo, phone, messenger } = getUser()
+
+  const { token, userId, email, name, address, photo, phone, messenger } = {}
 
 
 
@@ -77,19 +65,7 @@ const VortexError = ({
           <Typography fontWeight={"bold"} fontSize={20} color={"gray"}>
             Oops!... something went wrong
           </Typography>
-          <Lottie options={{
-            loop: true,
-            autoplay: true,
-            animationData: animationData,
-            rendererSettings: {
-              preserveAspectRatio: 'xMidYMid slice'
-            }
-          }}
-            isClickToPauseDisabled={true}
-            height={300}
-            width={300}
-            isStopped={false}
-            isPaused={false} />
+          
           <Typography variant="h6">{`We are now working very hard to fix this! you might wanna try again later`}</Typography>
           <Typography fontSize={10} color={"gray"} sx={{ overflow: "visible" }}>
             {message}
@@ -109,22 +85,15 @@ const VortexError = ({
         <Dialog open={show} onClose={handleClose} fullWidth>
           <DialogTitle>Our customer service team will check this and we will get back to you as soon as possible.</DialogTitle>
           <Formik
-            initialValues={{ phone: phone, email: email, name: name }}
+            initialValues={{ phone, email, name }}
             onSubmit={async (data) => {
-              try {
-                await discordRefundRequest({
-                  name: data.name,
-                  phone: data.phone,
-                  email: data.email
-                })
-
-
-                onClick()
-              } catch (error) {
-                throw error
-              }
-            }}>{({ handleChange, values, isSubmitting }) => {
-              return <Form>
+              await discordRefundRequest({
+                name: data.name,
+                phone: data.phone,
+                email: data.email
+              })
+              onClick()
+            }}>{({ handleChange, values, isSubmitting }) => <Form>
                 <DialogContent>
                   <Stack>
                     <TextField name={"name"} label={"Name"} value={values.name} onChange={handleChange} disabled />
@@ -135,8 +104,7 @@ const VortexError = ({
                 <DialogActions>
                   <Button type={'submit'} disabled={isSubmitting}>{isSubmitting ? "Please wait..." : "Send report and retry"}</Button>
                 </DialogActions>
-              </Form>
-            }}</Formik>
+              </Form>}</Formik>
         </Dialog>
       </CardContent>
     </Card>

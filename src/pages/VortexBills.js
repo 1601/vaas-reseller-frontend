@@ -1,953 +1,439 @@
-import { useReducer, useState } from 'react';
-import { Helmet } from 'react-helmet-async';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
-// @mui
-
-import { styled } from '@mui/material/styles';
-import { Button, Typography, Container, Box, List, AppBar, Toolbar, IconButton, 
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
-  Slider,
+/* eslint-disable react/jsx-no-bind */
+/* eslint-disable no-plusplus */
+import {
+  Backdrop,
+  Button,
+  CircularProgress,
+  Divider,
+  FormControl,
+  FormHelperText,
+  InputLabel,
+  List,
+  MenuItem,
+  Select,
   Stack,
-  Grid,
-  Divider, } from '@mui/material';
+  TextField,
+  Toolbar,
+  Typography,
+  InputBase,
+  AlertTitle,
+  Alert,
+} from "@mui/material"
+import { Form, Formik } from "formik"
+import { Box } from "@mui/system"
+// import { navigate } from "gatsby" //commented out for testing now turn all navigate to console.log
+import React, { useState, useEffect, useReducer, useContext } from "react"
+import * as yup from "yup"
+import SecureLS from "secure-ls"
 
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft"
+import { BillerIcon } from "../Vortex/components/VortexBillerCategory"
+import VortexBillerCard from "../Vortex/components/VortexBillerCard"
 
-import vortexBillsPaymentCategories from '../_mock/vortex_billspayment_categories';
-import vortexBillspaymentProducts from '../_mock/vortex_billspayment';
+import {
+  createBillsPaymentTransaction,
+  getBillerById,
+  getBillers,
+} from "../api/public/vortex/billspayment_service"
+import { getVortexTokenBase, signIn } from "../api/public/vortex/token_service"
 
-// ----------------------------------------------------------------------
 
-const StyledContent = styled('div')(({ theme }) => ({
-  maxWidth: 480,
-  margin: 'auto',
-  minHeight: '100vh',
-  display: 'flex',
-  justifyContent: 'center',
-  flexDirection: 'column',
-  padding: theme.spacing(12, 0),
-}));
+import CenteredProgress from "../Vortex/components/centeredProgress"
+import VortexFormToolbar from "../Vortex/components/VortexFormToolbar"
+import VortexError from "../Vortex/components/VortexError"
+import jsonFieldsToArray from "../Vortex/helpers/jsonfieldstoarray"
 
-// ----------------------------------------------------------------------
+import VortexCustomTextField from "../Vortex/components/VortexCustomTextField"
+import {
+  saveVortexBillsPaymentTransaction,
+  updateVortexByRefId,
+} from "../api/public/vortex/transaction_db"
+import VortexBillerAccordionList from "../Vortex/components/VortexBillerAccordionList"
 
-export default function VortexBills() {
+// import {
+//   LoginState,
+//   PlatformVariables,
+//   StoreStatus,
+//   UserStatus,
+// } from "../../globalstates"
 
-  const navigate = useNavigate()
+// import LoginPage from "../../LoginPage"
+import { primaryVortexTheme } from "../Vortex/config/theme"
+import VortexBillerLogoComponent from "../Vortex/components/VortexBillerLogoComponent"
+import VortexBillerListItem from "../Vortex/components/VortexBillerListItem"
+import VortexBottomGradient from "../Vortex/components/VortexBottomGradient"
 
-  // const [activeStep, setActiveStep] = useState(0)
+// import BottomNavigator from "../../Homemade/BottomNavigator"
+// import useLoggedUser from "../../../custom-hooks/useLoggedUser" // remove all user related
 
-  // const [data, setData] = useState([])
+import getBillerAbbreviation from "../Vortex/functions/getBillerAbbreviation"
+import trimObjValues from "../Vortex/helpers/trimobjectvalues"
+import BlockPrompt from "../Vortex/Prompts/BlockPrompt"
+import StoreBlockPrompt from "../Vortex/Prompts/StoreBlockPrompt"
+// import { getStoreEnvById } from "../../../api/public/store-env" remove all store related
+import ServiceDisabledPrompt from "../Vortex/Prompts/ServiceDisabledPrompt"
+import PhoneTextfield from '../Vortex/Textfields/PhoneTextfield'
 
-  // const [renderData, setRenderData] = useState([])
+const LoginPage = () => (
+    <Box>
+      <div> Login Page</div>
+    </Box>
+  )
 
-  // const [categories, setcategories] = useState(vortexBillsPaymentCategories)
+const BottomNavigator = () => (
+    <Box>
+      <div> Bottom Navigator</div>
+    </Box>
+  )
 
-  // const [selectedBiller, setSelectedBiller] = useState(null)
+const VortexBillsPaymentPage = () => {
+  const forApi = signIn("dmcilagan@gmail.com", "password")
+  const ls = new SecureLS({ encodingType: "aes" })
 
-  // const [billDetails, setBillDetails] = useState(null)
+  const [error, setErrorData] = useState({ isError: false, message: "" })
 
-  // const [inputFormData, setinputFormData] = useState({})
+  const [transactionDocId, setTransactionDocId] = useState(null)
 
-  // const [transactionDetails, setTransactionDetails] = useState()
+  const [transactionReferenceId, setTransactionReferenceId] = useState(null)
 
-  // const [currentSelectedCategory, setCurrentSelectedCategory] = useState(null)
-  
-  // const [_billers, _setBillers] = useState([])
-  // const [search, setSearch] = useState([])
+  const [platformVariables, setPlatformVariables] = useState({})
 
-  //   const [_currentSelectedCategory, _setCurrentSelectedCategory] = useReducer(
-  //     filterBillerByCategories,
-  //     ""
-  //   )
+  const [userStatus, setUserStatus] = useState(null)
 
-  //   // This will filter all biller by categories 
-  //   function filterBillerByCategories(state, category) {
-  //     const filteredBillers = []
-  //     if (vortexBillspaymentProducts.docs?.length > 0) {
-  //       // eslint-disable-next-line 
-  //       for (let index = 0; index < vortexBillspaymentProducts?.docs?.length; index++) {
-  //         if (vortexBillspaymentProducts?.docs[index]?.category === category) {
-  //           filteredBillers.push(getBillerAbbreviation(vortexBillspaymentProducts?.docs[index]))
-  //         }
-  //       }
-  //       _setBillers(filteredBillers)
-  //     }
+  const [storeStatus, setstoreStatus] = useState(null)
 
-  //     return category
-  //   }
+  const [activeStep, setActiveStep] = useState(0)
 
-  //   function searchBillers(search) {
-  //     if (search.trim().replaceAll(" ", "").length === 0) {
-  //       setSearch([])
-  //       return
-  //     }
+  const [data, setData] = useState([])
 
-  //     const filteredBillers = []
-  //     if (vortexBillspaymentProducts?.docs?.length > 0) {
-  //       // eslint-disable-next-line 
-  //       for (let index = 0; index < vortexBillspaymentProducts?.docs?.length; index++) {
-  //         const billerName = vortexBillspaymentProducts?.docs[index].name
-  //           .toLowerCase()
-  //           .replaceAll(" ", "")
-  //         if (billerName.includes(search.toLowerCase()))
-  //           filteredBillers.push(vortexBillspaymentProducts?.docs[index])
-  //       }
-  //     }
+  const [renderData, setRenderData] = useState([])
 
-  //     setSearch(filteredBillers)
-  //   }
+  const [categories, setcategories] = useState([])
 
-  const [selectedCategory, setSelectedCategory] = useState(null)
+  const [selectedBiller, setSelectedBiller] = useState(null)
 
-    const categories1 = [
-      {
-        "name": "loans",
-        "products": [
-          {
-            "id": "5e5f1d7902e76a0017d0ee12",
-            "name": "99HELP LENDING CORPORATION",
-            "allowValidate": 0
-          },
-          {
-            "id": "5e5f712602e76a0017d0ee3e",
-            "name": "ASTERIA Lending Inc.",
-            "allowValidate": 0
-          },
-          {
-            "id": "5e5f226f02e76a0017d0ee19",
-            "name": "CASH MART ASIA LENDING INC",
-            "allowValidate": 0
-          },
-          {
-            "id": "5e5f716f02e76a0017d0ee3f",
-            "name": "CREDITBPO TECH INC",
-            "allowValidate": 0
-          },
-          {
-            "id": "5e5f71c002e76a0017d0ee40",
-            "name": "Cropital",
-            "allowValidate": 0
-          },
-          {
-            "id": "5e5f232302e76a0017d0ee1b",
-            "name": "FUNDKO, INC.",
-            "allowValidate": 0
-          },
-          {
-            "id": "5d68c359841d900011dd3e6f",
-            "name": "Global Mobility Services",
-            "allowValidate": 0
-          },
-          {
-            "id": "5e5f247702e76a0017d0ee1d",
-            "name": "Green Money Tree Lending Corp.",
-            "allowValidate": 0
-          },
-          {
-            "id": "5e5f3c6a02e76a0017d0ee1e",
-            "name": "Lendeez",
-            "allowValidate": 0
-          },
-          {
-            "id": "5e5f74ea02e76a0017d0ee41",
-            "name": "MOOLALENDING",
-            "allowValidate": 0
-          },
-          {
-            "id": "5e5f413b02e76a0017d0ee26",
-            "name": "ROBOCASH FINANCE PHILIPPINES",
-            "allowValidate": 0
-          },
-          {
-            "id": "5e5f756402e76a0017d0ee42",
-            "name": "Radiowealth Finance",
-            "allowValidate": 0
-          },
-          {
-            "id": "5e5f760102e76a0017d0ee43",
-            "name": "YesCredit Financing Inc",
-            "allowValidate": 0
-          },
-          {
-            "id": "5d67a3aa841d900011dd3e44",
-            "name": "Asialink",
-            "allowValidate": 0
-          },
-          {
-            "id": "640648176312065b36aea2f9",
-            "name": "CASHALO",
-            "allowValidate": 1
-          },
-          {
-            "id": "5d67a6e6841d900011dd3e4c",
-            "name": "Easycash lending Company",
-            "allowValidate": 0
-          },
-          {
-            "id": "5d67ba1a841d900011dd3e52",
-            "name": "Finaswide",
-            "allowValidate": 0
-          },
-          {
-            "id": "5cf0ccaa03dd350010b28539",
-            "name": "Pahiram",
-            "allowValidate": 0
-          }
-        ]
-      },
-      {
-        "name": "phone and internet",
-        "products": [
-          {
-            "id": "5e60613e02e76a0017d0ee4e",
-            "name": "ABSMOBILE",
-            "allowValidate": 0
-          },
-          {
-            "id": "5cf0e45603dd350010b2853d",
-            "name": "Bayantel",
-            "allowValidate": 0
-          },
-          {
-            "id": "5e6061fd02e76a0017d0ee4f",
-            "name": "Digitel Communications",
-            "allowValidate": 0
-          },
-          {
-            "id": "628ca80b8fb8280018805b75",
-            "name": "Globelines (Innove Communications -- landline and internet)",
-            "allowValidate": 0
-          },
-          {
-            "id": "640648176312065b36aea2f1",
-            "name": "GLOBE",
-            "allowValidate": 1
-          },
-          {
-            "id": "5cf09eed03dd350010b28530",
-            "name": "PLDT",
-            "allowValidate": 0
-          },
-          {
-            "id": "640648176312065b36aea2ec",
-            "name": "SMART",
-            "allowValidate": 1
-          }
-        ]
-      },
-      {
-        "name": "insurance and financial services",
-        "products": [
-          {
-            "id": "5e5f48f002e76a0017d0ee30",
-            "name": "AFP General Insurance",
-            "allowValidate": 0
-          },
-          {
-            "id": "5e5f495a02e76a0017d0ee31",
-            "name": "ALLIEDBANKERS INSURANCE CORPORATION",
-            "allowValidate": 0
-          },
-          {
-            "id": "5e5f4b8d02e76a0017d0ee34",
-            "name": "CIBELES INSURANCE CORPORATION",
-            "allowValidate": 0
-          },
-          {
-            "id": "5e5f4d0002e76a0017d0ee36",
-            "name": "ETERNAL PLANS, INC.",
-            "allowValidate": 0
-          },
-          {
-            "id": "5e5f778402e76a0017d0ee44",
-            "name": "FWD Life Insurance Corporation",
-            "allowValidate": 0
-          },
-          {
-            "id": "5e5f4d9c02e76a0017d0ee37",
-            "name": "FWD Peace",
-            "allowValidate": 0
-          },
-          {
-            "id": "5e5f4dda02e76a0017d0ee38",
-            "name": "LEX Services",
-            "allowValidate": 0
-          },
-          {
-            "id": "5e5f53d702e76a0017d0ee39",
-            "name": "LOYOLA PLANS CONSOLIDATED INC.",
-            "allowValidate": 0
-          },
-          {
-            "id": "5e5f599202e76a0017d0ee3c",
-            "name": "NEW CANAAN INSURANCE AGENCY, INC",
-            "allowValidate": 0
-          },
-          {
-            "id": "5e5f3fde02e76a0017d0ee24",
-            "name": "Philippine Life Financial Assurance Corporation",
-            "allowValidate": 0
-          },
-          {
-            "id": "5d6747b0841d900011dd3e2a",
-            "name": "AXA Philippines (Charter Ping An)",
-            "allowValidate": 0
-          },
-          {
-            "id": "5d67bafb841d900011dd3e53",
-            "name": "FUSE LENDING INC",
-            "allowValidate": 0
-          },
-          {
-            "id": "5d664f76841d900011dd3e0d",
-            "name": "Gloriosa Finance Corp",
-            "allowValidate": 0
-          },
-          {
-            "id": "5d6778b2841d900011dd3e39",
-            "name": "Paramount Life & General Insurance Corporation",
-            "allowValidate": 0
-          },
-          {
-            "id": "5d679a41841d900011dd3e3a",
-            "name": "Philamlife",
-            "allowValidate": 0
-          },
-          {
-            "id": "5d679c1e841d900011dd3e3e",
-            "name": "Prudential Life",
-            "allowValidate": 0
-          },
-          {
-            "id": "5d679d6b841d900011dd3e40",
-            "name": "Standard Insurance",
-            "allowValidate": 0
-          },
-          {
-            "id": "5d679f42841d900011dd3e41",
-            "name": "Sun Life of Canada Phils",
-            "allowValidate": 0
-          },
-          {
-            "id": "5d674c02841d900011dd3e2d",
-            "name": "United Coconut Planters Life Assurance Corporation (COCOLIFE)",
-            "allowValidate": 0
-          }
-        ]
-      },
-      {
-        "name": "payment gateway",
-        "products": [
-          {
-            "id": "5e5f1e4702e76a0017d0ee14",
-            "name": "ASIAPAY PAYMENT TEHNOLOGY CORPORATION",
-            "allowValidate": 0
-          },
-          {
-            "id": "5e5f1dc202e76a0017d0ee13",
-            "name": "Alipay PH",
-            "allowValidate": 0
-          },
-          {
-            "id": "5e5f1f3502e76a0017d0ee15",
-            "name": "BTCEXCHANGE.PH",
-            "allowValidate": 0
-          },
-          {
-            "id": "5e5f1f8602e76a0017d0ee16",
-            "name": "Bux.Com Global Limited",
-            "allowValidate": 0
-          },
-          {
-            "id": "5e5f1fe402e76a0017d0ee17",
-            "name": "BuyBitcoin.ph",
-            "allowValidate": 0
-          }
-        ]
-      },
-      {
-        "name": "consumer finance",
-        "products": [
-          {
-            "id": "5e5f22d302e76a0017d0ee1a",
-            "name": "E-PESO",
-            "allowValidate": 0
-          },
-          {
-            "id": "5e5f238902e76a0017d0ee1c",
-            "name": "Global Pinoy Remittance and Services Inc.",
-            "allowValidate": 0
-          },
-          {
-            "id": "5e5f3db802e76a0017d0ee1f",
-            "name": "MetisEtrade",
-            "allowValidate": 0
-          },
-          {
-            "id": "5e5f3e2c02e76a0017d0ee20",
-            "name": "Microbnk",
-            "allowValidate": 0
-          },
-          {
-            "id": "5e5f3e6e02e76a0017d0ee21",
-            "name": "Nexus R Forward Finance, Inc",
-            "allowValidate": 0
-          },
-          {
-            "id": "5e5f408002e76a0017d0ee25",
-            "name": "PROXIMITY FUNDING CREDIT COOPERATIVE",
-            "allowValidate": 0
-          },
-          {
-            "id": "5e5f3f8a02e76a0017d0ee23",
-            "name": "Payoneer",
-            "allowValidate": 0
-          },
-          {
-            "id": "5e5f41f402e76a0017d0ee28",
-            "name": "TOUCAN",
-            "allowValidate": 0
-          },
-          {
-            "id": "5e5f419302e76a0017d0ee27",
-            "name": "Tapp Commerce",
-            "allowValidate": 0
-          },
-          {
-            "id": "5e5f429302e76a0017d0ee29",
-            "name": "VMoney",
-            "allowValidate": 0
-          },
-          {
-            "id": "5e5f431902e76a0017d0ee2a",
-            "name": "Wealth Finance Inc.",
-            "allowValidate": 0
-          }
-        ]
-      },
-      {
-        "name": "electricity",
-        "products": [
-          {
-            "id": "5e5f7a9502e76a0017d0ee47",
-            "name": "ISABELA 1 ELECTRIC COOPERATIVE INC. (ISELCO I)",
-            "allowValidate": 0
-          },
-          {
-            "id": "5e6060e502e76a0017d0ee4c",
-            "name": "TARLAC I ELETRIC COOPERATIVE, INC. (TARELCO I)",
-            "allowValidate": 0
-          },
-          {
-            "id": "5d68cc43841d900011dd3e77",
-            "name": "ALBAY POWER AND ENERGY CORP.(APEC)",
-            "allowValidate": 0
-          },
-          {
-            "id": "5d68ccd1841d900011dd3e78",
-            "name": "Angeles Electric Corporation",
-            "allowValidate": 0
-          },
-          {
-            "id": "640648176312065b36aea2f8",
-            "name": "BENECO",
-            "allowValidate": 1
-          },
-          {
-            "id": "5d68cebf841d900011dd3e7b",
-            "name": "Batangas 2 Electric Cooperative Inc. (BATELEC2)",
-            "allowValidate": 0
-          },
-          {
-            "id": "5d68d40c841d900011dd3e81",
-            "name": "Camarines Sur II Electric Cooperative(CASURECO2)",
-            "allowValidate": 0
-          },
-          {
-            "id": "5d68d4b1841d900011dd3e82",
-            "name": "Cebu II Electric Cooperative (CEBECO2)",
-            "allowValidate": 0
-          },
-          {
-            "id": "5d68d5c9841d900011dd3e84",
-            "name": "Cotabato Light",
-            "allowValidate": 0
-          },
-          {
-            "id": "640648176312065b36aea2f3",
-            "name": "DAVAO LIGHT",
-            "allowValidate": 1
-          },
-          {
-            "id": "5d6ccf40841d900011dd3e8f",
-            "name": "Ilocos Sur Electric Cooperative, Inc.(ISECO)",
-            "allowValidate": 0
-          },
-          {
-            "id": "5d6cedb7841d900011dd3e94",
-            "name": "Lima Enerzone Corporation",
-            "allowValidate": 0
-          },
-          {
-            "id": "5ced0bd0faac810017bef177",
-            "name": "MERALCO",
-            "allowValidate": 0
-          },
-          {
-            "id": "5d6d04f6841d900011dd3e9e",
-            "name": "OLONGAPO ELECTRICITY DISTRIBUTION COMPANY INC. (OEDC)",
-            "allowValidate": 0
-          },
-          {
-            "id": "5d6d08b3841d900011dd3ea0",
-            "name": "Pampanga 1 Elec Coop. Inc. (PELCO1)",
-            "allowValidate": 0
-          },
-          {
-            "id": "5d6e15f7841d900011dd3ea2",
-            "name": "Pampanga Rural Electric Service Coop. (PRESCO)",
-            "allowValidate": 0
-          },
-          {
-            "id": "5d6e4433841d900011dd3eac",
-            "name": "SORSOGON II ELECTRIC COOPERATIVE, INC (SORECO II)",
-            "allowValidate": 0
-          },
-          {
-            "id": "5d6f5dfb841d900011dd3eaf",
-            "name": "Subic Enerzone",
-            "allowValidate": 0
-          }
-        ]
-      },
-      {
-        "name": "real estate",
-        "products": [
-          {
-            "id": "5e60611002e76a0017d0ee4d",
-            "name": "MAGNIFICAT VENTURES CORP. (MVC - St. Theres Columbarium)",
-            "allowValidate": 0
-          }
-        ]
-      },
-      {
-        "name": "government",
-        "products": [
-          {
-            "id": "5e5f445e02e76a0017d0ee2c",
-            "name": "Maritime Industry Authority",
-            "allowValidate": 0
-          },
-          {
-            "id": "5e5f45ef02e76a0017d0ee2e",
-            "name": "PNP License To Own and Possess Firearm (LTOPF)",
-            "allowValidate": 0
-          },
-          {
-            "id": "62f0c36b0a80120019dab271",
-            "name": "Pag-IBIG Contribution",
-            "allowValidate": 0
-          },
-          {
-            "id": "62f0c4698fb8280018805bb3",
-            "name": "Pag-IBIG Housing Loan",
-            "allowValidate": 0
-          },
-          {
-            "id": "62f0c4f88fb8280018805bb4",
-            "name": "Pag-IBIG MP2 Savings",
-            "allowValidate": 0
-          },
-          {
-            "id": "62f0aecf0a80120019dab270",
-            "name": "SSS Contribution",
-            "allowValidate": 0
-          },
-          {
-            "id": "62f0b3718fb8280018805bb1",
-            "name": "SSS Miscellaneous",
-            "allowValidate": 0
-          },
-          {
-            "id": "62f0b5b98fb8280018805bb2",
-            "name": "SSS P.E.S.O Fund",
-            "allowValidate": 0
-          },
-          {
-            "id": "5d666c36841d900011dd3e1e",
-            "name": "National Bureau of Investigation (NBI)",
-            "allowValidate": 0
-          },
-          {
-            "id": "5e311d2402e76a0017d0edf2",
-            "name": "National Housing Authority (NHA)",
-            "allowValidate": 0
-          },
-          {
-            "id": "640648176312065b36aea305",
-            "name": "PAG-IBIG",
-            "allowValidate": 1
-          }
-        ]
-      },
-      {
-        "name": "healthcare",
-        "products": [
-          {
-            "id": "5e5f585402e76a0017d0ee3a",
-            "name": "Maxicare",
-            "allowValidate": 0
-          },
-          {
-            "id": "5e5f5a6602e76a0017d0ee3d",
-            "name": "Philcare",
-            "allowValidate": 0
-          }
-        ]
-      },
-      {
-        "name": "cable tv and internet",
-        "products": [
-          {
-            "id": "5e5f1c6902e76a0017d0ee10",
-            "name": "Royal Cable",
-            "allowValidate": 0
-          },
-          {
-            "id": "640648176312065b36aea2ee",
-            "name": "CIGNAL",
-            "allowValidate": 1
-          },
-          {
-            "id": "640648176312065b36aea2f2",
-            "name": "CONVERGE",
-            "allowValidate": 1
-          },
-          {
-            "id": "5cf07d1603dd350010b28529",
-            "name": "Cablelink",
-            "allowValidate": 0
-          }
-        ]
-      },
-      {
-        "name": "banks",
-        "products": [
-          {
-            "id": "5e5f469b02e76a0017d0ee2f",
-            "name": "Tanay Rural Bank",
-            "allowValidate": 0
-          },
-          {
-            "id": "5d67afbe841d900011dd3e4e",
-            "name": "Equicom Savings",
-            "allowValidate": 0
-          },
-          {
-            "id": "5d6668d0841d900011dd3e1c",
-            "name": "Union Bank Visa Credit",
-            "allowValidate": 0
-          }
-        ]
-      },
-      {
-        "name": "airlines",
-        "products": [
-          {
-            "id": "5cef87bb03dd350010b2851f",
-            "name": "AirAsia",
-            "allowValidate": 0
-          },
-          {
-            "id": "5cf0e24403dd350010b2853b",
-            "name": "Cebu Pacific",
-            "allowValidate": 0
-          }
-        ]
-      },
-      {
-        "name": "water",
-        "products": [
-          {
-            "id": "5cf0ecb103dd350010b2853f",
-            "name": "BP Waterworks Inc.",
-            "allowValidate": 0
-          },
-          {
-            "id": "5e302c4a02e76a0017d0edee",
-            "name": "Baliwag Water District",
-            "allowValidate": 0
-          },
-          {
-            "id": "5d68d1db841d900011dd3e7f",
-            "name": "CAGAYAN DE ORO WATER (COWD)",
-            "allowValidate": 0
-          },
-          {
-            "id": "5d68d56c841d900011dd3e83",
-            "name": "CLARK WATER CORPORATION",
-            "allowValidate": 0
-          },
-          {
-            "id": "5d6ccb5b841d900011dd3e8d",
-            "name": "Happy Well Management and Collection Services Inc",
-            "allowValidate": 0
-          },
-          {
-            "id": "640648176312065b36aea2f4",
-            "name": "LAGUNA WATER",
-            "allowValidate": 1
-          },
-          {
-            "id": "5cf0c53003dd350010b28536",
-            "name": "LAGUNA WATER CORPORATION",
-            "allowValidate": 0
-          },
-          {
-            "id": "5d6ceaac841d900011dd3e92",
-            "name": "LAGUNA WATER DISTRICT AQUATECH RESOURCES CORP.",
-            "allowValidate": 0
-          },
-          {
-            "id": "5d6ceca3841d900011dd3e93",
-            "name": "Legazpi Water",
-            "allowValidate": 0
-          },
-          {
-            "id": "5ced0f00faac810017bef178",
-            "name": "MAYNILAD WATER SERVICES",
-            "allowValidate": 0
-          },
-          {
-            "id": "5d6d042e841d900011dd3e9d",
-            "name": "Obando Water District",
-            "allowValidate": 0
-          },
-          {
-            "id": "5d6e18e5841d900011dd3ea6",
-            "name": "Pili Water District",
-            "allowValidate": 0
-          },
-          {
-            "id": "5d6e1a19841d900011dd3ea7",
-            "name": "Plaridel Water District",
-            "allowValidate": 0
-          },
-          {
-            "id": "5d6e1c1e841d900011dd3ea8",
-            "name": "Primewater",
-            "allowValidate": 0
-          },
-          {
-            "id": "5d6f5a64841d900011dd3eae",
-            "name": "Sta. Maria Water District (SMWD)",
-            "allowValidate": 0
-          },
-          {
-            "id": "5d6f5f6e841d900011dd3eb1",
-            "name": "Tabaco Water (TAWAD)",
-            "allowValidate": 0
-          },
-          {
-            "id": "5d6f680c841d900011dd3eb3",
-            "name": "Tagum Water District",
-            "allowValidate": 0
-          }
-        ]
-      },
-      {
-        "name": "transportation",
-        "products": [
-          {
-            "id": "640648176312065b36aea2fe",
-            "name": "EASYTRIP RFID",
-            "allowValidate": 1
-          }
-        ]
-      }
-    ];
+  const [billDetails, setBillDetails] = useState(null)
 
-    const [expanded, setExpanded] = useState(false)
+  const [inputFormData, setinputFormData] = useState({})
 
-    const handleChange = (panel) => (event, isExpanded) => {
-      console.log(panel)
-      setSelectedCategory(panel.name)
-      setExpanded(isExpanded ? panel.name : false)
+  const [transactionDetails, setTransactionDetails] = useState()
+
+  const [currentSelectedCategory, setCurrentSelectedCategory] = useState(null)
+
+  const [isLoggin, setisLoggin] = useState(null)
+
+  // Getting store env and user status
+  // const { getUser } = useLoggedUser()
+
+  // useEffect(async () => {
+
+  //   let store = ls.get("store")
+
+  //   let storeEnvId = store?.storeEnv?._id || store?.storeEnv
+
+  //   let x = await getStoreEnvById({ storeEnvId: storeEnvId })
+
+  //   setPlatformVariables(x)
+
+  // }, [])
+
+  const getServiceFee = ({ amount, currency }) => {
+    // let paypalPercentage = amount * 0.0355
+    // let foreignFee = amount * 0.01
+    // let paypalFee = Math.round(paypalPercentage) + Math.round(foreignFee)
+    const amountInDirham = parseFloat(
+      amount / platformVariables.billsCurrencyToPeso
+    )
+    let convenienceFee = parseFloat(platformVariables.billsConvenienceFee) // convenience fee only for bills/vouchers  -platformVariables.convenienceFeeInDirham
+    let grandTotalFee = parseFloat(amountInDirham) + parseFloat(convenienceFee)
+
+    convenienceFee = parseFloat(convenienceFee).toFixed(2)
+    grandTotalFee = parseFloat(grandTotalFee).toFixed(2)
+
+    return { convenienceFee, grandTotalFee }
+  }
+
+  const [isLoading, setisLoading] = useState(false)
+
+  function stepBack() {
+    setActiveStep(activeStep - 1)
+  }
+
+  function stepForward() {
+    setActiveStep(activeStep + 1)
+  }
+
+  async function handleVortexRequestGCash({ paymentData }) {
+    try {
+      setisLoading(true)
+
+      // save transaction only as for manual Gcash
+      setTransactionDetails(paymentData)
+
+      const saveTransaction = await updateVortexByRefId({
+        refId: transactionReferenceId,
+        data: {
+          paymentId: "Awaiting for GCash Payment",
+          paymentMethod: "GCash",
+          totalAmount: paymentData.grandTotalFee,
+        },
+      })
+
+      // navigate(
+      //   `/vortextransactions/billspayment/${saveTransaction.referenceNumber}`,
+      //   { state: saveTransaction }
+      // )
+      console.log('saveTransaction', saveTransaction)
+      console.log("go to /vortextransactions/billspayment/$ { saveTransaction.referenceNumber}")
+
+      setisLoading(false)
+    } catch (error) {
+      setErrorData({
+        isError: true,
+        message: error,
+      })
+      throw Error(error)
     }
-  
-  return (
-    <>
-      <Helmet>
-        <title> Bills Payment | VAAS </title>
-      </Helmet>
-      <AppBar
-      position="fixed"
-      // style={{ background: primaryVortexTheme.accentColor }}
-    >
-      <Toolbar
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
+  }
+
+  async function handleVortexRequest({ docId, paymentData }) {
+    try {
+      const vortexTokenResponse = await getVortexTokenBase()
+
+      if (vortexTokenResponse.status === 200) {
+        const vortextTokenResult = await vortexTokenResponse.json()
+
+        const vortexBillPaymentTransactionResponse =
+          await createBillsPaymentTransaction(
+            vortextTokenResult.access_token,
+            docId,
+            process.env.GATSBY_APP_VORTEX_CLIENTREQID,
+            selectedBiller.id,
+            billDetails,
+            paymentData?.data?.orderID,
+            paymentData?.details?.purchase_units[0]?.amount?.value
+          )
+
+        const vortexBillPaymentTransactionResult =
+          await vortexBillPaymentTransactionResponse.json()
+
+        if (vortexBillPaymentTransactionResponse.status === 200) {
+          const refNo = vortexBillPaymentTransactionResult?.referenceNumber
+
+          // Check if the response is error
+          if (typeof refNo === "undefined") {
+            setErrorData({
+              isError: true,
+              message: `Error code: ${vortexBillPaymentTransactionResult.message}`,
+            })
+
+            return
+          }
+
+          if (vortexBillPaymentTransactionResult.transactionData)
+            setTransactionDetails(vortexBillPaymentTransactionResult)
+
+          // navigate(
+          //   `/vortextransactions/billspayment/${vortexBillPaymentTransactionResult.referenceNumber}`
+          // )
+          console.log('vortexBillPaymentTransactionResult', vortexBillPaymentTransactionResult)
+          console.log("go to /vortextransactions/billspayment/$ { vortexBillPaymentTransactionResult.referenceNumber}")
+        } else {
+          setErrorData({
+            isError: true,
+            message: "There is an error on the request to vortex",
+          })
+        }
+      } else {
+        setErrorData({
+          isError: true,
+          message: "There is an error on the request to vortex",
+        })
+      }
+    } catch (error) {
+      setErrorData({
+        isError: true,
+        message: `${error}`,
+      })
+    }
+  }
+
+  async function handleVortexCashRequest({ docId, total }) {
+    try {
+      const vortexTokenResponse = await getVortexTokenBase()
+
+      if (vortexTokenResponse.status === 200) {
+        const vortextTokenResult = await vortexTokenResponse.json()
+
+        const vortexBillPaymentTransactionResponse =
+          await createBillsPaymentTransaction({
+            access_token: vortextTokenResult.access_token,
+            docId,
+            clientRequestId: process.env.GATSBY_APP_VORTEX_CLIENTREQID,
+            billerId: selectedBiller.id,
+            billDetails,
+            paymentId: "Payment via Store",
+            totalAmount: total,
+            oneAedToPhp: platformVariables.billsCurrencyToPeso,
+            convenienceFee: platformVariables.billsConvenienceFee,
+            currencySymbol: platformVariables?.currencySymbol,
+            currencyToPhp: platformVariables?.billsCurrencyToPeso,
+            callbackUrl: ""
+          })
+
+        const vortexBillPaymentTransactionResult =
+          await vortexBillPaymentTransactionResponse.json()
+
+        if (vortexBillPaymentTransactionResponse.status === 200) {
+          const refNo = vortexBillPaymentTransactionResult?.referenceNumber
+
+          // Check if the response is error
+          if (typeof refNo === "undefined") {
+            setErrorData({
+              isError: true,
+              message: `Error code: ${vortexBillPaymentTransactionResult.message}`,
+            })
+
+            return
+          }
+
+          if (vortexBillPaymentTransactionResult.transactionData)
+            setTransactionDetails(vortexBillPaymentTransactionResult)
+
+          // navigate(
+          //   `/vortextransactions/billspayment/${vortexBillPaymentTransactionResult.referenceNumber}`
+          // )
+          console.log('vortexBillPaymentTransactionResult', vortexBillPaymentTransactionResult)
+          console.log("go to /vortextransactions/billspayment/$ { vortexBillPaymentTransactionResult.referenceNumber}")
+        } else {
+          setErrorData({
+            isError: true,
+            message: "There is an error on the request to vortex",
+          })
+        }
+      } else {
+        setErrorData({
+          isError: true,
+          message: "There is an error on the request to vortex",
+        })
+      }
+    } catch (error) {
+      setErrorData({
+        isError: true,
+        message: `${error}`,
+      })
+    }
+  }
+
+  // This will load all billers when component is rendered
+  useEffect(async () => {
+    setisLoading(true)
+    const vortexTokenResponse = await getVortexTokenBase()
+
+    if (vortexTokenResponse.status === 200) {
+      const vortextTokenResult = await vortexTokenResponse.json()
+
+      getBillers(vortextTokenResult.access_token, 1, 1000).then((response) => {
+        setisLoading(false)
+        if (response.status === 200) {
+          response.json().then((result) => {
+            setData(result)
+          })
+        } else {
+          setisLoading(false)
+          response.json().then((result) => {
+            setErrorData({
+              isError: true,
+              message: result.error.message,
+            })
+          })
+        }
+      })
+    } else {
+      setisLoading(false)
+      vortexTokenResponse.json().then((result) => {
+        setErrorData({
+          isError: true,
+          message: result.error.message,
+        })
+      })
+    }
+  }, [])
+
+  // This will compile all biller categories when data is received
+  useEffect(() => {
+    const gatheredCategories = []
+    if (data?.docs?.length > 0) {
+      for (let index = 0; index < data?.docs?.length; index++) {
+        if (!gatheredCategories.includes(data.docs[index].category)) {
+          gatheredCategories.push(data.docs[index].category)
+        }
+      }
+      setcategories(gatheredCategories)
+    }
+  }, [data])
+
+  // This will display all compiled categories
+  const BillsPaymentCategoriesPage = () => {
+    const [_billers, _setBillers] = useState([])
+    const [search, setSearch] = useState([])
+
+    const [_currentSelectedCategory, _setCurrentSelectedCategory] = useReducer(
+      filterBillerByCategories,
+      ""
+    )
+
+    // This will filter all biller by categories
+    function filterBillerByCategories(state, category) {
+      const filteredBillers = []
+      if (data?.docs?.length > 0) {
+        for (let index = 0; index < data?.docs?.length; index++) {
+          if (data?.docs[index]?.category === category) {
+            filteredBillers.push(getBillerAbbreviation(data?.docs[index]))
+          }
+        }
+        _setBillers(filteredBillers)
+      }
+
+      return category
+    }
+
+    function searchBillers(search) {
+      if (search.trim().replaceAll(" ", "").length === 0) {
+        setSearch([])
+        return
+      }
+
+      const filteredBillers = []
+      if (data?.docs?.length > 0) {
+        for (let index = 0; index < data?.docs?.length; index++) {
+          const billerName = data?.docs[index].name
+            .toLowerCase()
+            .replaceAll(" ", "")
+          if (billerName.includes(search.toLowerCase()))
+            filteredBillers.push(data?.docs[index])
+        }
+      }
+
+      setSearch(filteredBillers)
+    }
+
+    return (
+      <Box>
+        <VortexFormToolbar
+          title={"Bills"}
+          onClickBack={() => {
+            // navigate(-1)
+            console.log(" navigate back")
           }}
-        >
-          <IconButton
-            size="large"
-            edge="start"
-            color="inherit"
-            aria-label="menu"
-            sx={{ mr: 2 }}
-            onClick={() => {
-              // go back previous page
-              // 
-              console.log("go back previous page");
-              // 
-              window.history.back();
-              // eslint-disable-next-line react-hooks/rules-of-hooks
-              navigate(-1);
-            }}
-          >
-            <ChevronLeftIcon style={{ color: "white" }} />
-          </IconButton>
-          <Typography
-            component="div"
-            sx={{ flexGrow: 1, color: "white", marginTop: "0.4em", textAlign: 'center', paddingTop: '4%' }}
-          >
-            Bills Payment
-          </Typography>
-        </div>
-        {/* <div style = {{
-          display: 'flex', 
-          fontSize: '10px'
-        }}>
-          <p >powered by </p>
-          <img
-            style={{
-              width: "61px",
-              height: "21.4px",
-              marginTop: '6px'
-            }}
-            src={Logo}
-            alt="Spark Waving burstless"
-          />
-        </div> */}
-      </Toolbar>
-    </AppBar>
+        />
+        <Toolbar />
 
-      {/* <Container sx={{backgroundColor: "#fff"}}> */}
-        <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            // pointerEvents: 'none',
-            alignItems: 'center',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            background: '#fff',
-            color: 'white',
-            fontSize: '1.5rem',
-          }}>
-            {/* center the whole content using 50% of the screen on desktop and full on mobile */}
-            <div className="flex flex-col justify-center items-center w-full md:w-1/2 mx-auto">
-              <Box style={{
-                width: '100%',
-              }}>
-              {categories1.map((category, index) => (
-                <Accordion key={index} expanded={expanded === `${category.name}`}
-                onChange={handleChange(category)}>
-                  <AccordionSummary 
-                  expandIcon={<ExpandMoreIcon />}
-                  aria-controls="panel1a-content"
-                  id="panel1a-header">
-
-                   <Stack direction={"row"} alignItems="center">
-                      {/* <BillerIcon categoryName={category} /> */}
-                      <Typography
-                        sx={{ textTransform: "capitalize" }}
-                        fontWeight="bold"
-                      >
-                        {category.name}
-                      </Typography>
-                    </Stack>
-                  </AccordionSummary>
-                  <AccordionDetails>
-                  <div
-                      style={{
-                        display: "flex",
-                        overflowY: "scroll",
-                        height: "7em",
-                      }}
-                    >
-                      {/* <Grid container spacing={2}> */}
-                        {category.products.map((product) => (
-                          // <Grid item key={product.id}>
-                          //   <div>
-                          //     <Typography variant="subtitle1">{product.name}</Typography>
-                          //     <img src={`https://sparkle-vortex.imgix.net/${product.id}.png?w=60&h=60`} alt={product.name} />
-                          //   </div>
-                          // </Grid>
-                          <>
-                          <Stack
-                            // onClick = {onClick}
-                            padding={"0.5em"}
-                            direction={"row"}
-                            justifyContent={"space-between"}
-                            alignItems={"center"}
-                            style = {{
-                              width: '100px',
-                              height: '100%',
-                              textAlign: 'center',
-                              padding: '2px', 
-                              marginLeft: '0.5em', 
-                              marginRight: '0.5em'
-                            }}
-                          >
-                            <Stack direction={"column"} alignItems={"center"} spacing={2}>
-                             <img src={`https://sparkle-vortex.imgix.net/${product.id}.png?w=60&h=60`} alt={product.name} />
-
-                              <Typography
-                                component="div"
-                                sx={{ flexGrow: 1 }}
-                                style={{
-                                  height: '2em', 
-                                  fontWeight: "bold",
-                                  fontSize: '0.6em',
-                                  color: "blue",
-                                }}
-                              >
-                                {product.name}
-                              </Typography>
-                            </Stack>
-                          </Stack>
-                          <Divider />
-                          
-                          </>
-                        ))}
-                      {/* </Grid>            */}
-
-                  </div>
-                  </AccordionDetails>
-                </Accordion>
-              ))}
-
-              </Box>
-
-            </div>
-            
-        </div>
-      {/* </Container> */}
-            {/* accordion from material UI to show categories and inside is a horizontal scroller with products */}
-            {/* <VortexBillerAccordionList
+        {!isLoading && (
+          <>
+            <VortexBillerSearch onInput={searchBillers} />
+            {search.length === 0 ? (
+              <>
+                <VortexBillerAccordionList
                   categories={categories}
                   billers={_billers}
                   onSelectCategory={(category) => {
@@ -957,12 +443,740 @@ export default function VortexBills() {
                     setCurrentSelectedCategory(_currentSelectedCategory)
 
                     setSelectedBiller(biller)
-                    console.log(biller)
+                    stepForward()
                   }}
-                /> */}
+                />
+              </>
+            ) : (
+              <VortexBillerSearchResult
+                billers={search}
+                onBillerSelect={(biller) => {
+                  setCurrentSelectedCategory(biller.category)
+                  setSelectedBiller(biller)
+                  stepForward()
+                }}
+              />
+            )}
+          </>
+        )}
+      </Box>
+    )
+  }
 
-        
-      
+  const VortexBillerSearchResult = ({ billers, onBillerSelect }) => billers.map((biller) => (
+        <VortexBillerListItem
+          id={biller.id}
+          title={biller.name}
+          category={biller.category}
+          onClick={() => {
+            onBillerSelect(biller)
+          }}
+        />
+      ))
+
+  const VortexBillerSearch = ({ onInput }) => {
+    const [input, setInput] = useState("")
+    const delay = (function (callback, ms) {
+      let timer = 0
+      return function (callback, ms) {
+        clearTimeout(timer)
+        timer = setTimeout(callback, ms)
+      }
+    })()
+
+    const searchAfterDelay = (e) => {
+      setInput(e.target.value)
+      delay(() => {
+        // search here
+        onInput(e.target.value)
+      }, 1000)
+    }
+
+    return (
+      <div
+        style={{
+          margin: "1em",
+        }}
+      >
+        <div className="heading-search-container">
+          <div className="heading-search-shape">
+            <InputBase
+              disabled={false}
+              style={{
+                width: "100%",
+                fontFamily: "montserrat",
+                fontSize: "1em",
+                fontWeight: "500",
+                color: "#6b6b6b",
+                paddingLeft: "0.3em",
+                zIndex: 999,
+              }}
+              placeholder="Search for products here"
+              onInput={searchAfterDelay}
+              value={input}
+            />
+            {input?.length > 0 && (
+              // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
+              <div
+                style={{
+                  color: "grey",
+                  fontWeight: "bold",
+                }}
+                onClick={() => {
+                  setInput("")
+                  onInput("")
+                }}
+              >
+                X
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // This will display billers by category
+  const BillersListByCategory = () => {
+    if (currentSelectedCategory === null) {
+      return <div />
+    }
+
+    return (
+      <Box>
+        <VortexFormToolbar
+          title={"Bills"}
+          onClickBack={() => {
+            stepBack()
+          }}
+        />
+        <Toolbar />
+        <List
+          dense
+          sx={{ width: "100%", bgcolor: "background.paper", marginLeft: "1em" }}
+        >
+          {renderData.map((v) => (
+              <VortexBillerCard
+                title={v.name}
+                onClick={() => {
+                  setSelectedBiller(v)
+                  stepForward()
+                }}
+              />
+            ))}
+        </List>
+      </Box>
+    )
+  }
+
+  // This is the main layout for biller details
+  const BillerDetails = () => {
+    const [billerDetails, setbillerDetails] = useState(null)
+
+    const [isLoadingBiller, setIsLoadingBiller] = useState(false)
+
+    useEffect(async () => {
+      setIsLoadingBiller(true)
+      const vortexTokenResponse = await getVortexTokenBase()
+
+      if (vortexTokenResponse.status === 200) {
+        const vortextTokenResult = await vortexTokenResponse.json()
+        getBillerById(vortextTokenResult.access_token, selectedBiller.id).then(
+          (response) => {
+            if (response.status === 200) {
+              response.json().then((result) => {
+                console.log(result)
+                setbillerDetails(result)
+                setIsLoadingBiller(false)
+              })
+            }
+          }
+        )
+      } else {
+        setIsLoadingBiller(false)
+      }
+    }, [])
+
+    if (isLoadingBiller) {
+      return <CenteredProgress />
+    }
+
+    return (
+      <Box>
+        {!isLoggin ? (
+          <LoginPage />
+        ) : (
+          <Box>
+            <VortexFormToolbar
+              title={"Bills"}
+              onClickBack={() => {
+                stepBack()
+              }}
+            />
+            <Toolbar />
+            <Box style={{ margin: "1em", paddingTop: "1em" }}>
+              <Stack spacing={1} textAlign={"center"}>
+                <Stack direction={"row"} justifyContent={"center"}>
+                  <VortexBillerLogoComponent
+                    id={billerDetails?.id}
+                    billerName={billerDetails?.name}
+                    altComponent={
+                      <BillerIcon categoryName={billerDetails?.category} />
+                    }
+                  />
+                </Stack>
+                <Typography
+                  color="gray"
+                  style={{ fontSize: "1.5em", fontWeight: "bold" }}
+                >
+                  {billerDetails?.name.toUpperCase()}
+                </Typography>
+                <Alert severity="info">
+                  <AlertTitle>Please note</AlertTitle>
+                  <Stack textAlign={"start"}>
+                    <Typography fontSize={10}>
+                      {" "}
+                      1. Input the exact amount based on customer's provided
+                      bill. (Ex. 8016.40 instead of 8,016.4)
+                    </Typography>
+                    <Typography fontSize={10}>
+                      2. Bills, especially utility bills, should be processed on
+                      or Before due date.
+                    </Typography>
+                    <Typography fontSize={10}>
+                      3. Make sure to check previous SUCCESSFUL transactions to
+                      avoid double transaction.
+                    </Typography>
+                  </Stack>
+                </Alert>
+                <BillerFormGenerator formFields={billerDetails?.form} />
+              </Stack>
+            </Box>
+          </Box>
+        )}
+      </Box>
+    )
+  }
+
+  // This will generate the form base on the response
+  const BillerFormGenerator = ({ formFields = [] }) => {
+    const [isFormLoading, setIsFormLoading] = useState(false)
+
+    // for (let index = 0; index < formFields?.length; index++) {
+    //   initValues[`${formFields[index]?.fieldRules[0].elementName}`] = ""
+    // }
+
+    const formSchema = yup.object({
+      AmountDue: yup
+        .number()
+        .oneOf(
+          [yup.ref("AmountPaid"), null],
+          "AmountDue and Amount paid must match"
+        ),
+      AmountPaid: yup
+        .number()
+        .oneOf(
+          [yup.ref("AmountDue"), null],
+          "AmountDue and AmountPaid must match"
+        ),
+    })
+
+    console.log(formFields)
+
+    return (
+      <Box>
+        <Formik
+          initialValues={inputFormData}
+          onSubmit={async (data) => {
+            try {
+              setinputFormData(data)
+
+              // setIsFormLoading(true)
+
+              // todo: add minimum value for money validation - can't add it on html form as we are using strings
+
+              if (Reflect.has(data, "billAmount"))
+                data.billAmount = parseFloat(data.billAmount).toFixed(2)
+
+              if (Reflect.has(data, "AmountPaid"))
+                data.AmountPaid = parseFloat(data.AmountPaid).toFixed(2)
+
+              if (Reflect.has(data, "amount"))
+                data.amount = parseFloat(data.amount).toFixed(2)
+
+              const { convenienceFee, grandTotalFee } = getServiceFee({
+                amount: data?.billAmount || data?.AmountPaid || data?.amount,
+                currency: platformVariables.currency,
+              })
+
+              console.log("Grand total", platformVariables.billsCurrencyToPeso)
+
+              const collectedBillDetails = trimObjValues(data)
+
+              const reqInputPayload = {
+                billerId: selectedBiller.id,
+                billDetails: { ...collectedBillDetails },
+                callbackUrl: "app.sparkles.com.ph",
+              }
+
+              const result = await saveVortexBillsPaymentTransaction({
+                requestInputPayload: reqInputPayload,
+                totalAmount: grandTotalFee,
+              })
+
+              setTransactionDocId(result._id)
+
+              setTransactionReferenceId(result.referenceNumber)
+
+              setIsFormLoading(false)
+
+              setBillDetails(collectedBillDetails)
+
+              stepForward()
+
+              console.log(collectedBillDetails)
+            } catch (error) {
+              setErrorData({
+                isError: true,
+                message: `${error}`,
+              })
+            }
+          }}
+          validationSchema={formSchema}
+        >
+          {({ handleChange, values }) => (
+            <Form>
+              <Stack spacing={2} margin={2}>
+                {formFields.map((v) => {
+                  // Date input
+                  if (v?.fieldRules[0]?.inputType === "date") {
+                    const date = new Date()
+                    const today = `${date.getFullYear()}-${date
+                      .getMonth()
+                      .toString()
+                      .padStart(2, 0)}-${date
+                        .getDay()
+                        .toString()
+                        .padStart(2, 0)}`
+
+                    return (
+                      <TextField
+                        name={v?.fieldRules[0]?.elementName}
+                        helperText={v?.fieldName}
+                        required={v?.fieldRules[0]?.requiredField}
+                        type={v?.fieldRules[0]?.inputType}
+                        disabled={
+                          v?.fieldRules[0]?.state !== "enabled"
+                        }
+                        hidden={v?.fieldRules[0]?.hidden}
+                        inputProps={{
+                          maxLength: v?.fieldRules[0]?.maxFieldLength,
+                          minLength: v?.fieldRules[0]?.minFieldLength,
+                        }}
+                        onChange={handleChange}
+                      />
+                    )
+                  }
+
+                  // Select or drop down input
+                  if (v?.fieldRules[0]?.inputType === "select") {
+                    const selectOptions =
+                      v?.fieldRules[0]?.inputTypeOption.split(",")
+                    return (
+                      <FormControl>
+                        <InputLabel id="demo-simple-select-helper-label">
+                          {v?.fieldName}
+                        </InputLabel>
+                        <Select
+                          name={v?.fieldRules[0]?.elementName}
+                          label={v?.fieldName}
+                          required={v?.fieldRules[0]?.requiredField}
+                          type={v?.fieldRules[0]?.inputType}
+                          disabled={
+                            v?.fieldRules[0]?.state !== "enabled"
+                          }
+                          onChange={handleChange}
+                        >
+                          {selectOptions.map((option) => (
+                            <MenuItem value={option.split(":")[0]}>
+                              {option.split(":")[1]}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                        <FormHelperText>
+                          {v?.fieldRules[0]?.inputFormat}
+                        </FormHelperText>
+                      </FormControl>
+                    )
+                  }
+
+                  if (v?.fieldRules[0]?.inputType === 'text' && v?.fieldRules[0]?.elementName === 'mobile_number') {
+                    return <PhoneTextfield
+                      countryCodeIndex={971}
+                      name={v?.fieldRules[0]?.elementName}
+                      label={v?.fieldName}
+                      required={v?.fieldRules[0]?.requiredField}
+                      type={v?.fieldRules[0]?.inputType}
+                      disabled={
+                        v?.fieldRules[0]?.state !== "enabled"
+                      }
+                      hidden={v?.fieldRules[0]?.hidden}
+                      inputProps={{
+                        datatype: v?.fieldRules[0]?.dataType,
+                        maxLength: v?.fieldRules[0]?.maxFieldLength,
+                        minLength: v?.fieldRules[0]?.minFieldLength,
+                      }}
+                      helperText={v?.fieldRules[0]?.inputFormat}
+                    />
+                  }
+
+                  // Default text input
+                  return (
+                    <VortexCustomTextField
+                      name={v?.fieldRules[0]?.elementName}
+                      label={v?.fieldName}
+                      required={v?.fieldRules[0]?.requiredField}
+                      type={v?.fieldRules[0]?.inputType}
+                      disabled={
+                        v?.fieldRules[0]?.state !== "enabled"
+                      }
+                      hidden={v?.fieldRules[0]?.hidden}
+                      inputProps={{
+                        datatype: v?.fieldRules[0]?.dataType,
+                        maxLength: v?.fieldRules[0]?.maxFieldLength,
+                        minLength: v?.fieldRules[0]?.minFieldLength,
+                      }}
+                      helperText={v?.fieldRules[0]?.inputFormat}
+                    />
+                  )
+                })}
+                <Button
+                  disabled={isFormLoading}
+                  variant="contained"
+                  type="submit"
+                  sx={{
+                    width: "100%",
+                    marginTop: "1em",
+                    borderRadius: "2em",
+                    height: "3em",
+                    color: "white !important",
+                    background: primaryVortexTheme.button,
+                  }}
+                >
+                  {isFormLoading ? "Please wait..." : "CONTINUE"}
+                </Button>
+              </Stack>
+            </Form>
+          )}
+        </Formik>
+
+        <Box sx={{ height: "10em" }} />
+      </Box>
+    )
+  }
+
+  const ReviewConfirmationForm = () => {
+    const paymentMethodType = ls.get("paymentMethodType")
+    const fields = jsonFieldsToArray(billDetails)
+    // let [paymentDetails, setPaymentDetails] = useState({})
+
+    // const { email, name, phone, address } = getUser()
+
+    const { convenienceFee, grandTotalFee } = getServiceFee({
+      amount:
+        billDetails?.billAmount ||
+        billDetails?.AmountPaid ||
+        billDetails?.amount,
+      currency: "PHP",
+    })
+
+    const [isLoadingPrivate, setIsLoadingPrivate] = useState(false)
+    const [isPaymentMethodGCash, setisPaymentMethodGCash] = useState(false)
+    const [expanded, setExpanded] = useState("panel1")
+
+    const handleAccordionChange = (panel) => (event, isExpanded) => {
+      console.log(panel, isExpanded)
+      // setExpanded(isExpanded ? panel : false)
+      if (panel === "panel1" && isExpanded === false) {
+        setExpanded("panel2")
+      } else if (panel === "panel1" && isExpanded) {
+        setExpanded("panel1")
+      } else if (panel === "panel2" && isExpanded === false) {
+        setExpanded("panel1")
+      } else if (panel === "panel2" && isExpanded) {
+        setExpanded("panel2")
+      }
+    }
+
+    return (
+      <Box>
+        {!isLoggin ? (
+          <LoginPage />
+        ) : (
+          <div style={{ zIndex: 0 }}>
+            {/* {isLoading && <CenteredProgress />} */}
+            {!isLoadingPrivate && (
+              <>
+                <VortexFormToolbar
+                  title={"Bills payment"}
+                  onClickBack={() => {
+                    stepBack()
+                  }}
+                />
+                <Toolbar />
+                <Box style={{ margin: "2em 1em 1em 1em  " }}>
+                  <Stack style={{ margin: "0.5em" }}>
+                    <Typography
+                      style={{
+                        color: "#0060bf",
+                        marginTop: "1em",
+                      }}
+                      fontWeight={"bold"}
+                      fontSize={30}
+                    >
+                      Account Details
+                    </Typography>
+                    <Divider />
+                  </Stack>
+                  <Stack spacing={2} style={{ marginBottom: "1em" }}>
+                    {/* <Stack direction={"row"} justifyContent={"space-between"}>
+                      <Typography
+                        fontWeight={"bold"}
+                        style={{
+                          color: "grey",
+                        }}
+                        sx={{ textTransform: "capitalize" }}
+                      >
+                        Account Name
+                      </Typography>
+
+                      <Typography fontWeight={"bold"}>
+                        {paymentDetails?.name}
+                      </Typography>
+                    </Stack> */}
+                    {fields.map((field) => (
+                        <Stack
+                          direction={"row"}
+                          justifyContent={"space-between"}
+                        >
+                          <Typography
+                            fontWeight={"bold"}
+                            style={{
+                              color: "grey",
+                            }}
+                            sx={{ textTransform: "capitalize" }}
+                          >
+                            {field[0]
+                              .replace("_", " ")
+                              .trim()
+                              .replace(/[A-Z]/g, " $&")
+                              .trim()}
+                          </Typography>
+
+                          <Typography fontWeight={"bold"}>
+                            {field[1]}
+                          </Typography>
+                        </Stack>
+                      ))}
+                    <Divider />
+
+                    <Typography
+                      style={{
+                        color: "#0060bf",
+                        marginTop: "1em",
+                      }}
+                      fontWeight={"bold"}
+                      fontSize={15}
+                    >
+                      You're about to pay
+                    </Typography>
+
+                    <Stack direction={"row"} justifyContent={"space-between"}>
+                      <Typography
+                        fontWeight={"bold"}
+                        style={{
+                          color: "grey",
+                        }}
+                        sx={{ textTransform: "capitalize" }}
+                      >
+                        Convenience Fee
+                      </Typography>
+
+                      {expanded === "panel2" ? (
+                        <Typography fontWeight={"bold"}>{`0 PHP`}</Typography>
+                      ) : (
+                        <Typography
+                          fontWeight={"bold"}
+                          style={{ marginRight: "2em" }}
+                        >{`${convenienceFee} ${platformVariables.currencySymbol}`}</Typography>
+                      )}
+                    </Stack>
+
+                    <Stack direction={"row"} justifyContent={"space-between"}>
+                      <Typography
+                        fontWeight={"bold"}
+                        style={{
+                          color: "grey",
+                        }}
+                      >{`Total Amount`}</Typography>
+                      <Typography
+                        fontWeight={"bold"}
+                        style={{ marginRight: "2em" }}
+                      >{`${grandTotalFee} ${platformVariables.currencySymbol}`}</Typography>
+                    </Stack>
+                    <Box height={20} />
+                    <Button
+                      disabled={isLoadingPrivate}
+                      variant="contained"
+                      onClick={async () => {
+                        const url = 'https://pm.link/123123123123123za23/test/DGSwn7b';
+                        window.open(url, '_blank');
+                        // setIsLoadingPrivate(true)
+                        // await handleVortexCashRequest({
+                        //   docId: transactionDocId,
+                        //   total: grandTotalFee,
+                        // })
+                      }}
+                    >
+                      {isLoadingPrivate ? "Please wait..." : "RECEIVE PAYMENT"}
+                    </Button>
+                  </Stack>
+
+                  {/* <Accordion expanded={expanded === 'panel1'} onChange={handleAccordionChange('panel1')}>
+                    <AccordionSummary
+                      expandIcon={<ExpandMoreIcon />}
+                      aria-controls="panel1a-content"
+                      id="panel1a-header"
+                    >
+                      <Typography>Credit/Debit Card</Typography>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                      <PayPalScriptProvider
+                        options={{
+                          "client-id": process.env.GATSBY_PAYPAL_CLIENT_ID,
+                          currency: "PHP",
+                        }}
+                      >
+                        <PayPalButtons
+                          createOrder={(data, actions) => {
+                            return actions.order.create({
+                              purchase_units: [
+                                {
+                                  amount: {
+                                    //Vortex transaction amount
+                                    value: grandTotalFee,
+                                  },
+                                  description: `Payment for ${selectedBiller?.name}`,
+                                },
+                              ],
+                              application_context: {
+                                brand_name: "Sparkle Star International",
+                                shipping_preference: "NO_SHIPPING",
+                              },
+                            })
+                          }}
+                          onApprove={(data, actions) => {
+                            return actions.order.capture().then(async (details) => {
+                              let paymentData = {
+                                data: data,
+                                details: details,
+                              }
+
+                              await handleVortexRequest({
+                                docId: transactionDocId,
+                                paymentData: paymentData,
+                              })
+                            })
+                          }}
+                          style={{ layout: "vertical" }}
+                        />
+                      </PayPalScriptProvider>
+                    </AccordionDetails>
+                  </Accordion> */}
+                  {/* <Accordion expanded={expanded === 'panel2'} onChange={handleAccordionChange('panel2')}>
+                    <AccordionSummary
+                      expandIcon={<ExpandMoreIcon />}
+                      aria-controls="panel2a-content"
+                      id="panel2a-header"
+                    >
+                      <Typography>e-Wallet</Typography>
+                    </AccordionSummary>
+                    <AccordionDetails> */}
+                  {/* <Typography>
+                      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse
+                      malesuada lacus ex, sit amet blandit leo lobortis eget.
+                    </Typography> */}
+
+                  {/* </AccordionDetails>
+                  </Accordion> */}
+                </Box>
+              </>
+            )}
+            <Backdrop
+              sx={{ zIndex: 900 }}
+              open={isLoadingPrivate}
+              onClick={() => { }}
+            >
+              <CircularProgress />
+            </Backdrop>
+          </div>
+        )}
+      </Box>
+    )
+  }
+
+  function FormRender(step) {
+    switch (step) {
+      case 0:
+        return <BillsPaymentCategoriesPage />
+      case 1:
+        return <BillerDetails />
+      case 2:
+        return <ReviewConfirmationForm />
+      default:
+
+    }
+  }
+
+  return (
+    <>
+    <div> hello world</div>
+    {FormRender(activeStep)}
+    <VortexBottomGradient />
+      {platformVariables?.enableBills === false && <ServiceDisabledPrompt />}
+      {storeStatus === 0 && <StoreBlockPrompt />}
+      {userStatus === 0 && <BlockPrompt />}
+      {userStatus === 1 && storeStatus === 1 && platformVariables?.enableBills && (
+        <div>
+          <Backdrop sx={{ zIndex: 900 }} open={isLoading} onClick={() => { }}>
+            <CircularProgress />
+          </Backdrop>
+          {error.isError ? (
+            <VortexError
+              message={error.message}
+              onClick={() => {
+                setErrorData({
+                  isError: false,
+                  message: "",
+                })
+                setActiveStep(0)
+              }}
+            />
+          ) : (
+            <div
+              style={{
+                marginBottom: "5em",
+              }}
+            >
+              {FormRender(activeStep)}
+            </div>
+          )}
+          <VortexBottomGradient />
+          <BottomNavigator />
+        </div>
+      )}
     </>
-  );
+  )
 }
+
+export default VortexBillsPaymentPage

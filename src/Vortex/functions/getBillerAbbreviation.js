@@ -1,5 +1,6 @@
+/* eslint-disable default-case */
 export default function getBillerAbbreviation(biller) {
-  let { name } = biller
+  const { name } = biller
   let abbreviation = name
 
   switch (name) {

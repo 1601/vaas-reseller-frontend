@@ -1,7 +1,6 @@
 import React from "react"
 
-const VortexBottomGradient = () => {
-  return (
+const VortexBottomGradient = () => (
     <div
       style={{
         background:
@@ -13,8 +12,7 @@ const VortexBottomGradient = () => {
         bottom: 0,
         pointerEvents: "none",
       }}
-    ></div>
+     />
   )
-}
 
 export default VortexBottomGradient

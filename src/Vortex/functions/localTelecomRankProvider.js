@@ -15,7 +15,7 @@ export default function localTelecomRankProvider(telecom) {
     case "ROW":
       return 0
 
-      //this is for the bills payment
+      // this is for the bills payment
     case 'SMART Broadband':
       return 100
     case 'PLDT':

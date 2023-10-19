@@ -1,15 +1,11 @@
 import { IconButton, Stack, Toolbar, Typography, AppBar } from "@mui/material"
 import { Box } from "@mui/system"
 import React from "react"
-import ArrowBackButton from "../../Buttons/ArrowBackButton"
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft"
-import ArrowCircleLeftIcon from "@mui/icons-material/ArrowCircleLeft"
-import { theme } from "../../../assets/mui"
 import { primaryVortexTheme } from "../config/theme"
-import Logo from "../../../assets/svg/logos/powered-by-pldt.png"
 
-const VortexFormToolbar = ({ title = "", onClickBack = () => {} }) => {
-  return (
+
+const VortexFormToolbar = ({ title = "", onClickBack = () => {} }) => (
     <AppBar
       position="fixed"
       style={{ background: primaryVortexTheme.accentColor }}
@@ -55,13 +51,12 @@ const VortexFormToolbar = ({ title = "", onClickBack = () => {} }) => {
               height: "21.4px",
               marginTop: '6px'
             }}
-            src={Logo}
+            src={primaryVortexTheme.logo}
             alt="Spark Waving burstless"
           />
         </div>
       </Toolbar>
     </AppBar>
   )
-}
 
 export default VortexFormToolbar

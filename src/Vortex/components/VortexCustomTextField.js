@@ -1,7 +1,7 @@
+/* eslint-disable no-useless-escape */
 import React, { useEffect } from "react"
 import { TextField } from "@mui/material"
 import { useField } from "formik"
-import MoneyInput from "@rschpdr/react-money-input";
 
 const VortexCustomTextField = ({
   type,
@@ -64,7 +64,7 @@ const VortexCustomTextField = ({
         />
       </>
     )
-  } else {
+  } 
 
     return (
       <TextField
@@ -83,7 +83,7 @@ const VortexCustomTextField = ({
         }}
       />
     )
-  }
+  
 
 }
 

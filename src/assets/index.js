@@ -1,0 +1,26 @@
+/* eslint-disable global-require */
+export const AirlinesIcon = require("./svg/vortex/Vortex_Airlines-01.svg")
+export const BankIcon = require("./svg/vortex/Vortex_Bank-01.svg")
+export const CableAndInternetIcon = require("./svg/vortex/Vortex_Cable&Internet-01.svg")
+export const ConsumerFinanceIcon = require("./svg/vortex/Vortex_Consumer_Finance-01.svg")
+export const ElectricityIcon = require("./svg/vortex/Vortex_electricity-01.svg")
+export const FinancialServicesIcon = require("./svg/vortex/Vortex_Financial_Services-01.svg")
+export const GovernmentIcon = require("./svg/vortex/Vortex_Government-01.svg")
+export const HealthCareIcon = require("./svg/vortex/Vortex_Healthcare-01.svg")
+export const InsuranceIcon = require("./svg/vortex/Vortex_Insurance-01.svg")
+export const PaymentGatewayIcon = require("./svg/vortex/Vortex_Payment_Gateway-01.svg")
+export const RealStateIcon = require("./svg/vortex/Vortex_Real-Estates-01.svg")
+export const LoansIcon = require("./svg/vortex/Vortex_Loans-01.svg")
+export const WaterIcon = require("./svg/vortex/Vortex_Water-01.svg")
+export const PhoneAndInternetIcon = require("./svg/vortex/Vortex_Phone&Internet-01.svg")
+
+
+/// vouchers
+export const FoodIcon = require('./svg/vortex/vortex-food-and-restaurant.svg')
+export const ShoppingIcon = require('./svg/vortex/vortex-shopping.svg')
+export const LifeStyleIcon = require('./svg/vortex/Vortex_Leisure&Lifestyle-01.svg')
+export const HomeAppliancesIcon  = require('./svg/vortex/Vortex_electricity-01.svg')
+export const MedicalIcon = require('./svg/vortex/Vortex_Healthcare-01.svg')
+export const BookstoreIcon = require('./svg/vortex/Vortex_Shopping-01.svg')
+export const HardwareIcon = require('./svg/vortex/Vortex_Real-Estates-01.svg')
+export const KidsIcon = require('./svg/vortex/Vortex_Toys-01.svg')
