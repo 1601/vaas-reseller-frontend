@@ -24,8 +24,10 @@ import {
   Autocomplete,
   Menu,
   MenuItem,
+  Fab,
+  Icon,
 } from '@mui/material';
-import { ArrowLeft, ArrowRight } from '@mui/icons-material';
+import { ArrowLeft, ArrowRight, DoneIcon } from '@mui/icons-material';
 import EditIcon from '@mui/icons-material/Edit';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import ValidatedManageReseller from '../../components/validation/ValidatedManageReseller';
@@ -469,7 +471,18 @@ const ManageReseller = () => {
 
       {/* Modal/Dialog for adding a new reseller */}
       <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
-        <DialogTitle id="form-dialog-title">Add Reseller</DialogTitle>
+        <DialogTitle
+          id="form-dialog-title"
+          sx={{
+            backgroundColor: '#7A52F4',
+            color: 'white',
+            padding: '16px',
+            textAlign: 'center',
+            fontSize: '35px !important',
+          }}
+        >
+          Add Reseller
+        </DialogTitle>
         <DialogContent>
           <ValidatedManageReseller
             validationFunction={validateEmail}
@@ -563,17 +576,35 @@ const ManageReseller = () => {
             value={formState.companyName}
             onChange={handleInputChange}
             onBlur={handleBlur}
-            sx={{ mb: 2 }}
+            sx={{ mb: 0.4 }}
             error={!!validationErrors.companyName}
             helperText={validationErrors.companyName}
           />
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose} color="primary">
-            Cancel
+        <DialogActions
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
+        >
+          <Button
+            variant="contained"
+            style={{
+              width: '140px',
+              height: '40px',
+              borderRadius: '22px 22px 22px 22px', 
+              fontSize: '14px',
+              backgroundColor: '#7A52F4',
+              color: '#fff', 
+            }}
+            onClick={handleAddReseller}
+          >
+            Submit
           </Button>
-          <Button onClick={handleAddReseller} color="primary">
-            Add
+
+          <Button onClick={handleClose} color="primary" sx={{ mb: 2 }}>
+            Cancel
           </Button>
         </DialogActions>
       </Dialog>
