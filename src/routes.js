@@ -33,6 +33,7 @@ import ProfilePage from './pages/DealerPages/ProfilePage';
 import VerifyInLoginPage from './pages/AuthPages/VerifyInLoginPage';
 import ProfileSettings from './pages/DealerPages/ProfileSettings';
 import FAQs from './pages/OtherPages/FAQs';
+import ManageReseller from './pages/DealerPages/ManageReseller';
 
 // ----------------------------------------------------------------------
 
@@ -139,7 +140,7 @@ export default function Router() {
           children: [
             { path: '/dashboard/store', element: <Navigate to="storefront" replace />, index: true },
             { path: 'storefront', element: <StorePageEdit /> },
-            { path: 'resellers', element: <StorePageEdit /> },
+            { path: 'resellers', element: <ManageReseller /> },
           ],
         },
         { path: 'customer', element: <UserPage /> },
