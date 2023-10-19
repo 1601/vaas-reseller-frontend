@@ -604,9 +604,6 @@ const VortexBillsPaymentPage = () => {
 
     return (
       <Box>
-        {!isLoggin ? (
-          <LoginPage />
-        ) : (
           <Box>
             <VortexFormToolbar
               title={"Bills"}
@@ -632,7 +629,7 @@ const VortexBillsPaymentPage = () => {
                 >
                   {billerDetails?.name.toUpperCase()}
                 </Typography>
-                <Alert severity="info">
+                <Alert severity="info" style={{display: "flex", alignSelf: "center"}}>
                   <AlertTitle>Please note</AlertTitle>
                   <Stack textAlign={"start"}>
                     <Typography fontSize={10}>
@@ -654,7 +651,6 @@ const VortexBillsPaymentPage = () => {
               </Stack>
             </Box>
           </Box>
-        )}
       </Box>
     )
   }
@@ -690,6 +686,7 @@ const VortexBillsPaymentPage = () => {
           initialValues={inputFormData}
           onSubmit={async (data) => {
             try {
+              console.log(data)
               setinputFormData(data)
 
               // setIsFormLoading(true)
@@ -710,32 +707,37 @@ const VortexBillsPaymentPage = () => {
                 currency: platformVariables.currency,
               })
 
-              console.log("Grand total", platformVariables.billsCurrencyToPeso)
+              // console.log("Grand total", platformVariables.billsCurrencyToPeso)
 
               const collectedBillDetails = trimObjValues(data)
-
-              const reqInputPayload = {
-                billerId: selectedBiller.id,
-                billDetails: { ...collectedBillDetails },
-                callbackUrl: "app.sparkles.com.ph",
-              }
-
-              const result = await saveVortexBillsPaymentTransaction({
-                requestInputPayload: reqInputPayload,
-                totalAmount: grandTotalFee,
-              })
-
-              setTransactionDocId(result._id)
-
-              setTransactionReferenceId(result.referenceNumber)
-
-              setIsFormLoading(false)
-
+              console.log("billDetails", collectedBillDetails)
+              
               setBillDetails(collectedBillDetails)
 
               stepForward()
 
-              console.log(collectedBillDetails)
+              // const reqInputPayload = {
+              //   billerId: selectedBiller.id,
+              //   billDetails: { ...collectedBillDetails },
+              //   callbackUrl: "app.sparkles.com.ph",
+              // }
+
+              // const result = await saveVortexBillsPaymentTransaction({
+              //   requestInputPayload: reqInputPayload,
+              //   totalAmount: grandTotalFee,
+              // })
+
+              // setTransactionDocId(result._id)
+
+              // setTransactionReferenceId(result.referenceNumber)
+
+              // setIsFormLoading(false)
+
+              // setBillDetails(collectedBillDetails)
+
+              // stepForward()
+
+              
             } catch (error) {
               setErrorData({
                 isError: true,
@@ -861,7 +863,7 @@ const VortexBillsPaymentPage = () => {
                     borderRadius: "2em",
                     height: "3em",
                     color: "white !important",
-                    background: primaryVortexTheme.button,
+                    background: "blue !important",
                   }}
                 >
                   {isFormLoading ? "Please wait..." : "CONTINUE"}
@@ -891,7 +893,7 @@ const VortexBillsPaymentPage = () => {
       currency: "PHP",
     })
 
-    const [isLoadingPrivate, setIsLoadingPrivate] = useState(false)
+    const [isLoadingPrivate, setIsLoadingPrivate] = useState(true) // true for render testing
     const [isPaymentMethodGCash, setisPaymentMethodGCash] = useState(false)
     const [expanded, setExpanded] = useState("panel1")
 
@@ -911,9 +913,7 @@ const VortexBillsPaymentPage = () => {
 
     return (
       <Box>
-        {!isLoggin ? (
-          <LoginPage />
-        ) : (
+        
           <div style={{ zIndex: 0 }}>
             {/* {isLoading && <CenteredProgress />} */}
             {!isLoadingPrivate && (
@@ -1121,7 +1121,7 @@ const VortexBillsPaymentPage = () => {
               <CircularProgress />
             </Backdrop>
           </div>
-        )}
+        
        </Box>
     )
   }
