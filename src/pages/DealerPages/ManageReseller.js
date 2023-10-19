@@ -442,18 +442,20 @@ const ManageReseller = () => {
                       <TableCell>{reseller.companyName}</TableCell>
                       <TableCell>
                         <StatusLabel status={reseller.status} />
-                        <IconButton
-                          size="small"
-                          style={{ marginLeft: '8px' }}
-                          onClick={(e) => handleStatusClick(e, reseller._id)}
-                        >
-                          <EditIcon fontSize="inherit" />
-                        </IconButton>
                       </TableCell>
                       <TableCell>
-                        <IconButton size="small">
-                          <MoreVertIcon fontSize="inherit" />
-                        </IconButton>
+                        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                          <IconButton
+                            size="small"
+                            style={{ marginRight: '8px' }}
+                            onClick={(e) => handleStatusClick(e, reseller._id)}
+                          >
+                            <EditIcon fontSize="inherit" />
+                          </IconButton>
+                          <IconButton size="small">
+                            <MoreVertIcon fontSize="inherit" />
+                          </IconButton>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -593,10 +595,10 @@ const ManageReseller = () => {
             style={{
               width: '140px',
               height: '40px',
-              borderRadius: '22px 22px 22px 22px', 
+              borderRadius: '22px 22px 22px 22px',
               fontSize: '14px',
               backgroundColor: '#7A52F4',
-              color: '#fff', 
+              color: '#fff',
             }}
             onClick={handleAddReseller}
           >
