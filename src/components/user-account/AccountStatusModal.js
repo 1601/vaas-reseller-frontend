@@ -19,7 +19,6 @@ const AccountStatusModal = ({ open, onClose, userData, storeData}) => {
   const [remainingDays, setRemainingDays] = useState(0);
   const [isSuspended, setIsSuspended] = useState(false);
   const [isDeactivated, setIsDeactivated] = useState(false);
-  console.log("isSuspended status:", isSuspended);
 
   useEffect(() => {
     if (storeData && storeData.freeTrialStarted) {

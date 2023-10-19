@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { alpha } from '@mui/material/styles';
 import { Box, Divider, Typography, Stack, MenuItem, Avatar, IconButton, Popover } from '@mui/material';
 // mocks_
-import account from '../../../_mock/account';
+import useAccount from '../../../_mock/useAccount';
 import { handleLogout } from '../../../sections/auth/logout/Logout';
 
 // ----------------------------------------------------------------------
@@ -19,6 +19,7 @@ const MENU_OPTIONS = [
   {
     label: 'Profile',
     icon: 'eva:person-fill',
+    path: '/dashboard/profile',
   },
   {
     label: 'Settings',
@@ -31,6 +32,7 @@ const MENU_OPTIONS = [
 export default function AccountPopover() {
   const navigate = useNavigate();
   const [open, setOpen] = useState(null);
+  const account = useAccount();
 
   const handleOpen = (event) => {
     setOpen(event.currentTarget);

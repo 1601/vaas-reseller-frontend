@@ -10,8 +10,6 @@ const AdminApproval = () => {
     const [ownerId, setOwnerId] = useState(null);
 
     useEffect(() => {
-        console.log('storeId:', storeId);
-
         const fetchStoreDetails = async () => {
             try {
                 const response = await axios.get(

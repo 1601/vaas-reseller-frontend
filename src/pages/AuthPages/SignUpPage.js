@@ -5,30 +5,60 @@ import { Helmet } from 'react-helmet-async';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
 import {
-  Link,
-  Container,
-  Typography,
-  Divider,
   Button,
-  TextField,
+  Card,
+  CardContent,
+  CardHeader,
+  CardMedia,
+  Checkbox,
+  Container,
   Dialog,
-  DialogTitle,
-  DialogContent,
-  FormControl,
-  FormHelperText,
-  InputLabel,
-  Select,
-  MenuItem,
-  DialogContentText,
   DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Divider,
+  FormControl,
+  FormControlLabel,
+  FormHelperText,
+  Grid,
+  InputLabel,
+  Link,
+  MenuItem,
+  Paper,
+  Select,
+  TextField,
+  Typography,
 } from '@mui/material';
 import InputAdornment from '@mui/material/InputAdornment';
 import IconButton from '@mui/material/IconButton';
 import Autocomplete from '@mui/lab/Autocomplete';
+import Slider from 'react-slick';
+import 'slick-carousel/slick/slick.css';
+import 'slick-carousel/slick/slick-theme.css';
+import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 import { Icon as Iconify } from '@iconify/react';
+import { allBanner } from '../../api/public/banner';
 import Logo from '../../components/logo';
 import { countries } from '../../components/country/CountriesList';
-import VerifyPage from './VerifyPage'
+import { countryCodes } from '../../components/country/countryNumCodes';
+import termsAndAgreement from '../../components/agreements/termsAndAgreement';
+import VerifyPage from './VerifyPage';
+import { mobileNumberLengths } from '../../components/country/countryNumLength';
+
+const StyledCard = styled(Card)(({ theme }) => ({
+  padding: theme.spacing(2),
+  textAlign: 'center',
+}));
+
+const StyledCardMedia = styled(CardMedia)({
+  height: 150,
+});
+
+const StyledPaper = styled(Paper)({
+  width: '80%',
+  margin: '0 auto',
+});
 
 const StyledRoot = styled('div')(({ theme }) => ({
   [theme.breakpoints.up('md')]: {
@@ -46,6 +76,49 @@ const StyledContent = styled('div')(({ theme }) => ({
   padding: theme.spacing(12, 0),
 }));
 
+function TermsDialog({ open, onClose, onAgree }) {
+  const [isScrolledToEnd, setIsScrolledToEnd] = useState(false);
+
+  const handleScroll = (e) => {
+    const bottom = e.target.scrollHeight - e.target.scrollTop === e.target.clientHeight;
+    setIsScrolledToEnd(bottom);
+  };
+
+  return (
+    <Dialog open={open} onClose={onClose} scroll="paper">
+      <DialogTitle>Terms and Conditions</DialogTitle>
+      <DialogContent dividers>
+        <div
+          style={{
+            overflowY: 'auto',
+            maxHeight: 400,
+            whiteSpace: 'pre-line',
+          }}
+          onScroll={handleScroll}
+        >
+          <p>{termsAndAgreement}</p>
+        </div>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose} color="primary">
+          Close
+        </Button>
+        <Button onClick={onAgree} color="primary" disabled={!isScrolledToEnd}>
+          Agree to Terms
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+}
+
+const Slide = ({ image, alt }) => {
+  return (
+    <StyledCard>
+      <StyledCardMedia component="img" alt={alt} image={image} />
+    </StyledCard>
+  );
+};
+
 export default function SignUpPage() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -56,11 +129,12 @@ export default function SignUpPage() {
     lastName: '',
     designation: '',
     email: '',
-    mobileNumber: '',
+    mobileNumber: undefined,
     country: '',
     ipAddress: '',
     username: '',
     password: '',
+    confirmPassword: '',
   });
   const [errorMessage, setErrorMessage] = useState('');
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
@@ -72,8 +146,18 @@ export default function SignUpPage() {
   const [passwordHelperText, setPasswordHelperText] = useState('');
   const [isEmailValid, setIsEmailValid] = useState(true);
   const [emailErrorMessage, setEmailErrorMessage] = useState('');
-  const [succesSignup, setSuccesSignup] = useState(false)
+  const [succesSignup, setSuccesSignup] = useState(false);
   const [errorDialogOpen, setErrorDialogOpen] = useState(false);
+  const [isTermsAccepted, setIsTermsAccepted] = useState(false);
+  const [isTermsDialogOpen, setIsTermsDialogOpen] = useState(false);
+  const [isScrolledToEnd, setIsScrolledToEnd] = useState(false);
+  const [mobileError, setMobileError] = useState(false);
+  const [banners, setBanners] = useState();
+
+  const handleScroll = (e) => {
+    const bottom = e.target.scrollHeight - e.target.scrollTop === e.target.clientHeight;
+    setIsScrolledToEnd(bottom);
+  };
 
   const [fieldErrors, setFieldErrors] = useState({
     firstName: false,
@@ -86,25 +170,107 @@ export default function SignUpPage() {
     ipAddress: false,
     username: false,
     password: false,
+    confirmPassword: false,
   });
+
+  const [dirtyFields, setDirtyFields] = useState({
+    firstName: false,
+    middleName: false,
+    lastName: false,
+    email: false,
+    mobileNumber: false,
+    username: false,
+    password: false,
+    confirmPassword: false,
+  });
+
+  const openTermsDialog = () => {
+    setIsTermsDialogOpen(true);
+  };
+
+  const agreeToTerms = () => {
+    setIsTermsDialogOpen(false);
+    setIsTermsAccepted(true);
+  };
+
+  const validateName = (name) => {
+    // Allows only letters, hyphens, apostrophes, and spaces
+    const nameRegex = /^[a-zA-Z-' ]+$/;
+    return nameRegex.test(name);
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    const isNameField = ['firstName', 'middleName', 'lastName'].includes(name);
+
+    // Update the form data immediately
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [name]: value,
+    }));
+
+    // Update field errors based on new input
+    setFieldErrors((prevFieldErrors) => {
+      const newErrorState = { ...prevFieldErrors };
+
+      // If it's a name field, validate against the name regex
+      if (isNameField) {
+        newErrorState[name] = !value.trim() || !validateName(value);
+      } else {
+        // For other fields, you might want to validate differently or not at all
+        newErrorState[name] = !value.trim();
+      }
+
+      return newErrorState;
+    });
+  };
+
+  const validateMobileNumber = (country, number) => {
+    const expectedLength = mobileNumberLengths[country];
+    const actualLength = number.length;
+
+    if (!expectedLength) {
+      return 'Unsupported country';
+    }
+    if (actualLength < expectedLength) {
+      return 'Number is too short';
+    }
+    if (actualLength > expectedLength) {
+      return 'Number is too long';
+    }
+
+    return '';
+  };
+
+  const handleMobileChange = (e) => {
+    const value = e.target.value;
+
+    // Validate mobile number with regex
+    const mobileRegex = /^[\d+-]+$/;
+    if (!mobileRegex.test(value) || value.replace(countryCodes[formData.country] || '', '').trim() === '') {
+      setMobileError(true);
+      setErrorMessage("Wrong Number format. Please use only digits and optional '+'.");
+    } else {
+      const errorMessage = validateMobileNumber(formData.country, value);
+      if (errorMessage) {
+        setMobileError(true);
+        setErrorMessage(errorMessage);
+      } else {
+        setMobileError(false);
+        setErrorMessage('');
+      }
+    }
+
     setFormData({
       ...formData,
-      [name]: value,
+      mobileNumber: value,
     });
-    // Reset error state on typing
-    setFieldErrors({
-      ...fieldErrors,
-      [name]: false,
-    });
-  }; 
+  };
 
   const validateEmailAndCheckExistence = async (email) => {
     let valid = true;
     let message = '';
-  
+
     // Client-side validation first
     if (!email) {
       valid = false;
@@ -116,7 +282,7 @@ export default function SignUpPage() {
         message = 'Invalid email format';
       }
     }
-  
+
     // If client-side validation passes, check with the server
     if (valid) {
       try {
@@ -132,30 +298,26 @@ export default function SignUpPage() {
         }
       }
     }
-  
+
     // Update the state once, based on both checks
     setIsEmailValid(valid);
     setEmailErrorMessage(message);
     setFieldErrors((prev) => ({ ...prev, email: !valid }));
   };
-  
+
   const handleEmailChange = (e) => {
     setEmail(e.target.value);
     validateEmailAndCheckExistence(e.target.value);
-  };  
+  };
 
   const handleGoogleSignUp = () => {
-    console.log('Environment Variables: ', process.env);
     const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
     const redirectUri = process.env.REACT_APP_GOOGLE_REDIRECT_URI;
-    console.log('Redirect Url: ', redirectUri);
     const scope = encodeURIComponent(
       'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile'
     );
 
     const googleLoginUrl = `https://accounts.google.com/o/oauth2/v2/auth?scope=${scope}&access_type=offline&include_granted_scopes=true&redirect_uri=${redirectUri}&response_type=code&client_id=${clientId}`;
-
-    console.log('Redirecting to: ', googleLoginUrl);
     window.location.href = googleLoginUrl;
   };
 
@@ -171,37 +333,74 @@ export default function SignUpPage() {
 
   const validateForm = () => {
     const newFieldErrors = {
-      firstName: !formData.firstName.trim(),
-      middleName: !formData.middleName.trim(),
-      lastName: !formData.lastName.trim(),
-      designation: !formData.designation.trim(),
-      email: !formData.email.trim(),
-      mobileNumber: !formData.mobileNumber.trim(),
-      country: !formData.country.trim(),
-      ipAddress: !formData.ipAddress.trim(),
-      username: !formData.username.trim(),
-      password: !formData.password.trim(),
+      firstName: !formData.firstName?.trim() || !validateName(formData.firstName),
+      middleName: formData.middleName && !validateName(formData.middleName),
+      lastName: !formData.lastName?.trim() || !validateName(formData.lastName),
+      designation: !formData.designation?.trim(),
+      email: !formData.email?.trim(),
+      mobileNumber: !formData.mobileNumber?.replace(countryCodes[formData.country] || '', '').trim(),
+      country: !formData.country?.trim(),
+      ipAddress: !formData.ipAddress?.trim(),
+      username: !formData.username?.trim(),
+      password: !formData.password?.trim(),
+      confirmPassword: formData.password !== formData.confirmPassword,
     };
     setFieldErrors(newFieldErrors);
     return !Object.values(newFieldErrors).includes(true);
   };
 
   const handleSignup = async () => {
-    console.log(formData);
-  
     setPasswordError(false);
     setPasswordHelperText('');
-  
+
     await validateEmailAndCheckExistence(email);
-  
+
+    const isFormFullyValid = validateForm() && formData.password === formData.confirmPassword;
+
+    if (!validateForm()) {
+      // Stop here and do not proceed with signup if form is invalid
+      return;
+    }
+
+    // If the password is empty, also set an error for confirm password
+    if (!formData.password.trim()) {
+      setFieldErrors((prev) => ({ ...prev, confirmPassword: true }));
+    }
+
     if (isEmailValid && validateForm()) {
       try {
-        const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/signup`, formData);
-        setErrorMessage('');
-        setShowSuccessMessage(true);
-        setTimeout(() => {
-          setSuccesSignup(true)
-        }, 3000);
+        const submissionData = {
+          ...formData,
+          mobileNumber: countryCodes[formData.country] + formData.mobileNumber,
+        };
+
+        const signupResponse = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/signup`, submissionData);
+
+        if (signupResponse.status === 200) {
+          // If signup is successful, send the verification email
+          try {
+            const verificationResponse = await axios.post(
+              `${process.env.REACT_APP_BACKEND_URL}/api/send-verification-email`,
+              {
+                email: formData.email,
+                firstName: formData.firstName,
+                lastName: formData.lastName,
+              }
+            );
+
+            if (verificationResponse.status === 200) {
+              setErrorMessage('');
+              setShowSuccessMessage(true);
+              setTimeout(() => {
+                setSuccesSignup(true);
+              }, 3000);
+            }
+          } catch (error) {
+            console.error('Error while sending verification email:', error);
+            setErrorMessage('Failed to send verification email.');
+            setErrorDialogOpen(true);
+          }
+        }
       } catch (error) {
         if (error.response && error.response.data) {
           setErrorMessage(error.response.data.message);
@@ -214,11 +413,11 @@ export default function SignUpPage() {
         }
         setErrorDialogOpen(true);
       }
-    } else {
-      setShowErrorDialog(true);
+    } else if (formData.password !== formData.confirmPassword) {
+      setPasswordError(true);
+      setFieldErrors((prev) => ({ ...prev, confirmPassword: true }));
     }
   };
-  
 
   // const handleCloseModal = () => {
   //   setShowSuccessMessage(false);
@@ -251,8 +450,17 @@ export default function SignUpPage() {
   }, [location.search]);
 
   useEffect(() => {
+    if (formData.country) {
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        mobileNumber: countryCodes[formData.country] || '',
+      }));
+    }
+  }, [formData.country]);
+
+  useEffect(() => {
     const isValid = Object.keys(formData).some((key) => {
-      if (key === 'ipAddress') {
+      if (key === 'ipAddress' || !formData[key]) {
         return false;
       }
       return Boolean(formData[key].trim());
@@ -281,9 +489,31 @@ export default function SignUpPage() {
       }
     };
 
+    const fetchAllBanner = async () => {
+      try {
+        const banners = await allBanner();
+
+        setBanners(banners.data.body);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
     fetchIPAddress();
+    fetchAllBanner();
   }, []);
 
+  const settings = {
+    dots: true,
+    infinite: true,
+    slidesToShow: 2, // Adjust the number of slides shown
+    slidesToScroll: 1,
+    nextArrow: <ChevronRight />,
+    prevArrow: <ChevronLeft />,
+    autoplay: true,
+    autoplaySpeed: 2000,
+    speed: 2000,
+  };
   // useEffect(() => {
   //   if (showSuccessMessage) {
   //     const redirectTimer = setTimeout(() => {
@@ -300,246 +530,391 @@ export default function SignUpPage() {
         <title> Sign Up | Your App </title>
       </Helmet>
       <StyledRoot>
-        <Container maxWidth="sm" sx={{ backgroundColor: '#fff' }}>
-          <Logo sx={{ alignSelf: 'center' }} />
-          {succesSignup === true? <VerifyPage 
-            email={formData.email} 
-            firstName={formData.firstName} 
-            lastName={formData.lastName}/>: 
-  
+        <Container maxWidth="sm" sx={{ backgroundColor: '#fff', p: { xs: 2, sm: 3, md: 4 } }}>
+          <Logo sx={{ alignSelf: 'center', width: ['80%', null, '100%'], mx: 'auto', display: 'block' }} />
+          {succesSignup === true ? (
+            <VerifyPage email={formData.email} firstName={formData.firstName} lastName={formData.lastName} />
+          ) : (
             <StyledContent>
-            <Typography variant="h4" gutterBottom>
-              Sign Up
-            </Typography>
-            <Typography variant="body2" sx={{ mb: 5 }}>
-              Register to Your App
-            </Typography>
-            <TextField
-              error={fieldErrors.firstName}
-              fullWidth
-              label="First Name"
-              variant="outlined"
-              name="firstName"
-              value={formData.firstName}
-              onChange={handleInputChange}
-              sx={{ mb: 3 }}
-              helperText={fieldErrors.firstName && 'First Name is required'}
-            />
-            <TextField
-              error={fieldErrors.middleName}
-              fullWidth
-              label="Middle Name"
-              variant="outlined"
-              name="middleName"
-              value={formData.middleName}
-              onChange={handleInputChange}
-              sx={{ mb: 3 }}
-              helperText={fieldErrors.middleName && 'Middle Name is required'}
-            />
-            <TextField
-              error={fieldErrors.lastName}
-              fullWidth
-              label="Last Name"
-              variant="outlined"
-              name="lastName"
-              value={formData.lastName}
-              onChange={handleInputChange}
-              sx={{ mb: 3 }}
-              helperText={fieldErrors.lastName && 'Last Name is required'}
-            />
-            <FormControl fullWidth variant="outlined" sx={{ mb: 3 }} error={fieldErrors.designation}>
-              <InputLabel id="designation-label" error={fieldErrors.designation}>
-                Designation
-              </InputLabel>
-              <Select
-                error={fieldErrors.designation}
-                labelId="designation-label"
-                label="Designation"
-                name="designation"
-                value={formData.designation}
-                onChange={handleInputChange}
-              >
-                <MenuItem value={'Mr.'}>Mr.</MenuItem>
-                <MenuItem value={'Ms.'}>Ms.</MenuItem>
-                <MenuItem value={'Mrs.'}>Mrs.</MenuItem>
-              </Select>
-              {fieldErrors.designation && <FormHelperText error>Designation is required</FormHelperText>}
-            </FormControl>
-            <TextField
-              error={fieldErrors.email}
-              fullWidth
-              label="Email"
-              variant="outlined"
-              name="email"
-              value={email}
-              onChange={handleEmailChange}
-              sx={{ mb: 3 }}
-              helperText={emailErrorMessage}
-            />
-            <TextField
-              error={fieldErrors.mobileNumber}
-              fullWidth
-              label="Mobile Number"
-              variant="outlined"
-              name="mobileNumber"
-              value={formData.mobileNumber}
-              onChange={handleInputChange}
-              sx={{ mb: 3 }}
-              helperText={fieldErrors.mobileNumber && 'Mobile Number is required'}
-            />
-            <Autocomplete
-              error={fieldErrors.country}
-              fullWidth
-              options={countries}
-              getOptionLabel={(option) => option}
-              value={formData.country}
-              onChange={(_, newValue) => setFormData({ ...formData, country: newValue })}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label="Country of Location"
-                  variant="outlined"
-                  sx={{ mb: 3 }}
-                  error={fieldErrors.country}
-                  helperText={fieldErrors.country && 'Country is required'}
-                />
-              )}
-            />
-            <TextField
-              error={fieldErrors.ipAddress}
-              fullWidth
-              label="IP Address"
-              variant="outlined"
-              name="ipAddress"
-              value={formData.ipAddress}
-              onChange={handleInputChange}
-              sx={{ mb: 3 }}
-              disabled={!showIpAddress}
-              hidden
-            />
-            <TextField
-              error={fieldErrors.username}
-              fullWidth
-              label="Username"
-              variant="outlined"
-              name="username"
-              value={formData.username}
-              onChange={handleInputChange}
-              sx={{ mb: 3 }}
-              helperText={fieldErrors.username && 'Username is required'}
-            />
-            <TextField
-              error={fieldErrors.password || passwordError}
-              fullWidth
-              label="Password"
-              variant="outlined"
-              type={formData.showPassword ? 'text' : 'password'}
-              name="password"
-              value={formData.password}
-              onChange={handleInputChange}
-              sx={{ mb: 3 }}
-              helperText={passwordHelperText || (fieldErrors.password && 'Password is required')}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      onClick={() => setFormData({ ...formData, showPassword: !formData.showPassword })}
-                      edge="end"
-                    >
-                      <Iconify icon={formData.showPassword ? 'eva:eye-fill' : 'eva:eye-off-fill'} />
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-            />
-            {/* Password Guidelines Dialog */}
-            <Dialog open={errorDialogOpen} onClose={() => setErrorDialogOpen(false)}>
-              <DialogTitle>Error</DialogTitle>
-              <DialogContent>
-                <DialogContentText>{errorMessage}</DialogContentText>
-              </DialogContent>
-              <DialogActions>
-                <Button onClick={() => setErrorDialogOpen(false)} color="primary">
-                  Close
-                </Button>
-              </DialogActions>
-            </Dialog>
-            <Dialog open={showErrorDialog} onClose={() => setShowErrorDialog(false)}>
-              <DialogTitle>Error</DialogTitle>
-              <DialogContent>
-                <DialogContentText>Please supply all required fields</DialogContentText>
-              </DialogContent>
-              <DialogActions>
-                <Button onClick={() => setShowErrorDialog(false)} color="primary">
-                  Close
-                </Button>
-              </DialogActions>
-            </Dialog>
-
-            <Button
-              fullWidth
-              size="large"
-              color="inherit"
-              variant="outlined"
-              onClick={handleSignup}
-              disabled={!isFormValid}
-            >
-              Sign Up
-            </Button>
-
-            <Divider sx={{ my: 3 }}>
-              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                OR
+              <Paper sx={{ borderRadius: 2 }}>
+                <Slider {...settings}>{banners && banners.map((data, index) => <Slide image={data.url} />)}</Slider>
+              </Paper>
+              <Typography variant="h4" gutterBottom sx={{ fontSize: { xs: '1.6rem', md: '2rem' }, mt: 2 }}>
+                Sign Up
               </Typography>
-            </Divider>
+              <Typography variant="body2" sx={{ mb: 5 }}>
+                Register now to your Vaas Experience
+              </Typography>
 
-            <Button
-              fullWidth
-              size="large"
-              color="inherit"
-              variant="outlined"
-              startIcon={<Iconify icon="eva:google-fill" color="#DF3E30" width={22} height={22} />}
-              onClick={handleGoogleSignUp}
-            >
-              Sign Up with Google
-            </Button>
+              {/* Basic Information Section */}
 
-            <Button
-              fullWidth
-              size="large"
-              color="inherit"
-              variant="outlined"
-              startIcon={<Iconify icon="eva:facebook-fill" color="#1877F2" width={22} height={22} />}
-              onClick={handleFacebookSignUp}
-            >
-              Sign Up with Facebook
-            </Button>
+              <Card sx={{ mb: 3 }}>
+                <CardHeader title="Basic Information" />
+                <CardContent>
+                  <TextField
+                    error={fieldErrors.firstName}
+                    fullWidth
+                    label="First Name"
+                    variant="outlined"
+                    name="firstName"
+                    value={formData.firstName}
+                    onChange={handleInputChange}
+                    onFocus={() => setDirtyFields((prev) => ({ ...prev, firstName: true }))}
+                    onBlur={() => {
+                      if (dirtyFields.firstName && !formData.firstName.trim()) {
+                        setFieldErrors((prevErrors) => ({ ...prevErrors, firstName: true }));
+                      }
+                    }}
+                    sx={{ mb: 3 }}
+                    helperText={
+                      fieldErrors.firstName
+                        ? formData.firstName.trim()
+                          ? 'First Name contains invalid characters'
+                          : dirtyFields.firstName
+                          ? 'First Name is required'
+                          : ''
+                        : ''
+                    }
+                  />
+                  <TextField
+                    error={fieldErrors.middleName}
+                    fullWidth
+                    label="Middle Name (Optional)"
+                    variant="outlined"
+                    name="middleName"
+                    value={formData.middleName}
+                    onChange={handleInputChange}
+                    sx={{ mb: 3 }}
+                    helperText={
+                      fieldErrors.middleName && formData.middleName.trim()
+                        ? 'Middle Name contains invalid characters'
+                        : ''
+                    }
+                  />
+                  <TextField
+                    error={fieldErrors.lastName}
+                    fullWidth
+                    label="Last Name"
+                    variant="outlined"
+                    name="lastName"
+                    value={formData.lastName}
+                    onChange={handleInputChange}
+                    onFocus={() => setDirtyFields((prev) => ({ ...prev, lastName: true }))}
+                    onBlur={() => {
+                      if (dirtyFields.lastName && !formData.lastName.trim()) {
+                        setFieldErrors((prevErrors) => ({ ...prevErrors, lastName: true }));
+                      }
+                    }}
+                    sx={{ mb: 3 }}
+                    helperText={
+                      fieldErrors.lastName
+                        ? formData.lastName.trim()
+                          ? 'Last Name contains invalid characters'
+                          : 'Last Name is required'
+                        : ''
+                    }
+                  />
+                  <FormControl fullWidth variant="outlined" sx={{ mb: 3 }} error={fieldErrors.designation}>
+                    <InputLabel id="designation-label" error={fieldErrors.designation}>
+                      Designation
+                    </InputLabel>
+                    <Select
+                      error={fieldErrors.designation}
+                      labelId="designation-label"
+                      label="Designation"
+                      name="designation"
+                      value={formData.designation}
+                      onChange={handleInputChange}
+                    >
+                      <MenuItem value={'Mr.'}>Mr.</MenuItem>
+                      <MenuItem value={'Ms.'}>Ms.</MenuItem>
+                      <MenuItem value={'Mrs.'}>Mrs.</MenuItem>
+                    </Select>
+                    {fieldErrors.designation && <FormHelperText error>Designation is required</FormHelperText>}
+                  </FormControl>
+                  <Autocomplete
+                    error={fieldErrors.country}
+                    fullWidth
+                    options={countries}
+                    getOptionLabel={(option) => option}
+                    value={formData.country}
+                    onChange={(_, newValue) => setFormData({ ...formData, country: newValue })}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Country of Location"
+                        variant="outlined"
+                        sx={{ mb: 3 }}
+                        error={fieldErrors.country}
+                        helperText={fieldErrors.country && 'Country is required'}
+                      />
+                    )}
+                  />
+                </CardContent>
+              </Card>
 
-            {/* {errorMessage && (
+              {/* Contact Information Section */}
+              <Card sx={{ mb: 3 }}>
+                <CardHeader title="Contact Information" />
+                <CardContent>
+                  <TextField
+                    error={fieldErrors.email}
+                    fullWidth
+                    label="Email"
+                    variant="outlined"
+                    name="email"
+                    value={email}
+                    onChange={handleEmailChange}
+                    onFocus={() => setDirtyFields((prev) => ({ ...prev, email: true }))}
+                    onBlur={() => {
+                      if (dirtyFields.email && !email.trim()) {
+                        setFieldErrors((prevErrors) => ({ ...prevErrors, email: true }));
+                      }
+                    }}
+                    sx={{ mb: 3 }}
+                    helperText={
+                      fieldErrors.email
+                        ? email.trim()
+                          ? emailErrorMessage
+                          : dirtyFields.email
+                          ? 'Email is required'
+                          : ''
+                        : ''
+                    }
+                  />
+                  <TextField
+                    error={fieldErrors.mobileNumber || mobileError}
+                    fullWidth
+                    label="Mobile Number"
+                    variant="outlined"
+                    name="mobileNumber"
+                    value={formData.mobileNumber?.replace(countryCodes[formData.country] || '', '')}
+                    onChange={handleMobileChange}
+                    sx={{ mb: 3 }}
+                    helperText={
+                      (fieldErrors.mobileNumber && 'Mobile Number is required') || (mobileError && errorMessage)
+                    }
+                    disabled={!formData.country}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          {formData.country && countryCodes[formData.country]
+                            ? `${countryCodes[formData.country]} |`
+                            : ''}
+                        </InputAdornment>
+                      ),
+                    }}
+                    InputLabelProps={{
+                      shrink: !!formData.mobileNumber || !!formData.country,
+                    }}
+                  />
+                </CardContent>
+              </Card>
+
+              {/* User Credentials Section */}
+              <Card sx={{ mb: 3 }}>
+                <CardHeader title="User Credentials" />
+                <CardContent>
+                  <TextField
+                    error={fieldErrors.username}
+                    fullWidth
+                    label="Username"
+                    variant="outlined"
+                    name="username"
+                    value={formData.username}
+                    onChange={handleInputChange}
+                    onFocus={() => setDirtyFields((prev) => ({ ...prev, username: true }))}
+                    onBlur={() => {
+                      if (dirtyFields.username && !formData.username.trim()) {
+                        setFieldErrors((prevErrors) => ({ ...prevErrors, username: true }));
+                      }
+                    }}
+                    sx={{ mb: 3 }}
+                    helperText={
+                      fieldErrors.username
+                        ? formData.username.trim()
+                          ? 'Username contains invalid characters'
+                          : dirtyFields.username
+                          ? 'Username is required'
+                          : ''
+                        : ''
+                    }
+                  />
+                  <TextField
+                    error={fieldErrors.password || passwordError}
+                    fullWidth
+                    label="Password"
+                    variant="outlined"
+                    type={formData.showPassword ? 'text' : 'password'}
+                    name="password"
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    sx={{ mb: 3 }}
+                    helperText={passwordHelperText || (fieldErrors.password && 'Password is required')}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            onClick={() => setFormData({ ...formData, showPassword: !formData.showPassword })}
+                            edge="end"
+                          >
+                            <Iconify icon={formData.showPassword ? 'eva:eye-fill' : 'eva:eye-off-fill'} />
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                  <TextField
+                    error={fieldErrors.confirmPassword}
+                    fullWidth
+                    label="Confirm Password"
+                    variant="outlined"
+                    type={formData.showPassword ? 'text' : 'password'}
+                    name="confirmPassword"
+                    value={formData.confirmPassword}
+                    onChange={handleInputChange}
+                    sx={{ mb: 3 }}
+                    helperText={fieldErrors.confirmPassword && 'Passwords do not match'}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            onClick={() => setFormData({ ...formData, showPassword: !formData.showPassword })}
+                            edge="end"
+                          >
+                            <Iconify icon={formData.showPassword ? 'eva:eye-fill' : 'eva:eye-off-fill'} />
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                </CardContent>
+              </Card>
+              {/* Accept Terms and Conditions */}
+              <FormControlLabel
+                control={<Checkbox checked={isTermsAccepted} onChange={() => setIsTermsAccepted((prev) => !prev)} />}
+                label={
+                  <>
+                    I agree to the
+                    <Link component="button" onClick={openTermsDialog} sx={{ pl: 1 }}>
+                      Terms and Conditions
+                    </Link>
+                  </>
+                }
+              />
+
+              <TextField
+                error={fieldErrors.ipAddress}
+                fullWidth
+                label="IP Address"
+                variant="outlined"
+                name="ipAddress"
+                value={formData.ipAddress}
+                onChange={handleInputChange}
+                sx={{ mb: 3 }}
+                disabled={!showIpAddress}
+                hidden
+              />
+
+              <TermsDialog
+                open={isTermsDialogOpen}
+                onClose={() => setIsTermsDialogOpen(false)}
+                onAgree={agreeToTerms}
+              />
+
+              {/* Password Guidelines Dialog */}
+              <Dialog open={errorDialogOpen} onClose={() => setErrorDialogOpen(false)}>
+                <DialogTitle>Error</DialogTitle>
+                <DialogContent>
+                  <DialogContentText>{errorMessage}</DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                  <Button onClick={() => setErrorDialogOpen(false)} color="primary">
+                    Close
+                  </Button>
+                </DialogActions>
+              </Dialog>
+              <Dialog open={showErrorDialog} onClose={() => setShowErrorDialog(false)}>
+                <DialogTitle>Error</DialogTitle>
+                <DialogContent>
+                  <DialogContentText>Please supply all required fields</DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                  <Button onClick={() => setShowErrorDialog(false)} color="primary">
+                    Close
+                  </Button>
+                </DialogActions>
+              </Dialog>
+
+              <Button
+                fullWidth
+                size="large"
+                color="inherit"
+                variant="outlined"
+                onClick={handleSignup}
+                disabled={!isFormValid || !isTermsAccepted}
+                sx={{ py: [1.5, 1] }}
+              >
+                Sign Up
+              </Button>
+
+              <Divider sx={{ my: 3 }}>
+                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                  OR
+                </Typography>
+              </Divider>
+
+              <Button
+                fullWidth
+                size="large"
+                color="inherit"
+                variant="outlined"
+                startIcon={<Iconify icon="eva:google-fill" color="#DF3E30" width={22} height={22} />}
+                onClick={handleGoogleSignUp}
+                disabled={!isTermsAccepted}
+                sx={{ mb: 1 }}
+              >
+                Sign Up with Google
+              </Button>
+
+              <Button
+                fullWidth
+                size="large"
+                color="inherit"
+                variant="outlined"
+                startIcon={<Iconify icon="eva:facebook-fill" color="#1877F2" width={22} height={22} />}
+                disabled={!isTermsAccepted}
+                onClick={handleFacebookSignUp}
+              >
+                Sign Up with Facebook
+              </Button>
+
+              {/* {errorMessage && (
                   <Typography variant="body2" color="error" sx={{ my: 2 }}>
                   {errorMessage}
                    </Typography>
                 )} */}
-            <Dialog open={showSuccessMessage} onClose={() => setShowSuccessMessage(false)}>
-              <DialogTitle>Successful Sign-Up!</DialogTitle>
-              <DialogContent>
-                <DialogContentText>Redirecting to Email Verification...</DialogContentText>
-              </DialogContent>
-              <DialogActions>
-                <Button onClick={() => setShowSuccessMessage(false)} color="primary">
-                  Close
-                </Button>
-              </DialogActions>
-            </Dialog>
-            <Divider sx={{ my: 3 }} />
-            <Typography variant="body2" sx={{ mb: 5 }}>
-              Already have an account?
-              <Link variant="subtitle2" onClick={() => navigate('/login')} sx={{ cursor: 'pointer', ml: 1 }}>
-                Login
-              </Link>
-            </Typography>
-          </StyledContent>}
-        </Container>
+              <Dialog open={showSuccessMessage} onClose={() => setShowSuccessMessage(false)}>
+                <DialogTitle>Successful Sign-Up!</DialogTitle>
+                <DialogContent>
+                  <DialogContentText>Redirecting to Email Verification...</DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                  <Button onClick={() => setShowSuccessMessage(false)} color="primary">
+                    Close
+                  </Button>
+                </DialogActions>
+              </Dialog>
+              <Divider sx={{ my: 3 }} />
+              <Typography variant="body2" sx={{ mb: 5, mt: 3 }}>
+                Already have an account?
+                <Link variant="subtitle2" onClick={() => navigate('/login')} sx={{ cursor: 'pointer', ml: 1 }}>
+                  Login
+                </Link>
+              </Typography>
+            </StyledContent>
+          )}
+        </Container> 
       </StyledRoot>
     </>
   );

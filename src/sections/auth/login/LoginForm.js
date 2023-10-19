@@ -28,7 +28,6 @@ export default function LoginForm() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [isVerified, setIsVerified] = useState(true);
   const [verificationMessage, setVerificationMessage] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [emailError, setEmailError] = useState(false);
@@ -54,7 +53,6 @@ export default function LoginForm() {
   };
 
   const handleCloseDialog = () => {
-    console.log('Closing dialog');
     setDialogOpen(false);
   };
 
@@ -105,26 +103,12 @@ export default function LoginForm() {
         localStorage.setItem('rememberMeEmail', email);
       }
 
-      if (isActive === false) {
-        setIsVerified(false);
-        setVerificationMessage('Email not yet verified. Please proceed to verification');
-        return;
-      }
-
       const verifiedRole = await verifyRole(token);
 
       if (verifiedRole) {
         localStorage.setItem('role', verifiedRole);
-        console.log('Role saved to localStorage:', verifiedRole);
       } else {
         console.error('No role received from verifyRole API');
-      }
-
-      // Check if the email is active or not
-      if (isActive === false) {
-        setIsVerified(false);
-        setVerificationMessage('Email not yet verified. Please proceed to verification');
-        return;
       }
 
       // Save token and user info to local storage
@@ -212,11 +196,6 @@ export default function LoginForm() {
       >
         Login
       </Button>
-      {!isVerified && (
-        <Typography variant="body2" color="error" sx={{ mt: 2 }}>
-          {verificationMessage}
-        </Typography>
-      )}
       {error && (
         <Typography variant="body2" color="error" sx={{ mt: 2 }}>
           {error}

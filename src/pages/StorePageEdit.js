@@ -38,7 +38,6 @@ const StorePageEdit = () => {
   });
 
   useEffect(() => {
-    console.log('storeData:', storeData);
   }, [storeData]);
 
   useEffect(() => {
@@ -46,7 +45,6 @@ const StorePageEdit = () => {
 
     const fetchStoreData = async () => {
       try {
-        console.log(storedUserId);
         const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/stores/owner/${storedUserId}`);
         setStoreData(response.data);
         setEditedData(response.data);
@@ -90,7 +88,6 @@ const StorePageEdit = () => {
   };
 
   const handleSaveClick = async () => {
-    console.log('Save button clicked');
     try {
       const storedUserId = JSON.parse(localStorage.getItem('user'))._id;
 
@@ -156,7 +153,6 @@ const StorePageEdit = () => {
   };
 
   const handleFileUpload = (event) => {
-    console.log('File selected:', event.target.files[0]);
     const file = event.target.files[0];
 
     // File type and size validation
@@ -212,16 +208,11 @@ const StorePageEdit = () => {
   };
 
   const handleUploadClick = async (proseso) => {
-    console.log('Upload button clicked');
-    console.log('Before upload:', editedData);
-
-    console.log('Attempting to update isLive status...');
     try {
       await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/stores/owner/update/${storedUserId}`, {
         isLive: false,
         isApproved: false,
       });
-      console.log('Successfully updated isLive status to false.');
     } catch (err) {
       console.error('Error updating isLive status:', err);
     }
@@ -298,9 +289,6 @@ const StorePageEdit = () => {
       const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/stores/owner/${storedUserId}`);
       const updatedStoreData = response.data;
 
-      console.log('Before update - isApproved:', updatedStoreData.isApproved);
-      console.log('Before update - isLive:', updatedStoreData.isLive);
-
       const updateResponse = await axios.put(
         `${process.env.REACT_APP_BACKEND_URL}/api/stores/owner/update/${storedUserId}`,
         {
@@ -331,9 +319,6 @@ const StorePageEdit = () => {
       const storedUserId = JSON.parse(localStorage.getItem('user'))._id;
       const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/stores/owner/${storedUserId}`);
       const updatedStoreData = response.data;
-
-      console.log('Before update - isApproved:', updatedStoreData.isApproved);
-      console.log('Before update - isLive:', updatedStoreData.isLive);
 
       const updateResponse = await axios.put(
         `${process.env.REACT_APP_BACKEND_URL}/api/stores/owner/update/${storedUserId}`,
@@ -409,7 +394,6 @@ const StorePageEdit = () => {
   formData.append('ownerId', storedUserId);
   formData.append('storeName', editedData.storeName);
   formData.append('storeLogo', editedData.storeLogo);
-  console.log(storeData, storeData?.isApproved, storeData?.isLive);
 
   const handleNavigateToKyc = () => {
     navigate('/dashboard/kyc');

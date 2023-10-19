@@ -5,7 +5,7 @@ import { useLocation } from 'react-router-dom';
 import { styled, alpha } from '@mui/material/styles';
 import { Box, Link, Button, Drawer, Typography, Avatar, Stack } from '@mui/material';
 // mock
-import account from '../../../_mock/account';
+import useAccount from '../../../_mock/useAccount';
 // hooks
 import useResponsive from '../../../hooks/useResponsive';
 // components
@@ -36,6 +36,20 @@ const navConfigBottom = [
     title: 'settings',
     path: '/dashboard/settings',
     icon: icon('ic_settings'),
+    children: [
+      {
+        title: 'My Profile',
+        path: '/dashboard/settings/profile',
+      },
+      {
+        title: 'Frequently Asked Questions',
+        path: '/dashboard/settings/faq',
+      },
+      {
+        title: 'Support',
+        path: '/dashboard/settings/support',
+      },
+    ]
   },
 ];
 
@@ -56,6 +70,7 @@ Nav.propTypes = {
 
 export default function Nav({ openNav, onCloseNav }) {
   const { pathname } = useLocation();
+  const account = useAccount();
 
   const isDesktop = useResponsive('up', 'lg');
 

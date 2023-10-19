@@ -2,9 +2,10 @@ import { Helmet } from 'react-helmet-async';
 import { faker } from '@faker-js/faker';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import Cookies from 'js-cookie';
 // @mui
 import { useTheme } from '@mui/material/styles';
-import { Grid, Container, Typography, Card, CardContent } from '@mui/material';
+import { Grid, Container, Typography, Card, CardContent, Button } from '@mui/material';
 // components
 import Iconify from '../components/iconify';
 import AccountStatusModal from '../components/user-account/AccountStatusModal';
@@ -33,8 +34,16 @@ export default function DashboardAppPage() {
   const userId = JSON.parse(localStorage.getItem('user'))._id;
 
   const { storeData, editedData, platformVariables, error } = StoreDataFetch(userId);
-
   const userData = UserDataFetch(userId);
+
+  useEffect(() => {
+    if (userData) {
+      const existingData = JSON.parse(localStorage.getItem('user')) || {};
+      const mergedData = { ...existingData, ...userData };
+
+      localStorage.setItem('user', JSON.stringify(mergedData));
+    }
+  }, [userData]);
 
   useEffect(() => {
     if (storeData && storeData._id) {
@@ -56,6 +65,14 @@ export default function DashboardAppPage() {
           console.error('Error fetching data: ', error);
         });
     }
+    const userToken = Cookies.get('userToken');
+    if (userToken) {
+      // Save the token to local storage
+      localStorage.setItem('token', userToken);
+
+      // Remove the userToken cookie
+      Cookies.remove('userToken');
+    }
   }, [storeData]);
 
   const trialMessageCard =
@@ -73,6 +90,37 @@ export default function DashboardAppPage() {
       </Card>
     ) : null;
 
+  console.log(userData);
+
+  const verificationCard =
+    userData &&
+    (!userData.mobileNumberVerified ||
+      !userData.isActive ||
+      !userData.designation ||
+      !userData.country ||
+      !userData.mobileNumber ||
+      !userData.username ||
+      !userData.hasPassword) ? (
+      <Card sx={{ mb: 5, p: 3, textAlign: 'center', backgroundColor: 'rgba(173, 216, 230, 0.5)' }}>
+        <CardContent>
+          <Typography variant="h5" color="primary.dark" sx={{ mb: 2 }}>
+            {!userData.mobileNumberVerified || !userData.isActive
+              ? 'Please complete the verification process for your email/mobile number'
+              : !userData.designation ||
+                !userData.country ||
+                !userData.mobileNumber ||
+                !userData.username ||
+                !userData.hasPassword
+              ? 'Please complete your profile information'
+              : 'Please complete your profile information and ensure verifications are complete.'}
+          </Typography>
+          <Button variant="contained" color="primary" href="/dashboard/settings/profile">
+            Proceed to Settings
+          </Button>
+        </CardContent>
+      </Card>
+    ) : null;
+
   return (
     <>
       <Helmet>
@@ -85,6 +133,7 @@ export default function DashboardAppPage() {
         </Typography>
 
         {trialMessageCard}
+        {verificationCard}
 
         <Grid container spacing={3}>
           <Grid item xs={12} sm={6} md={3}>

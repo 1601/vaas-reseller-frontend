@@ -41,18 +41,12 @@ const LiveStorePage = () => {
   const queryParams = new URLSearchParams(location.search);
   const notFound = queryParams.get('notFound');
   const user = JSON.parse(localStorage.getItem('user'));
-  console.log('enableBills:', platformVariables.enableBills);
-  console.log('enableLoad:', platformVariables.enableLoad);
-  console.log('enableGift:', platformVariables.enableGift);
 
   useEffect(() => {
     let subdomainOrStoreUrl;
 
-    console.log('Current Hostname:', window.location.hostname);
     const hostnameParts = window.location.hostname.split('.');
     const subdomain = hostnameParts[0];
-
-    console.log('Subdomain:', subdomain);
 
     if (
       subdomain === 'localhost' ||
@@ -63,7 +57,6 @@ const LiveStorePage = () => {
       subdomainOrStoreUrl = storeUrl;
     } else {
       const hostnameParts = window.location.hostname.split('.');
-      console.log('hostnameParts:', hostnameParts);
       subdomainOrStoreUrl = hostnameParts[0];
     }
 
@@ -87,7 +80,6 @@ const LiveStorePage = () => {
     // Check if running on localhost and no subdomainOrStoreUrl was found
     if (window.location.hostname === 'localhost' || !subdomainOrStoreUrl) {
       // Extract subdomainOrStoreUrl from the URL in the format "localhost:3000/subdomainOrStoreUrl"
-      console.log('Running on localhost');
       const pathParts = window.location.href.split('/');
       if (pathParts.length > 3) {
         subdomainOrStoreUrl = pathParts[3];
@@ -95,24 +87,19 @@ const LiveStorePage = () => {
     }
 
     if (subdomainOrStoreUrl) {
-      console.log('Fetching data for store URL:', subdomainOrStoreUrl);
       const fetchStoreData = async () => {
         try {
           const response = await axios.get(
             `${process.env.REACT_APP_BACKEND_URL}/api/stores/url/${subdomainOrStoreUrl}`
           );
-          console.log('Response from API:', response.data);
-
           setStoreData(response.data);
 
           if (response.data.platformVariables) {
-            console.log('platformVariables from API:', response.data.platformVariables);
             setPlatformVariables(response.data.platformVariables);
           }
         } catch (error) {
           console.error('Could not fetch store data', error);
           setStoreData('domainNotFound');
-          console.log('setStoreData (incorrect):', storeData);
         }
       };
       fetchStoreData();

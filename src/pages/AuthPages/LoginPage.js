@@ -1,5 +1,8 @@
 import { Helmet } from 'react-helmet-async';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import jwtDecode from 'jwt-decode';
+import axios from 'axios';
 // @mui
 import { styled } from '@mui/material/styles';
 import { Link, Container, Typography, Divider, Stack, Button } from '@mui/material';
@@ -49,7 +52,62 @@ const StyledFooter = styled('div')({
 export default function LoginPage() {
   const mdUp = useResponsive('up', 'md');
   const navigate = useNavigate();
-  const handleNavigation = (path) => {navigate(path);};
+  const location = useLocation();
+  const handleNavigation = (path) => {
+    navigate(path);
+  };
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const tokenFromURL = params.get('token');
+
+    if (tokenFromURL) {
+      localStorage.setItem('token', tokenFromURL);
+
+      // Extract email from the token
+      const decodedToken = jwtDecode(tokenFromURL);
+      const { email } = decodedToken;
+
+      // Fetch user details by email
+      axios
+        .get(`${process.env.REACT_APP_BACKEND_URL}/api/user-by-email?email=${email}`)
+        .then((response) => {
+          const { firstName, lastName, testBalance, accountBalance, accountStatus, _id } = response.data;
+
+          // Save user details in localStorage as 'user'
+          localStorage.setItem(
+            'user',
+            JSON.stringify({
+              _id,
+              firstName,
+              lastName,
+              email,
+              testBalance,
+              accountBalance,
+              accountStatus,
+            })
+          );
+
+          // Navigate to the desired page (e.g., dashboard)
+          navigate('/dashboard/app');
+        })
+        .catch((error) => {
+          console.error('Error fetching user details:', error);
+        });
+    }
+  }, [location, navigate]);
+
+  const handleGoogleLogin = () => {
+    const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
+    const redirectUri = process.env.REACT_APP_GOOGLE_REDIRECT_URI;
+    const scope = encodeURIComponent(
+      'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile'
+    );
+
+    const googleLoginUrl = `https://accounts.google.com/o/oauth2/v2/auth?scope=${scope}&access_type=offline&include_granted_scopes=true&redirect_uri=${redirectUri}&response_type=code&client_id=${clientId}`;
+
+    window.location.href = googleLoginUrl;
+  };
 
   return (
     <>
@@ -95,7 +153,13 @@ export default function LoginPage() {
             </Divider>
 
             <Stack direction="column" spacing={2}>
-              <Button fullWidth size="large" color="inherit" variant="outlined">
+              <Button
+                fullWidth
+                size="large"
+                color="inherit"
+                variant="outlined"
+                onClick={handleGoogleLogin}
+              >
                 <Iconify icon="eva:google-fill" color="#DF3E30" width={22} height={22} />
                 Continue with Google
               </Button>
@@ -111,23 +175,31 @@ export default function LoginPage() {
             </Stack>
             <Stack direction="row" spacing={2}>
               <Typography variant="body2" sx={{ mb: 5 }}>
-                Don't have a Vortex ID? 
+                Don't have a Vortex ID?
                 <Link variant="subtitle2" onClick={() => navigate('/signup')} sx={{ cursor: 'pointer', ml: 1 }}>
                   Sign Up
                 </Link>
               </Typography>
             </Stack>
 
-            <Typography variant="body2" sx={{ mt: 0.25 }}>
+            {/* <Typography variant="body2" sx={{ mt: 0.25 }}>
               Not yet Verified?
               <Link variant="subtitle2" onClick={() => navigate('/verify')} sx={{ cursor: 'pointer', ml: 1 }}>
                 Verify
               </Link>
-            </Typography>
+            </Typography> */}
             <Typography variant="body2" sx={{ textAlign: 'center', mt: 2 }}>
-              <Link variant="subtitle2" component="button" onClick={() => handleNavigation('/help')}>Help</Link> {' | '}
-              <Link variant="subtitle2" component="button" onClick={() => handleNavigation('/data-privacy-policy')}>Privacy</Link> {' | '}
-               <Link variant="subtitle2" component="button" onClick={() => handleNavigation('/terms-and-conditions')}>Terms of Service</Link>
+              <Link variant="subtitle2" component="button" onClick={() => handleNavigation('/help')}>
+                Help
+              </Link>{' '}
+              {' | '}
+              <Link variant="subtitle2" component="button" onClick={() => handleNavigation('/data-privacy-policy')}>
+                Privacy
+              </Link>{' '}
+              {' | '}
+              <Link variant="subtitle2" component="button" onClick={() => handleNavigation('/terms-and-conditions')}>
+                Terms of Service
+              </Link>
             </Typography>
           </StyledContent>
         </Container>

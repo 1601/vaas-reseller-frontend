@@ -31,9 +31,21 @@ const navConfig = role === 'admin' ?
       icon: icon('ic_home'),
     },
     {
-      title: 'Storefront',
+      title: 'Store',
       path: '/dashboard/store',
       icon: icon('ic_store'),
+      children: [
+        {
+          title: 'Storefront',
+         // icon: icon('ic_store2'),
+          path: '/dashboard/store/storefront',
+        },
+        {
+          title: 'Manage Resellers',
+         // icon: icon('ic_topup'),
+          path: '/dashboard/store/resellers',
+        },
+      ]
     },
     {
       title: 'Products',
