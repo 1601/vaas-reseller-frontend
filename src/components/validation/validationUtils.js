@@ -13,6 +13,11 @@ export const validateMobileNumber = (country, number, countryCodes, mobileNumber
     return '';
   }
 
+  const numericRegex = /^[0-9]+$/;
+  if (!numericRegex.test(number)) {
+    return 'Invalid characters in the number';
+  }
+
   const expectedLength = mobileNumberLengths[country];
   const actualLength = number.length;
 
