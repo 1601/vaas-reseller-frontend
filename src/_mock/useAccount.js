@@ -16,7 +16,7 @@ function useAccount() {
     if (user) {
       const updatedAccount = {
         displayName: user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.username,
-        email: user.email,
+        email: "Dealer",
         photoURL: '/assets/images/avatars/avatar_default.jpg',
       };
       setAccount(updatedAccount);
