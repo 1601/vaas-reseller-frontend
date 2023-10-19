@@ -89,6 +89,8 @@ const ManageReseller = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [editingResellerId, setEditingResellerId] = useState(null);
   const tabsRef = useRef(null);
+  const [showCredentialsPopup, setShowCredentialsPopup] = useState(false);
+  const [generatedPassword, setGeneratedPassword] = useState('');
 
   const handleStatusClick = (event, resellerId) => {
     setAnchorEl(event.currentTarget);
@@ -119,6 +121,7 @@ const ManageReseller = () => {
 
   const handleClose = () => {
     setOpen(false);
+    setShowCredentialsPopup(false);
   };
 
   const handleTabChange = (event, newValue) => {
@@ -243,7 +246,9 @@ const ManageReseller = () => {
         const res = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/users/${userId}/resellers`, requestData);
         console.log('Reseller added successfully:', res.data);
         setFormState(initialFormState);
-        handleClose();
+        setGeneratedPassword(res.data.password);
+        setShowCredentialsPopup(true);
+        setOpen(false);
       } catch (error) {
         console.error('Error adding reseller:', error);
       }
@@ -558,7 +563,7 @@ const ManageReseller = () => {
             value={formState.companyName}
             onChange={handleInputChange}
             onBlur={handleBlur}
-            sx={{ mt: 2, mb: 2 }}
+            sx={{ mb: 2 }}
             error={!!validationErrors.companyName}
             helperText={validationErrors.companyName}
           />
@@ -569,6 +574,35 @@ const ManageReseller = () => {
           </Button>
           <Button onClick={handleAddReseller} color="primary">
             Add
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog open={showCredentialsPopup} onClose={() => setShowCredentialsPopup(false)}>
+        <DialogTitle>Reseller Successfully Created</DialogTitle>
+        <DialogContent>
+          <Typography>Please save the following credentials for your reseller to use:</Typography>
+          <Box mt={2}>
+            <Typography>
+              <strong>Email:</strong> {formState.email}
+            </Typography>
+            <Typography>
+              <strong>Password:</strong> {generatedPassword}
+            </Typography>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => {
+              // Placeholder for change password functionality
+              console.log('Change Password Clicked');
+              setShowCredentialsPopup(false);
+            }}
+            color="primary"
+          >
+            Change Password
+          </Button>
+          <Button onClick={() => setShowCredentialsPopup(false)} color="primary">
+            Done
           </Button>
         </DialogActions>
       </Dialog>
