@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import {
   Button,
   Tabs,
@@ -29,6 +30,7 @@ import { validateName, validateEmail, validateMobileNumber } from '../../compone
 import { countryCodes } from '../../components/country/countryNumCodes';
 import { countries } from '../../components/country/CountriesList';
 import { mobileNumberLengths } from '../../components/country/countryNumLength';
+import UserDataFetch from '../../components/user-account/UserDataFetch';
 
 const StatusLabel = ({ status }) => {
   const colorMap = {
@@ -64,6 +66,8 @@ const StatusLabel = ({ status }) => {
 };
 
 const ManageReseller = () => {
+  const userId = JSON.parse(localStorage.getItem('user'))._id;
+  const userData = UserDataFetch(userId);
   const [open, setOpen] = useState(false);
   const initialFormState = {
     email: '',
@@ -169,7 +173,7 @@ const ManageReseller = () => {
     return Object.keys(validationErrors).every((key) => !validationErrors[key]);
   };
 
-  const handleAddReseller = () => {
+  const handleAddReseller = async () => {
     setTouchedFields({
       email: true,
       firstName: true,
@@ -191,10 +195,21 @@ const ManageReseller = () => {
     setValidationErrors(tempValidationErrors);
 
     if (Object.keys(tempValidationErrors).length === 0) {
-      // Checking if there are no errors
-      console.log('Adding a new reseller with the following data:', formState);
-      setFormState(initialFormState);
-      handleClose();
+      try {
+        const prefix = countryCodes[formState.country];
+
+        const requestData = {
+          ...formState,
+          mobileNumber: prefix + formState.mobileNumber,
+        };
+
+        const res = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/users/${userId}/resellers`, requestData);
+        console.log('Reseller added successfully:', res.data);
+        setFormState(initialFormState);
+        handleClose();
+      } catch (error) {
+        console.error('Error adding reseller:', error);
+      }
     }
   };
 
@@ -224,17 +239,38 @@ const ManageReseller = () => {
     }
   };
 
+  const fetchResellersForUser = async (userId) => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users/${userId}/resellers`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching resellers:', error);
+      throw error;
+    }
+  };
+
+  const [resellers, setResellers] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const fetchedResellers = await fetchResellersForUser(userId);
+        setResellers(fetchedResellers);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+  }, [userId]);
+
   return (
     <div style={{ padding: '20px' }}>
       <Card>
         <CardContent>
           <Box display="flex" justifyContent="space-between" alignItems="center" marginBottom="20px">
             <Typography variant="h5">My Resellers</Typography>
-            <Button
-              variant="contained"
-              style={{ backgroundColor: '#000', color: '#fff' }}
-              onClick={handleOpen} // Add this onClick to open the modal
-            >
+            <Button variant="contained" style={{ backgroundColor: '#000', color: '#fff' }} onClick={handleOpen}>
               + Add Reseller
             </Button>
           </Box>
@@ -262,26 +298,29 @@ const ManageReseller = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              <TableRow>
-                <TableCell padding="checkbox">
-                  <Checkbox />
-                </TableCell>
-                <TableCell>John Doe</TableCell>
-                <TableCell>123-456-7890</TableCell>
-                <TableCell>Company A</TableCell>
-                <TableCell>
-                  <StatusLabel status="Active" />
-                  <IconButton size="small" style={{ marginLeft: '8px' }}>
-                    <EditIcon fontSize="inherit" />
-                  </IconButton>
-                </TableCell>
-                <TableCell>
-                  <IconButton size="small">
-                    <MoreVertIcon fontSize="inherit" />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-              {/* ... Additional rows */}
+              {resellers.map((reseller) => (
+                <TableRow key={reseller._id}>
+                  <TableCell padding="checkbox">
+                    <Checkbox />
+                  </TableCell>
+                  <TableCell>
+                    {reseller.firstName} {reseller.lastName}
+                  </TableCell>
+                  <TableCell>{reseller.mobileNumber}</TableCell>
+                  <TableCell>{reseller.companyName}</TableCell>
+                  <TableCell>
+                    <StatusLabel status={reseller.status} />
+                    <IconButton size="small" style={{ marginLeft: '8px' }}>
+                      <EditIcon fontSize="inherit" />
+                    </IconButton>
+                  </TableCell>
+                  <TableCell>
+                    <IconButton size="small">
+                      <MoreVertIcon fontSize="inherit" />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
         </CardContent>
