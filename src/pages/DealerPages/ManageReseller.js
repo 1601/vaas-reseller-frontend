@@ -24,12 +24,11 @@ import {
   Autocomplete,
   Menu,
   MenuItem,
-  Fab,
-  Icon,
+  Grid,
 } from '@mui/material';
-import { ArrowLeft, ArrowRight, DoneIcon } from '@mui/icons-material';
 import EditIcon from '@mui/icons-material/Edit';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import SearchIcon from '@mui/icons-material/Search';
 import ValidatedManageReseller from '../../components/validation/ValidatedManageReseller';
 import { validateName, validateEmail, validateMobileNumber } from '../../components/validation/validationUtils';
 import { countryCodes } from '../../components/country/countryNumCodes';
@@ -93,6 +92,8 @@ const ManageReseller = () => {
   const tabsRef = useRef(null);
   const [showCredentialsPopup, setShowCredentialsPopup] = useState(false);
   const [generatedPassword, setGeneratedPassword] = useState('');
+  const [isFocused, setIsFocused] = useState(false);
+  const [value, setValue] = useState('');
 
   const handleStatusClick = (event, resellerId) => {
     setAnchorEl(event.currentTarget);
@@ -412,7 +413,22 @@ const ManageReseller = () => {
             </div>
           </div>
 
-          <TextField label="Search Roles" variant="outlined" fullWidth style={{ margin: '20px 0' }} />
+          <TextField
+            label={value ? 'Search User' : null}
+            placeholder="Search User"
+            variant="outlined"
+            fullWidth
+            style={{ margin: '20px 0' }}
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+            }}
+          />
           <div style={{ overflowX: 'auto' }}>
             <Table>
               <TableHead>
@@ -424,7 +440,11 @@ const ManageReseller = () => {
                   <TableCell>Phone Number</TableCell>
                   <TableCell>Company</TableCell>
                   <TableCell>Status</TableCell>
-                  <TableCell />
+                  <TableCell sx={{ textAlign: 'right' }}>
+                    <IconButton size="small">
+                      <MoreVertIcon fontSize="inherit" />
+                    </IconButton>
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -436,14 +456,19 @@ const ManageReseller = () => {
                         <Checkbox />
                       </TableCell>
                       <TableCell>
-                        {reseller.firstName} {reseller.lastName}
+                        <div>
+                          {reseller.firstName} {reseller.lastName}
+                        </div>
+                        <Typography variant="body2" color="textSecondary">
+                          {reseller.email}
+                        </Typography>
                       </TableCell>
                       <TableCell>{reseller.mobileNumber}</TableCell>
                       <TableCell>{reseller.companyName}</TableCell>
                       <TableCell>
                         <StatusLabel status={reseller.status} />
                       </TableCell>
-                      <TableCell>
+                      <TableCell style={{ width: '50px' }}>
                         <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                           <IconButton
                             size="small"
@@ -573,14 +598,12 @@ const ManageReseller = () => {
           <TextField
             fullWidth
             variant="outlined"
-            label="Company Name"
+            label="Company Name (Optional)"
             name="companyName"
             value={formState.companyName}
             onChange={handleInputChange}
             onBlur={handleBlur}
             sx={{ mb: 0.4 }}
-            error={!!validationErrors.companyName}
-            helperText={validationErrors.companyName}
           />
         </DialogContent>
         <DialogActions
@@ -590,24 +613,34 @@ const ManageReseller = () => {
             alignItems: 'center',
           }}
         >
-          <Button
-            variant="contained"
+          <div
             style={{
-              width: '140px',
-              height: '40px',
-              borderRadius: '22px 22px 22px 22px',
-              fontSize: '14px',
-              backgroundColor: '#7A52F4',
-              color: '#fff',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+              gap: '10px',
             }}
-            onClick={handleAddReseller}
           >
-            Submit
-          </Button>
+            <Button
+              variant="contained"
+              style={{
+                width: '140px',
+                height: '40px',
+                borderRadius: '22px',
+                fontSize: '14px',
+                backgroundColor: '#7A52F4',
+                color: '#fff',
+              }}
+              onClick={handleAddReseller}
+            >
+              Submit
+            </Button>
 
-          <Button onClick={handleClose} color="primary" sx={{ mb: 2 }}>
-            Cancel
-          </Button>
+            <Button onClick={handleClose} color="primary" sx={{ mb: 2 }}>
+              Cancel
+            </Button>
+          </div>
         </DialogActions>
       </Dialog>
       <Dialog open={showCredentialsPopup} onClose={() => setShowCredentialsPopup(false)}>
