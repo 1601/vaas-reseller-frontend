@@ -24,7 +24,6 @@ import {
   Autocomplete,
   Menu,
   MenuItem,
-  Grid,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -92,8 +91,9 @@ const ManageReseller = () => {
   const tabsRef = useRef(null);
   const [showCredentialsPopup, setShowCredentialsPopup] = useState(false);
   const [generatedPassword, setGeneratedPassword] = useState('');
-  const [isFocused, setIsFocused] = useState(false);
   const [value, setValue] = useState('');
+  const [isAllSelected, setIsAllSelected] = useState(false);
+  const [selectedRows, setSelectedRows] = useState([]);
 
   const handleStatusClick = (event, resellerId) => {
     setAnchorEl(event.currentTarget);
@@ -103,6 +103,29 @@ const ManageReseller = () => {
   const handleCloseStatusMenu = () => {
     setAnchorEl(null);
     setEditingResellerId(null);
+  };
+
+  const handleHeaderCheckboxChange = () => {
+    if (isAllSelected) {
+      setSelectedRows([]);
+    } else {
+      setSelectedRows(resellers.map((reseller) => reseller._id));
+    }
+    setIsAllSelected(!isAllSelected);
+  };
+
+  const handleRowCheckboxChange = (resellerId) => {
+    const currentIndex = selectedRows.indexOf(resellerId);
+    const newSelectedRows = [...selectedRows];
+
+    if (currentIndex === -1) {
+      newSelectedRows.push(resellerId);
+    } else {
+      newSelectedRows.splice(currentIndex, 1);
+    }
+
+    setSelectedRows(newSelectedRows);
+    setIsAllSelected(newSelectedRows.length === resellers.length);
   };
 
   const handleStatusChange = async (newStatus) => {
@@ -440,7 +463,7 @@ const ManageReseller = () => {
               <TableHead>
                 <TableRow>
                   <TableCell padding="checkbox">
-                    <Checkbox />
+                    <Checkbox checked={isAllSelected} onChange={handleHeaderCheckboxChange} />
                   </TableCell>
                   <TableCell>Name</TableCell>
                   <TableCell>Phone Number</TableCell>
@@ -459,7 +482,10 @@ const ManageReseller = () => {
                   .map((reseller) => (
                     <TableRow key={reseller._id}>
                       <TableCell padding="checkbox">
-                        <Checkbox />
+                        <Checkbox
+                          checked={selectedRows.includes(reseller._id)}
+                          onChange={() => handleRowCheckboxChange(reseller._id)}
+                        />
                       </TableCell>
                       <TableCell>
                         <div>
