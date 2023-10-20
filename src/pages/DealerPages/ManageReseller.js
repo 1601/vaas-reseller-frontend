@@ -30,11 +30,16 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import SearchIcon from '@mui/icons-material/Search';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
+import UserDataFetch from '../../components/user-account/UserDataFetch';
+
+// Validations
 import { validateName, validateEmail, validateMobileNumber } from '../../components/validation/validationUtils';
 import { countryCodes } from '../../components/country/countryNumCodes';
 import { countries } from '../../components/country/CountriesList';
 import { mobileNumberLengths } from '../../components/country/countryNumLength';
-import UserDataFetch from '../../components/user-account/UserDataFetch';
+
+// JSX Component
+import ResellerTabs from '../../components/resellers/ResellerTabs';
 
 // Hooks Component
 import useFilteredResellers from '../../components/resellers/useFilteredResellers';
@@ -45,6 +50,8 @@ import EditResellerDialog from '../../components/resellers/EditResellerDialog';
 import CredentialsDialog from '../../components/resellers/CredentialsDialog';
 import AddResellerDialog from '../../components/resellers/AddResellerDialog';
 
+// Other Component
+import SearchBar from '../../components/resellers/SearchBar';
 
 const StatusLabel = ({ status }) => {
   const colorMap = {
@@ -298,9 +305,11 @@ const ManageReseller = () => {
     }
   };
 
-  const { sortedData, requestSort, sortConfig } = useSort(resellers);
+  const filteredResellers = useFilteredResellers(resellers, value, currentTab);
 
-  const getValidationError = (name, value) => {
+  const { sortedData, requestSort, sortConfig } = useSort(filteredResellers);
+
+  const getValidationError = (name, value) => { 
     switch (name) {
       case 'email': {
         return value === '' ? 'Email is required' : validateEmail(value) ? '' : 'Invalid Email';
@@ -413,8 +422,6 @@ const ManageReseller = () => {
     }
   }, [userData]);
 
-  const filteredResellers = useFilteredResellers(resellers, value, currentTab);
-
   return (
     <div style={{ padding: '20px' }}>
       <Card>
@@ -427,86 +434,14 @@ const ManageReseller = () => {
           </Box>
 
           <div style={{ display: 'flex', alignItems: 'center', overflowX: 'auto' }}>
-            <div ref={tabsRef} style={{ flexGrow: 1 }}>
-              <Tabs value={currentTab} onChange={handleTabChange} indicatorColor="primary" textColor="primary">
-                <Tab
-                  label={
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                      All
-                      <span
-                        style={{
-                          color: 'white',
-                          backgroundColor: 'black',
-                          padding: '2px 5px',
-                          borderRadius: '3px',
-                          marginLeft: '5px',
-                        }}
-                      >
-                        {resellers.length}
-                      </span>
-                    </div>
-                  }
-                  value="All"
-                />
-                <Tab
-                  label={
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                      Active
-                      <span
-                        style={{
-                          color: 'green',
-                          backgroundColor: '#e8f5e9',
-                          padding: '2px 5px',
-                          borderRadius: '3px',
-                          marginLeft: '5px',
-                        }}
-                      >
-                        {activeCount}
-                      </span>
-                    </div>
-                  }
-                  value="Active"
-                />
-                <Tab
-                  label={
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                      Disabled
-                      <span
-                        style={{
-                          color: 'darkorange',
-                          backgroundColor: '#fff8e1',
-                          padding: '2px 5px',
-                          borderRadius: '3px',
-                          marginLeft: '5px',
-                        }}
-                      >
-                        {disabledCount}
-                      </span>
-                    </div>
-                  }
-                  value="Disabled"
-                />
-                <Tab
-                  label={
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                      Deactivated
-                      <span
-                        style={{
-                          color: 'red',
-                          backgroundColor: '#ffebee',
-                          padding: '2px 5px',
-                          borderRadius: '3px',
-                          marginLeft: '5px',
-                        }}
-                      >
-                        {deactivatedCount}
-                      </span>
-                    </div>
-                  }
-                  value="Deactivated"
-                />
-              </Tabs>
-            </div>
+            <ResellerTabs
+              currentTab={currentTab}
+              handleTabChange={handleTabChange}
+              resellers={resellers}
+              activeCount={activeCount}
+              disabledCount={disabledCount}
+              deactivatedCount={deactivatedCount}
+            />
           </div>
 
           <TextField
@@ -525,6 +460,7 @@ const ManageReseller = () => {
               ),
             }}
           />
+
           <div style={{ overflowX: 'auto' }}>
             <Table>
               <TableHead>
