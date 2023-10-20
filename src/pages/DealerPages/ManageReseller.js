@@ -28,6 +28,8 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import SearchIcon from '@mui/icons-material/Search';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import ValidatedManageReseller from '../../components/validation/ValidatedManageReseller';
 import { validateName, validateEmail, validateMobileNumber } from '../../components/validation/validationUtils';
 import { countryCodes } from '../../components/country/countryNumCodes';
@@ -36,6 +38,7 @@ import { mobileNumberLengths } from '../../components/country/countryNumLength';
 import UserDataFetch from '../../components/user-account/UserDataFetch';
 import useFilteredResellers from '../../components/resellers/useFilteredResellers';
 import EditResellerDialog from '../../components/resellers/EditResellerDialog';
+import useSort from '../../components/resellers/useSort';
 
 const StatusLabel = ({ status }) => {
   const colorMap = {
@@ -100,6 +103,7 @@ const ManageReseller = () => {
   const [menuAnchor, setMenuAnchor] = useState(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [currentReseller, setCurrentReseller] = useState(null);
+  const [resellers, setResellers] = useState([]);
 
   const handleStatusClick = (event, resellerId) => {
     setAnchorEl(event.currentTarget);
@@ -288,6 +292,8 @@ const ManageReseller = () => {
     }
   };
 
+  const { sortedData, requestSort, sortConfig } = useSort(resellers);
+
   const getValidationError = (name, value) => {
     switch (name) {
       case 'email': {
@@ -323,8 +329,6 @@ const ManageReseller = () => {
       throw error;
     }
   };
-
-  const [resellers, setResellers] = useState([]);
 
   const handleMenuAction = (action, resellerId) => {
     console.log('handleMenuAction triggered with action:', action, 'and resellerId:', resellerId);
@@ -522,10 +526,42 @@ const ManageReseller = () => {
                   <TableCell padding="checkbox">
                     <Checkbox checked={isAllSelected} onChange={handleHeaderCheckboxChange} />
                   </TableCell>
-                  <TableCell>Name</TableCell>
-                  <TableCell>Phone Number</TableCell>
-                  <TableCell>Company</TableCell>
-                  <TableCell>Status</TableCell>
+                  <TableCell style={{ cursor: 'pointer' }} onClick={() => requestSort('firstName')}>
+                    <div
+                      style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}
+                    >
+                      Name
+                      {sortConfig.key === 'firstName' &&
+                        (sortConfig.direction === 'asc' ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />)}
+                    </div>
+                  </TableCell>
+                  <TableCell style={{ cursor: 'pointer' }} onClick={() => requestSort('mobileNumber')}>
+                    <div
+                      style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}
+                    >
+                      Phone Number
+                      {sortConfig.key === 'mobileNumber' &&
+                        (sortConfig.direction === 'asc' ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />)}
+                    </div>
+                  </TableCell>
+                  <TableCell style={{ cursor: 'pointer' }} onClick={() => requestSort('companyName')}>
+                    <div
+                      style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}
+                    >
+                      Company
+                      {sortConfig.key === 'companyName' &&
+                        (sortConfig.direction === 'asc' ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />)}
+                    </div>
+                  </TableCell>
+                  <TableCell style={{ cursor: 'pointer' }} onClick={() => requestSort('status')}>
+                    <div
+                      style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}
+                    >
+                      Status
+                      {sortConfig.key === 'status' &&
+                        (sortConfig.direction === 'asc' ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />)}
+                    </div>
+                  </TableCell>
                   <TableCell sx={{ textAlign: 'right' }}>
                     <IconButton size="small">
                       <MoreVertIcon fontSize="inherit" />
@@ -534,7 +570,7 @@ const ManageReseller = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {useFilteredResellers(resellers, value, currentTab).map((reseller) => (
+              {sortedData.map((reseller) => (
                   <TableRow key={reseller._id}>
                     <TableCell padding="checkbox">
                       <Checkbox
