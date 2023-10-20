@@ -77,7 +77,7 @@ const ManageReseller = () => {
     email: '',
     firstName: '',
     lastName: '',
-    country: '',
+    country: userData ? userData.country : '',
     mobileNumber: '',
     companyName: '',
   };
@@ -319,6 +319,12 @@ const ManageReseller = () => {
     setDeactivatedCount(deactivatedResellers.length);
   }, [resellers]);
 
+  useEffect(() => {
+    if (userData && userData.country) {
+      setFormState((prevState) => ({ ...prevState, country: userData.country }));
+    }
+  }, [userData]);
+
   return (
     <div style={{ padding: '20px' }}>
       <Card>
@@ -553,9 +559,7 @@ const ManageReseller = () => {
             getOptionLabel={(option) => option}
             value={formState.country}
             onChange={(event, newValue) => {
-              handleInputChange({
-                target: { name: 'country', value: newValue },
-              });
+              setFormState((prevState) => ({ ...prevState, country: newValue }));
             }}
             onBlur={handleBlur}
             renderInput={(params) => (
