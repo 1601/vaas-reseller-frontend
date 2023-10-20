@@ -30,7 +30,7 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import SearchIcon from '@mui/icons-material/Search';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
-import ValidatedManageReseller from '../../components/validation/ValidatedManageReseller';
+import AddResellerDialog from '../../components/resellers/AddResellerDialog';
 import { validateName, validateEmail, validateMobileNumber } from '../../components/validation/validationUtils';
 import { countryCodes } from '../../components/country/countryNumCodes';
 import { countries } from '../../components/country/CountriesList';
@@ -570,7 +570,7 @@ const ManageReseller = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-              {sortedData.map((reseller) => (
+                {sortedData.map((reseller) => (
                   <TableRow key={reseller._id}>
                     <TableCell padding="checkbox">
                       <Checkbox
@@ -636,151 +636,17 @@ const ManageReseller = () => {
         <MenuItem onClick={() => handleStatusChange('Deactivated')}>Deactivated</MenuItem>
       </Menu>
 
-      {/* Modal/Dialog for adding a new reseller */}
-      <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
-        <DialogTitle
-          id="form-dialog-title"
-          sx={{
-            backgroundColor: '#7A52F4',
-            color: 'white',
-            padding: '16px',
-            textAlign: 'center',
-            fontSize: '35px !important',
-          }}
-        >
-          Add Reseller
-        </DialogTitle>
-        <DialogContent>
-          <ValidatedManageReseller
-            validationFunction={validateEmail}
-            label="Email"
-            name="email"
-            value={formState.email}
-            onChange={handleInputChange}
-            onBlur={handleBlur}
-            fullWidth
-            sx={{ mt: 2 }}
-            error={!!validationErrors.email}
-            helperText={validationErrors.email}
-          />
-          <ValidatedManageReseller
-            validationFunction={validateName}
-            label="First Name"
-            name="firstName"
-            value={formState.firstName}
-            onChange={handleInputChange}
-            onBlur={handleBlur}
-            fullWidth
-            sx={{ mt: 2 }}
-            error={!!validationErrors.firstName}
-            helperText={validationErrors.firstName}
-          />
-          <ValidatedManageReseller
-            validationFunction={validateName}
-            label="Last Name"
-            name="lastName"
-            value={formState.lastName}
-            onChange={handleInputChange}
-            onBlur={handleBlur}
-            fullWidth
-            sx={{ mt: 2, mb: 2 }}
-            error={!!validationErrors.lastName}
-            helperText={validationErrors.lastName}
-          />
-          <Autocomplete
-            fullWidth
-            options={countries}
-            getOptionLabel={(option) => option}
-            value={formState.country}
-            onChange={(event, newValue) => {
-              setFormState((prevState) => ({ ...prevState, country: newValue }));
-            }}
-            onBlur={handleBlur}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Country"
-                variant="outlined"
-                sx={{ mb: 2 }}
-                error={!!validationErrors.country}
-                helperText={validationErrors.country}
-              />
-            )}
-          />
-          <ValidatedManageReseller
-            validationFunction={(value) =>
-              validateMobileNumber(formState.country, value, countryCodes, mobileNumberLengths) === ''
-            }
-            fullWidth
-            label="Mobile Number"
-            variant="outlined"
-            name="mobileNumber"
-            value={formState.mobileNumber}
-            onChange={handleInputChange}
-            onBlur={handleBlur}
-            sx={{ mb: 2 }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  {formState.country && countryCodes[formState.country] ? `${countryCodes[formState.country]} |` : ''}
-                </InputAdornment>
-              ),
-            }}
-            InputLabelProps={{
-              shrink: !!formState.mobileNumber || !!formState.country,
-            }}
-            error={!!validationErrors.mobileNumber}
-            helperText={validationErrors.mobileNumber}
-            disabled={!formState.country}
-          />
-          <TextField
-            fullWidth
-            variant="outlined"
-            label="Company Name (Optional)"
-            name="companyName"
-            value={formState.companyName}
-            onChange={handleInputChange}
-            onBlur={handleBlur}
-            sx={{ mb: 0.4 }}
-          />
-        </DialogContent>
-        <DialogActions
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-          }}
-        >
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center',
-              gap: '10px',
-            }}
-          >
-            <Button
-              variant="contained"
-              style={{
-                width: '140px',
-                height: '40px',
-                borderRadius: '22px',
-                fontSize: '14px',
-                backgroundColor: '#7A52F4',
-                color: '#fff',
-              }}
-              onClick={handleAddReseller}
-            >
-              Submit
-            </Button>
-
-            <Button onClick={handleClose} color="primary" sx={{ mb: 2 }}>
-              Cancel
-            </Button>
-          </div>
-        </DialogActions>
-      </Dialog>
+      <AddResellerDialog
+        open={open}
+        onClose={handleClose}
+        formState={formState}
+        handleInputChange={handleInputChange}
+        handleBlur={handleBlur}
+        validationErrors={validationErrors}
+        handleAddReseller={handleAddReseller}
+        countries={countries}
+        countryCodes={countryCodes}
+      />
       <Dialog open={showCredentialsPopup} onClose={() => setShowCredentialsPopup(false)}>
         <DialogTitle>Reseller Successfully Created</DialogTitle>
         <DialogContent>
