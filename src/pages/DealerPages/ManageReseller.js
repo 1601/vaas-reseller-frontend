@@ -35,6 +35,7 @@ import { countries } from '../../components/country/CountriesList';
 import { mobileNumberLengths } from '../../components/country/countryNumLength';
 import UserDataFetch from '../../components/user-account/UserDataFetch';
 import useFilteredResellers from '../../components/resellers/useFilteredResellers';
+import EditResellerDialog from '../../components/resellers/EditResellerDialog';
 
 const StatusLabel = ({ status }) => {
   const colorMap = {
@@ -97,6 +98,8 @@ const ManageReseller = () => {
   const [selectedRows, setSelectedRows] = useState([]);
   const [menuReseller, setMenuReseller] = useState(null);
   const [menuAnchor, setMenuAnchor] = useState(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [currentReseller, setCurrentReseller] = useState(null);
 
   const handleStatusClick = (event, resellerId) => {
     setAnchorEl(event.currentTarget);
@@ -144,28 +147,14 @@ const ManageReseller = () => {
     handleCloseStatusMenu();
   };
 
-  const handleMenuOpen = (event, resellerId = 'header') => {
-    setMenuAnchor(event.currentTarget);
-    setMenuReseller(resellerId);
+  const handleMenuOpen = (e, reseller) => {
+    setCurrentReseller(reseller); // Set the current reseller
+    setMenuAnchor(e.currentTarget);
   };
 
   const handleMenuClose = () => {
     setMenuAnchor(null);
     setMenuReseller(null);
-  };
-
-  const handleMenuAction = (action) => {
-    // Handle the selected action here
-    handleMenuClose();
-  };
-
-  const handleOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-    setShowCredentialsPopup(false);
   };
 
   const handleTabChange = (event, newValue) => {
@@ -337,6 +326,54 @@ const ManageReseller = () => {
 
   const [resellers, setResellers] = useState([]);
 
+  const handleMenuAction = (action, resellerId) => {
+    console.log('handleMenuAction triggered with action:', action, 'and resellerId:', resellerId);
+
+    switch (action) {
+      case 'edit': {
+        // Find the reseller using the provided ID and set it
+        const resellerToEdit = resellers.find((r) => r._id === resellerId);
+        console.log('Found resellerToEdit:', resellerToEdit);
+
+        setCurrentReseller(resellerToEdit);
+
+        setEditingResellerId(resellerId); // Set the editingResellerId directly to resellerId
+
+        setEditDialogOpen(true); // Open the edit dialog
+
+        break;
+      }
+      // ... other cases ...
+      default:
+        console.log('Default case triggered for action:', action);
+        // handle or log any unexpected actions
+        break;
+    }
+    handleMenuClose();
+  };
+
+  const handleOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+    setShowCredentialsPopup(false);
+  };
+
+  const fetchData = async () => {
+    try {
+      const fetchedResellers = await fetchResellersForUser(userId);
+      setResellers(fetchedResellers);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [userId]);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -490,7 +527,7 @@ const ManageReseller = () => {
                   <TableCell>Company</TableCell>
                   <TableCell>Status</TableCell>
                   <TableCell sx={{ textAlign: 'right' }}>
-                    <IconButton size="small" onClick={(e) => handleMenuOpen(e)}>
+                    <IconButton size="small">
                       <MoreVertIcon fontSize="inherit" />
                     </IconButton>
                   </TableCell>
@@ -527,14 +564,16 @@ const ManageReseller = () => {
                         >
                           <EditIcon fontSize="inherit" />
                         </IconButton>
-                        <IconButton size="small" onClick={(e) => handleMenuOpen(e, reseller._id)}>
+                        <IconButton size="small" onClick={(e) => handleMenuOpen(e, reseller)}>
                           <MoreVertIcon fontSize="inherit" />
                         </IconButton>
 
                         <Menu anchorEl={menuAnchor} keepMounted open={Boolean(menuAnchor)} onClose={handleMenuClose}>
                           {menuReseller !== 'header' && selectedRows.length <= 1 && (
                             <>
-                              <MenuItem onClick={() => handleMenuAction('edit')}>Edit Reseller</MenuItem>
+                              <MenuItem onClick={() => handleMenuAction('edit', currentReseller._id)}>
+                                Edit Reseller
+                              </MenuItem>
                               <MenuItem onClick={() => handleMenuAction('changePassword')}>Change Password</MenuItem>
                             </>
                           )}
@@ -735,6 +774,17 @@ const ManageReseller = () => {
           </Button>
         </DialogActions>
       </Dialog>
+      <EditResellerDialog
+        open={editDialogOpen}
+        onClose={() => {
+          setEditDialogOpen(false);
+          setCurrentReseller(null);
+        }}
+        reseller={currentReseller}
+        onSubmit={fetchData}
+        userId={userId}
+        editingResellerId={editingResellerId}
+      />
     </div>
   );
 };
