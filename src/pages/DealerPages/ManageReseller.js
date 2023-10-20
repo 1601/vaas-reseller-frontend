@@ -30,6 +30,8 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import SearchIcon from '@mui/icons-material/Search';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import UserDataFetch from '../../components/user-account/UserDataFetch';
 
 // Validations
@@ -118,6 +120,10 @@ const ManageReseller = () => {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [currentReseller, setCurrentReseller] = useState(null);
   const [resellers, setResellers] = useState([]);
+  const [changePasswordDialogOpen, setChangePasswordDialogOpen] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState('');
 
   const onDeleteReseller = async (resellerId) => {
     try {
@@ -359,6 +365,31 @@ const ManageReseller = () => {
     }
   };
 
+  const passwordValidation = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,12}$/;
+
+  const handlePasswordChange = async () => {
+    if (!passwordValidation.test(newPassword)) {
+      setPasswordError(
+        'Password must be 8-12 characters long and include 1 uppercase, 1 lowercase, 1 number, and 1 special character.'
+      );
+      return;
+    }
+    try {
+      await axios.put(
+        `${process.env.REACT_APP_BACKEND_URL}/api/users/${userId}/resellers/${currentReseller}/changePassword`,
+        {
+          newPassword,
+        }
+      );
+      console.log('Password changed successfully for reseller:', currentReseller);
+      setChangePasswordDialogOpen(false);
+      setNewPassword('');
+      setPasswordError('');
+    } catch (error) {
+      console.error('Error changing password:', error);
+    }
+  };
+
   const handleMenuAction = (action, resellerId) => {
     console.log('handleMenuAction triggered with action:', action, 'and resellerId:', resellerId);
 
@@ -382,6 +413,16 @@ const ManageReseller = () => {
           onDeleteReseller(resellerToDelete._id);
         } else {
           console.error('Could not find reseller to delete with ID:', resellerId);
+        }
+        break;
+      }
+      case 'changePassword': {
+        const resellerToChangePassword = resellers.find((r) => r._id === resellerId);
+        if (resellerToChangePassword && resellerToChangePassword._id) {
+          setCurrentReseller(resellerToChangePassword._id); // Set the current reseller ID to be used for the API call
+          setChangePasswordDialogOpen(true); // Open the change password dialog
+        } else {
+          console.error('Could not find reseller to change password with ID:', resellerId);
         }
         break;
       }
@@ -605,6 +646,43 @@ const ManageReseller = () => {
         userId={userId}
         editingResellerId={editingResellerId}
       />
+      <Dialog open={changePasswordDialogOpen} onClose={() => setChangePasswordDialogOpen(false)}>
+        <DialogTitle>Change Password</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            id="newPassword"
+            label="New Password"
+            type={showPassword ? 'text' : 'password'}
+            fullWidth
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            error={!!passwordError}
+            helperText={passwordError}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    onClick={() => setShowPassword(!showPassword)}
+                    onMouseDown={(event) => event.preventDefault()}
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setChangePasswordDialogOpen(false)} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handlePasswordChange} color="primary">
+            Change Password
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };

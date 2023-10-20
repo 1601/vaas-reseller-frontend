@@ -7,7 +7,7 @@ const ResellerActionsMenu = ({ menuAnchor, handleClose, selectedRows, currentRes
       {currentReseller !== 'header' && selectedRows.length <= 1 && (
         <>
           <MenuItem onClick={() => handleMenuAction('edit', currentReseller._id)}>Edit Reseller</MenuItem>
-          <MenuItem onClick={() => handleMenuAction('changePassword')}>Change Password</MenuItem>
+          <MenuItem onClick={() => handleMenuAction('changePassword', currentReseller._id)}>Change Password</MenuItem>
         </>
       )}
       {selectedRows.length <= 1 && (
@@ -26,3 +26,5 @@ const ResellerActionsMenu = ({ menuAnchor, handleClose, selectedRows, currentRes
     </Menu>
   );
 };
+
+export default ResellerActionsMenu;
