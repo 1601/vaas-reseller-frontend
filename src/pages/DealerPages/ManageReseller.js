@@ -94,6 +94,8 @@ const ManageReseller = () => {
   const [value, setValue] = useState('');
   const [isAllSelected, setIsAllSelected] = useState(false);
   const [selectedRows, setSelectedRows] = useState([]);
+  const [menuReseller, setMenuReseller] = useState(null);
+  const [menuAnchor, setMenuAnchor] = useState(null);
 
   const handleStatusClick = (event, resellerId) => {
     setAnchorEl(event.currentTarget);
@@ -139,6 +141,21 @@ const ManageReseller = () => {
       console.error('Error updating reseller status:', error);
     }
     handleCloseStatusMenu();
+  };
+
+  const handleMenuOpen = (event, resellerId = 'header') => {
+    setMenuAnchor(event.currentTarget);
+    setMenuReseller(resellerId);
+  };
+
+  const handleMenuClose = () => {
+    setMenuAnchor(null);
+    setMenuReseller(null);
+  };
+
+  const handleMenuAction = (action) => {
+    // Handle the selected action here
+    handleMenuClose();
   };
 
   const handleOpen = () => {
@@ -470,7 +487,7 @@ const ManageReseller = () => {
                   <TableCell>Company</TableCell>
                   <TableCell>Status</TableCell>
                   <TableCell sx={{ textAlign: 'right' }}>
-                    <IconButton size="small">
+                    <IconButton size="small" onClick={(e) => handleMenuOpen(e)}>
                       <MoreVertIcon fontSize="inherit" />
                     </IconButton>
                   </TableCell>
@@ -509,9 +526,24 @@ const ManageReseller = () => {
                           >
                             <EditIcon fontSize="inherit" />
                           </IconButton>
-                          <IconButton size="small">
+                          <IconButton size="small" onClick={(e) => handleMenuOpen(e, reseller._id)}>
                             <MoreVertIcon fontSize="inherit" />
                           </IconButton>
+
+                          <Menu anchorEl={menuAnchor} keepMounted open={Boolean(menuAnchor)} onClose={handleMenuClose}>
+                            {menuReseller !== 'header' && selectedRows.length <= 1 && (
+                              <>
+                                <MenuItem onClick={() => handleMenuAction('edit')}>Edit Reseller</MenuItem>
+                                <MenuItem onClick={() => handleMenuAction('changePassword')}>Change Password</MenuItem>
+                              </>
+                            )}
+                            {selectedRows.length <= 1 && (
+                              <MenuItem onClick={() => handleMenuAction('delete')}>Delete Reseller</MenuItem>
+                            )}
+                            {selectedRows.length > 1 && (
+                              <MenuItem onClick={() => handleMenuAction('delete')}>Delete Multiple Resellers</MenuItem>
+                            )}
+                          </Menu>
                         </div>
                       </TableCell>
                     </TableRow>
