@@ -792,7 +792,12 @@ export default function SignUpPage() {
               </Card>
               {/* Accept Terms and Conditions */}
               <FormControlLabel
-                control={<Checkbox checked={isTermsAccepted} onChange={() => setIsTermsAccepted((prev) => !prev)} />}
+                control={
+                  <Checkbox
+                    checked={isTermsAccepted}
+                    onChange={openTermsDialog}
+                  />
+                }
                 label={
                   <>
                     I agree to the
@@ -914,7 +919,7 @@ export default function SignUpPage() {
               </Typography>
             </StyledContent>
           )}
-        </Container> 
+        </Container>
       </StyledRoot>
     </>
   );
