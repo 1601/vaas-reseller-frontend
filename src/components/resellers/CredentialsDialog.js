@@ -1,7 +1,13 @@
 import React from 'react';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Typography, Button, Box } from '@mui/material';
 
-const CredentialsDialog = ({ open, onClose, email, password }) => {
+const CredentialsDialog = ({ open, onClose, email, password, fetchData }) => {
+  const handleDoneClick = async () => {
+    await fetchData();
+
+    onClose();
+  };
+
   return (
     <Dialog open={open} onClose={onClose}>
       <DialogTitle>Reseller Successfully Created</DialogTitle>
@@ -27,7 +33,7 @@ const CredentialsDialog = ({ open, onClose, email, password }) => {
         >
           Change Password
         </Button>
-        <Button onClick={onClose} color="primary">
+        <Button onClick={handleDoneClick} color="primary">
           Done
         </Button>
       </DialogActions>
