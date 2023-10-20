@@ -119,6 +119,19 @@ const ManageReseller = () => {
   const [currentReseller, setCurrentReseller] = useState(null);
   const [resellers, setResellers] = useState([]);
 
+  const onDeleteReseller = async (resellerId) => {
+    try {
+      // Make a DELETE request to the server
+      await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/users/${userId}/resellers/${resellerId}`);
+
+      // Refresh the list of resellers
+      const updatedResellers = await fetchResellersForUser(userId);
+      setResellers(updatedResellers);
+    } catch (error) {
+      console.error('Error deleting reseller:', error);
+    }
+  };
+
   const handleStatusClick = (event, resellerId) => {
     setAnchorEl(event.currentTarget);
     setEditingResellerId(resellerId);
@@ -361,6 +374,15 @@ const ManageReseller = () => {
 
         setEditDialogOpen(true); // Open the edit dialog
 
+        break;
+      }
+      case 'delete': {
+        const resellerToDelete = resellers.find((r) => r._id === resellerId);
+        if (resellerToDelete && resellerToDelete._id) {
+          onDeleteReseller(resellerToDelete._id);
+        } else {
+          console.error('Could not find reseller to delete with ID:', resellerId);
+        }
         break;
       }
       // ... other cases ...
