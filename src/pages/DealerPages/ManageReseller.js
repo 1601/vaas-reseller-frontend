@@ -30,15 +30,21 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import SearchIcon from '@mui/icons-material/Search';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
-import AddResellerDialog from '../../components/resellers/AddResellerDialog';
 import { validateName, validateEmail, validateMobileNumber } from '../../components/validation/validationUtils';
 import { countryCodes } from '../../components/country/countryNumCodes';
 import { countries } from '../../components/country/CountriesList';
 import { mobileNumberLengths } from '../../components/country/countryNumLength';
 import UserDataFetch from '../../components/user-account/UserDataFetch';
+
+// Hooks Component
 import useFilteredResellers from '../../components/resellers/useFilteredResellers';
-import EditResellerDialog from '../../components/resellers/EditResellerDialog';
 import useSort from '../../components/resellers/useSort';
+
+// Dialogs Component
+import EditResellerDialog from '../../components/resellers/EditResellerDialog';
+import CredentialsDialog from '../../components/resellers/CredentialsDialog';
+import AddResellerDialog from '../../components/resellers/AddResellerDialog';
+
 
 const StatusLabel = ({ status }) => {
   const colorMap = {
@@ -647,35 +653,12 @@ const ManageReseller = () => {
         countries={countries}
         countryCodes={countryCodes}
       />
-      <Dialog open={showCredentialsPopup} onClose={() => setShowCredentialsPopup(false)}>
-        <DialogTitle>Reseller Successfully Created</DialogTitle>
-        <DialogContent>
-          <Typography>Please save the following credentials for your reseller to use:</Typography>
-          <Box mt={2}>
-            <Typography>
-              <strong>Email:</strong> {formState.email}
-            </Typography>
-            <Typography>
-              <strong>Password:</strong> {generatedPassword}
-            </Typography>
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={() => {
-              // Placeholder for change password functionality
-              console.log('Change Password Clicked');
-              setShowCredentialsPopup(false);
-            }}
-            color="primary"
-          >
-            Change Password
-          </Button>
-          <Button onClick={() => setShowCredentialsPopup(false)} color="primary">
-            Done
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <CredentialsDialog
+        open={showCredentialsPopup}
+        onClose={() => setShowCredentialsPopup(false)}
+        email={formState.email}
+        password={generatedPassword}
+      />
       <EditResellerDialog
         open={editDialogOpen}
         onClose={() => {
