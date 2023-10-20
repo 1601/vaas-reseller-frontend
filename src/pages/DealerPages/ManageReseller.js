@@ -1,24 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import {
-  Button,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-  Checkbox,
-  IconButton,
-  Card,
-  CardContent,
-  Typography,
-  Box,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Menu,
-  MenuItem,
+import { Button, Table, TableBody, TableCell, TableHead, TableRow, Checkbox, IconButton, Card, CardContent, Typography, Box, Menu, MenuItem,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -44,6 +26,7 @@ import EditResellerDialog from '../../components/resellers/EditResellerDialog';
 import CredentialsDialog from '../../components/resellers/CredentialsDialog';
 import AddResellerDialog from '../../components/resellers/AddResellerDialog';
 import ChangePasswordDialog from '../../components/resellers/ChangePasswordDialog';
+import DeleteResellerDialog from '../../components/resellers/DeleteResellerDIalog';
 
 // Other Component
 import SearchBar from '../../components/resellers/SearchBar';
@@ -115,27 +98,11 @@ const ManageReseller = () => {
   const [changePasswordDialogOpen, setChangePasswordDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deletingResellerId, setDeletingResellerId] = useState(null);
-
-  const handleDeleteClick = (resellerId) => {
-    setDeletingResellerId(resellerId);
-    setDeleteDialogOpen(true);
-  };
+  const [resellerToDelete, setResellerToDelete] = useState(null);
 
   const handleCloseDeleteDialog = () => {
     setDeletingResellerId(null);
     setDeleteDialogOpen(false);
-  };
-
-  const handleConfirmDelete = async () => {
-    try {
-      await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/users/${userId}/resellers/${deletingResellerId}`);
-
-      const updatedResellers = await fetchResellersForUser(userId);
-      setResellers(updatedResellers);
-    } catch (error) {
-      console.error('Error deleting reseller:', error);
-    }
-    handleCloseDeleteDialog();
   };
 
   const handleStatusClick = (event, resellerId) => {
@@ -185,7 +152,7 @@ const ManageReseller = () => {
   };
 
   const handleMenuOpen = (e, reseller) => {
-    setCurrentReseller(reseller); 
+    setCurrentReseller(reseller);
     setMenuAnchor(e.currentTarget);
   };
 
@@ -371,15 +338,16 @@ const ManageReseller = () => {
         console.log('Found resellerToEdit:', resellerToEdit);
 
         setCurrentReseller(resellerToEdit);
-        setEditingResellerId(resellerId); 
-        setEditDialogOpen(true); 
+        setEditingResellerId(resellerId);
+        setEditDialogOpen(true);
 
         break;
       }
       case 'delete': {
-        const resellerToDelete = resellers.find((r) => r._id === resellerId);
-        if (resellerToDelete && resellerToDelete._id) {
-          handleDeleteClick(resellerToDelete._id);
+        const reseller = resellers.find((r) => r._id === resellerId);
+        setResellerToDelete(reseller);
+        if (reseller && reseller._id) {
+          setDeleteDialogOpen(true);
         } else {
           console.error('Could not find reseller to delete with ID:', resellerId);
         }
@@ -388,8 +356,8 @@ const ManageReseller = () => {
       case 'changePassword': {
         const resellerToChangePassword = resellers.find((r) => r._id === resellerId);
         if (resellerToChangePassword && resellerToChangePassword._id) {
-          setCurrentReseller(resellerToChangePassword._id); 
-          setChangePasswordDialogOpen(true); 
+          setCurrentReseller(resellerToChangePassword._id);
+          setChangePasswordDialogOpen(true);
         } else {
           console.error('Could not find reseller to change password with ID:', resellerId);
         }
@@ -421,19 +389,6 @@ const ManageReseller = () => {
   };
 
   useEffect(() => {
-    fetchData();
-  }, [userId]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const fetchedResellers = await fetchResellersForUser(userId);
-        setResellers(fetchedResellers);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-
     fetchData();
   }, [userId]);
 
@@ -620,18 +575,13 @@ const ManageReseller = () => {
         userId={userId}
         currentReseller={currentReseller}
       />
-      <Dialog open={deleteDialogOpen} onClose={handleCloseDeleteDialog}>
-        <DialogTitle>Confirm Deletion</DialogTitle>
-        <DialogContent>Are you sure you want to delete this Reseller?</DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDeleteDialog} color="primary">
-            No
-          </Button>
-          <Button onClick={handleConfirmDelete} color="primary">
-            Yes
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <DeleteResellerDialog
+        open={deleteDialogOpen}
+        handleCloseDeleteDialog={handleCloseDeleteDialog}
+        userId={userId}
+        resellerId={resellerToDelete?._id}
+        fetchData={fetchData}
+      />
     </div>
   );
 };
