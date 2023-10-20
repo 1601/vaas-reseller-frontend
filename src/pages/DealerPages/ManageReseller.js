@@ -34,6 +34,7 @@ import { countryCodes } from '../../components/country/countryNumCodes';
 import { countries } from '../../components/country/CountriesList';
 import { mobileNumberLengths } from '../../components/country/countryNumLength';
 import UserDataFetch from '../../components/user-account/UserDataFetch';
+import useFilteredResellers from '../../components/resellers/useFilteredResellers';
 
 const StatusLabel = ({ status }) => {
   const colorMap = {
@@ -365,6 +366,8 @@ const ManageReseller = () => {
     }
   }, [userData]);
 
+  const filteredResellers = useFilteredResellers(resellers, value, currentTab);
+
   return (
     <div style={{ padding: '20px' }}>
       <Card>
@@ -494,60 +497,58 @@ const ManageReseller = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {resellers
-                  .filter((reseller) => currentTab === 'All' || reseller.status === currentTab)
-                  .map((reseller) => (
-                    <TableRow key={reseller._id}>
-                      <TableCell padding="checkbox">
-                        <Checkbox
-                          checked={selectedRows.includes(reseller._id)}
-                          onChange={() => handleRowCheckboxChange(reseller._id)}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <div>
-                          {reseller.firstName} {reseller.lastName}
-                        </div>
-                        <Typography variant="body2" color="textSecondary">
-                          {reseller.email}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>{reseller.mobileNumber}</TableCell>
-                      <TableCell>{reseller.companyName}</TableCell>
-                      <TableCell>
-                        <StatusLabel status={reseller.status} />
-                      </TableCell>
-                      <TableCell style={{ width: '50px' }}>
-                        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                          <IconButton
-                            size="small"
-                            style={{ marginRight: '8px' }}
-                            onClick={(e) => handleStatusClick(e, reseller._id)}
-                          >
-                            <EditIcon fontSize="inherit" />
-                          </IconButton>
-                          <IconButton size="small" onClick={(e) => handleMenuOpen(e, reseller._id)}>
-                            <MoreVertIcon fontSize="inherit" />
-                          </IconButton>
+                {useFilteredResellers(resellers, value, currentTab).map((reseller) => (
+                  <TableRow key={reseller._id}>
+                    <TableCell padding="checkbox">
+                      <Checkbox
+                        checked={selectedRows.includes(reseller._id)}
+                        onChange={() => handleRowCheckboxChange(reseller._id)}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <div>
+                        {reseller.firstName} {reseller.lastName}
+                      </div>
+                      <Typography variant="body2" color="textSecondary">
+                        {reseller.email}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>{reseller.mobileNumber}</TableCell>
+                    <TableCell>{reseller.companyName}</TableCell>
+                    <TableCell>
+                      <StatusLabel status={reseller.status} />
+                    </TableCell>
+                    <TableCell style={{ width: '50px' }}>
+                      <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                        <IconButton
+                          size="small"
+                          style={{ marginRight: '8px' }}
+                          onClick={(e) => handleStatusClick(e, reseller._id)}
+                        >
+                          <EditIcon fontSize="inherit" />
+                        </IconButton>
+                        <IconButton size="small" onClick={(e) => handleMenuOpen(e, reseller._id)}>
+                          <MoreVertIcon fontSize="inherit" />
+                        </IconButton>
 
-                          <Menu anchorEl={menuAnchor} keepMounted open={Boolean(menuAnchor)} onClose={handleMenuClose}>
-                            {menuReseller !== 'header' && selectedRows.length <= 1 && (
-                              <>
-                                <MenuItem onClick={() => handleMenuAction('edit')}>Edit Reseller</MenuItem>
-                                <MenuItem onClick={() => handleMenuAction('changePassword')}>Change Password</MenuItem>
-                              </>
-                            )}
-                            {selectedRows.length <= 1 && (
-                              <MenuItem onClick={() => handleMenuAction('delete')}>Delete Reseller</MenuItem>
-                            )}
-                            {selectedRows.length > 1 && (
-                              <MenuItem onClick={() => handleMenuAction('delete')}>Delete Multiple Resellers</MenuItem>
-                            )}
-                          </Menu>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                        <Menu anchorEl={menuAnchor} keepMounted open={Boolean(menuAnchor)} onClose={handleMenuClose}>
+                          {menuReseller !== 'header' && selectedRows.length <= 1 && (
+                            <>
+                              <MenuItem onClick={() => handleMenuAction('edit')}>Edit Reseller</MenuItem>
+                              <MenuItem onClick={() => handleMenuAction('changePassword')}>Change Password</MenuItem>
+                            </>
+                          )}
+                          {selectedRows.length <= 1 && (
+                            <MenuItem onClick={() => handleMenuAction('delete')}>Delete Reseller</MenuItem>
+                          )}
+                          {selectedRows.length > 1 && (
+                            <MenuItem onClick={() => handleMenuAction('delete')}>Delete Multiple Resellers</MenuItem>
+                          )}
+                        </Menu>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           </div>
