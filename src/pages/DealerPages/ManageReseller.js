@@ -2,6 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import {
   Button,
+  Tabs,
+  Tab,
+  TextField,
   Table,
   TableBody,
   TableCell,
@@ -17,11 +20,14 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  InputAdornment,
+  Autocomplete,
   Menu,
   MenuItem,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import SearchIcon from '@mui/icons-material/Search';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import UserDataFetch from '../../components/user-account/UserDataFetch';
@@ -43,7 +49,6 @@ import useSort from '../../components/resellers/useSort';
 import EditResellerDialog from '../../components/resellers/EditResellerDialog';
 import CredentialsDialog from '../../components/resellers/CredentialsDialog';
 import AddResellerDialog from '../../components/resellers/AddResellerDialog';
-import ChangePasswordDialog from '../../components/resellers/ChangePasswordDialog';
 
 // Other Component
 import SearchBar from '../../components/resellers/SearchBar';
@@ -102,6 +107,7 @@ const ManageReseller = () => {
   const [currentTab, setCurrentTab] = useState('All');
   const [anchorEl, setAnchorEl] = useState(null);
   const [editingResellerId, setEditingResellerId] = useState(null);
+  const tabsRef = useRef(null);
   const [showCredentialsPopup, setShowCredentialsPopup] = useState(false);
   const [generatedPassword, setGeneratedPassword] = useState('');
   const [value, setValue] = useState('');
@@ -112,31 +118,6 @@ const ManageReseller = () => {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [currentReseller, setCurrentReseller] = useState(null);
   const [resellers, setResellers] = useState([]);
-  const [changePasswordDialogOpen, setChangePasswordDialogOpen] = useState(false);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [deletingResellerId, setDeletingResellerId] = useState(null);
-
-  const handleDeleteClick = (resellerId) => {
-    setDeletingResellerId(resellerId);
-    setDeleteDialogOpen(true);
-  };
-
-  const handleCloseDeleteDialog = () => {
-    setDeletingResellerId(null);
-    setDeleteDialogOpen(false);
-  };
-
-  const handleConfirmDelete = async () => {
-    try {
-      await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/users/${userId}/resellers/${deletingResellerId}`);
-
-      const updatedResellers = await fetchResellersForUser(userId);
-      setResellers(updatedResellers);
-    } catch (error) {
-      console.error('Error deleting reseller:', error);
-    }
-    handleCloseDeleteDialog();
-  };
 
   const handleStatusClick = (event, resellerId) => {
     setAnchorEl(event.currentTarget);
@@ -185,7 +166,7 @@ const ManageReseller = () => {
   };
 
   const handleMenuOpen = (e, reseller) => {
-    setCurrentReseller(reseller); 
+    setCurrentReseller(reseller); // Set the current reseller
     setMenuAnchor(e.currentTarget);
   };
 
@@ -279,6 +260,10 @@ const ManageReseller = () => {
     }));
   };
 
+  const validateForm = () => {
+    return Object.keys(validationErrors).every((key) => !validationErrors[key]);
+  };
+
   const handleAddReseller = async () => {
     setTouchedFields({
       email: true,
@@ -315,7 +300,6 @@ const ManageReseller = () => {
         setGeneratedPassword(res.data.password);
         setShowCredentialsPopup(true);
         setOpen(false);
-        fetchResellersForUser(userId);
       } catch (error) {
         console.error('Error adding reseller:', error);
       }
@@ -367,36 +351,22 @@ const ManageReseller = () => {
 
     switch (action) {
       case 'edit': {
+        // Find the reseller using the provided ID and set it
         const resellerToEdit = resellers.find((r) => r._id === resellerId);
         console.log('Found resellerToEdit:', resellerToEdit);
 
         setCurrentReseller(resellerToEdit);
-        setEditingResellerId(resellerId); 
-        setEditDialogOpen(true); 
+
+        setEditingResellerId(resellerId); // Set the editingResellerId directly to resellerId
+
+        setEditDialogOpen(true); // Open the edit dialog
 
         break;
       }
-      case 'delete': {
-        const resellerToDelete = resellers.find((r) => r._id === resellerId);
-        if (resellerToDelete && resellerToDelete._id) {
-          handleDeleteClick(resellerToDelete._id);
-        } else {
-          console.error('Could not find reseller to delete with ID:', resellerId);
-        }
-        break;
-      }
-      case 'changePassword': {
-        const resellerToChangePassword = resellers.find((r) => r._id === resellerId);
-        if (resellerToChangePassword && resellerToChangePassword._id) {
-          setCurrentReseller(resellerToChangePassword._id); 
-          setChangePasswordDialogOpen(true); 
-        } else {
-          console.error('Could not find reseller to change password with ID:', resellerId);
-        }
-        break;
-      }
+      // ... other cases ...
       default:
         console.log('Default case triggered for action:', action);
+        // handle or log any unexpected actions
         break;
     }
     handleMenuClose();
@@ -601,7 +571,6 @@ const ManageReseller = () => {
         onClose={() => setShowCredentialsPopup(false)}
         email={formState.email}
         password={generatedPassword}
-        fetchData={fetchData}
       />
       <EditResellerDialog
         open={editDialogOpen}
@@ -614,24 +583,6 @@ const ManageReseller = () => {
         userId={userId}
         editingResellerId={editingResellerId}
       />
-      <ChangePasswordDialog
-        open={changePasswordDialogOpen}
-        onClose={() => setChangePasswordDialogOpen(false)}
-        userId={userId}
-        currentReseller={currentReseller}
-      />
-      <Dialog open={deleteDialogOpen} onClose={handleCloseDeleteDialog}>
-        <DialogTitle>Confirm Deletion</DialogTitle>
-        <DialogContent>Are you sure you want to delete this Reseller?</DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDeleteDialog} color="primary">
-            No
-          </Button>
-          <Button onClick={handleConfirmDelete} color="primary">
-            Yes
-          </Button>
-        </DialogActions>
-      </Dialog>
     </div>
   );
 };
