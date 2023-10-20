@@ -51,6 +51,7 @@ import useSort from '../../components/resellers/useSort';
 import EditResellerDialog from '../../components/resellers/EditResellerDialog';
 import CredentialsDialog from '../../components/resellers/CredentialsDialog';
 import AddResellerDialog from '../../components/resellers/AddResellerDialog';
+import ChangePasswordDialog from '../../components/resellers/ChangePasswordDialog';
 
 // Other Component
 import SearchBar from '../../components/resellers/SearchBar';
@@ -121,9 +122,6 @@ const ManageReseller = () => {
   const [currentReseller, setCurrentReseller] = useState(null);
   const [resellers, setResellers] = useState([]);
   const [changePasswordDialogOpen, setChangePasswordDialogOpen] = useState(false);
-  const [newPassword, setNewPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [passwordError, setPasswordError] = useState('');
 
   const onDeleteReseller = async (resellerId) => {
     try {
@@ -362,31 +360,6 @@ const ManageReseller = () => {
     } catch (error) {
       console.error('Error fetching resellers:', error);
       throw error;
-    }
-  };
-
-  const passwordValidation = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,12}$/;
-
-  const handlePasswordChange = async () => {
-    if (!passwordValidation.test(newPassword)) {
-      setPasswordError(
-        'Password must be 8-12 characters long and include 1 uppercase, 1 lowercase, 1 number, and 1 special character.'
-      );
-      return;
-    }
-    try {
-      await axios.put(
-        `${process.env.REACT_APP_BACKEND_URL}/api/users/${userId}/resellers/${currentReseller}/changePassword`,
-        {
-          newPassword,
-        }
-      );
-      console.log('Password changed successfully for reseller:', currentReseller);
-      setChangePasswordDialogOpen(false);
-      setNewPassword('');
-      setPasswordError('');
-    } catch (error) {
-      console.error('Error changing password:', error);
     }
   };
 
@@ -646,43 +619,12 @@ const ManageReseller = () => {
         userId={userId}
         editingResellerId={editingResellerId}
       />
-      <Dialog open={changePasswordDialogOpen} onClose={() => setChangePasswordDialogOpen(false)}>
-        <DialogTitle>Change Password</DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            id="newPassword"
-            label="New Password"
-            type={showPassword ? 'text' : 'password'}
-            fullWidth
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-            error={!!passwordError}
-            helperText={passwordError}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton
-                    onClick={() => setShowPassword(!showPassword)}
-                    onMouseDown={(event) => event.preventDefault()}
-                  >
-                    {showPassword ? <VisibilityOff /> : <Visibility />}
-                  </IconButton>
-                </InputAdornment>
-              ),
-            }}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setChangePasswordDialogOpen(false)} color="primary">
-            Cancel
-          </Button>
-          <Button onClick={handlePasswordChange} color="primary">
-            Change Password
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <ChangePasswordDialog
+        open={changePasswordDialogOpen}
+        onClose={() => setChangePasswordDialogOpen(false)}
+        userId={userId}
+        currentReseller={currentReseller}
+      />
     </div>
   );
 };
