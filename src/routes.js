@@ -5,6 +5,7 @@ import DashboardLayout from './layouts/dashboard';
 import SimpleLayout from './layouts/simple';
 //
 import BlogPage from './pages/BlogPage';
+import CustomerPage from './pages/CustomerPage';
 import UserPage from './pages/UserPage';
 import LoginPage from './pages/AuthPages/LoginPage';
 import SignUpPage from './pages/AuthPages/SignUpPage';
@@ -143,7 +144,7 @@ export default function Router() {
             { path: 'resellers', element: <ManageReseller /> },
           ],
         },
-        { path: 'customer', element: <UserPage /> },
+        { path: 'customer', element: <CustomerPage /> },
         { path: 'developer', element: <UserPage /> },
         {
           path: 'sales',

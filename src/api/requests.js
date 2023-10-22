@@ -77,6 +77,7 @@ const getAllBanner = async() =>{
   }
   return response
 }
+
 export {
   submitDataKyc,
   submitFileKyc,
