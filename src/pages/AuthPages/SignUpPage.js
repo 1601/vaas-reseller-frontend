@@ -565,9 +565,6 @@ export default function SignUpPage() {
     })
   }
 
-  const scrollable = {
-    overflowY:'scroll'
-  }
   return (
     <>
       <Helmet>
