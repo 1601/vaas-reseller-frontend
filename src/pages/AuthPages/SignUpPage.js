@@ -6,6 +6,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
 import {
   Button,
+  Box,
   Card,
   CardContent,
   CardHeader,
@@ -29,9 +30,12 @@ import {
   Select,
   TextField,
   Typography,
+  useMediaQuery,
+  useTheme
 } from '@mui/material';
 import InputAdornment from '@mui/material/InputAdornment';
 import IconButton from '@mui/material/IconButton';
+import LockOpenIcon from '@mui/icons-material/LockOpen';
 import Autocomplete from '@mui/lab/Autocomplete';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
@@ -67,13 +71,16 @@ const StyledRoot = styled('div')(({ theme }) => ({
 }));
 
 const StyledContent = styled('div')(({ theme }) => ({
-  maxWidth: 480,
-  margin: 'auto',
+  marginLeft: '100px',
+  marginRight: '100px',
+  [theme.breakpoints.down('sm')]: {
+    marginLeft: '0px',
+    marginRight: '0px'
+  },
   minHeight: '100vh',
   display: 'flex',
   justifyContent: 'center',
   flexDirection: 'column',
-  padding: theme.spacing(12, 0),
 }));
 
 function TermsDialog({ open, onClose, onAgree }) {
@@ -153,6 +160,7 @@ export default function SignUpPage() {
   const [isScrolledToEnd, setIsScrolledToEnd] = useState(false);
   const [mobileError, setMobileError] = useState(false);
   const [banners, setBanners] = useState();
+  const [steps, setSteps] = useState(0);
 
   const handleScroll = (e) => {
     const bottom = e.target.scrollHeight - e.target.scrollTop === e.target.clientHeight;
@@ -353,14 +361,15 @@ export default function SignUpPage() {
     setPasswordError(false);
     setPasswordHelperText('');
 
-    await validateEmailAndCheckExistence(email);
-
-    const isFormFullyValid = validateForm() && formData.password === formData.confirmPassword;
 
     if (!validateForm()) {
       // Stop here and do not proceed with signup if form is invalid
       return;
     }
+
+    await validateEmailAndCheckExistence(email);
+
+    const isFormFullyValid = validateForm() && formData.password === formData.confirmPassword;
 
     // If the password is empty, also set an error for confirm password
     if (!formData.password.trim()) {
@@ -506,13 +515,12 @@ export default function SignUpPage() {
   const settings = {
     dots: true,
     infinite: true,
-    slidesToShow: 2, // Adjust the number of slides shown
-    slidesToScroll: 1,
+    slidesToShow: 1, // Adjust the number of slides shown
     nextArrow: <ChevronRight />,
     prevArrow: <ChevronLeft />,
     autoplay: true,
-    autoplaySpeed: 2000,
-    speed: 2000,
+    autoplaySpeed: 5000,
+    speed: 5000
   };
   // useEffect(() => {
   //   if (showSuccessMessage) {
@@ -524,403 +532,494 @@ export default function SignUpPage() {
   //   return undefined;
   // }, [showSuccessMessage, navigate]);
 
+
+  const theme = useTheme();
+  const isMobileView = useMediaQuery(theme.breakpoints.down('sm')); // You can adjust the breakpoint
+
+  const imageStyles = {
+    width: '100%',
+    height: '120vh',
+    borderRadius:'15px',
+    objectFit: 'cover',
+    ...(isMobileView && {
+      height: '22vh', // Apply this style for mobile view
+    }),
+  };
+
+  const containerStyles = {
+    backgroundColor: '#fff',
+    p: { xs: 2, sm: 3, md: 4 },
+    marginTop: '40px',
+    height: '130vh',
+    borderRadius: '20px',
+    alignSelf: 'center',
+    ...(isMobileView && {
+      height: '145vh'
+    })
+  }
+
+  const ssoStyles = {
+    fontSize: '.8rem',
+    ...(isMobileView && {
+      fontSize: '.5rem'
+    })
+  }
+
+  const scrollable = {
+    overflowY:'scroll'
+  }
   return (
     <>
       <Helmet>
         <title> Sign Up | Your App </title>
       </Helmet>
-      <StyledRoot>
-        <Container maxWidth="sm" sx={{ backgroundColor: '#fff', p: { xs: 2, sm: 3, md: 4 } }}>
-          <Logo sx={{ alignSelf: 'center', width: ['80%', null, '100%'], mx: 'auto', display: 'block' }} />
-          {succesSignup === true ? (
-            <VerifyPage email={formData.email} firstName={formData.firstName} lastName={formData.lastName} />
-          ) : (
-            <StyledContent>
-              <Paper sx={{ borderRadius: 2 }}>
-                <Slider {...settings}>{banners && banners.map((data, index) => <Slide image={data.url} />)}</Slider>
-              </Paper>
-              <Typography variant="h4" gutterBottom sx={{ fontSize: { xs: '1.6rem', md: '2rem' }, mt: 2 }}>
-                Sign Up
-              </Typography>
-              <Typography variant="body2" sx={{ mb: 5 }}>
-                Register now to your Vaas Experience
-              </Typography>
+      <Container maxWidth={false}>
+        {succesSignup === true ? (<VerifyPage email={formData.email} firstName={formData.firstName} lastName={formData.lastName} />
+        ) : (
+          <Box sx={containerStyles}>
+            {isMobileView === true && (<Logo sx={{ alignSelf: 'center', width: ['80%', null, '100%'], mx: 'auto', display: 'block', mb:4 }} />)}
+            <Grid container alignItems="start">
+              <Grid item xs={12} sm={8} md={6}>
+                <div style={imageStyles}>
+                  <Slider {...settings}>
+                    {banners && banners.map((data, index) => (
+                      <div
+                        style={{
+                          width: '100%',
+                          height: '100vh',
+                          borderRadius: '15px'
+                        }} key={index}>
+                        <img src={data.url} alt={`Slide ${index}`}
+                          style={imageStyles}
+                        />
+                      </div>
+                    ))}
+                  </Slider>
+                </div>
+              </Grid>
+              <Grid item xs={12} sm={8} md={6}>
+                <StyledContent>
+                  {isMobileView === false && (<Logo sx={{ alignSelf: 'center', width: ['40%', null, '50%'], mx: 'auto', display: 'block' }} />)}
+                  <Typography variant="h4" gutterBottom sx={{ fontSize: { xs: '1.6rem', md: '2rem' }, mt: 5 }}>
+                    Sign Up
+                  </Typography>
+                  <Typography variant="body2" sx={{ mb: 5 }}>
+                    Register now to your Vaas Experience
+                  </Typography>
+                  <Box sx={{
+                    overflowY: 'auto',
+                    maxHeight: 400,
+                    whiteSpace: 'pre-line',
+                    mb:3
+                  }}>
+                     {/* Basic Information Section */}
+                  <Box sx={{ mb: 1 }}>
+                    <Typography sx={{ mb: 1 }}> Basic Information </Typography>
+                    <Grid container spacing={2}>
+                      <Grid item xs={12} sm={12} md={12}>
+                        <TextField
+                          error={fieldErrors.firstName}
+                          fullWidth
+                          label="First Name"
+                          variant="outlined"
+                          name="firstName"
+                          value={formData.firstName}
+                          onChange={handleInputChange}
+                          onFocus={() => setDirtyFields((prev) => ({ ...prev, firstName: true }))}
+                          onBlur={() => {
+                            if (dirtyFields.firstName && !formData.firstName.trim()) {
+                              setFieldErrors((prevErrors) => ({ ...prevErrors, firstName: true }));
+                            }
+                          }}
+                          sx={{ mb: 1 }}
+                          helperText={
+                            fieldErrors.firstName
+                              ? formData.firstName.trim()
+                                ? 'First Name contains invalid characters'
+                                : dirtyFields.firstName
+                                  ? 'First Name is required'
+                                  : ''
+                              : ''
+                          }
+                        />
+                      </Grid>
+                      <Grid item xs={12} sm={12} md={12}>
+                        <TextField
+                          error={fieldErrors.middleName}
+                          fullWidth
+                          label="Middle Name (Optional)"
+                          variant="outlined"
+                          name="middleName"
+                          value={formData.middleName}
+                          onChange={handleInputChange}
+                          sx={{ mb: 1 }}
+                          helperText={
+                            fieldErrors.middleName && formData.middleName.trim()
+                              ? 'Middle Name contains invalid characters'
+                              : ''
+                          }
+                        />
+                      </Grid>
+                      <Grid item xs={12} sm={12} md={12}>
+                        <TextField
+                          error={fieldErrors.lastName}
+                          fullWidth
+                          label="Last Name"
+                          variant="outlined"
+                          name="lastName"
+                          value={formData.lastName}
+                          onChange={handleInputChange}
+                          onFocus={() => setDirtyFields((prev) => ({ ...prev, lastName: true }))}
+                          onBlur={() => {
+                            if (dirtyFields.lastName && !formData.lastName.trim()) {
+                              setFieldErrors((prevErrors) => ({ ...prevErrors, lastName: true }));
+                            }
+                          }}
+                          sx={{ mb: 1 }}
+                          helperText={
+                            fieldErrors.lastName
+                              ? formData.lastName.trim()
+                                ? 'Last Name contains invalid characters'
+                                : 'Last Name is required'
+                              : ''
+                          }
+                        />
+                      </Grid>
+                      <Grid item xs={12} sm={12} md={12}>
+                        <FormControl fullWidth variant="outlined" error={fieldErrors.designation}>
+                          <InputLabel id="designation-label" error={fieldErrors.designation}>
+                            Designation
+                          </InputLabel>
+                          <Select
+                            error={fieldErrors.designation}
+                            labelId="designation-label"
+                            label="Designation"
+                            name="designation"
+                            value={formData.designation}
+                            onChange={handleInputChange}
+                          >
+                            <MenuItem value={'Mr.'}>Mr.</MenuItem>
+                            <MenuItem value={'Ms.'}>Ms.</MenuItem>
+                            <MenuItem value={'Mrs.'}>Mrs.</MenuItem>
+                          </Select>
+                          {fieldErrors.designation && <FormHelperText error>Designation is required</FormHelperText>}
+                        </FormControl>
+                      </Grid>
+                      <Grid item xs={12} sm={12} md={12}>
+                        <Autocomplete
+                          error={fieldErrors.country}
+                          fullWidth
+                          options={countries}
+                          getOptionLabel={(option) => option}
+                          value={formData.country}
+                          onChange={(_, newValue) => setFormData({ ...formData, country: newValue })}
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              label="Country of Location"
+                              variant="outlined"
+                              sx={{ mb: 3 }}
+                              error={fieldErrors.country}
+                              helperText={fieldErrors.country && 'Country is required'}
+                            />
+                          )}
+                        />
+                      </Grid>
+                    </Grid>
+                  </Box>
 
-              {/* Basic Information Section */}
+                  {/* Contact Information Section */}
+                  <Box sc={{ mb: 3 }}>
+                    <Grid container>
+                      <Typography sx={{ mb: 1 }}> Contact Information </Typography>
+                      <Grid item xs={12} sm={12} md={12}>
+                        <TextField
+                          error={fieldErrors.email}
+                          fullWidth
+                          label="Email"
+                          variant="outlined"
+                          name="email"
+                          value={email}
+                          onChange={handleEmailChange}
+                          onFocus={() => setDirtyFields((prev) => ({ ...prev, email: true }))}
+                          onBlur={() => {
+                            if (dirtyFields.email && !email.trim()) {
+                              setFieldErrors((prevErrors) => ({ ...prevErrors, email: true }));
+                            }
+                          }}
+                          sx={{ mb: 2 }}
+                          helperText={
+                            fieldErrors.email
+                              ? email.trim()
+                                ? emailErrorMessage
+                                : dirtyFields.email
+                                  ? 'Email is required'
+                                  : ''
+                              : ''
+                          }
+                        />
+                      </Grid>
+                      <Grid item xs={12} sm={12} md={12}>
+                        <TextField
+                          error={fieldErrors.mobileNumber || mobileError}
+                          fullWidth
+                          label="Mobile Number"
+                          variant="outlined"
+                          name="mobileNumber"
+                          value={formData.mobileNumber?.replace(countryCodes[formData.country] || '', '')}
+                          onChange={handleMobileChange}
+                          sx={{ mb: 3 }}
+                          helperText={
+                            (fieldErrors.mobileNumber && 'Mobile Number is required') || (mobileError && errorMessage)
+                          }
+                          disabled={!formData.country}
+                          InputProps={{
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                {formData.country && countryCodes[formData.country]
+                                  ? `${countryCodes[formData.country]} |`
+                                  : ''}
+                              </InputAdornment>
+                            ),
+                          }}
+                          InputLabelProps={{
+                            shrink: !!formData.mobileNumber || !!formData.country,
+                          }}
+                        />
+                      </Grid>
+                    </Grid>
+                  </Box>
 
-              <Card sx={{ mb: 3 }}>
-                <CardHeader title="Basic Information" />
-                <CardContent>
+                  {/* User Credentials Section */}
+                  <Box sx={{ mb: 3 }}>
+                    <Typography sx={{ mb: 1 }}> User Credentials </Typography>
+                    <Grid container spacing={2}>
+                      <Grid item xs={12} sm={12} md={12}>
+                        <TextField
+                          error={fieldErrors.username}
+                          fullWidth
+                          label="Username"
+                          variant="outlined"
+                          name="username"
+                          value={formData.username}
+                          onChange={handleInputChange}
+                          onFocus={() => setDirtyFields((prev) => ({ ...prev, username: true }))}
+                          onBlur={() => {
+                            if (dirtyFields.username && !formData.username.trim()) {
+                              setFieldErrors((prevErrors) => ({ ...prevErrors, username: true }));
+                            }
+                          }}
+                          sx={{ mb: 1 }}
+                          helperText={
+                            fieldErrors.username
+                              ? formData.username.trim()
+                                ? 'Username contains invalid characters'
+                                : dirtyFields.username
+                                  ? 'Username is required'
+                                  : ''
+                              : ''
+                          }
+                        />
+                      </Grid>
+                      <Grid item xs={12} sm={12} md={12}>
+                        <TextField
+                          error={fieldErrors.password || passwordError}
+                          fullWidth
+                          label="Password"
+                          variant="outlined"
+                          type={formData.showPassword ? 'text' : 'password'}
+                          name="password"
+                          value={formData.password}
+                          onChange={handleInputChange}
+                          sx={{ mb: 1 }}
+                          helperText={passwordHelperText || (fieldErrors.password && 'Password is required')}
+                          InputProps={{
+                            endAdornment: (
+                              <InputAdornment position="end">
+                                <IconButton
+                                  onClick={() => setFormData({ ...formData, showPassword: !formData.showPassword })}
+                                  edge="end"
+                                >
+                                  <Iconify icon={formData.showPassword ? 'eva:eye-fill' : 'eva:eye-off-fill'} style={{ color: '#D8BFD8' }} />
+                                </IconButton>
+                              </InputAdornment>
+                            ),
+                          }}
+                        />
+                      </Grid>
+                      <Grid item xs={12} sm={12} md={12}>
+                        <TextField
+                          error={fieldErrors.confirmPassword}
+                          fullWidth
+                          label="Confirm Password"
+                          variant="outlined"
+                          type={formData.showPassword ? 'text' : 'password'}
+                          name="confirmPassword"
+                          value={formData.confirmPassword}
+                          onChange={handleInputChange}
+                          sx={{ mb: 1 }}
+                          helperText={fieldErrors.confirmPassword && 'Passwords do not match'}
+                          InputProps={{
+                            endAdornment: (
+                              <InputAdornment position="end">
+                                <IconButton
+                                  onClick={() => setFormData({ ...formData, showPassword: !formData.showPassword })}
+                                  edge="end"
+                                >
+                                  <Iconify icon={formData.showPassword ? 'eva:eye-fill' : 'eva:eye-off-fill'} style={{ color: '#D8BFD8' }} />
+                                </IconButton>
+                              </InputAdornment>
+                            ),
+                          }}
+                        />
+                      </Grid>
+                    </Grid>
+                  </Box>
+                  </Box>
+
+
                   <TextField
-                    error={fieldErrors.firstName}
+                    error={fieldErrors.ipAddress}
                     fullWidth
-                    label="First Name"
+                    label="IP Address"
                     variant="outlined"
-                    name="firstName"
-                    value={formData.firstName}
+                    name="ipAddress"
+                    value={formData.ipAddress}
                     onChange={handleInputChange}
-                    onFocus={() => setDirtyFields((prev) => ({ ...prev, firstName: true }))}
-                    onBlur={() => {
-                      if (dirtyFields.firstName && !formData.firstName.trim()) {
-                        setFieldErrors((prevErrors) => ({ ...prevErrors, firstName: true }));
-                      }
+                    sx={{ mb: 3 }}
+                    disabled={!showIpAddress}
+                    hidden
+                  />
+
+                  <TermsDialog
+                    open={isTermsDialogOpen}
+                    onClose={() => setIsTermsDialogOpen(false)}
+                    onAgree={agreeToTerms}
+                  />
+
+                  {/* Password Guidelines Dialog */}
+                  <Dialog open={errorDialogOpen} onClose={() => setErrorDialogOpen(false)}>
+                    <DialogTitle>Error</DialogTitle>
+                    <DialogContent>
+                      <DialogContentText>{errorMessage}</DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                      <Button onClick={() => setErrorDialogOpen(false)} color="primary">
+                        Close
+                      </Button>
+                    </DialogActions>
+                  </Dialog>
+                  <Dialog open={showErrorDialog} onClose={() => setShowErrorDialog(false)}>
+                    <DialogTitle>Error</DialogTitle>
+                    <DialogContent>
+                      <DialogContentText>Please supply all required fields</DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                      <Button onClick={() => setShowErrorDialog(false)} color="primary">
+                        Close
+                      </Button>
+                    </DialogActions>
+                  </Dialog>
+
+                  <Button
+                    fullWidth
+                    size="large"
+                    variant="outlined"
+                    onClick={handleSignup}
+                    disabled={!isFormValid || !isTermsAccepted}
+                    sx={{
+                      py: [1.5, 1], backgroundColor: "#873EC0 !important", // Set the background color
+                      color: '#ffffff', // Set the text color 
                     }}
-                    sx={{ mb: 3 }}
-                    helperText={
-                      fieldErrors.firstName
-                        ? formData.firstName.trim()
-                          ? 'First Name contains invalid characters'
-                          : dirtyFields.firstName
-                          ? 'First Name is required'
-                          : ''
-                        : ''
-                    }
-                  />
-                  <TextField
-                    error={fieldErrors.middleName}
-                    fullWidth
-                    label="Middle Name (Optional)"
-                    variant="outlined"
-                    name="middleName"
-                    value={formData.middleName}
-                    onChange={handleInputChange}
-                    sx={{ mb: 3 }}
-                    helperText={
-                      fieldErrors.middleName && formData.middleName.trim()
-                        ? 'Middle Name contains invalid characters'
-                        : ''
-                    }
-                  />
-                  <TextField
-                    error={fieldErrors.lastName}
-                    fullWidth
-                    label="Last Name"
-                    variant="outlined"
-                    name="lastName"
-                    value={formData.lastName}
-                    onChange={handleInputChange}
-                    onFocus={() => setDirtyFields((prev) => ({ ...prev, lastName: true }))}
-                    onBlur={() => {
-                      if (dirtyFields.lastName && !formData.lastName.trim()) {
-                        setFieldErrors((prevErrors) => ({ ...prevErrors, lastName: true }));
-                      }
-                    }}
-                    sx={{ mb: 3 }}
-                    helperText={
-                      fieldErrors.lastName
-                        ? formData.lastName.trim()
-                          ? 'Last Name contains invalid characters'
-                          : 'Last Name is required'
-                        : ''
-                    }
-                  />
-                  <FormControl fullWidth variant="outlined" sx={{ mb: 3 }} error={fieldErrors.designation}>
-                    <InputLabel id="designation-label" error={fieldErrors.designation}>
-                      Designation
-                    </InputLabel>
-                    <Select
-                      error={fieldErrors.designation}
-                      labelId="designation-label"
-                      label="Designation"
-                      name="designation"
-                      value={formData.designation}
-                      onChange={handleInputChange}
-                    >
-                      <MenuItem value={'Mr.'}>Mr.</MenuItem>
-                      <MenuItem value={'Ms.'}>Ms.</MenuItem>
-                      <MenuItem value={'Mrs.'}>Mrs.</MenuItem>
-                    </Select>
-                    {fieldErrors.designation && <FormHelperText error>Designation is required</FormHelperText>}
-                  </FormControl>
-                  <Autocomplete
-                    error={fieldErrors.country}
-                    fullWidth
-                    options={countries}
-                    getOptionLabel={(option) => option}
-                    value={formData.country}
-                    onChange={(_, newValue) => setFormData({ ...formData, country: newValue })}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        label="Country of Location"
-                        variant="outlined"
-                        sx={{ mb: 3 }}
-                        error={fieldErrors.country}
-                        helperText={fieldErrors.country && 'Country is required'}
+                    startIcon={<LockOpenIcon />}
+                  >
+                    Sign up
+                  </Button>
+
+                  {/* Accept Terms and Conditions */}
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={isTermsAccepted}
+                        onChange={openTermsDialog}
                       />
-                    )}
-                  />
-                </CardContent>
-              </Card>
-
-              {/* Contact Information Section */}
-              <Card sx={{ mb: 3 }}>
-                <CardHeader title="Contact Information" />
-                <CardContent>
-                  <TextField
-                    error={fieldErrors.email}
-                    fullWidth
-                    label="Email"
-                    variant="outlined"
-                    name="email"
-                    value={email}
-                    onChange={handleEmailChange}
-                    onFocus={() => setDirtyFields((prev) => ({ ...prev, email: true }))}
-                    onBlur={() => {
-                      if (dirtyFields.email && !email.trim()) {
-                        setFieldErrors((prevErrors) => ({ ...prevErrors, email: true }));
-                      }
-                    }}
-                    sx={{ mb: 3 }}
-                    helperText={
-                      fieldErrors.email
-                        ? email.trim()
-                          ? emailErrorMessage
-                          : dirtyFields.email
-                          ? 'Email is required'
-                          : ''
-                        : ''
+                    }
+                    label={
+                      <>
+                        I agree to the
+                        <Link component="button" onClick={openTermsDialog} sx={{ pl: 1 }}>
+                          Terms and Conditions
+                        </Link>
+                      </>
                     }
                   />
-                  <TextField
-                    error={fieldErrors.mobileNumber || mobileError}
-                    fullWidth
-                    label="Mobile Number"
-                    variant="outlined"
-                    name="mobileNumber"
-                    value={formData.mobileNumber?.replace(countryCodes[formData.country] || '', '')}
-                    onChange={handleMobileChange}
-                    sx={{ mb: 3 }}
-                    helperText={
-                      (fieldErrors.mobileNumber && 'Mobile Number is required') || (mobileError && errorMessage)
-                    }
-                    disabled={!formData.country}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          {formData.country && countryCodes[formData.country]
-                            ? `${countryCodes[formData.country]} |`
-                            : ''}
-                        </InputAdornment>
-                      ),
-                    }}
-                    InputLabelProps={{
-                      shrink: !!formData.mobileNumber || !!formData.country,
-                    }}
-                  />
-                </CardContent>
-              </Card>
 
-              {/* User Credentials Section */}
-              <Card sx={{ mb: 3 }}>
-                <CardHeader title="User Credentials" />
-                <CardContent>
-                  <TextField
-                    error={fieldErrors.username}
-                    fullWidth
-                    label="Username"
-                    variant="outlined"
-                    name="username"
-                    value={formData.username}
-                    onChange={handleInputChange}
-                    onFocus={() => setDirtyFields((prev) => ({ ...prev, username: true }))}
-                    onBlur={() => {
-                      if (dirtyFields.username && !formData.username.trim()) {
-                        setFieldErrors((prevErrors) => ({ ...prevErrors, username: true }));
-                      }
-                    }}
-                    sx={{ mb: 3 }}
-                    helperText={
-                      fieldErrors.username
-                        ? formData.username.trim()
-                          ? 'Username contains invalid characters'
-                          : dirtyFields.username
-                          ? 'Username is required'
-                          : ''
-                        : ''
-                    }
-                  />
-                  <TextField
-                    error={fieldErrors.password || passwordError}
-                    fullWidth
-                    label="Password"
-                    variant="outlined"
-                    type={formData.showPassword ? 'text' : 'password'}
-                    name="password"
-                    value={formData.password}
-                    onChange={handleInputChange}
-                    sx={{ mb: 3 }}
-                    helperText={passwordHelperText || (fieldErrors.password && 'Password is required')}
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton
-                            onClick={() => setFormData({ ...formData, showPassword: !formData.showPassword })}
-                            edge="end"
-                          >
-                            <Iconify icon={formData.showPassword ? 'eva:eye-fill' : 'eva:eye-off-fill'} />
-                          </IconButton>
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                  <TextField
-                    error={fieldErrors.confirmPassword}
-                    fullWidth
-                    label="Confirm Password"
-                    variant="outlined"
-                    type={formData.showPassword ? 'text' : 'password'}
-                    name="confirmPassword"
-                    value={formData.confirmPassword}
-                    onChange={handleInputChange}
-                    sx={{ mb: 3 }}
-                    helperText={fieldErrors.confirmPassword && 'Passwords do not match'}
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton
-                            onClick={() => setFormData({ ...formData, showPassword: !formData.showPassword })}
-                            edge="end"
-                          >
-                            <Iconify icon={formData.showPassword ? 'eva:eye-fill' : 'eva:eye-off-fill'} />
-                          </IconButton>
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                </CardContent>
-              </Card>
-              {/* Accept Terms and Conditions */}
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={isTermsAccepted}
-                    onChange={openTermsDialog}
-                  />
-                }
-                label={
-                  <>
-                    I agree to the
-                    <Link component="button" onClick={openTermsDialog} sx={{ pl: 1 }}>
-                      Terms and Conditions
-                    </Link>
-                  </>
-                }
-              />
+                  <Divider sx={{ my: 3 }}>
+                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                      OR
+                    </Typography>
+                  </Divider>
 
-              <TextField
-                error={fieldErrors.ipAddress}
-                fullWidth
-                label="IP Address"
-                variant="outlined"
-                name="ipAddress"
-                value={formData.ipAddress}
-                onChange={handleInputChange}
-                sx={{ mb: 3 }}
-                disabled={!showIpAddress}
-                hidden
-              />
+                  <Grid container spacing={2}>
+                    <Grid item sx={12} sm={12} md={6}>
+                      <Button
+                        fullWidth
+                        size="large"
+                        color="inherit"
+                        variant="outlined"
+                        startIcon={<Iconify icon="eva:google-fill" color="#DF3E30" width={22} height={22} />}
+                        onClick={handleGoogleSignUp}
+                        disabled={!isTermsAccepted}
+                        sx={ssoStyles}
+                      >
+                        Sign Up with Google
+                      </Button>
+                    </Grid>
+                    <Grid item sx={12} sm={12} md={6}>
+                      <Button
+                        fullWidth
+                        size="large"
+                        color="inherit"
+                        variant="outlined"
+                        startIcon={<Iconify icon="eva:facebook-fill" color="#1877F2" width={22} height={22} />}
+                        disabled={!isTermsAccepted}
+                        onClick={handleFacebookSignUp}
+                        sx={ssoStyles}
+                      >
+                        Sign Up with Facebook
+                      </Button>
+                    </Grid>
+                  </Grid>
 
-              <TermsDialog
-                open={isTermsDialogOpen}
-                onClose={() => setIsTermsDialogOpen(false)}
-                onAgree={agreeToTerms}
-              />
-
-              {/* Password Guidelines Dialog */}
-              <Dialog open={errorDialogOpen} onClose={() => setErrorDialogOpen(false)}>
-                <DialogTitle>Error</DialogTitle>
-                <DialogContent>
-                  <DialogContentText>{errorMessage}</DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                  <Button onClick={() => setErrorDialogOpen(false)} color="primary">
-                    Close
-                  </Button>
-                </DialogActions>
-              </Dialog>
-              <Dialog open={showErrorDialog} onClose={() => setShowErrorDialog(false)}>
-                <DialogTitle>Error</DialogTitle>
-                <DialogContent>
-                  <DialogContentText>Please supply all required fields</DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                  <Button onClick={() => setShowErrorDialog(false)} color="primary">
-                    Close
-                  </Button>
-                </DialogActions>
-              </Dialog>
-
-              <Button
-                fullWidth
-                size="large"
-                color="inherit"
-                variant="outlined"
-                onClick={handleSignup}
-                disabled={!isFormValid || !isTermsAccepted}
-                sx={{ py: [1.5, 1] }}
-              >
-                Sign Up
-              </Button>
-
-              <Divider sx={{ my: 3 }}>
-                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                  OR
-                </Typography>
-              </Divider>
-
-              <Button
-                fullWidth
-                size="large"
-                color="inherit"
-                variant="outlined"
-                startIcon={<Iconify icon="eva:google-fill" color="#DF3E30" width={22} height={22} />}
-                onClick={handleGoogleSignUp}
-                disabled={!isTermsAccepted}
-                sx={{ mb: 1 }}
-              >
-                Sign Up with Google
-              </Button>
-
-              <Button
-                fullWidth
-                size="large"
-                color="inherit"
-                variant="outlined"
-                startIcon={<Iconify icon="eva:facebook-fill" color="#1877F2" width={22} height={22} />}
-                disabled={!isTermsAccepted}
-                onClick={handleFacebookSignUp}
-              >
-                Sign Up with Facebook
-              </Button>
-
-              {/* {errorMessage && (
-                  <Typography variant="body2" color="error" sx={{ my: 2 }}>
-                  {errorMessage}
-                   </Typography>
-                )} */}
-              <Dialog open={showSuccessMessage} onClose={() => setShowSuccessMessage(false)}>
-                <DialogTitle>Successful Sign-Up!</DialogTitle>
-                <DialogContent>
-                  <DialogContentText>Redirecting to Email Verification...</DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                  <Button onClick={() => setShowSuccessMessage(false)} color="primary">
-                    Close
-                  </Button>
-                </DialogActions>
-              </Dialog>
-              <Divider sx={{ my: 3 }} />
-              <Typography variant="body2" sx={{ mb: 5, mt: 3 }}>
-                Already have an account?
-                <Link variant="subtitle2" onClick={() => navigate('/login')} sx={{ cursor: 'pointer', ml: 1 }}>
-                  Login
-                </Link>
+                  {/* {errorMessage && (
+            <Typography variant="body2" color="error" sx={{ my: 2 }}>
+            {errorMessage}
               </Typography>
-            </StyledContent>
-          )}
-        </Container>
-      </StyledRoot>
+          )} */}
+                  <Dialog open={showSuccessMessage} onClose={() => setShowSuccessMessage(false)}>
+                    <DialogTitle>Successful Sign-Up!</DialogTitle>
+                    <DialogContent>
+                      <DialogContentText>Redirecting to Email Verification...</DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                      <Button onClick={() => setShowSuccessMessage(false)} color="primary">
+                        Close
+                      </Button>
+                    </DialogActions>
+                  </Dialog>
+                  <Divider sx={{ my: 3 }} />
+                  <Typography variant="body2" sx={{ mb: 5, mt: 3 }}>
+                    Already have an account?
+                    <Link variant="subtitle2" onClick={() => navigate('/login')} sx={{ cursor: 'pointer', ml: 1 }}>
+                      Login
+                    </Link>
+                  </Typography>
+                </StyledContent>
+              </Grid>
+            </Grid>
+          </Box>
+        )}
+      </Container>
     </>
   );
 }

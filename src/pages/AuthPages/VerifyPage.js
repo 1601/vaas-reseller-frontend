@@ -136,6 +136,7 @@ export default function VerifyPage({ email, firstName, lastName }) {
       <StyledRoot>
         <Container maxWidth="sm" sx={{ backgroundColor: '#fff' }}>
           <StyledContent>
+          <Logo sx={{ alignSelf: 'center', width: ['80%', null, '100%'], mx: 'auto', display: 'block', mb:4 }} />
             <Typography variant="h4" gutterBottom>
               Email Verification
             </Typography>
