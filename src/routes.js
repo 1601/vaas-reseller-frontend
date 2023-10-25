@@ -35,6 +35,8 @@ import VerifyInLoginPage from './pages/AuthPages/VerifyInLoginPage';
 import ProfileSettings from './pages/DealerPages/ProfileSettings';
 import FAQs from './pages/OtherPages/FAQs';
 import ManageReseller from './pages/DealerPages/ManageReseller';
+import VortexTopUp from './pages/VortexPages/VortexTopUp';
+import VortexContext from './Vortex/context/VortexContext';
 
 // ----------------------------------------------------------------------
 
@@ -105,8 +107,18 @@ export default function Router() {
       path: '',
       element: isSubdomain ? <LiveStorePage /> : <LandingPage />,
       children: [
-        { path: 'bills', element: <VortexBills /> },
-        { path: 'topup', element: <div> Topup </div> },
+        {
+          path: 'bills',
+          element: <VortexBills />,
+        },
+        {
+          path: 'topup',
+          element: (
+            <VortexContext>
+              <VortexTopUp />
+            </VortexContext>
+          ),
+        },
         { path: 'voucher', element: <div> Voucher </div> },
         { path: 'transactions', element: <div> Transactions </div> },
       ],
@@ -228,8 +240,18 @@ export default function Router() {
       path: ':storeUrl',
       element: <LiveStorePage />,
       children: [
-        { path: 'bills', element: <VortexBills /> },
-        { path: 'topup', element: <div> Topup </div> },
+        {
+          path: 'bills',
+          element: <VortexBills />,
+        },
+        {
+          path: 'topup',
+          element: (
+            <VortexContext>
+              <VortexTopUp />
+            </VortexContext>
+          ),
+        },
         { path: 'voucher', element: <div> Voucher </div> },
         { path: 'transactions', element: <div> Transactions </div> },
       ],
