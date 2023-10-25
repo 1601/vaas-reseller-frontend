@@ -74,10 +74,14 @@ const StyledContent = styled('div')(({ theme }) => ({
   marginLeft: '100px',
   marginRight: '100px',
   [theme.breakpoints.down('sm')]: {
-    marginLeft: '0px',
-    marginRight: '0px'
+    marginLeft: '10px',
+    marginRight: '10px'
   },
-  minHeight: '100vh',
+  [theme.breakpoints.up('md')]: {
+    marginLeft: '40px',
+    marginRight: '40px'
+  },
+  minHeight: 'min-content',
   display: 'flex',
   justifyContent: 'center',
   flexDirection: 'column',
@@ -126,6 +130,15 @@ const Slide = ({ image, alt }) => {
   );
 };
 
+const currencies = [
+  'USD', 'EUR', 'JPY',
+  'GBP', 'CHF', 'CAD',
+  'AUD', 'CNY', 'INR',
+  'KRW', 'BRL', 'ZAR',
+  'RUB', 'MXN', 'SGD',
+  'NZD', 'HKD', 'SEK',
+  'NOK', 'DKK']
+
 export default function SignUpPage() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -142,6 +155,7 @@ export default function SignUpPage() {
     username: '',
     password: '',
     confirmPassword: '',
+    currency: '',
   });
   const [errorMessage, setErrorMessage] = useState('');
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
@@ -160,7 +174,7 @@ export default function SignUpPage() {
   const [isScrolledToEnd, setIsScrolledToEnd] = useState(false);
   const [mobileError, setMobileError] = useState(false);
   const [banners, setBanners] = useState();
-  const [steps, setSteps] = useState(0);
+  const [initialCurrency, setInitialCurrency] = useState('')
 
   const handleScroll = (e) => {
     const bottom = e.target.scrollHeight - e.target.scrollTop === e.target.clientHeight;
@@ -363,6 +377,7 @@ export default function SignUpPage() {
 
 
     if (!validateForm()) {
+      console.log(validateForm())
       // Stop here and do not proceed with signup if form is invalid
       return;
     }
@@ -484,19 +499,32 @@ export default function SignUpPage() {
 
   // Fetching IP Address
   useEffect(() => {
-    const fetchIPAddress = async () => {
-      try {
-        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/fetch-ip`);
-        setFormData((prevFormData) => ({
-          ...prevFormData,
-          ipAddress: response.data.ipAddress,
-        }));
-      } catch (error) {
-        console.error('Error fetching IP address: ', error);
-      } finally {
-        setShowIpAddress(false);
-      }
-    };
+    // const fetchIPAddress = async () => {
+    //   try {
+    //     const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/fetch-ip`);
+    //     setFormData((prevFormData) => ({
+    //       ...prevFormData,
+    //       ipAddress: response.data.ipAddress,
+    //     }));
+    //   } catch (error) {
+    //     console.error('Error fetching IP address: ', error);
+    //   } finally {
+    //     setShowIpAddress(false);
+    //   }
+    // };
+    const externalIpAddCur = async () => {
+
+      const ipResult = await axios.get('https://api64.ipify.org?format=text');
+      const currencyResult = await axios.get(`https://ipapi.co/${ipResult.data}/currency/`)
+      
+      setFormData({
+        ...formData,
+        ipAddress: ipResult.data,
+        currency: currencyResult.data
+      })
+
+      setInitialCurrency(currencyResult.data)
+    }
 
     const fetchAllBanner = async () => {
       try {
@@ -508,9 +536,11 @@ export default function SignUpPage() {
       }
     };
 
-    fetchIPAddress();
+    externalIpAddCur();
     fetchAllBanner();
   }, []);
+
+  useEffect(() =>{ console.log(formData)},[formData])
 
   const settings = {
     dots: true,
@@ -522,47 +552,70 @@ export default function SignUpPage() {
     autoplaySpeed: 5000,
     speed: 5000
   };
-  // useEffect(() => {
-  //   if (showSuccessMessage) {
-  //     const redirectTimer = setTimeout(() => {
-  //       navigate('/login');
-  //     }, 5000);
-  //     return () => clearTimeout(redirectTimer);
-  //   }
-  //   return undefined;
-  // }, [showSuccessMessage, navigate]);
 
 
   const theme = useTheme();
-  const isMobileView = useMediaQuery(theme.breakpoints.down('sm')); // You can adjust the breakpoint
+  const isXs = useMediaQuery(theme.breakpoints.up('xs')); // You can adjust the breakpoint
+  const isSm = useMediaQuery(theme.breakpoints.up('sm'));
+  const isMd= useMediaQuery(theme.breakpoints.up('md'));
+  const isLargerDesktopView = useMediaQuery(theme.breakpoints.up('lg'));
+  // const isTabletView = useMediaQuery(theme.breakpoints.up('md'));
 
   const imageStyles = {
     width: '100%',
-    height: '120vh',
-    borderRadius:'15px',
+    borderRadius: '15px',
     objectFit: 'cover',
-    ...(isMobileView && {
-      height: '22vh', // Apply this style for mobile view
+    ...(isXs &&{
+      height: '22vh',
     }),
+    ...(isSm && {
+      height: '30vh',
+    }),
+    ...(isMd && {
+      height:'90vh'
+    })
   };
 
   const containerStyles = {
     backgroundColor: '#fff',
     p: { xs: 2, sm: 3, md: 4 },
-    marginTop: '40px',
-    height: '130vh',
+    height: 'max-content',
     borderRadius: '20px',
-    alignSelf: 'center',
-    ...(isMobileView && {
-      height: '145vh'
-    })
+    alignSelf: 'center'
   }
 
   const ssoStyles = {
-    fontSize: '.8rem',
-    ...(isMobileView && {
+    fontSize: '.5rem',
+    ...(isXs && {
       fontSize: '.5rem'
     })
+  }
+
+  const formContainer = {
+    overflowY: 'hidden',
+    maxHeight: 'max-content',
+    whiteSpace: 'pre-line',
+    mb: 1,
+    ...(isSm &&{
+      overflowY:'hidden',
+      maxHeight: 'max-content'
+    }),
+    ...(isMd &&{
+      overflowY:'auto',
+      maxHeight: 300
+    }),
+  }
+
+  const signUpText = {
+    
+    ...(isXs &&{
+      marginTop:'30px',
+      fontSize:'1.6rem'
+    }),
+    ...(isMd &&{
+      marginTop:'0px',
+      fontSize:'2rem'
+    }),
   }
 
   return (
@@ -574,9 +627,9 @@ export default function SignUpPage() {
         {succesSignup === true ? (<VerifyPage email={formData.email} firstName={formData.firstName} lastName={formData.lastName} />
         ) : (
           <Box sx={containerStyles}>
-            {isMobileView === true && (<Logo sx={{ alignSelf: 'center', width: ['80%', null, '100%'], mx: 'auto', display: 'block', mb:4 }} />)}
+            {(isXs === true && isMd=== false) && <Logo sx={{ alignSelf: 'center', width: ['80%', '80%', '100%'], mx: 'auto', display: 'block', mb: 4 }} />}
             <Grid container alignItems="start">
-              <Grid item xs={12} sm={8} md={6}>
+              <Grid item xs={12} sm={12} md={6}>
                 <div style={imageStyles}>
                   <Slider {...settings}>
                     {banners && banners.map((data, index) => (
@@ -594,284 +647,303 @@ export default function SignUpPage() {
                   </Slider>
                 </div>
               </Grid>
-              <Grid item xs={12} sm={8} md={6}>
+              <Grid item xs={12} sm={12} md={6}>
                 <StyledContent>
-                  {isMobileView === false && (<Logo sx={{ alignSelf: 'center', width: ['40%', null, '50%'], mx: 'auto', display: 'block' }} />)}
-                  <Typography variant="h4" gutterBottom sx={{ fontSize: { xs: '1.6rem', md: '2rem' }, mt: 5 }}>
+                  {isMd === true && (<Logo sx={{ alignSelf: 'center', width: ['40%', null, '50%'], mx: 'auto', display: 'block' }} />)}
+                  <Typography variant="h6" gutterBottom style={signUpText}>
                     Sign Up
                   </Typography>
-                  <Typography variant="body2" sx={{ mb: 5 }}>
+                  <Typography variant="body2" sx={{ mb: 2 }}>
                     Register now to your Vaas Experience
                   </Typography>
-                  <Box sx={{
-                    overflowY: 'auto',
-                    maxHeight: 400,
-                    whiteSpace: 'pre-line',
-                    mb:3
-                  }}>
-                     {/* Basic Information Section */}
-                  <Box sx={{ mb: 1 }}>
-                    <Typography sx={{ mb: 1 }}> Basic Information </Typography>
-                    <Grid container spacing={2}>
-                      <Grid item xs={12} sm={12} md={12}>
-                        <TextField
-                          error={fieldErrors.firstName}
-                          fullWidth
-                          label="First Name"
-                          variant="outlined"
-                          name="firstName"
-                          value={formData.firstName}
-                          onChange={handleInputChange}
-                          onFocus={() => setDirtyFields((prev) => ({ ...prev, firstName: true }))}
-                          onBlur={() => {
-                            if (dirtyFields.firstName && !formData.firstName.trim()) {
-                              setFieldErrors((prevErrors) => ({ ...prevErrors, firstName: true }));
-                            }
-                          }}
-                          sx={{ mb: 1 }}
-                          helperText={
-                            fieldErrors.firstName
-                              ? formData.firstName.trim()
-                                ? 'First Name contains invalid characters'
-                                : dirtyFields.firstName
-                                  ? 'First Name is required'
-                                  : ''
-                              : ''
-                          }
-                        />
-                      </Grid>
-                      <Grid item xs={12} sm={12} md={12}>
-                        <TextField
-                          error={fieldErrors.middleName}
-                          fullWidth
-                          label="Middle Name (Optional)"
-                          variant="outlined"
-                          name="middleName"
-                          value={formData.middleName}
-                          onChange={handleInputChange}
-                          sx={{ mb: 1 }}
-                          helperText={
-                            fieldErrors.middleName && formData.middleName.trim()
-                              ? 'Middle Name contains invalid characters'
-                              : ''
-                          }
-                        />
-                      </Grid>
-                      <Grid item xs={12} sm={12} md={12}>
-                        <TextField
-                          error={fieldErrors.lastName}
-                          fullWidth
-                          label="Last Name"
-                          variant="outlined"
-                          name="lastName"
-                          value={formData.lastName}
-                          onChange={handleInputChange}
-                          onFocus={() => setDirtyFields((prev) => ({ ...prev, lastName: true }))}
-                          onBlur={() => {
-                            if (dirtyFields.lastName && !formData.lastName.trim()) {
-                              setFieldErrors((prevErrors) => ({ ...prevErrors, lastName: true }));
-                            }
-                          }}
-                          sx={{ mb: 1 }}
-                          helperText={
-                            fieldErrors.lastName
-                              ? formData.lastName.trim()
-                                ? 'Last Name contains invalid characters'
-                                : 'Last Name is required'
-                              : ''
-                          }
-                        />
-                      </Grid>
-                      <Grid item xs={12} sm={12} md={12}>
-                        <FormControl fullWidth variant="outlined" error={fieldErrors.designation}>
-                          <InputLabel id="designation-label" error={fieldErrors.designation}>
-                            Designation
-                          </InputLabel>
-                          <Select
-                            error={fieldErrors.designation}
-                            labelId="designation-label"
-                            label="Designation"
-                            name="designation"
-                            value={formData.designation}
+                  <Box sx={formContainer}>
+                    {/* Basic Information Section */}
+                    <Box sx={{ mb: 1 }}>
+                      <Typography sx={{ mb: 1 }}> Basic Information </Typography>
+                      <Grid container spacing={2}>
+                        <Grid item xs={12} sm={12} md={12}>
+                          <TextField
+                            error={fieldErrors.firstName}
+                            fullWidth
+                            label="First Name"
+                            variant="outlined"
+                            name="firstName"
+                            value={formData.firstName}
                             onChange={handleInputChange}
-                          >
-                            <MenuItem value={'Mr.'}>Mr.</MenuItem>
-                            <MenuItem value={'Ms.'}>Ms.</MenuItem>
-                            <MenuItem value={'Mrs.'}>Mrs.</MenuItem>
-                          </Select>
-                          {fieldErrors.designation && <FormHelperText error>Designation is required</FormHelperText>}
-                        </FormControl>
-                      </Grid>
-                      <Grid item xs={12} sm={12} md={12}>
-                        <Autocomplete
-                          error={fieldErrors.country}
-                          fullWidth
-                          options={countries}
-                          getOptionLabel={(option) => option}
-                          value={formData.country}
-                          onChange={(_, newValue) => setFormData({ ...formData, country: newValue })}
-                          renderInput={(params) => (
-                            <TextField
-                              {...params}
-                              label="Country of Location"
-                              variant="outlined"
-                              sx={{ mb: 3 }}
-                              error={fieldErrors.country}
-                              helperText={fieldErrors.country && 'Country is required'}
-                            />
-                          )}
-                        />
-                      </Grid>
-                    </Grid>
-                  </Box>
-
-                  {/* Contact Information Section */}
-                  <Box sc={{ mb: 3 }}>
-                    <Grid container>
-                      <Typography sx={{ mb: 1 }}> Contact Information </Typography>
-                      <Grid item xs={12} sm={12} md={12}>
-                        <TextField
-                          error={fieldErrors.email}
-                          fullWidth
-                          label="Email"
-                          variant="outlined"
-                          name="email"
-                          value={email}
-                          onChange={handleEmailChange}
-                          onFocus={() => setDirtyFields((prev) => ({ ...prev, email: true }))}
-                          onBlur={() => {
-                            if (dirtyFields.email && !email.trim()) {
-                              setFieldErrors((prevErrors) => ({ ...prevErrors, email: true }));
+                            onFocus={() => setDirtyFields((prev) => ({ ...prev, firstName: true }))}
+                            onBlur={() => {
+                              if (dirtyFields.firstName && !formData.firstName.trim()) {
+                                setFieldErrors((prevErrors) => ({ ...prevErrors, firstName: true }));
+                              }
+                            }}
+                            sx={{ mb: 1 }}
+                            helperText={
+                              fieldErrors.firstName
+                                ? formData.firstName.trim()
+                                  ? 'First Name contains invalid characters'
+                                  : dirtyFields.firstName
+                                    ? 'First Name is required'
+                                    : ''
+                                : ''
                             }
-                          }}
-                          sx={{ mb: 2 }}
-                          helperText={
-                            fieldErrors.email
-                              ? email.trim()
-                                ? emailErrorMessage
-                                : dirtyFields.email
-                                  ? 'Email is required'
-                                  : ''
-                              : ''
-                          }
-                        />
-                      </Grid>
-                      <Grid item xs={12} sm={12} md={12}>
-                        <TextField
-                          error={fieldErrors.mobileNumber || mobileError}
-                          fullWidth
-                          label="Mobile Number"
-                          variant="outlined"
-                          name="mobileNumber"
-                          value={formData.mobileNumber?.replace(countryCodes[formData.country] || '', '')}
-                          onChange={handleMobileChange}
-                          sx={{ mb: 3 }}
-                          helperText={
-                            (fieldErrors.mobileNumber && 'Mobile Number is required') || (mobileError && errorMessage)
-                          }
-                          disabled={!formData.country}
-                          InputProps={{
-                            startAdornment: (
-                              <InputAdornment position="start">
-                                {formData.country && countryCodes[formData.country]
-                                  ? `${countryCodes[formData.country]} |`
-                                  : ''}
-                              </InputAdornment>
-                            ),
-                          }}
-                          InputLabelProps={{
-                            shrink: !!formData.mobileNumber || !!formData.country,
-                          }}
-                        />
-                      </Grid>
-                    </Grid>
-                  </Box>
-
-                  {/* User Credentials Section */}
-                  <Box sx={{ mb: 3 }}>
-                    <Typography sx={{ mb: 1 }}> User Credentials </Typography>
-                    <Grid container spacing={2}>
-                      <Grid item xs={12} sm={12} md={12}>
-                        <TextField
-                          error={fieldErrors.username}
-                          fullWidth
-                          label="Username"
-                          variant="outlined"
-                          name="username"
-                          value={formData.username}
-                          onChange={handleInputChange}
-                          onFocus={() => setDirtyFields((prev) => ({ ...prev, username: true }))}
-                          onBlur={() => {
-                            if (dirtyFields.username && !formData.username.trim()) {
-                              setFieldErrors((prevErrors) => ({ ...prevErrors, username: true }));
+                          />
+                        </Grid>
+                        <Grid item xs={12} sm={12} md={12}>
+                          <TextField
+                            error={fieldErrors.middleName}
+                            fullWidth
+                            label="Middle Name (Optional)"
+                            variant="outlined"
+                            name="middleName"
+                            value={formData.middleName}
+                            onChange={handleInputChange}
+                            sx={{ mb: 1 }}
+                            helperText={
+                              fieldErrors.middleName && formData.middleName.trim()
+                                ? 'Middle Name contains invalid characters'
+                                : ''
                             }
-                          }}
-                          sx={{ mb: 1 }}
-                          helperText={
-                            fieldErrors.username
-                              ? formData.username.trim()
-                                ? 'Username contains invalid characters'
-                                : dirtyFields.username
-                                  ? 'Username is required'
-                                  : ''
-                              : ''
-                          }
-                        />
+                          />
+                        </Grid>
+                        <Grid item xs={12} sm={12} md={12}>
+                          <TextField
+                            error={fieldErrors.lastName}
+                            fullWidth
+                            label="Last Name"
+                            variant="outlined"
+                            name="lastName"
+                            value={formData.lastName}
+                            onChange={handleInputChange}
+                            onFocus={() => setDirtyFields((prev) => ({ ...prev, lastName: true }))}
+                            onBlur={() => {
+                              if (dirtyFields.lastName && !formData.lastName.trim()) {
+                                setFieldErrors((prevErrors) => ({ ...prevErrors, lastName: true }));
+                              }
+                            }}
+                            sx={{ mb: 1 }}
+                            helperText={
+                              fieldErrors.lastName
+                                ? formData.lastName.trim()
+                                  ? 'Last Name contains invalid characters'
+                                  : 'Last Name is required'
+                                : ''
+                            }
+                          />
+                        </Grid>
+                        <Grid item xs={12} sm={12} md={12}>
+                          <FormControl fullWidth variant="outlined" error={fieldErrors.designation}>
+                            <InputLabel id="designation-label" error={fieldErrors.designation}>
+                              Designation
+                            </InputLabel>
+                            <Select
+                              error={fieldErrors.designation}
+                              labelId="designation-label"
+                              label="Designation"
+                              name="designation"
+                              value={formData.designation}
+                              onChange={handleInputChange}
+                            >
+                              <MenuItem value={'Mr.'}>Mr.</MenuItem>
+                              <MenuItem value={'Ms.'}>Ms.</MenuItem>
+                              <MenuItem value={'Mrs.'}>Mrs.</MenuItem>
+                            </Select>
+                            {fieldErrors.designation && <FormHelperText error>Designation is required</FormHelperText>}
+                          </FormControl>
+                        </Grid>
+                        <Grid item xs={12} sm={12} md={12}>
+                          <Autocomplete
+                            error={fieldErrors.country}
+                            fullWidth
+                            options={countries}
+                            getOptionLabel={(option) => option}
+                            value={formData.country}
+                            onChange={(_, newValue) => setFormData({ ...formData, country: newValue })}
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                label="Country of Location"
+                                variant="outlined"
+                                sx={{ mb: 3 }}
+                                error={fieldErrors.country}
+                                helperText={fieldErrors.country && 'Country is required'}
+                              />
+                            )}
+                          />
+                        </Grid>
                       </Grid>
-                      <Grid item xs={12} sm={12} md={12}>
-                        <TextField
-                          error={fieldErrors.password || passwordError}
-                          fullWidth
-                          label="Password"
-                          variant="outlined"
-                          type={formData.showPassword ? 'text' : 'password'}
-                          name="password"
-                          value={formData.password}
+                    </Box>
+
+                    {/* Contact Information Section */}
+                    <Box sc={{ mb: 3 }}>
+                      <Grid container>
+                        <Typography sx={{ mb: 1 }}> Contact Information </Typography>
+                        <Grid item xs={12} sm={12} md={12}>
+                          <TextField
+                            error={fieldErrors.email}
+                            fullWidth
+                            label="Email"
+                            variant="outlined"
+                            name="email"
+                            value={email}
+                            onChange={handleEmailChange}
+                            onFocus={() => setDirtyFields((prev) => ({ ...prev, email: true }))}
+                            onBlur={() => {
+                              if (dirtyFields.email && !email.trim()) {
+                                setFieldErrors((prevErrors) => ({ ...prevErrors, email: true }));
+                              }
+                            }}
+                            sx={{ mb: 2 }}
+                            helperText={
+                              fieldErrors.email
+                                ? email.trim()
+                                  ? emailErrorMessage
+                                  : dirtyFields.email
+                                    ? 'Email is required'
+                                    : ''
+                                : ''
+                            }
+                          />
+                        </Grid>
+                        <Grid item xs={12} sm={12} md={12}>
+                          <TextField
+                            error={fieldErrors.mobileNumber || mobileError}
+                            fullWidth
+                            label="Mobile Number"
+                            variant="outlined"
+                            name="mobileNumber"
+                            value={formData.mobileNumber?.replace(countryCodes[formData.country] || '', '')}
+                            onChange={handleMobileChange}
+                            sx={{ mb: 3 }}
+                            helperText={
+                              (fieldErrors.mobileNumber && 'Mobile Number is required') || (mobileError && errorMessage)
+                            }
+                            disabled={!formData.country}
+                            InputProps={{
+                              startAdornment: (
+                                <InputAdornment position="start">
+                                  {formData.country && countryCodes[formData.country]
+                                    ? `${countryCodes[formData.country]} |`
+                                    : ''}
+                                </InputAdornment>
+                              ),
+                            }}
+                            InputLabelProps={{
+                              shrink: !!formData.mobileNumber || !!formData.country,
+                            }}
+                          />
+                        </Grid>
+                      </Grid>
+                    </Box>
+
+                    {/* Set Currency */}
+                    {formData.currency &&(<Box sx={{ mb: 3 }}>
+                      <Typography sx={{mb: 1}}> Currency </Typography>
+                      <FormControl fullWidth variant="outlined">
+                        <InputLabel id="currency-label">
+                          Currency
+                        </InputLabel>
+                        <Select
+
+                          labelId="currency-label"
+                          label="Currency"
+                          name="currency"
+                          value={formData.currency}
                           onChange={handleInputChange}
-                          sx={{ mb: 1 }}
-                          helperText={passwordHelperText || (fieldErrors.password && 'Password is required')}
-                          InputProps={{
-                            endAdornment: (
-                              <InputAdornment position="end">
-                                <IconButton
-                                  onClick={() => setFormData({ ...formData, showPassword: !formData.showPassword })}
-                                  edge="end"
-                                >
-                                  <Iconify icon={formData.showPassword ? 'eva:eye-fill' : 'eva:eye-off-fill'} style={{ color: '#D8BFD8' }} />
-                                </IconButton>
-                              </InputAdornment>
-                            ),
-                          }}
-                        />
+                        >
+                          <MenuItem value={initialCurrency}>{initialCurrency}</MenuItem>
+                          {currencies.map((data, index) => (
+                            <MenuItem key={index} value={data}>{data}</MenuItem>
+                          ))}
+
+                        </Select>
+                        {fieldErrors.designation && <FormHelperText error>Designation is required</FormHelperText>}
+                      </FormControl>
+                    </Box>)}
+                    {/* User Credentials Section */}
+                    <Box sx={{ mb: 3 }}>
+                      <Typography sx={{ mb: 1 }}> User Credentials </Typography>
+                      <Grid container spacing={2}>
+                        <Grid item xs={12} sm={12} md={12}>
+                          <TextField
+                            error={fieldErrors.username}
+                            fullWidth
+                            label="Username"
+                            variant="outlined"
+                            name="username"
+                            value={formData.username}
+                            onChange={handleInputChange}
+                            onFocus={() => setDirtyFields((prev) => ({ ...prev, username: true }))}
+                            onBlur={() => {
+                              if (dirtyFields.username && !formData.username.trim()) {
+                                setFieldErrors((prevErrors) => ({ ...prevErrors, username: true }));
+                              }
+                            }}
+                            sx={{ mb: 1 }}
+                            helperText={
+                              fieldErrors.username
+                                ? formData.username.trim()
+                                  ? 'Username contains invalid characters'
+                                  : dirtyFields.username
+                                    ? 'Username is required'
+                                    : ''
+                                : ''
+                            }
+                          />
+                        </Grid>
+                        <Grid item xs={12} sm={12} md={12}>
+                          <TextField
+                            error={fieldErrors.password || passwordError}
+                            fullWidth
+                            label="Password"
+                            variant="outlined"
+                            type={formData.showPassword ? 'text' : 'password'}
+                            name="password"
+                            value={formData.password}
+                            onChange={handleInputChange}
+                            sx={{ mb: 1 }}
+                            helperText={passwordHelperText || (fieldErrors.password && 'Password is required')}
+                            InputProps={{
+                              endAdornment: (
+                                <InputAdornment position="end">
+                                  <IconButton
+                                    onClick={() => setFormData({ ...formData, showPassword: !formData.showPassword })}
+                                    edge="end"
+                                  >
+                                    <Iconify icon={formData.showPassword ? 'eva:eye-fill' : 'eva:eye-off-fill'} style={{ color: '#D8BFD8' }} />
+                                  </IconButton>
+                                </InputAdornment>
+                              ),
+                            }}
+                          />
+                        </Grid>
+                        <Grid item xs={12} sm={12} md={12}>
+                          <TextField
+                            error={fieldErrors.confirmPassword}
+                            fullWidth
+                            label="Confirm Password"
+                            variant="outlined"
+                            type={formData.showPassword ? 'text' : 'password'}
+                            name="confirmPassword"
+                            value={formData.confirmPassword}
+                            onChange={handleInputChange}
+                            sx={{ mb: 1 }}
+                            helperText={fieldErrors.confirmPassword && 'Passwords do not match'}
+                            InputProps={{
+                              endAdornment: (
+                                <InputAdornment position="end">
+                                  <IconButton
+                                    onClick={() => setFormData({ ...formData, showPassword: !formData.showPassword })}
+                                    edge="end"
+                                  >
+                                    <Iconify icon={formData.showPassword ? 'eva:eye-fill' : 'eva:eye-off-fill'} style={{ color: '#D8BFD8' }} />
+                                  </IconButton>
+                                </InputAdornment>
+                              ),
+                            }}
+                          />
+                        </Grid>
                       </Grid>
-                      <Grid item xs={12} sm={12} md={12}>
-                        <TextField
-                          error={fieldErrors.confirmPassword}
-                          fullWidth
-                          label="Confirm Password"
-                          variant="outlined"
-                          type={formData.showPassword ? 'text' : 'password'}
-                          name="confirmPassword"
-                          value={formData.confirmPassword}
-                          onChange={handleInputChange}
-                          sx={{ mb: 1 }}
-                          helperText={fieldErrors.confirmPassword && 'Passwords do not match'}
-                          InputProps={{
-                            endAdornment: (
-                              <InputAdornment position="end">
-                                <IconButton
-                                  onClick={() => setFormData({ ...formData, showPassword: !formData.showPassword })}
-                                  edge="end"
-                                >
-                                  <Iconify icon={formData.showPassword ? 'eva:eye-fill' : 'eva:eye-off-fill'} style={{ color: '#D8BFD8' }} />
-                                </IconButton>
-                              </InputAdornment>
-                            ),
-                          }}
-                        />
-                      </Grid>
-                    </Grid>
-                  </Box>
+                    </Box>
                   </Box>
 
 
@@ -944,7 +1016,7 @@ export default function SignUpPage() {
                     label={
                       <>
                         I agree to the
-                        <Link component="button" onClick={openTermsDialog} sx={{ pl: 1 }}>
+                        <Link component="button" onClick={openTermsDialog} sx={{ pl: 1, fontSize:{xs:'.5rem'} }}>
                           Terms and Conditions
                         </Link>
                       </>
@@ -958,7 +1030,7 @@ export default function SignUpPage() {
                   </Divider>
 
                   <Grid container spacing={2}>
-                    <Grid item sx={12} sm={12} md={6}>
+                    <Grid item xs={12} sm={12} md={6} lg={6}>
                       <Button
                         fullWidth
                         size="large"
@@ -972,7 +1044,7 @@ export default function SignUpPage() {
                         Sign Up with Google
                       </Button>
                     </Grid>
-                    <Grid item sx={12} sm={12} md={6}>
+                    <Grid item xs={12} sm={12} md={6} lg={6}>
                       <Button
                         fullWidth
                         size="large"
@@ -1004,8 +1076,7 @@ export default function SignUpPage() {
                       </Button>
                     </DialogActions>
                   </Dialog>
-                  <Divider sx={{ my: 3 }} />
-                  <Typography variant="body2" sx={{ mb: 5, mt: 3 }}>
+                  <Typography variant="body2" sx={{ mt: 3 }}>
                     Already have an account?
                     <Link variant="subtitle2" onClick={() => navigate('/login')} sx={{ cursor: 'pointer', ml: 1 }}>
                       Login
