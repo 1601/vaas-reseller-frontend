@@ -5,13 +5,13 @@ import {
   ListItemIcon,
   Stack,
   Typography,
+  Divider,
 } from "@mui/material"
 import ChevronRightIcon from "@mui/icons-material/ChevronRight"
 import React, { useState } from "react"
 import { LazyLoadImage } from "react-lazy-load-image-component"
 import "react-lazy-load-image-component/src/effects/blur.css"
 
-import Divider from "@material-ui/core/Divider"
 import { primaryVortexTheme } from "../config/theme"
 
 const VortexTopupCard = ({
