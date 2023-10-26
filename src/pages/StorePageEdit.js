@@ -462,16 +462,16 @@ const StorePageEdit = () => {
           )}
 
           {/* Store Details Card */}
-          {storeData ?<>
+          {storeData ? <>
             <div className="mb-4 w-full">
               <Card variant="outlined" style={{ padding: '20px', marginBottom: '20px' }}>
-                <div
+                {/* <div
                   style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}
-                >
+                 >
                   <Typography variant="h4" gutterBottom>
                     Store Details
                   </Typography>
-                  <div>
+                  <div >
                     {isEditing ? (
                       <div className="flex">
                         <Button onClick={handleSaveClick} className="bg-blue-600 text-white px-4 py-2 rounded mr-2">
@@ -517,7 +517,60 @@ const StorePageEdit = () => {
                       </>
                     )}
                   </div>
+                </div> */}
+                <div className="md:flex md:justify-between md:items-center mb-4">
+                  <Typography variant="h4" gutterBottom className="w-full md:w-auto">
+                    Store Details
+                  </Typography>
+                  <div className="space-x-2 md:space-x-0 md:space-y-2">
+                    {isEditing ? (
+                      <div className="flex">
+                        <Button onClick={handleSaveClick} className="bg-blue-600 text-white px-4 py-2 rounded mr-2">
+                          Save
+                        </Button>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="flex space-x-2">
+                          <Button
+                            variant="outlined"
+                            color="primary"
+                            className="px-4 py-2 text-base"
+                            onClick={handlePreviewClick}
+                          >
+                            Preview Store
+                          </Button>
+                          <Button onClick={handleEditClick} className="bg-blue-600 text-white px-4 py-2 rounded">
+                            Edit
+                          </Button>
+                        </div>
+                        {storeData !== null && storeData.isApproved && !storeData.isLive && (
+                          <Button
+                            variant="contained"
+                            color="secondary"
+                            className="bg-green-600 text-white px-4 py-2 rounded"
+                            onClick={!storeData.kycApprove ? undefined : handleGoLiveClick}
+                            disabled={!storeData.kycApprove}
+                          >
+                            Go Live
+                          </Button>
+                        )}
+                        {storeData !== null && storeData.isLive && (
+                          <Button
+                            variant="contained"
+                            color="secondary"
+                            className="bg-red-600 text-white px-4 py-2 rounded"
+                            onClick={!storeData.kycApprove ? undefined : handleUnliveClick}
+                            disabled={!storeData.kycApprove}
+                          >
+                            Un-Live
+                          </Button>
+                        )}
+                      </>
+                    )}
+                  </div>
                 </div>
+
                 {storeData && (
                   <div>
                     <Card style={{ marginBottom: '20px', padding: '15px' }}>
@@ -629,7 +682,7 @@ const StorePageEdit = () => {
                           Add a default logo
                         </Typography>
                       </div>
-                      <div>
+                      {/* <div>
                         <input
                           type="file"
                           accept="image/png, image/jpeg"
@@ -642,7 +695,22 @@ const StorePageEdit = () => {
                         >
                           Upload
                         </Button>
+                      </div> */}
+                      <div className="flex flex-col md:flex-row items-center space-y-2 md:space-x-2">
+                        <input
+                          type="file"
+                          accept="image/png, image/jpeg"
+                          onChange={handleFileUpload}
+                          className="w-full md:w-auto text-sm md:text-base border p-2 rounded mt-2"
+                        />
+                        <Button
+                          onClick={() => handleUploadClick('logo')}
+                          className="bg-blue-600 text-white px-4 py-2 rounded mt-4"
+                        >
+                          Upload
+                        </Button>
                       </div>
+
                     </Card>
                   </Grid>
                 </Grid>
@@ -672,7 +740,7 @@ const StorePageEdit = () => {
                           }}
                         >
                           {/* Primary Color */}
-                          <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center">
+                          {/* <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center">
                             <Typography variant="subtitle2" align="center">
                               Primary Color
                             </Typography>
@@ -682,9 +750,9 @@ const StorePageEdit = () => {
                             />
                           </Box>
 
-                          {/* Right side content */}
+                          Right side content 
                           <Box ml={2} display="flex" flexDirection="column" alignItems="center" justifyContent="center">
-                            {/* Current Primary Color */}
+                            {/* Current Primary Color
                             <Typography variant="subtitle1" align="center">
                               Current Primary Color
                             </Typography>
@@ -696,12 +764,44 @@ const StorePageEdit = () => {
                               border="1px solid #000"
                             />
 
-                            {/* New Primary Color */}
+                             New Primary Color 
                             <Typography variant="subtitle1" align="center">
                               New Primary Color
                             </Typography>
                             <Box width="100px" height="30px" bgcolor={color.primary.hex} border="1px solid #000" />
-                          </Box>
+                          </Box> */}
+
+                          <div className="flex flex-col md:flex-row md:items-center md:space-x-4">
+                            <div className="mb-4 md:mb-0 w-full md:w-auto">
+                              <Typography variant="subtitle2" align="center">
+                                Primary Color
+                              </Typography>
+                              <ChromePicker
+                                color={color.primary.hex}
+                                onChangeComplete={(newColor) => setColor({ ...color, primary: { hex: newColor.hex } })}
+                              />
+                            </div>
+
+                            {/* Right side content */}
+                            <div className="md:flex flex-col md:items-center">
+                              {/* Current Primary Color */}
+                              <div className="mb-4 md:mb-2">
+                                <Typography variant="subtitle1" align="center" className="text-base md:text-sm lg:text-md">
+                                  Current Primary Color
+                                </Typography>
+                                <div className="w-full md:w-25 h-6 bg-black border border-black" style={{ backgroundColor: storeData ? storeData.primaryColor : '#FFFFFF' }} />
+                              </div>
+
+                              {/* New Primary Color */}
+                              <div>
+                                <Typography variant="subtitle1" align="center" className="text-base md:text-sm lg:text-md">
+                                  New Primary Color
+                                </Typography>
+                                <div className="w-full md:w-30 h-6 bg-black border border-black" style={{ backgroundColor: color.primary.hex }} />
+                              </div>
+                            </div>
+                          </div>
+
                         </Card>
                       </Grid>
 
@@ -718,7 +818,7 @@ const StorePageEdit = () => {
                           }}
                         >
                           {/* Secondary Color */}
-                          <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center">
+                          {/* <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center">
                             <Typography variant="subtitle2" align="center">
                               Secondary Color
                             </Typography>
@@ -726,11 +826,11 @@ const StorePageEdit = () => {
                               color={color.secondary.hex}
                               onChangeComplete={(newColor) => setColor({ ...color, secondary: { hex: newColor.hex } })}
                             />
-                          </Box>
+                          </Box> */}
 
                           {/* Right side content */}
-                          <Box ml={2} display="flex" flexDirection="column" alignItems="center" justifyContent="center">
-                            {/* Current Secondary Color */}
+                          {/* <Box ml={2} display="flex" flexDirection="column" alignItems="center" justifyContent="center">
+                            {/* Current Secondary Color
                             <Typography variant="subtitle1" align="center">
                               Current Secondary Color
                             </Typography>
@@ -742,12 +842,43 @@ const StorePageEdit = () => {
                               border="1px solid #000"
                             />
 
-                            {/* New Secondary Color */}
+                            {/* New Secondary Color
                             <Typography variant="subtitle1" align="center">
                               New Secondary Color
                             </Typography>
                             <Box width="100px" height="30px" bgcolor={color.secondary.hex} border="1px solid #000" />
-                          </Box>
+                          </Box> */}
+                          <div className="flex flex-col md:flex-row md:items-center md:space-x-4">
+                            <div className="mb-4 md:mb-0 w-full md:w-auto">
+                              <Typography variant="subtitle2" align="center">
+                                Secondary Color
+                              </Typography>
+                              <ChromePicker
+                                color={color.secondary.hex}
+                                onChangeComplete={(newColor) => setColor({ ...color, secondary: { hex: newColor.hex } })}
+                              />
+                            </div>
+
+                            {/* Right side content */}
+                            <div className="md:flex flex-col md:items-center">
+                              {/* Current Secondary Color */}
+                              <div className="mb-4 md:mb-2">
+                                <Typography variant="subtitle1" align="center" className="text-base md:text-sm lg:text-md">
+                                  Current Secondary Color
+                                </Typography>
+                                <div className="w-full md:w-25 h-6 bg-black border border-black" style={{ backgroundColor: storeData ? storeData.secondaryColor : '#FFFFFF' }} />
+                              </div>
+
+                              {/* New Secondary Color */}
+                              <div>
+                                <Typography variant="subtitle1" align="center" className="text-base md:text-sm lg:text-md">
+                                  New Secondary Color
+                                </Typography>
+                                <div className="w-full md:w-30 h-6 bg-black border border-black" style={{ backgroundColor: color.secondary.hex }} />
+                              </div>
+                            </div>
+                          </div>
+
                         </Card>
                       </Grid>
                     </Grid>
@@ -807,7 +938,7 @@ const StorePageEdit = () => {
                 </Card>
               </div>
             </div>
-          </>: <CircularLoading/>}
+          </> : <CircularLoading />}
 
           {uploading && (
             <div className="fixed bottom-0 left-0 w-full bg-gray-800 text-white text-center p-4">
