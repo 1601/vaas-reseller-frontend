@@ -73,19 +73,21 @@ const StyledRoot = styled('div')(({ theme }) => ({
 const StyledContent = styled('div')(({ theme }) => ({
   marginLeft: '100px',
   marginRight: '100px',
+  [theme.breakpoints.down('lg')]: {
+    marginLeft: '50px',
+    marginRight: '50px'
+  },
   [theme.breakpoints.down('sm')]: {
     marginLeft: '10px',
     marginRight: '10px'
-  },
-  [theme.breakpoints.up('md')]: {
-    marginLeft: '40px',
-    marginRight: '40px'
   },
   minHeight: 'min-content',
   display: 'flex',
   justifyContent: 'center',
   flexDirection: 'column',
 }));
+
+
 
 function TermsDialog({ open, onClose, onAgree }) {
   const [isScrolledToEnd, setIsScrolledToEnd] = useState(false);
@@ -558,7 +560,7 @@ export default function SignUpPage() {
   const isXs = useMediaQuery(theme.breakpoints.up('xs')); // You can adjust the breakpoint
   const isSm = useMediaQuery(theme.breakpoints.up('sm'));
   const isMd= useMediaQuery(theme.breakpoints.up('md'));
-  const isLargerDesktopView = useMediaQuery(theme.breakpoints.up('lg'));
+  const customPixel = useMediaQuery('(min-width:900px) and (max-width:1120px)');
   // const isTabletView = useMediaQuery(theme.breakpoints.up('md'));
 
   const imageStyles = {
@@ -572,7 +574,7 @@ export default function SignUpPage() {
       height: '30vh',
     }),
     ...(isMd && {
-      height:'90vh'
+      height:'80vh'
     })
   };
 
@@ -602,7 +604,7 @@ export default function SignUpPage() {
     }),
     ...(isMd &&{
       overflowY:'auto',
-      maxHeight: 300
+      maxHeight: 250
     }),
   }
 
@@ -618,12 +620,14 @@ export default function SignUpPage() {
     }),
   }
 
+  
+
   return (
     <>
       <Helmet>
         <title> Sign Up | Your App </title>
       </Helmet>
-      <Container maxWidth={false}>
+      <Container maxWidth={false} style={{paddingTop:'24px',paddingBottom:'24px'}}>
         {succesSignup === true ? (<VerifyPage email={formData.email} firstName={formData.firstName} lastName={formData.lastName} />
         ) : (
           <Box sx={containerStyles}>
@@ -649,7 +653,7 @@ export default function SignUpPage() {
               </Grid>
               <Grid item xs={12} sm={12} md={6}>
                 <StyledContent>
-                  {isMd === true && (<Logo sx={{ alignSelf: 'center', width: ['40%', null, '50%'], mx: 'auto', display: 'block' }} />)}
+                  {isMd === true && (<Logo sx={{ alignSelf: 'center', width:'50%', height:'auto', mx: 'auto', display: 'block' }} />)}
                   <Typography variant="h6" gutterBottom style={signUpText}>
                     Sign Up
                   </Typography>
