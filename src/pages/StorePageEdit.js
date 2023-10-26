@@ -17,8 +17,10 @@ import {
   DialogContentText,
   DialogActions,
 } from '@mui/material';
+import CircularProgress from "@mui/material/CircularProgress";
 import AccountStatusModal from '../components/user-account/AccountStatusModal';
 import UserDataFetch from '../components/user-account/UserDataFetch';
+
 
 const StorePageEdit = () => {
   const navigate = useNavigate();
@@ -421,6 +423,42 @@ const StorePageEdit = () => {
     borderRadius: '8px',
   };
 
+  const CircularLoading = () => (
+    <>
+      <Box
+        sx={{
+          width: "100%",
+          height: "100%",
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: "rgba(0, 0, 0, 1)",
+          opacity: 0.5,
+          zIndex: 3
+        }}
+      />
+      <Box
+        sx={(theme) => ({
+          position: "fixed",
+          left: "50%", // Default position
+          [theme.breakpoints.up('md')]: {
+            left: "60%", // Adjust for medium screens and above
+          },
+          top: "50%",
+          transform: "translate(-50%, -50%)",
+          zIndex: 3,
+          textAlign: "center",
+          color: "#fff",
+        })}
+      >
+         <CircularProgress size={60} />
+        <Typography variant='h5'>Downloading data ...</Typography>
+      </Box>
+    </>
+  );
+
   return (
     <Container>
       <div className="mb-4 w-full">
@@ -460,7 +498,7 @@ const StorePageEdit = () => {
           )}
 
           {/* Store Details Card */}
-          {storeData && (<>
+          {storeData ?<>
             <div className="mb-4 w-full">
               <Card variant="outlined" style={{ padding: '20px', marginBottom: '20px' }}>
                 <div
@@ -805,7 +843,7 @@ const StorePageEdit = () => {
                 </Card>
               </div>
             </div>
-          </>)}
+          </>: <CircularLoading/>}
 
           {uploading && (
             <div className="fixed bottom-0 left-0 w-full bg-gray-800 text-white text-center p-4">
