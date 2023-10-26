@@ -25,24 +25,23 @@ import {
   Modal,
 } from '@mui/material';
 // components
-import Label from '../components/label';
-import Iconify from '../components/iconify';
-import Scrollbar from '../components/scrollbar';
-import UserDataFetch from '../components/user-account/UserDataFetch';
-import AccountStatusModal from '../components/user-account/AccountStatusModal';
-import StoreDataFetch from '../components/user-account/StoreDataFetch';
+import Label from '../../components/label';
+import Iconify from '../../components/iconify';
+import Scrollbar from '../../components/scrollbar';
+import UserDataFetch from '../../components/user-account/UserDataFetch';
+import AccountStatusModal from '../../components/user-account/AccountStatusModal';
+import StoreDataFetch from '../../components/user-account/StoreDataFetch';
+import CustomersTabs from '../../components/customer/customerTab'
 // sections
-import { UserListHead, UserListToolbar } from '../sections/@dashboard/user';
+import { UserListHead, UserListToolbar } from '../../sections/@dashboard/user';
 // mock
-import USERLIST from '../_mock/user';
+import USERLIST from '../../_mock/user';
 
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
   { id: 'name', label: 'Name', alignRight: false },
-  { id: 'company', label: 'Company', alignRight: false },
   { id: 'role', label: 'Role', alignRight: false },
-  { id: 'isVerified', label: 'Verified', alignRight: false },
   { id: 'status', label: 'Status', alignRight: false },
   { id: '' },
 ];
@@ -138,6 +137,10 @@ export default function CustomerPage() {
   const [openModal, setOpenModal] = useState(false);
 
   const [selectedRow, setSelectedRow] = useState(null);
+  const [currentTab, setCurrentTab] = useState('All');
+  const [customers, setCustomers] = useState([]);
+  const [activeCount, setActiveCount] = useState(0);
+  const [deactivatedCount, setDeactivatedCount] = useState(0);
 
   const handleOpenMenu = (event) => {
     setOpen(event.currentTarget);
@@ -145,6 +148,10 @@ export default function CustomerPage() {
 
   const handleCloseMenu = () => {
     setOpen(null);
+  };
+
+  const handleTabChange = (event, newValue) => {
+    setCurrentTab(newValue);
   };
 
   const handleRequestSort = (event, property) => {
@@ -220,11 +227,17 @@ export default function CustomerPage() {
           </Typography>
         </Stack>
 
-        <Box> All Customers</Box>
-
         <Card>
+        <div style={{ display: 'flex', alignItems: 'center', overflowX: 'auto' }}>
+            <CustomersTabs
+              currentTab={currentTab}
+              handleTabChange={handleTabChange}
+              customers={customers}
+              activeCount={activeCount}
+              deactivatedCount={deactivatedCount}
+            />
+          </div>
           <UserListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
-
           <Scrollbar>
             <TableContainer sx={{ minWidth: 800 }}>
               <Table>
@@ -239,7 +252,7 @@ export default function CustomerPage() {
                 />
                 <TableBody>
                   {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { id, name, role, status, company, avatarUrl, isVerified } = row;
+                    const { id, name, role, status, avatarUrl} = row;
                     const selectedUser = selected.indexOf(name) !== -1;
 
                     return (
@@ -256,13 +269,7 @@ export default function CustomerPage() {
                             </Typography>
                           </Stack>
                         </TableCell>
-
-                        <TableCell align="left">{company}</TableCell>
-
                         <TableCell align="left">{role}</TableCell>
-
-                        <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell>
-
                         <TableCell align="left">
                           <Label color={(status === 'banned' && 'error') || 'success'}>{sentenceCase(status)}</Label>
                         </TableCell>

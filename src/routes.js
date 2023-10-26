@@ -5,7 +5,7 @@ import DashboardLayout from './layouts/dashboard';
 import SimpleLayout from './layouts/simple';
 //
 import BlogPage from './pages/BlogPage';
-import CustomerPage from './pages/CustomerPage';
+import CustomerPage from './pages/DealerPages/CustomerPage';
 import UserPage from './pages/UserPage';
 import LoginPage from './pages/AuthPages/LoginPage';
 import SignUpPage from './pages/AuthPages/SignUpPage';
@@ -29,7 +29,7 @@ import TermsAndConditions from './pages/OtherPages/TermsAndConditions';
 import DataPrivacyPolicy from './pages/OtherPages/DataPrivacyPolicy';
 import CookiePolicy from './pages/OtherPages/CookiePolicy';
 import SurveyPrivacyPolicy from './pages/OtherPages/SurveyPrivacyPolicy';
-import WalletAndPayout from './pages/WalletAndPayout';
+import WalletAndPayout from './pages/DealerPages/WalletAndPayout';
 import ProfilePage from './pages/DealerPages/ProfilePage';
 import VerifyInLoginPage from './pages/AuthPages/VerifyInLoginPage';
 import ProfileSettings from './pages/DealerPages/ProfileSettings';
