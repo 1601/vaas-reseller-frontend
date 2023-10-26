@@ -1,20 +1,17 @@
 import SecureLS from "secure-ls"
 import { API } from "../../../api-config"
 
-
-export const getVortexProducts = async (access_token) => {
+export const getVortexProducts = async (accessToken) => {
 
   const ls = new SecureLS({ encodingType: "aes" })
   const token = ls.get("token")
 
-  
-
-  return await fetch(`${API}/vortex/products`, {
+  return fetch(`${API}/vortex/products`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${token}`,
-        "access_token": `${access_token}`,
+        "access_token": `${accessToken}`, 
       },
 
     })
@@ -22,7 +19,6 @@ export const getVortexProducts = async (access_token) => {
         return response
       })
       .catch((err) => {
-        
         return err
       })
 }

@@ -1,6 +1,7 @@
-import { API } from "../../../api-config"
-import SecureLS from "secure-ls"
 import { v4 as uuidv4 } from 'uuid';
+import SecureLS from "secure-ls"
+import { API } from "../../../api-config"
+
 
 /**
  * 
@@ -16,17 +17,18 @@ import { v4 as uuidv4 } from 'uuid';
  * @param {*} callbackUrl 
  * @returns Vortex transaction result
  */
-export const createVortexTopupTransaction = async ({ access_token, docId, clientRequestId, mobileNumber, productCode, paymentId, totalAmount, oneAedToPhp, convenienceFee, currencySymbol, currencyToPhp, callbackUrl }) => {
-
+export const createVortexTopupTransaction = async ({ 
+  // eslint-disable-next-line camelcase
+  access_token, docId, clientRequestId, mobileNumber, productCode, paymentId, totalAmount, oneAedToPhp, convenienceFee, currencySymbol, currencyToPhp, callbackUrl }) => {
 
   const ls = new SecureLS({ encodingType: "aes" })
   const token = ls.get("token")
   const userId = ls.get("userId")
   const store = ls.get("store")
 
-  let uniqueId = uuidv4()
+  const uniqueId = uuidv4()
 
-  let reqBody = {
+  const reqBody = {
     "docId": docId,
     "clientRequestId": `${clientRequestId}${uniqueId}`,
     "mobileNumber": `${mobileNumber.trim()}`,
@@ -41,37 +43,35 @@ export const createVortexTopupTransaction = async ({ access_token, docId, client
     "currencyToPhp": currencyToPhp
   }
 
-  return await fetch(`${API}/vortex/topup`, {
+  return fetch(`${API}/vortex/topup`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       "Authorization": `Bearer ${token}`,
+      // eslint-disable-next-line camelcase
       "access_token": `${access_token}`
     },
     body: JSON.stringify(reqBody)
   })
-    .then((response) => {
-      return response
-    })
-    .catch((err) => {
+    .then(response => response)
+    .catch(err => err);
+};
 
-      return err
-    })
-}
-
-export const getTransactionByRefNumber = async (access_token, refNumber) => {
+export const getTransactionByRefNumber = async (
+  // eslint-disable-next-line camelcase
+  access_token, refNumber) => {
 
   const ls = new SecureLS({ encodingType: "aes" })
   const token = ls.get("token")
 
-  return await fetch(`${API}/vortex/topup/${refNumber}`, {
+  return fetch(`${API}/vortex/topup/${refNumber}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
       "Authorization": `Bearer ${token}`,
+      // eslint-disable-next-line camelcase
       "access_token": `${access_token}`
     },
-
   })
     .then((response) => {
       return response
@@ -82,18 +82,19 @@ export const getTransactionByRefNumber = async (access_token, refNumber) => {
     })
 }
 
-export const getTransactionByClientRequestId = async (access_token, clientRequestId) => {
+export const getTransactionByClientRequestId = async (
+  // eslint-disable-next-line camelcase
+  access_token, clientRequestId) => {
 
   const ls = new SecureLS({ encodingType: "aes" })
   const token = ls.get("token")
 
-  return await fetch(`${API}/vortex/topup/clientRequestId/${clientRequestId}`, {
+  return fetch(`${API}/vortex/topup/clientRequestId/${clientRequestId}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
       "Authorization": `Bearer ${token}`,
     },
-
   })
     .then((response) => {
       return response

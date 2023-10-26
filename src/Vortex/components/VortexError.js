@@ -73,7 +73,7 @@ const VortexError = ({
           <Stack direction={"row"} justifyContent="space-around">
 
             <Button
-              variant="contained"
+              variant="outlined"
               onClick={() => {
                 setShow(true)
               }}
