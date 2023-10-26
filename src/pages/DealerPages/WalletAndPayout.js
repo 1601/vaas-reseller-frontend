@@ -3,9 +3,9 @@ import axios from 'axios';
 import { Container, Typography, Card, CardContent, Box, Button, FormControl, Select, MenuItem, InputLabel} from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import { Helmet } from 'react-helmet-async';
-import UserDataFetch from '../components/user-account/UserDataFetch';
-import AccountStatusModal from '../components/user-account/AccountStatusModal';
-import StoreDataFetch from '../components/user-account/StoreDataFetch';
+import UserDataFetch from '../../components/user-account/UserDataFetch';
+import AccountStatusModal from '../../components/user-account/AccountStatusModal';
+import StoreDataFetch from '../../components/user-account/StoreDataFetch';
 
 const currencies = [
   'USD','EUR','JPY',
