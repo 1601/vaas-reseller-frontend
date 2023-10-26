@@ -23,6 +23,7 @@ import {
   AppCurrentSubject,
   AppConversionRates,
 } from '../sections/@dashboard/app';
+import CircularLoading from '../components/preLoader';
 
 // ----------------------------------------------------------------------
 
@@ -127,12 +128,11 @@ export default function DashboardAppPage() {
       </Helmet>
 
       <Container maxWidth="xl">
-        <Typography variant="h4" sx={{ mb: 5 }}>
-          Hi, Welcome back
-        </Typography>
-
-        {trialMessageCard && verificationCard && (
+        {trialMessageCard && verificationCard ?
           <>
+            <Typography variant="h4" sx={{ mb: 5 }}>
+              Hi, Welcome back
+            </Typography>
             {trialMessageCard}
             {verificationCard}
             <Grid container spacing={3}>
@@ -337,8 +337,7 @@ export default function DashboardAppPage() {
                 />
               </Grid>
             </Grid>
-          </>
-        )}
+          </> : <CircularLoading />}
       </Container>
       <AccountStatusModal open userData={userData} storeData={storeData} />
     </>
