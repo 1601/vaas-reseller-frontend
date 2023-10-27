@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Card, Typography } from '@mui/material';
+import { Card, Typography, CircularProgress } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
 const AdminKYC = () => {
@@ -8,73 +8,85 @@ const AdminKYC = () => {
   const [kycNotSubmitted, setKycNotSubmitted] = useState([]);
   const [kycPending, setKycPending] = useState([]);
   const [kycApproved, setKycApproved] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchKycNotSubmitted = async () => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/kyc-business/not-submitted`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      if (Array.isArray(response.data)) {
+        setKycNotSubmitted(response.data);
+      } else {
+        console.error('Unexpected API response format');
+      }
+    } catch (error) {
+      console.error('Could not fetch KYC not submitted', error);
+    }
+  };
+
+  const fetchKYCPending = async () => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/kyc-business/pending`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      if (Array.isArray(response.data)) {
+        setKycPending(response.data);
+      } else {
+        console.error('Unexpected API response format');
+      }
+    } catch (error) {
+      console.error('Could not fetch KYC pending approval', error);
+    }
+  };
+
+  const fetchKYCApproved = async () => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/kyc-business/approved`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      if (Array.isArray(response.data)) {
+        setKycApproved(response.data);
+      } else {
+        console.error('Unexpected API response format');
+      }
+    } catch (error) {
+      console.error('Could not fetch KYC approved', error);
+    }
+  };
 
   useEffect(() => {
-    const fetchKycNotSubmitted = async () => {
-      try {
-        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/kyc-business/not-submitted`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        });
-        if (Array.isArray(response.data)) {
-          setKycNotSubmitted(response.data);
-        } else {
-          console.error('Unexpected API response format');
-        }
-      } catch (error) {
-        console.error('Could not fetch KYC not submitted', error);
-      }
+    let isMounted = true; 
+
+    const fetchData = async () => {
+      await Promise.all([fetchKycNotSubmitted(), fetchKYCPending(), fetchKYCApproved()]);
+      if (isMounted) setIsLoading(false);
     };
 
-    fetchKycNotSubmitted();
-  }, []);
+    fetchData();
 
-  useEffect(() => {
-    const fetchKYCPending = async () => {
-      try {
-        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/kyc-business/pending`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        });
-        if (Array.isArray(response.data)) {
-          setKycPending(response.data);
-        } else {
-          console.error('Unexpected API response format');
-        }
-      } catch (error) {
-        console.error('Could not fetch KYC pending approval', error);
-      }
-    };
-
-    fetchKYCPending();
-  }, []);
-
-  useEffect(() => {
-    const fetchKYCApproved = async () => {
-      try {
-        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/kyc-business/approved`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        });
-        if (Array.isArray(response.data)) {
-          setKycApproved(response.data);
-        } else {
-          console.error('Unexpected API response format');
-        }
-      } catch (error) {
-        console.error('Could not fetch KYC approved', error);
-      }
-    };
-
-    fetchKYCApproved();
+    return () => {
+      isMounted = false;
+    }; 
   }, []);
 
   const handleStoreClick = (storeId) => {
     navigate(`/dashboard/admin/kycapprove/${storeId}`);
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <CircularProgress /> 
+      </div>
+    );
+  }
 
   return (
     <Card className="mt-4 max-w-screen-lg mx-auto p-4" style={{ backgroundColor: '#ffffff' }}>
