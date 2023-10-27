@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Card, Typography, Button, Grid, Box, Divider } from '@mui/material';
+import { Card, Typography, Button, Grid, Box, Divider, CircularProgress } from '@mui/material';
 
 const AdminApproval = () => {
     const { storeId } = useParams();
     const navigate = useNavigate();
     const [storeDetails, setStoreDetails] = useState(null);
     const [ownerId, setOwnerId] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const fetchStoreDetails = async () => {
@@ -32,7 +33,7 @@ const AdminApproval = () => {
             }
         };
 
-        fetchStoreDetails();
+        fetchStoreDetails().then(() => setIsLoading(false)); 
     }, [storeId, navigate]);
 
     const handleApprove = async () => {
@@ -102,6 +103,14 @@ const AdminApproval = () => {
             console.error('Could not update isLive status', error);
         }
     };
+
+    if (isLoading) {
+        return (
+            <div className="flex justify-center items-center h-screen">
+                <CircularProgress />
+            </div>
+        );
+    }
 
     return (
         <div className="flex flex-col mt-4">
