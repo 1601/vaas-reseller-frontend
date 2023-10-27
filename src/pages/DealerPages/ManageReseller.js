@@ -116,6 +116,7 @@ const ManageReseller = () => {
   const [resellerToDelete, setResellerToDelete] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showSpinner, setShowSpinner] = useState(false);
+  const [dataLoaded, setDataLoaded] = useState(false);
 
   const handleCloseDeleteDialog = () => {
     setDeletingResellerId(null);
@@ -405,6 +406,7 @@ const ManageReseller = () => {
     try {
       const fetchedResellers = await fetchResellersForUser(userId);
       setResellers(fetchedResellers);
+      setDataLoaded(true);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
@@ -445,206 +447,208 @@ const ManageReseller = () => {
           )}
         </>
       ) : (
-        <>
-          <Card>
-            <CardContent>
-              <Box display="flex" justifyContent="space-between" alignItems="center" marginBottom="20px">
-                <Typography variant="h5">My Resellers</Typography>
-                <Button variant="contained" style={{ backgroundColor: '#000', color: '#fff' }} onClick={handleOpen}>
-                  + Add Reseller
-                </Button>
-              </Box>
+        dataLoaded && (
+          <>
+            <Card>
+              <CardContent>
+                <Box display="flex" justifyContent="space-between" alignItems="center" marginBottom="20px">
+                  <Typography variant="h5">My Resellers</Typography>
+                  <Button variant="contained" style={{ backgroundColor: '#000', color: '#fff' }} onClick={handleOpen}>
+                    + Add Reseller
+                  </Button>
+                </Box>
 
-              <div style={{ display: 'flex', alignItems: 'center', overflowX: 'auto' }}>
-                <ResellerTabs
-                  currentTab={currentTab}
-                  handleTabChange={handleTabChange}
-                  resellers={resellers}
-                  activeCount={activeCount}
-                  disabledCount={disabledCount}
-                  deactivatedCount={deactivatedCount}
-                />
-              </div>
+                <div style={{ display: 'flex', alignItems: 'center', overflowX: 'auto' }}>
+                  <ResellerTabs
+                    currentTab={currentTab}
+                    handleTabChange={handleTabChange}
+                    resellers={resellers}
+                    activeCount={activeCount}
+                    disabledCount={disabledCount}
+                    deactivatedCount={deactivatedCount}
+                  />
+                </div>
 
-              <SearchBar value={value} onChange={(e) => setValue(e.target.value)} />
+                <SearchBar value={value} onChange={(e) => setValue(e.target.value)} />
 
-              <div style={{ overflowX: 'auto' }}>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell padding="checkbox">
-                        <Checkbox checked={isAllSelected} onChange={handleHeaderCheckboxChange} />
-                      </TableCell>
-                      <TableCell style={{ cursor: 'pointer' }} onClick={() => requestSort('firstName')}>
-                        <div
-                          style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            width: '100%',
-                          }}
-                        >
-                          Name
-                          {sortConfig.key === 'firstName' &&
-                            (sortConfig.direction === 'asc' ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />)}
-                        </div>
-                      </TableCell>
-                      <TableCell style={{ cursor: 'pointer' }} onClick={() => requestSort('mobileNumber')}>
-                        <div
-                          style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            width: '100%',
-                          }}
-                        >
-                          Phone Number
-                          {sortConfig.key === 'mobileNumber' &&
-                            (sortConfig.direction === 'asc' ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />)}
-                        </div>
-                      </TableCell>
-                      <TableCell style={{ cursor: 'pointer' }} onClick={() => requestSort('companyName')}>
-                        <div
-                          style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            width: '100%',
-                          }}
-                        >
-                          Company
-                          {sortConfig.key === 'companyName' &&
-                            (sortConfig.direction === 'asc' ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />)}
-                        </div>
-                      </TableCell>
-                      <TableCell style={{ cursor: 'pointer' }} onClick={() => requestSort('status')}>
-                        <div
-                          style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            width: '100%',
-                          }}
-                        >
-                          Status
-                          {sortConfig.key === 'status' &&
-                            (sortConfig.direction === 'asc' ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />)}
-                        </div>
-                      </TableCell>
-                      <TableCell sx={{ textAlign: 'right' }}>
-                        <IconButton size="small">
-                          <MoreVertIcon fontSize="inherit" />
-                        </IconButton>
-                      </TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {sortedData.map((reseller) => (
-                      <TableRow key={reseller._id}>
+                <div style={{ overflowX: 'auto' }}>
+                  <Table>
+                    <TableHead>
+                      <TableRow>
                         <TableCell padding="checkbox">
-                          <Checkbox
-                            checked={selectedRows.includes(reseller._id)}
-                            onChange={() => handleRowCheckboxChange(reseller._id)}
-                          />
+                          <Checkbox checked={isAllSelected} onChange={handleHeaderCheckboxChange} />
                         </TableCell>
-                        <TableCell>
-                          <div>
-                            {reseller.firstName} {reseller.lastName}
+                        <TableCell style={{ cursor: 'pointer' }} onClick={() => requestSort('firstName')}>
+                          <div
+                            style={{
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'center',
+                              width: '100%',
+                            }}
+                          >
+                            Name
+                            {sortConfig.key === 'firstName' &&
+                              (sortConfig.direction === 'asc' ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />)}
                           </div>
-                          <Typography variant="body2" color="textSecondary">
-                            {reseller.email}
-                          </Typography>
                         </TableCell>
-                        <TableCell>{reseller.mobileNumber}</TableCell>
-                        <TableCell>{reseller.companyName}</TableCell>
-                        <TableCell>
-                          <StatusLabel status={reseller.status} />
-                        </TableCell>
-                        <TableCell style={{ width: '50px' }}>
-                          <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                            <IconButton
-                              size="small"
-                              style={{ marginRight: '8px' }}
-                              onClick={(e) => handleStatusClick(e, reseller._id)}
-                            >
-                              <EditIcon fontSize="inherit" />
-                            </IconButton>
-                            <IconButton size="small" onClick={(e) => handleMenuOpen(e, reseller)}>
-                              <MoreVertIcon fontSize="inherit" />
-                            </IconButton>
-
-                            <ResellerActionsMenu
-                              menuAnchor={menuAnchor}
-                              handleClose={handleMenuClose}
-                              selectedRows={selectedRows}
-                              currentReseller={currentReseller}
-                              handleMenuAction={handleMenuAction}
-                            />
+                        <TableCell style={{ cursor: 'pointer' }} onClick={() => requestSort('mobileNumber')}>
+                          <div
+                            style={{
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'center',
+                              width: '100%',
+                            }}
+                          >
+                            Phone Number
+                            {sortConfig.key === 'mobileNumber' &&
+                              (sortConfig.direction === 'asc' ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />)}
                           </div>
+                        </TableCell>
+                        <TableCell style={{ cursor: 'pointer' }} onClick={() => requestSort('companyName')}>
+                          <div
+                            style={{
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'center',
+                              width: '100%',
+                            }}
+                          >
+                            Company
+                            {sortConfig.key === 'companyName' &&
+                              (sortConfig.direction === 'asc' ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />)}
+                          </div>
+                        </TableCell>
+                        <TableCell style={{ cursor: 'pointer' }} onClick={() => requestSort('status')}>
+                          <div
+                            style={{
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'center',
+                              width: '100%',
+                            }}
+                          >
+                            Status
+                            {sortConfig.key === 'status' &&
+                              (sortConfig.direction === 'asc' ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />)}
+                          </div>
+                        </TableCell>
+                        <TableCell sx={{ textAlign: 'right' }}>
+                          <IconButton size="small">
+                            <MoreVertIcon fontSize="inherit" />
+                          </IconButton>
                         </TableCell>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </CardContent>
-          </Card>
+                    </TableHead>
+                    <TableBody>
+                      {sortedData.map((reseller) => (
+                        <TableRow key={reseller._id}>
+                          <TableCell padding="checkbox">
+                            <Checkbox
+                              checked={selectedRows.includes(reseller._id)}
+                              onChange={() => handleRowCheckboxChange(reseller._id)}
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <div>
+                              {reseller.firstName} {reseller.lastName}
+                            </div>
+                            <Typography variant="body2" color="textSecondary">
+                              {reseller.email}
+                            </Typography>
+                          </TableCell>
+                          <TableCell>{reseller.mobileNumber}</TableCell>
+                          <TableCell>{reseller.companyName}</TableCell>
+                          <TableCell>
+                            <StatusLabel status={reseller.status} />
+                          </TableCell>
+                          <TableCell style={{ width: '50px' }}>
+                            <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                              <IconButton
+                                size="small"
+                                style={{ marginRight: '8px' }}
+                                onClick={(e) => handleStatusClick(e, reseller._id)}
+                              >
+                                <EditIcon fontSize="inherit" />
+                              </IconButton>
+                              <IconButton size="small" onClick={(e) => handleMenuOpen(e, reseller)}>
+                                <MoreVertIcon fontSize="inherit" />
+                              </IconButton>
 
-          <Menu
-            id="simple-menu"
-            anchorEl={anchorEl}
-            keepMounted
-            open={Boolean(anchorEl)}
-            onClose={handleCloseStatusMenu}
-          >
-            <MenuItem onClick={() => handleStatusChange('Active')}>Active</MenuItem>
-            <MenuItem onClick={() => handleStatusChange('Disabled')}>Disabled</MenuItem>
-            <MenuItem onClick={() => handleStatusChange('Deactivated')}>Deactivated</MenuItem>
-          </Menu>
+                              <ResellerActionsMenu
+                                menuAnchor={menuAnchor}
+                                handleClose={handleMenuClose}
+                                selectedRows={selectedRows}
+                                currentReseller={currentReseller}
+                                handleMenuAction={handleMenuAction}
+                              />
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
 
-          <AddResellerDialog
-            open={open}
-            onClose={handleClose}
-            formState={formState}
-            handleInputChange={handleInputChange}
-            handleBlur={handleBlur}
-            validationErrors={validationErrors}
-            handleAddReseller={handleAddReseller}
-            countries={countries}
-            countryCodes={countryCodes}
-          />
-          <CredentialsDialog
-            open={showCredentialsPopup}
-            onClose={() => setShowCredentialsPopup(false)}
-            email={formState.email}
-            password={generatedPassword}
-            fetchData={fetchData}
-          />
-          <EditResellerDialog
-            open={editDialogOpen}
-            onClose={() => {
-              setEditDialogOpen(false);
-              setCurrentReseller(null);
-            }}
-            reseller={currentReseller}
-            onSubmit={fetchData}
-            userId={userId}
-            editingResellerId={editingResellerId}
-          />
-          <ChangePasswordDialog
-            open={changePasswordDialogOpen}
-            onClose={() => setChangePasswordDialogOpen(false)}
-            userId={userId}
-            currentReseller={currentReseller}
-          />
-          <DeleteResellerDialog
-            open={deleteDialogOpen}
-            handleCloseDeleteDialog={handleCloseDeleteDialog}
-            userId={userId}
-            resellerId={resellerToDelete?._id}
-            fetchData={fetchData}
-          />
-        </>
+            <Menu
+              id="simple-menu"
+              anchorEl={anchorEl}
+              keepMounted
+              open={Boolean(anchorEl)}
+              onClose={handleCloseStatusMenu}
+            >
+              <MenuItem onClick={() => handleStatusChange('Active')}>Active</MenuItem>
+              <MenuItem onClick={() => handleStatusChange('Disabled')}>Disabled</MenuItem>
+              <MenuItem onClick={() => handleStatusChange('Deactivated')}>Deactivated</MenuItem>
+            </Menu>
+
+            <AddResellerDialog
+              open={open}
+              onClose={handleClose}
+              formState={formState}
+              handleInputChange={handleInputChange}
+              handleBlur={handleBlur}
+              validationErrors={validationErrors}
+              handleAddReseller={handleAddReseller}
+              countries={countries}
+              countryCodes={countryCodes}
+            />
+            <CredentialsDialog
+              open={showCredentialsPopup}
+              onClose={() => setShowCredentialsPopup(false)}
+              email={formState.email}
+              password={generatedPassword}
+              fetchData={fetchData}
+            />
+            <EditResellerDialog
+              open={editDialogOpen}
+              onClose={() => {
+                setEditDialogOpen(false);
+                setCurrentReseller(null);
+              }}
+              reseller={currentReseller}
+              onSubmit={fetchData}
+              userId={userId}
+              editingResellerId={editingResellerId}
+            />
+            <ChangePasswordDialog
+              open={changePasswordDialogOpen}
+              onClose={() => setChangePasswordDialogOpen(false)}
+              userId={userId}
+              currentReseller={currentReseller}
+            />
+            <DeleteResellerDialog
+              open={deleteDialogOpen}
+              handleCloseDeleteDialog={handleCloseDeleteDialog}
+              userId={userId}
+              resellerId={resellerToDelete?._id}
+              fetchData={fetchData}
+            />
+          </>
+        )
       )}
     </div>
   );
