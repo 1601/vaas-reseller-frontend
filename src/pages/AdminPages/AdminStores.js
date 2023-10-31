@@ -77,7 +77,7 @@ const AdminStores = () => {
   }, []);
 
   const handleStoreClick = (storeId) => {
-    navigate(`/dashboard/admin/approve/${storeId}`);
+    navigate(`/dashboard/admin/storeapproval/${storeId}`);
   };
 
   if (isLoading) {
