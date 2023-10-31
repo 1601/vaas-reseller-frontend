@@ -52,6 +52,11 @@ const navConfig = role === 'admin' ?
         },
       ]
     },
+    {
+      title: 'Dealer Accounts',
+      path: '/dashboard/admin/accounts',
+      icon: icon('ic_customer'),
+    },
   ] :
   [
     {

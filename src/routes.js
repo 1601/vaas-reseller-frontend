@@ -37,6 +37,7 @@ import FAQs from './pages/OtherPages/FAQs';
 import ManageReseller from './pages/DealerPages/ManageReseller';
 import VortexTopUp from './pages/VortexPages/VortexTopUp';
 import VortexContext from './Vortex/context/VortexContext';
+import AdminDealerAccount from './pages/AdminPages/AdminDealerAccount';
 
 // ----------------------------------------------------------------------
 
@@ -200,6 +201,9 @@ export default function Router() {
         { path: 'products/bills', element: <ProductsPage /> },
         { path: 'products/topup', element: <ProductsPage /> },
         { path: 'products/egift', element: <ProductsPage /> },
+
+        // Dealer Accounts
+        { path: 'accounts', element: <AdminDealerAccount /> },
       ],
     },
     {
