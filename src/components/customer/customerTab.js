@@ -17,7 +17,7 @@ const CustomersTabs = ({ currentTab, handleTabChange, customers, activeCount, de
                 marginLeft: '5px',
               }}
             >
-              {customers.length}
+              {customers}
             </span>
           </div>
         }
@@ -45,7 +45,7 @@ const CustomersTabs = ({ currentTab, handleTabChange, customers, activeCount, de
       <Tab
         label={
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            Deactivated
+            Inactive
             <span
               style={{
                 color: 'red',

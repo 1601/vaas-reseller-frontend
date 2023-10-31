@@ -128,7 +128,7 @@ export default function DashboardAppPage() {
       </Helmet>
 
       <Container maxWidth="xl">
-        {trialMessageCard || verificationCard ?
+        {trialMessageCard && verificationCard ?
           <>
             <Typography variant="h4" sx={{ mb: 5 }}>
               Hi, Welcome back

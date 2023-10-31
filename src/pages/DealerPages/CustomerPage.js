@@ -1,7 +1,7 @@
 import { Helmet } from 'react-helmet-async';
 import { filter } from 'lodash';
 import { sentenceCase } from 'change-case';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 // @mui
 import {
   Card,
@@ -21,10 +21,13 @@ import {
   Typography,
   IconButton,
   TableContainer,
+  TableHead,
   TablePagination,
   Modal,
 } from '@mui/material';
 // components
+import PersonSearchOutlinedIcon from '@mui/icons-material/PersonSearchOutlined';
+import DetailsModal from '../../components/customer/detailsModal'
 import Label from '../../components/label';
 import Iconify from '../../components/iconify';
 import Scrollbar from '../../components/scrollbar';
@@ -34,6 +37,7 @@ import StoreDataFetch from '../../components/user-account/StoreDataFetch';
 import CustomersTabs from '../../components/customer/customerTab'
 // sections
 import { UserListHead, UserListToolbar } from '../../sections/@dashboard/user';
+import { allCustomers } from '../../api/public/customer';
 // mock
 import USERLIST from '../../_mock/user';
 
@@ -41,6 +45,7 @@ import USERLIST from '../../_mock/user';
 
 const TABLE_HEAD = [
   { id: 'name', label: 'Name', alignRight: false },
+  { id: 'address', label: 'Address', alignRight: false },
   { id: 'role', label: 'Role', alignRight: false },
   { id: 'status', label: 'Status', alignRight: false },
   { id: '' },
@@ -77,41 +82,7 @@ function applySortFilter(array, comparator, query) {
   return stabilizedThis.map((el) => el[0]);
 }
 
-function DetailsModal({ open, handleClose, selectedRow }) {
-  return (
-    <Modal open={open} onClose={handleClose}>
-      <Box sx={{display:'flex'}}>
-        <Box
-          sx={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            bgcolor: 'white',
-            boxShadow: 24,
-            p: 3,
-            outline: 'none',
-            minWidth: 400, // Customize the width as needed
-            borderRadius: 4,
-          }}
-        >
-          {selectedRow && (
-            <>
-              <img src={selectedRow.avatarUrl} alt='avatars logo'/>
-              <Typography variant="h6" gutterBottom>
-                {selectedRow.name}
-              </Typography>
-            </>
-          )}
-          {/* <Typography variant="body1">{selectedRow.description}</Typography> */}
-          <Button variant="outlined" onClick={handleClose} sx={{ mt: 2 }}>
-            Close
-          </Button>
-        </Box>
-      </Box>
-    </Modal>
-  );
-}
+
 
 export default function CustomerPage() {
   const [open, setOpen] = useState(null);
@@ -141,10 +112,11 @@ export default function CustomerPage() {
   const [customers, setCustomers] = useState([]);
   const [activeCount, setActiveCount] = useState(0);
   const [deactivatedCount, setDeactivatedCount] = useState(0);
+  const [userList, setUserList] = useState()
 
-  const handleOpenMenu = (event) => {
-    setOpen(event.currentTarget);
-  };
+  // const handleOpenMenu = (event) => {
+  //   setOpen(event.currentTarget);
+  // };
 
   const handleCloseMenu = () => {
     setOpen(null);
@@ -154,44 +126,47 @@ export default function CustomerPage() {
     setCurrentTab(newValue);
   };
 
-  const handleRequestSort = (event, property) => {
-    const isAsc = orderBy === property && order === 'asc';
-    setOrder(isAsc ? 'desc' : 'asc');
-    setOrderBy(property);
-  };
+  // const handleRequestSort = (event, property) => {
+  //   const isAsc = orderBy === property && order === 'asc';
+  //   setOrder(isAsc ? 'desc' : 'asc');
+  //   setOrderBy(property);
+  // };
 
-  const handleSelectAllClick = (event) => {
-    if (event.target.checked) {
-      const newSelecteds = USERLIST.map((n) => n.name);
-      setSelected(newSelecteds);
-      return;
-    }
-    setSelected([]);
-  };
+  // const handleSelectAllClick = (event) => {
+  //   if (event.target.checked) {
+  //     if (userList) {
+  //       const newSelecteds = userList.map((n) => n.name);
+  //       setSelected(newSelecteds);
+  //       return;
+  //     }
 
-  const handleClick = (event, name) => {
-    const selectedIndex = selected.indexOf(name);
-    let newSelected = [];
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, name);
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selected.slice(1));
-    } else if (selectedIndex === selected.length - 1) {
-      newSelected = newSelected.concat(selected.slice(0, -1));
-    } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(selected.slice(0, selectedIndex), selected.slice(selectedIndex + 1));
-    }
-    setSelected(newSelected);
-  };
+  //   }
+  //   setSelected([]);
+  // };
 
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
+  // const handleClick = (event, name) => {
+  //   const selectedIndex = selected.indexOf(name);
+  //   let newSelected = [];
+  //   if (selectedIndex === -1) {
+  //     newSelected = newSelected.concat(selected, name);
+  //   } else if (selectedIndex === 0) {
+  //     newSelected = newSelected.concat(selected.slice(1));
+  //   } else if (selectedIndex === selected.length - 1) {
+  //     newSelected = newSelected.concat(selected.slice(0, -1));
+  //   } else if (selectedIndex > 0) {
+  //     newSelected = newSelected.concat(selected.slice(0, selectedIndex), selected.slice(selectedIndex + 1));
+  //   }
+  //   setSelected(newSelected);
+  // };
 
-  const handleChangeRowsPerPage = (event) => {
-    setPage(0);
-    setRowsPerPage(parseInt(event.target.value, 10));
-  };
+  // const handleChangePage = (event, newPage) => {
+  //   setPage(newPage);
+  // };
+
+  // const handleChangeRowsPerPage = (event) => {
+  //   setPage(0);
+  //   setRowsPerPage(parseInt(event.target.value, 10));
+  // };
 
   const handleFilterByName = (event) => {
     setPage(0);
@@ -199,6 +174,15 @@ export default function CustomerPage() {
   };
 
   const handleOpenModal = (row) => {
+    const purchases = row.purchase
+    const totalAmount = purchases.reduce((accumulator, data) => accumulator + data.amount, 0);
+    const averageAmount = totalAmount / purchases.length
+    const rateAverageAmount = (averageAmount / totalAmount) * 100;
+    const totalNumberOfTrans = purchases.length / 30;
+
+    row.averageOfTransaction = totalNumberOfTrans
+    row.averageAmount = averageAmount.toFixed(2)
+    row.rateAverageAmount = rateAverageAmount.toFixed(2)
     setSelectedRow(row);
     setOpenModal(true);
   };
@@ -208,7 +192,27 @@ export default function CustomerPage() {
   };
 
 
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - USERLIST.length) : 0;
+  useEffect(() => {
+    const allcustomers = async () => {
+      const customersResult = await allCustomers()
+      const customersDetails = customersResult.data.body
+
+      setCustomers(customersDetails.length)
+      setUserList(customersDetails)
+      customersDetails.forEach((data) => {
+        if (data.status === true) {
+          setActiveCount((activeCount) => activeCount + 1);
+        } else {
+          setDeactivatedCount((deactivatedCount) => deactivatedCount + 1);
+        }
+      });
+    }
+    allcustomers();
+  }, [])
+
+  useEffect(() => { console.log(selectedRow) }, [selectedRow])
+
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - userList.length) : 0;
 
   const filteredUsers = applySortFilter(USERLIST, getComparator(order, orderBy), filterName);
 
@@ -228,7 +232,7 @@ export default function CustomerPage() {
         </Stack>
 
         <Card>
-        <div style={{ display: 'flex', alignItems: 'center', overflowX: 'auto' }}>
+          <div style={{ display: 'flex', alignItems: 'center', overflowX: 'auto' }}>
             <CustomersTabs
               currentTab={currentTab}
               handleTabChange={handleTabChange}
@@ -239,52 +243,56 @@ export default function CustomerPage() {
           </div>
           <UserListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
           <Scrollbar>
-            <TableContainer sx={{ minWidth: 800 }}>
+            <TableContainer sx={{ minWidth: 800 , padding:'20px'}}>
               <Table>
-                <UserListHead
-                  order={order}
-                  orderBy={orderBy}
-                  headLabel={TABLE_HEAD}
-                  rowCount={USERLIST.length}
-                  numSelected={selected.length}
-                  onRequestSort={handleRequestSort}
-                  onSelectAllClick={handleSelectAllClick}
-                />
+                <TableHead sx={{ backgroundColor: '#f2f2f2'}}>
+                  <TableRow>
+                    <TableCell>Name</TableCell>
+                    <TableCell>Address</TableCell>
+                    <TableCell>Role</TableCell>
+                    <TableCell>Status</TableCell>
+                    <TableCell>Action</TableCell>
+                  </TableRow>
+                </TableHead>
                 <TableBody>
-                  {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { id, name, role, status, avatarUrl} = row;
-                    const selectedUser = selected.indexOf(name) !== -1;
+                  {userList && (userList.map((row) => {
+                    console.log(row)
+                    const { _id, fullName, address, role, status, profilePicture } = row;
+                    let Status
+                    // convert into string to avoid input error
+                    if (status === true) {
+                      Status = 'Active'
+                    } else {
+                      Status = 'Inactive'
+                    }
+                    const selectedUser = selected.indexOf(row.fullName) !== -1;
 
                     return (
-                      <TableRow hover key={id} tabIndex={-1} role="checkbox" selected={selectedUser}>
-                        <TableCell padding="checkbox">
-                          <Checkbox checked={selectedUser} onChange={(event) => handleClick(event, name)} />
-                        </TableCell>
-
+                      <TableRow hover key={_id} tabIndex={-1} selected={selectedUser}>
                         <TableCell component="th" scope="row" padding="none">
-                          <Stack direction="row" alignItems="center" spacing={2}>
-                            <Avatar alt={name} src={avatarUrl} />
+                          <Stack direction="row" alignItems="center" spacing={2}
+                          >
+                            <Avatar alt={fullName} src={profilePicture} />
                             <Typography variant="subtitle2" noWrap>
-                              {name}
+                              {fullName}
                             </Typography>
                           </Stack>
                         </TableCell>
-                        <TableCell align="left">{role}</TableCell>
+                        <TableCell align='left'>{address}</TableCell>
+                        <TableCell align='left'>{role}</TableCell>
                         <TableCell align="left">
-                          <Label color={(status === 'banned' && 'error') || 'success'}>{sentenceCase(status)}</Label>
+                          <Label color={(Status === 'Inactive' && 'error') || 'success'}>{sentenceCase(Status)}</Label>
                         </TableCell>
                         <TableCell>
-                          <Button variant='outlined' onClick={() => handleOpenModal(row)}> View Details</Button>
-                        </TableCell>
-
-                        <TableCell align="right">
-                          <IconButton size="large" color="inherit" onClick={handleOpenMenu}>
-                            <Iconify icon={'eva:more-vertical-fill'} />
-                          </IconButton>
+                          <Button 
+                            variant='outlined' 
+                            onClick={() => handleOpenModal(row)}
+                            startIcon={<PersonSearchOutlinedIcon/>}
+                          > View More</Button>
                         </TableCell>
                       </TableRow>
-                    );
-                  })}
+                    )
+                  }))}
                   {emptyRows > 0 && (
                     <TableRow style={{ height: 53 * emptyRows }}>
                       <TableCell colSpan={6} />
@@ -319,16 +327,6 @@ export default function CustomerPage() {
               <DetailsModal open={openModal} handleClose={handleCloseModal} selectedRow={selectedRow} />
             </TableContainer>
           </Scrollbar>
-
-          <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
-            component="div"
-            count={USERLIST.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-          />
         </Card>
       </Container>
 

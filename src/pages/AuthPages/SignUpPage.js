@@ -582,8 +582,10 @@ export default function SignUpPage() {
     backgroundColor: '#fff',
     p: { xs: 2, sm: 3, md: 4 },
     height: 'max-content',
-    borderRadius: '20px',
-    alignSelf: 'center'
+    alignSelf: 'center',
+    ...(isMd &&{
+      borderRadius: '20px',
+    })
   }
 
   const ssoStyles = {
@@ -620,14 +622,21 @@ export default function SignUpPage() {
     }),
   }
 
-  
+  const containerStyle ={
+    ...(isXs &&{
+      padding:'0px'
+    }),
+    ...(isMd &&{
+      padding:'24px 16px'
+    })
+  }
 
   return (
     <>
       <Helmet>
         <title> Sign Up | Your App </title>
       </Helmet>
-      <Container maxWidth={false} style={{paddingTop:'24px',paddingBottom:'24px'}}>
+      <Container maxWidth={false} style={containerStyle}>
         {succesSignup === true ? (<VerifyPage email={formData.email} firstName={formData.firstName} lastName={formData.lastName} />
         ) : (
           <Box sx={containerStyles}>
@@ -640,8 +649,7 @@ export default function SignUpPage() {
                       <div
                         style={{
                           width: '100%',
-                          height: '100vh',
-                          borderRadius: '15px'
+                          height: '100vh'
                         }} key={index}>
                         <img src={data.url} alt={`Slide ${index}`}
                           style={imageStyles}
