@@ -78,10 +78,21 @@ const getAllBanner = async() =>{
   return response
 }
 
+const getAllCustomers = async() =>{
+  let response
+  try{
+    response = await axiosInstance.get(`customer/${getOnwerId()}`)
+  }catch(error){
+    console.log(error)
+  }
+  return response
+}
+
 export {
   submitDataKyc,
   submitFileKyc,
   autocompleteAddress,
   kycSubmittedStatus,
   getAllBanner,
+  getAllCustomers
 };
