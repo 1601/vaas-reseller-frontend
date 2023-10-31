@@ -191,9 +191,15 @@ export default function Router() {
         { element: <Navigate to="/dashboard/admin/home" />, index: true },
         { path: 'home', element: <AdminDashboard /> },
         { path: 'storeapproval', element: <AdminStores /> },
-        { path: 'approve/:storeId', element: <AdminApproval /> },
+        { path: 'storeapproval/:storeId', element: <AdminApproval /> },
         { path: 'kycapproval', element: <AdminKYC /> },
         { path: 'kycapprove/:storeId', element: <AdminKYCApproval /> },
+
+        // Product Config
+        { path: 'products', element: <ProductsPage /> },
+        { path: 'products/bills', element: <ProductsPage /> },
+        { path: 'products/topup', element: <ProductsPage /> },
+        { path: 'products/egift', element: <ProductsPage /> },
       ],
     },
     {
