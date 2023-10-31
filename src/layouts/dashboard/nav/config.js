@@ -14,14 +14,43 @@ const navConfig = role === 'admin' ?
       icon: icon('ic_analytics'),
     },
     {
-      title: 'Store Approval',
+      title: 'Approvals',
       path: '/dashboard/admin/storeapproval',
       icon: icon('ic_approval'),
+      children: [
+        {
+          title: 'Store Approval',
+          path: '/dashboard/admin/storeapproval',
+          icon: icon('ic_storeapprove'),
+        },
+        {
+          title: 'KYC Approval',
+          path: '/dashboard/admin/kycapproval',
+          icon: icon('ic_user'),
+        },
+      ]
     },
     {
-      title: 'KYC Approval',
-      path: '/dashboard/admin/kycapproval',
-      icon: icon('ic_user'),
+      title: 'Product Configuration',
+      path: '/dashboard/admin/products',
+      icon: icon('ic_product'),
+      children: [
+        {
+          title: 'Bills',
+          path: '/dashboard/admin/products/bills',
+          icon: icon('ic_bills'),
+        },
+        {
+          title: 'Top-Up',
+          path: '/dashboard/admin/products/topup',
+          icon: icon('ic_topup'),
+        },
+        {
+          title: 'E-Gifts',
+          path: '/dashboard/admin/products/egift',
+          icon: icon('ic_egift'),
+        },
+      ]
     },
   ] :
   [
