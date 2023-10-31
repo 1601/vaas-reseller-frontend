@@ -98,7 +98,7 @@ const AdminDealerAccount = () => {
           const usersWithDetails = await Promise.all(fetchStoreDetailsPromises);
 
           const sortedUsers = usersWithDetails
-            .filter((user) => user.role !== 'admin') 
+            .filter((user) => user.role !== 'admin')
             .sort((a, b) => {
               const nameA = a.firstName || '';
               const nameB = b.firstName || '';
@@ -203,12 +203,54 @@ const AdminDealerAccount = () => {
         </MenuItem>
         <MenuItem onClick={() => handleDelete(userToDelete)}>Delete</MenuItem>
       </Menu>
-      <Dialog open={viewModalOpen} onClose={() => setViewModalOpen(false)}>
+      <Dialog open={viewModalOpen} onClose={() => setViewModalOpen(false)} fullWidth maxWidth="md">
         <DialogTitle>User Details</DialogTitle>
         <DialogContent>
-          {/* Display user details here. For simplicity, I'm just showing the name. */}
-          <Typography variant="h6">{`${userToView?.firstName} ${userToView?.lastName}`}</Typography>
-          {/* You can add more fields/details about the user here */}
+          <Typography variant="body1">
+            <strong>First Name:</strong> {userToView?.firstName || 'N/A'}
+          </Typography>
+          <Typography variant="body1">
+            <strong>Last Name:</strong> {userToView?.lastName || 'N/A'}
+          </Typography>
+          <Typography variant="body1">
+            <strong>Designation:</strong> {userToView?.designation || 'N/A'}
+          </Typography>
+          <Typography variant="body1">
+            <strong>Email:</strong> {userToView?.email || 'N/A'}
+          </Typography>
+          <Typography variant="body1">
+            <strong>Mobile Number:</strong> {userToView?.mobileNumber || 'N/A'}
+          </Typography>
+          <Typography variant="body1">
+            <strong>Country:</strong> {userToView?.country || 'N/A'}
+          </Typography>
+          <Typography variant="body1">
+            <strong>IP Address:</strong> {userToView?.ipAddress || 'N/A'}
+          </Typography>
+          <Typography variant="body1">
+            <strong>Username:</strong> {userToView?.username || 'N/A'}
+          </Typography>
+          <Typography variant="body1">
+            <strong>Role:</strong> {userToView?.role || 'N/A'}
+          </Typography>
+          <Typography variant="body1">
+            <strong>Is Active:</strong> {userToView?.isActive ? 'Yes' : 'No'}
+          </Typography>
+          <Typography variant="body1">
+            <strong>Failed Login Attempts:</strong> {userToView?.failedLoginAttempts || 0}
+          </Typography>
+          <Typography variant="body1">
+            <strong>Last Failed Login:</strong> {userToView?.lastFailedLogin || 'N/A'}
+          </Typography>
+          <Typography variant="body1">
+            <strong>Account Status:</strong> {userToView?.accountStatus || 'N/A'}
+          </Typography>
+          <Typography variant="body1">
+            <strong>Is Google User:</strong> {userToView?.isGoogleUser ? 'Yes' : 'No'}
+          </Typography>
+          <Typography variant="body1">
+            <strong>Mobile Number Verified:</strong> {userToView?.mobileNumberVerified ? 'Yes' : 'No'}
+          </Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setViewModalOpen(false)} color="primary">
