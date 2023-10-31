@@ -1,12 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import {
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  Button,
   Menu,
   MenuItem,
   Card,
@@ -19,7 +13,10 @@ import {
   TableHead,
   TableRow,
 } from '@mui/material';
-import { MoreVert as MoreVertIcon, Delete as DeleteIcon } from '@mui/icons-material';
+import { MoreVert as MoreVertIcon } from '@mui/icons-material';
+import { ViewUserModal } from '../../components/admin/ViewUserModal';
+import { DeleteUserModal } from '../../components/admin/DeleteUserModal';
+import ResellersModal from '../../components/admin/ResellersModal';
 
 const AdminDealerAccount = () => {
   const [users, setUsers] = useState([]);
@@ -29,6 +26,7 @@ const AdminDealerAccount = () => {
   const [userToDelete, setUserToDelete] = useState(null);
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [userToView, setUserToView] = useState(null);
+  const [resellersModalOpen, setResellersModalOpen] = useState(false);
 
   const handleMenuClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -39,36 +37,38 @@ const AdminDealerAccount = () => {
   };
 
   const handleDelete = async (userId) => {
-    handleMenuClose(); // Close the menu
+    handleMenuClose();
     setUserToDelete(userId);
-    setDeleteModalOpen(true); // Open the confirmation modal
+    setDeleteModalOpen(true);
   };
 
   const confirmDelete = async () => {
     try {
-      // Delete the user
       await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/users/${userToDelete}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
       });
 
-      // Delete the store
       await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/stores/${userToDelete}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
       });
 
-      // Refresh the users list
       const updatedUsers = users.filter((user) => user._id !== userToDelete);
       setUsers(updatedUsers);
 
-      // Close the modal
       setDeleteModalOpen(false);
     } catch (error) {
       console.error('Failed to delete user and store:', error);
     }
+  };
+
+  const handleResellers = (userId) => {
+    handleMenuClose();
+    setUserToDelete(userId);
+    setResellersModalOpen(true);
   };
 
   useEffect(() => {
@@ -132,7 +132,7 @@ const AdminDealerAccount = () => {
   return (
     <Card className="mt-4 max-w-screen-lg mx-auto p-4" style={{ backgroundColor: '#ffffff' }}>
       <Typography variant="h3" align="center" gutterBottom>
-        User Accounts
+        Dealer Accounts
       </Typography>
       <TableContainer component={Card}>
         <Table>
@@ -141,7 +141,7 @@ const AdminDealerAccount = () => {
               <TableCell style={{ width: '70%' }}>User</TableCell>
               <TableCell align="right">Email</TableCell>
               <TableCell align="right">Mobile Number</TableCell>
-              <TableCell align="right">Actions</TableCell> {/* New TableCell for actions/three dots */}
+              <TableCell align="right">Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -190,7 +190,6 @@ const AdminDealerAccount = () => {
           </TableBody>
         </Table>
       </TableContainer>
-      {/* Dropdown Menu */}
       <Menu anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleMenuClose}>
         <MenuItem
           onClick={() => {
@@ -199,79 +198,14 @@ const AdminDealerAccount = () => {
             handleMenuClose();
           }}
         >
-          View
+          View Info
         </MenuItem>
+        <MenuItem onClick={() => handleResellers(userToDelete)}>Resellers</MenuItem>
         <MenuItem onClick={() => handleDelete(userToDelete)}>Delete</MenuItem>
       </Menu>
-      <Dialog open={viewModalOpen} onClose={() => setViewModalOpen(false)} fullWidth maxWidth="md">
-        <DialogTitle>User Details</DialogTitle>
-        <DialogContent>
-          <Typography variant="body1">
-            <strong>First Name:</strong> {userToView?.firstName || 'N/A'}
-          </Typography>
-          <Typography variant="body1">
-            <strong>Last Name:</strong> {userToView?.lastName || 'N/A'}
-          </Typography>
-          <Typography variant="body1">
-            <strong>Designation:</strong> {userToView?.designation || 'N/A'}
-          </Typography>
-          <Typography variant="body1">
-            <strong>Email:</strong> {userToView?.email || 'N/A'}
-          </Typography>
-          <Typography variant="body1">
-            <strong>Mobile Number:</strong> {userToView?.mobileNumber || 'N/A'}
-          </Typography>
-          <Typography variant="body1">
-            <strong>Country:</strong> {userToView?.country || 'N/A'}
-          </Typography>
-          <Typography variant="body1">
-            <strong>IP Address:</strong> {userToView?.ipAddress || 'N/A'}
-          </Typography>
-          <Typography variant="body1">
-            <strong>Username:</strong> {userToView?.username || 'N/A'}
-          </Typography>
-          <Typography variant="body1">
-            <strong>Role:</strong> {userToView?.role || 'N/A'}
-          </Typography>
-          <Typography variant="body1">
-            <strong>Is Active:</strong> {userToView?.isActive ? 'Yes' : 'No'}
-          </Typography>
-          <Typography variant="body1">
-            <strong>Failed Login Attempts:</strong> {userToView?.failedLoginAttempts || 0}
-          </Typography>
-          <Typography variant="body1">
-            <strong>Last Failed Login:</strong> {userToView?.lastFailedLogin || 'N/A'}
-          </Typography>
-          <Typography variant="body1">
-            <strong>Account Status:</strong> {userToView?.accountStatus || 'N/A'}
-          </Typography>
-          <Typography variant="body1">
-            <strong>Is Google User:</strong> {userToView?.isGoogleUser ? 'Yes' : 'No'}
-          </Typography>
-          <Typography variant="body1">
-            <strong>Mobile Number Verified:</strong> {userToView?.mobileNumberVerified ? 'Yes' : 'No'}
-          </Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setViewModalOpen(false)} color="primary">
-            Close
-          </Button>
-        </DialogActions>
-      </Dialog>
-      <Dialog open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)}>
-        <DialogTitle>Confirm Deletion</DialogTitle>
-        <DialogContent>
-          <DialogContentText>Are you sure you want to delete this user and their store?</DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDeleteModalOpen(false)} color="primary">
-            Cancel
-          </Button>
-          <Button onClick={confirmDelete} color="primary" startIcon={<DeleteIcon />}>
-            Delete
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <ViewUserModal open={viewModalOpen} onClose={() => setViewModalOpen(false)} user={userToView} />
+      <ResellersModal open={resellersModalOpen} onClose={() => setResellersModalOpen(false)} userId={userToDelete} />
+      <DeleteUserModal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)} onConfirm={confirmDelete} />
     </Card>
   );
 };
