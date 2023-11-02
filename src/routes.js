@@ -38,6 +38,7 @@ import ManageReseller from './pages/DealerPages/ManageReseller';
 import VortexTopUp from './pages/VortexPages/VortexTopUp';
 import VortexContext from './Vortex/context/VortexContext';
 import AdminDealerAccount from './pages/AdminPages/AdminDealerAccount';
+import { excludedPaths } from './components/subdomain/ExcludedPaths';
 
 // ----------------------------------------------------------------------
 
@@ -71,6 +72,10 @@ export default function Router() {
       '/transactions',
       '/404',
     ];
+
+    if (excludedPaths.some((path) => currentPath.includes(path))) {
+      return;
+    }
 
     if (noRedirectPaths.some((path) => currentPath.includes(path))) {
       return;
