@@ -17,7 +17,6 @@ import {
   MenuItem,
   CircularProgress,
   TablePagination,
-  Select,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -403,9 +402,6 @@ const ManageReseller = () => {
 
   const fetchData = async () => {
     setLoading(true);
-    const timeoutId = setTimeout(() => {
-      setShowSpinner(true);
-    }, 2000);
 
     try {
       const fetchedResellers = await fetchResellersForUser(userId);
@@ -413,16 +409,14 @@ const ManageReseller = () => {
       setDataLoaded(true);
     } catch (error) {
       console.error('Error fetching data:', error);
+    } finally {
+      setLoading(false);
     }
-
-    clearTimeout(timeoutId);
-    setLoading(false);
-    setShowSpinner(false);
   };
 
   useEffect(() => {
     fetchData();
-  }, [userId]);
+  }, []);
 
   useEffect(() => {
     const activeResellers = resellers.filter((r) => r.status === 'Active');
