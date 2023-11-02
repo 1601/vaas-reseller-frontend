@@ -1,4 +1,5 @@
-const prod = "https://sparkle-sandbox.onrender.com/api"
+const prod = "https://sparkle-wallet-production.herokuapp.com/api"
+// "https://sparkle-sandbox.onrender.com/api"
 // let dev = "https://com-sparkle-stage.herokuapp.com/api"
 // let local = "http://localhost:8001/api"
 
