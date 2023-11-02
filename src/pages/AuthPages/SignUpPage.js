@@ -560,8 +560,7 @@ export default function SignUpPage() {
   const isXs = useMediaQuery(theme.breakpoints.up('xs')); // You can adjust the breakpoint
   const isSm = useMediaQuery(theme.breakpoints.up('sm'));
   const isMd= useMediaQuery(theme.breakpoints.up('md'));
-  const customPixel = useMediaQuery('(min-width:900px) and (max-width:1120px)');
-  // const isTabletView = useMediaQuery(theme.breakpoints.up('md'));
+
 
   const imageStyles = {
     width: '100%',

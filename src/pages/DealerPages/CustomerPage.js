@@ -36,7 +36,7 @@ import AccountStatusModal from '../../components/user-account/AccountStatusModal
 import StoreDataFetch from '../../components/user-account/StoreDataFetch';
 import CustomersTabs from '../../components/customer/customerTab'
 // sections
-import { UserListHead, UserListToolbar } from '../../sections/@dashboard/user';
+import CustomerListToolbar  from '../../components/customer/customerListToolbar';
 import { allCustomers } from '../../api/public/customer';
 // mock
 import USERLIST from '../../_mock/user';
@@ -210,7 +210,6 @@ export default function CustomerPage() {
     allcustomers();
   }, [])
 
-  useEffect(() => { console.log(selectedRow) }, [selectedRow])
 
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - userList.length) : 0;
 
@@ -241,7 +240,7 @@ export default function CustomerPage() {
               deactivatedCount={deactivatedCount}
             />
           </div>
-          <UserListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
+          <CustomerListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
           <Scrollbar>
             <TableContainer sx={{ minWidth: 800 , padding:'20px'}}>
               <Table>
