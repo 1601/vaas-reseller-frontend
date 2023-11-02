@@ -32,7 +32,8 @@ import { validateName, validateEmail, validateMobileNumber } from '../../compone
 
 const ProfileSettings = () => {
   const navigate = useNavigate();
-  const userId = JSON.parse(localStorage.getItem('user'))._id;
+  const user = JSON.parse(localStorage.getItem('user'));
+  const userId = user?._id || (user && user.id);
   const userData = UserDataFetch(userId);
   const { storeData, error } = StoreDataFetch(userId);
   const [validationErrors, setValidationErrors] = useState({});
@@ -266,9 +267,12 @@ const ProfileSettings = () => {
     const { value } = event.target;
 
     if (!formState.country) {
-        setValidationErrors((prevErrors) => ({ ...prevErrors, mobileNumber: 'Country is required to validate mobile number.' }));
-        handleInputChange(event);
-        return;
+      setValidationErrors((prevErrors) => ({
+        ...prevErrors,
+        mobileNumber: 'Country is required to validate mobile number.',
+      }));
+      handleInputChange(event);
+      return;
     }
 
     const strippedNumber = value?.replace(countryCodes[formState.country] || '', '');
@@ -277,8 +281,7 @@ const ProfileSettings = () => {
     setValidationErrors((prevErrors) => ({ ...prevErrors, mobileNumber: validationError }));
 
     handleInputChange(event);
-};
-
+  };
 
   const handleEditClick = () => {
     const countryCode = countryCodes[userData?.country];
