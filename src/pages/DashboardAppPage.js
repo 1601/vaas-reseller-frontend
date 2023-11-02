@@ -78,10 +78,10 @@ export default function DashboardAppPage() {
 
   const trialMessageCard =
     kycApprove !== 2 &&
-      daysLeft !== null &&
-      userData &&
-      userData.accountStatus !== 'Suspended' &&
-      userData.accountStatus !== 'Deactivated' ? (
+    daysLeft !== null &&
+    userData &&
+    userData.accountStatus !== 'Suspended' &&
+    userData.accountStatus !== 'Deactivated' ? (
       <Card sx={{ mb: 5, p: 3, textAlign: 'center', backgroundColor: 'error.light' }}>
         <CardContent>
           <Typography variant="h5" color="error.dark">
@@ -91,16 +91,15 @@ export default function DashboardAppPage() {
       </Card>
     ) : null;
 
-
   const verificationCard =
     userData &&
-      (!userData.mobileNumberVerified ||
-        !userData.isActive ||
-        !userData.designation ||
-        !userData.country ||
-        !userData.mobileNumber ||
-        !userData.username ||
-        !userData.hasPassword) ? (
+    (!userData.mobileNumberVerified ||
+      !userData.isActive ||
+      !userData.designation ||
+      !userData.country ||
+      !userData.mobileNumber ||
+      !userData.username ||
+      !userData.hasPassword) ? (
       <Card sx={{ mb: 5, p: 3, textAlign: 'center', backgroundColor: 'rgba(173, 216, 230, 0.5)' }}>
         <CardContent>
           <Typography variant="h5" color="primary.dark" sx={{ mb: 2 }}>
@@ -111,8 +110,8 @@ export default function DashboardAppPage() {
                 !userData.mobileNumber ||
                 !userData.username ||
                 !userData.hasPassword
-                ? 'Please complete your profile information'
-                : 'Please complete your profile information and ensure verifications are complete.'}
+              ? 'Please complete your profile information'
+              : 'Please complete your profile information and ensure verifications are complete.'}
           </Typography>
           <Button variant="contained" color="primary" href="/dashboard/settings/profile">
             Proceed to Settings
@@ -128,7 +127,7 @@ export default function DashboardAppPage() {
       </Helmet>
 
       <Container maxWidth="xl">
-        {trialMessageCard && verificationCard ?
+        {trialMessageCard || verificationCard ? (
           <>
             <Typography variant="h4" sx={{ mb: 5 }}>
               Hi, Welcome back
@@ -145,7 +144,12 @@ export default function DashboardAppPage() {
               </Grid>
 
               <Grid item xs={12} sm={6} md={3}>
-                <AppWidgetSummary title="Item Orders" total={1723315} color="warning" icon={'ant-design:windows-filled'} />
+                <AppWidgetSummary
+                  title="Item Orders"
+                  total={1723315}
+                  color="warning"
+                  icon={'ant-design:windows-filled'}
+                />
               </Grid>
 
               <Grid item xs={12} sm={6} md={3}>
@@ -248,7 +252,8 @@ export default function DashboardAppPage() {
                   list={[
                     {
                       title: 'New Egifts Available',
-                      description: 'Exciting news! New Egifts from your favorite brands are now available in our store.',
+                      description:
+                        'Exciting news! New Egifts from your favorite brands are now available in our store.',
                     },
                     {
                       title: 'Instant Top-up',
@@ -337,7 +342,12 @@ export default function DashboardAppPage() {
                 />
               </Grid>
             </Grid>
-          </> : <CircularLoading />}
+          </>
+        ) : (
+          <Typography variant="h4" sx={{ mb: 5, textAlign: 'center' }}>
+            Welcome to VAAS Dealer Portal
+          </Typography>
+        )}
       </Container>
       <AccountStatusModal open userData={userData} storeData={storeData} />
     </>
