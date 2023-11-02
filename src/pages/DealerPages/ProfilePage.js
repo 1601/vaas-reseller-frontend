@@ -21,7 +21,8 @@ import { countryCodes } from '../../components/country/countryNumCodes';
 import ValidatedTextField from '../../components/validation/ValidatedTextField';
 
 const ProfilePage = () => {
-  const userId = JSON.parse(localStorage.getItem('user'))._id;
+  const user = JSON.parse(localStorage.getItem('user'));
+  const userId = user?._id || (user && user.id);
   const userData = UserDataFetch(userId);
   const { storeData, error } = StoreDataFetch(userId);
 
