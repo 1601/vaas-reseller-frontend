@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import axios from 'axios';
 import { useStore } from './StoreContext';
+import { excludedPaths } from './components/subdomain/ExcludedPaths';
 
 const SubdomainHandler = () => {
   const { setStoreData, setHasSubdomain } = useStore();
@@ -10,6 +11,11 @@ const SubdomainHandler = () => {
     const hostname = window.location.hostname;
     const pathname = window.location.pathname;
     const parts = hostname.split('.');
+
+    if (excludedPaths.some((path) => pathname.includes(path))) {
+      setHasSubdomain(false);
+      return;
+    }
 
     let storeUrl;
 
