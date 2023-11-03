@@ -14,17 +14,23 @@ export const saveVortexTopUpTransaction = async ({ referenceNumber, transactionD
     const customer = ls.get("currentCustomer")
 
     console.log(store)
-
+    
+    // Default values
+    const defaultReferenceNumber = '123456789'; 
+    const defaultUserId = 'Guest'; 
+    const defaultStoreId = 'default_store_id'; 
+    const defaultCustomerId = 'guest_id';
+    
     const reqBody = {
-      "referenceNumber": referenceNumber,
-      "userId": `${userId}`,
-      "transactionData": JSON.stringify(transactionData),
+      "referenceNumber": referenceNumber || defaultReferenceNumber,
+      "userId": userId || defaultUserId,
+      "transactionData": JSON.stringify(transactionData || { "message": "default message" }),
       "requestInputPayload": JSON.stringify(requestInputPayload),
-      "paymentId": paymentId,
+      "paymentId": paymentId || 'default_payment_id',
       "totalAmount": totalAmount,
-      "store": store?._id,
-      "customer": customer?._id
-    }
+      "store": store?._id || defaultStoreId,
+      "customer": customer?._id || defaultCustomerId
+    };
 
     return await fetch(`${API}/vortex/transaction/topup`, {
       method: "POST",
