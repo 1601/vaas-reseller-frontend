@@ -106,7 +106,7 @@ const topUpProducts = [];
 const VortexTopUp = () => {
   // const params = useParams()
 
-  const forApi = signIn("ilagandarlomiguel@gmail.com", "GrindGr@titud3")
+  const forApi = signIn('ilagandarlomiguel@gmail.com', 'GrindGr@titud3');
 
   const defaultPlatformVariables = {
     billsCurrencyToPeso: 1,
@@ -577,13 +577,16 @@ const VortexTopUp = () => {
                   }}
                 >
                   {Array.isArray(brands) &&
-                    brands.map((brand) => (
+                    brands.map((brand, index) => (
                       <div
+                        key={index}
                         style={{
                           flexShrink: 0,
-                          margin: '0.001em',
-                          width: '135px',
-                          height: '135px',
+                          width: '115px',
+                          height: '115px',
+                          display: 'flex', 
+                          justifyContent: 'center',
+                          alignItems: 'center', 
                         }}
                       >
                         <VortexProductBrandCard
