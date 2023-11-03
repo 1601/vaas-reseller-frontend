@@ -292,8 +292,11 @@ const ManageReseller = () => {
       try {
         const prefix = countryCodes[formState.country];
 
+        const companyName = formState.companyName || 'N/A';
+
         const requestData = {
           ...formState,
+          companyName,
           mobileNumber: prefix + formState.mobileNumber,
         };
 
