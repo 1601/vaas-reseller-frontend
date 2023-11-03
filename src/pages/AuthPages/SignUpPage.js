@@ -74,8 +74,8 @@ const StyledContent = styled('div')(({ theme }) => ({
   marginLeft: '100px',
   marginRight: '100px',
   [theme.breakpoints.down('lg')]: {
-    marginLeft: '50px',
-    marginRight: '50px'
+    marginLeft: '40px',
+    marginRight: '40px'
   },
   [theme.breakpoints.down('sm')]: {
     marginLeft: '10px',
@@ -560,8 +560,7 @@ export default function SignUpPage() {
   const isXs = useMediaQuery(theme.breakpoints.up('xs')); // You can adjust the breakpoint
   const isSm = useMediaQuery(theme.breakpoints.up('sm'));
   const isMd= useMediaQuery(theme.breakpoints.up('md'));
-  const customPixel = useMediaQuery('(min-width:900px) and (max-width:1120px)');
-  // const isTabletView = useMediaQuery(theme.breakpoints.up('md'));
+
 
   const imageStyles = {
     width: '100%',
@@ -589,10 +588,8 @@ export default function SignUpPage() {
   }
 
   const ssoStyles = {
-    fontSize: '.5rem',
-    ...(isXs && {
-      fontSize: '.5rem'
-    })
+    fontSize: '.8rem',
+    maxWidth: '100%'
   }
 
   const formContainer = {
@@ -1053,7 +1050,9 @@ export default function SignUpPage() {
                         disabled={!isTermsAccepted}
                         sx={ssoStyles}
                       >
-                        Sign Up with Google
+                        <Typography sx={ssoStyles}>
+                          Sign Up with Google
+                        </Typography>
                       </Button>
                     </Grid>
                     <Grid item xs={12} sm={12} md={6} lg={6}>
@@ -1065,9 +1064,11 @@ export default function SignUpPage() {
                         startIcon={<Iconify icon="eva:facebook-fill" color="#1877F2" width={22} height={22} />}
                         disabled={!isTermsAccepted}
                         onClick={handleFacebookSignUp}
-                        sx={ssoStyles}
                       >
-                        Sign Up with Facebook
+                        
+                        <Typography sx={ssoStyles}>
+                          Sign Up with Facebook
+                        </Typography>
                       </Button>
                     </Grid>
                   </Grid>

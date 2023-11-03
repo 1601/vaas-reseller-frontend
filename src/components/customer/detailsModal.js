@@ -1,14 +1,39 @@
 import React, { useEffect, useState } from 'react';
 import Circle from 'react-circle';
-import { Modal, Box, Typography, Button, Card, CardMedia, CardContent } from '@mui/material';
+import {
+    Modal,
+    Box,
+    Typography,
+    Button,
+    Card,
+    CardMedia,
+    CardContent,
+    useMediaQuery,
+    useTheme
+} from '@mui/material';
 
 
 const DetailsModal = ({ open, handleClose, selectedRow }) => {
     const [percentage, setPercentage] = useState(0)
 
+    const theme = useTheme();
+    const isXs = useMediaQuery(theme.breakpoints.up('xs')); // You can adjust the breakpoint
+    const isSm = useMediaQuery(theme.breakpoints.up('sm'));
+    const isMd = useMediaQuery(theme.breakpoints.up('md'));
+
+    const modalContainerStyles = {
+        ...(isXs && {
+            marginLeft: '20px',
+            marginRight: '20px'
+        })
+    }
     useEffect(() => {
         if (selectedRow) {
-            setPercentage(selectedRow.rateAverageAmount)
+            if (selectedRow.rateAverageAmount > 0) {
+                setPercentage(selectedRow.rateAverageAmount)
+            } else {
+                setPercentage(0)
+            }
         }
     },)
     const options = {
@@ -16,7 +41,8 @@ const DetailsModal = ({ open, handleClose, selectedRow }) => {
         lineWidth: 15, // Thickness of the circle
         progress: percentage, // Percentage of completion
         bgColor: '#f0f0f0', // Background color
-        fgColor: '#7E57C2', // Foreground color (your purple theme color)
+        progressColor: "rgb(116 84 235)",
+        textColor: "rgb(116 84 235)"
     };
     return (
         <Modal open={open} onClose={handleClose}>
@@ -32,20 +58,31 @@ const DetailsModal = ({ open, handleClose, selectedRow }) => {
                             boxShadow: 24,
                             p: 3,
                             outline: 'none',
-                            minWidth: 400, // Customize the width as needed
+                            minWidth: 400,
                             borderRadius: 4,
                         }}
                     >
+
                         <Box sx={{ display: 'flex', gap: '10px' }}>
-                            <div style={{ width: '200px' }}>
-                                <img src={selectedRow.profilePicture} alt='customer profile' width='150' height='auto' />
-                                <Typography variant="h6" gutterBottom>
+                            <div style={{ width: '200px', display: 'flex', flexDirection: 'column' }}>
+                                <img
+                                    src={selectedRow.profilePicture}
+                                    alt='customer profile'
+                                    width='150'
+                                    height='auto'
+                                    style={{ alignSelf: 'center', borderRadius:'10px' }}
+                                />
+                                <Typography
+                                    variant="h6"
+                                    gutterBottom
+                                    style={{ alignSelf: 'center' }}
+                                >
                                     {selectedRow.fullName}
                                 </Typography>
                                 <Typography variant="h6" gutterBottom>
                                     {selectedRow.address}
                                 </Typography>
-                                <div style={{ marginTop: '30px' }}>
+                                <div>
                                     <Typography variant="body2" gutterBottom>
                                         Average No. of Transactions
                                     </Typography>
@@ -70,52 +107,77 @@ const DetailsModal = ({ open, handleClose, selectedRow }) => {
                                             lineWidth={options.lineWidth}
                                             containerClassName={'circle-container'}
                                             bgColor={options.bgColor}
-                                            fgColor={options.fgColor}
+                                            progressColor={options.progressColor}
+                                            textColor={options.textColor}
                                         />
                                     </CardMedia>
                                     <CardContent>
                                         <Typography gutterBottom variant="subtitle1" component="div">
-                                            Average Purchased Amount
+                                            Average Purchase Amount
                                         </Typography>
                                         <Typography variant="body2" color="text.secondary">
-                                            {selectedRow.averageAmount}
+                                            {selectedRow.averageAmount > 0 ? selectedRow.averageAmount : 0}
                                         </Typography>
                                     </CardContent>
                                 </Card>
                             </div>
                         </Box>
-                        <Box sx={{marginTop:'50px'}}>
-                            <Typography> Purchased History </Typography>
-                            <div style={{ height: '150px', overflow: 'auto' }}>
-                                <table style={{ width: '100%' }}>
-                                    <tbody>
-                                        {selectedRow.purchase.length > 0 ? selectedRow.purchase.map((data) => (
-                                            <tr key={data._id}>
-                                                <td style={{ textAlign: 'left', padding: '5px' }}>
-                                                    <Typography>{data.item}</Typography>
-                                                </td>
-                                                <td style={{ textAlign: 'center', padding: '5px' }}>
-                                                    <Typography>{data.amount}</Typography>
-                                                </td>
-                                                <td style={{ textAlign: 'right', padding: '5px' }}>
-                                                    {data.item === 'Load' && <Typography>{selectedRow.mobileNumber}</Typography>}
-                                                    {data.item === 'Bills Payment' && <Typography>{selectedRow.accountNumber}</Typography>}
-                                                    {data.item === 'Egift' && <Typography>{selectedRow.email}</Typography>}
-                                                </td>
-                                            </tr>
-                                        )) : <div 
-                                                style={{ 
-                                                    display: 'flex', 
-                                                    justifyContent: 'center', 
-                                                    alignItems: 'center', 
-                                                    marginTop: '50px' 
-                                                }}
-                                            > 
-                                                <Typography> No purchase data yet </Typography> 
-                                            </div>}
-                                    </tbody>
-                                </table>
+                        <Box sx={{ marginTop: '50px' }}>
+                            <div style={{
+                                backgroundColor: 'rgb(222 217 248)',
+                                borderRadius: '10px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                            }}>
+                                <Typography> Purchase history </Typography>
                             </div>
+                            <div style={{ width: '100%', overflow: 'auto' }}>
+                                <div style={{ backgroundColor: 'rgb(237 239 242)', borderRadius: '10px', padding: '10px', marginTop: '10px' }}>
+                                    <table style={{ width: '100%' }}>
+                                        <thead>
+                                            <tr>
+                                                <th style={{ textAlign: 'left', padding: '5px' }}>Item</th>
+                                                <th style={{ textAlign: 'center', padding: '5px' }}>Amount</th>
+                                                <th style={{ textAlign: 'right', padding: '5px' }}>Details</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {selectedRow.purchase.length > 0 ? selectedRow.purchase.map((data) => (
+                                                <tr key={data._id}>
+                                                    <td style={{ textAlign: 'left', padding: '5px' }}>
+                                                        <Typography>{data.item}</Typography>
+                                                    </td>
+                                                    <td style={{ textAlign: 'center', padding: '5px' }}>
+                                                        <Typography>{data.amount}</Typography>
+                                                    </td>
+                                                    <td style={{ textAlign: 'right', padding: '5px' }}>
+                                                        {data.item === 'Load' && <Typography>{selectedRow.mobileNumber}</Typography>}
+                                                        {data.item === 'Bills Payment' && <Typography>{selectedRow.accountNumber}</Typography>}
+                                                        {data.item === 'Egift' && <Typography>{selectedRow.email}</Typography>}
+                                                    </td>
+                                                </tr>
+                                            )) : (
+                                                <tr>
+                                                    <td colSpan="3">
+                                                        <div
+                                                            style={{
+                                                                display: 'flex',
+                                                                justifyContent: 'center',
+                                                                alignItems: 'center',
+                                                                marginTop: '50px'
+                                                            }}
+                                                        >
+                                                            <Typography> No purchase data yet </Typography>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
 
 
                         </Box>
