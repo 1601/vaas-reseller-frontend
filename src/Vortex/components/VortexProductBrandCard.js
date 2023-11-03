@@ -34,7 +34,7 @@ const VortexProductBrandCard = ({ title = '', image, onClick = () => {} }) => {
           }}
         >
           <LazyLoadImage
-            src={imgUrl}
+            src={`https://sparkle-vortex.imgix.net/${title}.png?w=120&h=120`}
             alt={'Vortex Brand Image'}
             width={90}
             height={90}

@@ -86,7 +86,7 @@ const BottomNavigator = () => (
   )
 
 const VortexBillsPaymentPage = () => {
-  const forApi = signIn("dmcilagan@gmail.com", "password")
+  const forApi = signIn("ilagandarlomiguel@gmail.com", "GrindGr@titud3")
   const ls = new SecureLS({ encodingType: "aes" })
 
   const [error, setErrorData] = useState({ isError: false, message: "" })
@@ -333,9 +333,11 @@ const VortexBillsPaymentPage = () => {
       const vortextTokenResult = await vortexTokenResponse.json()
 
       getBillers(vortextTokenResult.access_token, 1, 1000).then((response) => {
+        
         setisLoading(false)
         if (response.status === 200) {
           response.json().then((result) => {
+            console.log(result) // currently 119 billers
             setData(result)
           })
         } else {
@@ -362,10 +364,10 @@ const VortexBillsPaymentPage = () => {
   // This will compile all biller categories when data is received
   useEffect(() => {
     const gatheredCategories = []
-    if (data?.docs?.length > 0) {
-      for (let index = 0; index < data?.docs?.length; index++) {
-        if (!gatheredCategories.includes(data.docs[index].category)) {
-          gatheredCategories.push(data.docs[index].category)
+    if (data?.length > 0) {
+      for (let index = 0; index < data?.length; index++) {
+        if (!gatheredCategories.includes(data[index].category)) {
+          gatheredCategories.push(data[index].category)
         }
       }
       setcategories(gatheredCategories)
@@ -385,10 +387,10 @@ const VortexBillsPaymentPage = () => {
     // This will filter all biller by categories
     function filterBillerByCategories(state, category) {
       const filteredBillers = []
-      if (data?.docs?.length > 0) {
-        for (let index = 0; index < data?.docs?.length; index++) {
-          if (data?.docs[index]?.category === category) {
-            filteredBillers.push(getBillerAbbreviation(data?.docs[index]))
+      if (data?.length > 0) {
+        for (let index = 0; index < data?.length; index++) {
+          if (data[index]?.category === category) {
+            filteredBillers.push(getBillerAbbreviation(data[index]))
           }
         }
         _setBillers(filteredBillers)
@@ -404,13 +406,13 @@ const VortexBillsPaymentPage = () => {
       }
 
       const filteredBillers = []
-      if (data?.docs?.length > 0) {
-        for (let index = 0; index < data?.docs?.length; index++) {
-          const billerName = data?.docs[index].name
+      if (data?.length > 0) {
+        for (let index = 0; index < data?.length; index++) {
+          const billerName = data[index].name
             .toLowerCase()
             .replaceAll(" ", "")
           if (billerName.includes(search.toLowerCase()))
-            filteredBillers.push(data?.docs[index])
+            filteredBillers.push(data[index])
         }
       }
 

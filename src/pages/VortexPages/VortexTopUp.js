@@ -106,16 +106,16 @@ const topUpProducts = [];
 const VortexTopUp = () => {
   // const params = useParams()
 
-  const forApi = signIn('dmcilagan@gmail.com', 'password');
+  const forApi = signIn("ilagandarlomiguel@gmail.com", "GrindGr@titud3")
 
   const defaultPlatformVariables = {
-    billsCurrencyToPeso: 14,
-    topupCurrencyToPeso: 12,
-    giftCurrencyToPeso: 14,
+    billsCurrencyToPeso: 1,
+    topupCurrencyToPeso: 1,
+    giftCurrencyToPeso: 1,
     billsConvenienceFee: 5.25,
     topupConvenienceFee: 0,
     createdAt: '2022-07-20T13:37:28.743Z',
-    currencySymbol: 'AED',
+    currencySymbol: 'PHP',
     enableBills: true,
     enableGift: true,
     enableLoad: true,
