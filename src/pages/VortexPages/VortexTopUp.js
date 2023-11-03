@@ -981,7 +981,7 @@ const VortexTopUp = () => {
                 <Box height={20} />
                 <Button
                   disabled={isLoadingTransaction}
-                  variant="contained"
+                  variant="outlined"
                   onClick={async () => {
                     const url = 'https://pm.link/123123123123123za23/test/DGSwn7b';
                     window.open(url, '_blank');
