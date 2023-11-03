@@ -87,8 +87,6 @@ const StyledContent = styled('div')(({ theme }) => ({
   flexDirection: 'column',
 }));
 
-
-
 function TermsDialog({ open, onClose, onAgree }) {
   const [isScrolledToEnd, setIsScrolledToEnd] = useState(false);
 
@@ -117,7 +115,7 @@ function TermsDialog({ open, onClose, onAgree }) {
           Close
         </Button>
         <Button onClick={onAgree} color="primary" disabled={!isScrolledToEnd}>
-          Agree to Terms
+          {isScrolledToEnd ? 'Agree to Terms' : 'Scroll to Agree to Terms'}
         </Button>
       </DialogActions>
     </Dialog>
