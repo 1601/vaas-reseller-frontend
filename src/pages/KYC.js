@@ -192,25 +192,25 @@ export default function KYC() {
       if(values[1] === ''){
         return setIsError({
           ...isError,
-          streetAddress: 'This is a required field'
+          streetAddress: 'Street address is required'
         })
       }
       if(values[2] === ''){
         return setIsError({
           ...isError,
-          cityAddress:'This is a required field'
+          cityAddress:'City address is required'
         })
       }
       if(values[3] === ''){
         return setIsError({
           ...isError,
-          regionAddress:'This is a required field'
+          regionAddress:'Region address is required'
         })
       }
       if(values[4] === ''){
         return setIsError({
           ...isError,
-          zipCodeAddress:'This is a required field'
+          zipCodeAddress:'Zip code is required'
         })
       }
       if(values[6] <= 0){
@@ -222,7 +222,7 @@ export default function KYC() {
       if(values[7] === ''){
         return setIsError({
           ...isError,
-          uniqueIdentifier:'This is a required field'
+          uniqueIdentifier:'Unique identifier is required'
         })
       }
     }
@@ -252,21 +252,9 @@ export default function KYC() {
     setActiveStep((prevStep) => prevStep - 1);
   };
 
-  // const handleFileChange = (event) => {
-  //   const file = event.target.files[0];
-  //   setSelectedImage([...selectedImage, file]);
-  // };
-
-  // const handleDocsChange = (event) => {
-  //   const file = event.target.files[0];
-  //   setSelectedDocs([...selectedDocs, file])
-  // }
-
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    
-    
     // Merge textFieldsData into formData
     const mergedFormData = {
       ...formData,
@@ -275,6 +263,7 @@ export default function KYC() {
 
     // Send formData to the backend API
     try {
+      setPreload(1)
       const result = await postDataKyc(mergedFormData);
       if (result.status === 200) {
         // Submit File 
@@ -286,8 +275,7 @@ export default function KYC() {
         if (fileResult.status === 200) {
           const userData = JSON.parse(localStorage.getItem('user'));
           const userId = userData._id;
-
-          await axios.put(`${process.env.REACT_APP_BACKEND_URL}/v1/api/kyc/submit`, {}, {
+          const submitted = await axios.put(`${process.env.REACT_APP_BACKEND_URL}/v1/api/kyc/submit`, {}, {
             headers: {
               Authorization: `Bearer ${userId}`
             }
@@ -298,15 +286,14 @@ export default function KYC() {
           setLinkFieldsData([{ externalLinkAccount: '' }])
           setSelectedDocs([])
           setSelectedImage([])
-          setPreload(1)
-          setTimeout(() => {
+          if(submitted){
             setPreload(2)
-          }, 1000)
-
+          }
+          handleProceed();
         }
       }
     } catch (error) {
-      window.alert('Error')
+      window.alert('Please check, One of the data is undefined');
     }
   };
 
@@ -583,8 +570,8 @@ export default function KYC() {
                               ),
                             }}
                           />
+                          {isError.cityAddress &&(<ErrorMessage label={isError.cityAddress}/>)}
                         </Grid>
-                        {isError.cityAddress &&(<ErrorMessage label={isError.cityAddress}/>)}
 
                         {/* Region Address */}
                         <Grid item xs={12} md={4}>
@@ -598,8 +585,8 @@ export default function KYC() {
                             value={formData.regionAddress}
                             onChange={handleInputChange}
                           />
+                          {isError.regionAddress &&(<ErrorMessage label={isError.regionAddress}/>)}
                         </Grid>
-                        {isError.regionAddress &&(<ErrorMessage label={isError.regionAddress}/>)}
 
                         {/* Zip Code Address */}
                         <Grid item xs={12} md={4}>
@@ -613,9 +600,10 @@ export default function KYC() {
                             value={formData.zipCodeAddress}
                             onChange={handleInputChange}
                           />
+                          {isError.zipCodeAddress &&(<ErrorMessage label={isError.zipCodeAddress}/>)}
                         </Grid>
                       </Grid>
-                      {isError.regionAddress &&(<ErrorMessage label={isError.zipCodeAddress}/>)}
+                     
                       {/* Physical Store Checkbox */}
                       <FormControlLabel
                         control={<Checkbox name="physicalStore" checked={formData.physicalStore} onChange={handleInputChange} />}
@@ -815,14 +803,6 @@ export default function KYC() {
                       <HoverableButton {...getRootProps()}>
                         <div>
                           <input {...getInputProps()} />
-                          {/* <input
-                            ref={fileInputRef}
-                            type="file"
-                            multiple
-                            onChange={handleFileChange}
-                            style={{ display: 'none' }}
-                            id="file-input"
-                          />  */}
                           <Button
                             variant="contained"
                             color="primary"
@@ -844,30 +824,7 @@ export default function KYC() {
                             }
                           </Box>
                         </div>
-                         {/* <input
-                          ref={fileInputRef}
-                          type="file"
-                          multiple
-                          onChange={handleFileChange}
-                          style={{ display: 'none' }}
-                          id="file-input"
-                        /> 
-                        <Button
-                          variant="contained"
-                          color="primary"
-                          component="span"
-                          startIcon={<CloudUploadIcon />}
-                          onClick={() => {
-                            if (fileInputRef.current) {
-                              fileInputRef.current.click();
-                            }
-                          }}
-                        >
-                          Select File
-                        </Button> */}
-
                         {/* </label> */}
-
                         <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', marginTop: '10px' }}>
                           {selectedImage.map((item, index) => (
                             <div
@@ -929,14 +886,6 @@ export default function KYC() {
                       <HoverableButton {...getRootProps()}>
                         <div>
                           <input {...getInputProps()} />
-                          {/* <input
-                            ref={fileInputRef}
-                            type="file"
-                            multiple
-                            onChange={handleFileChange}
-                            style={{ display: 'none' }}
-                            id="file-input"
-                          />  */}
                           <Button
                             variant="contained"
                             color="primary"
@@ -958,27 +907,6 @@ export default function KYC() {
                             }
                           </Box>
                         </div>
-                         {/* <input
-                          ref={fileInputRef}
-                          type="file"
-                          multiple
-                          onChange={handleFileChange}
-                          style={{ display: 'none' }}
-                          id="file-input"
-                        /> 
-                        <Button
-                          variant="contained"
-                          color="primary"
-                          component="span"
-                          startIcon={<CloudUploadIcon />}
-                          onClick={() => {
-                            if (fileInputRef.current) {
-                              fileInputRef.current.click();
-                            }
-                          }}
-                        >
-                          Select File
-                        </Button> */}
 
                         {/* </label> */}
 
@@ -1007,54 +935,6 @@ export default function KYC() {
                           ))}
                         </div>
                       </HoverableButton>
-                      {/* <HoverableButton>
-                        <input
-                          ref={docsInputRef}
-                          type="file"
-                          multiple
-                          onChange={handleDocsChange}
-                          style={{ display: 'none' }}
-                          id="file-input"
-                        />
-                        <Button
-                          variant="contained"
-                          color="primary"
-                          component="span"
-                          startIcon={<CloudUploadIcon />}
-                          onClick={() => {
-                            if (docsInputRef.current) {
-                              docsInputRef.current.click();
-                            }
-                          }}
-                        >
-                          Select File
-                        </Button>
-                        {/* </label>
-                        <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', marginTop: '10px' }}>
-                          {selectedDocs.map((item, index) => (
-                            <div
-                              key={index}
-                              style={{
-                                backgroundColor: '#873EC0',
-                                borderRadius: '5px',
-                                color: 'white', // Changed text color to white for better contrast
-                                width: '100px', // Increased the width for more space
-                                padding: '8px', // Added padding for better spacing
-                                fontSize: '14px', // Adjusted font size
-                                textAlign: 'center', // Center-align text
-                                whiteSpace: 'nowrap',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                marginRight: '10px',
-                                marginBottom: '10px',
-                                boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.2)', // Added a subtle shadow
-                              }}
-                            >
-                              {item.name}
-                            </div>
-                          ))}
-                        </div>
-                      </HoverableButton> */}
                     </div>
                   </Container>
                 </div>
