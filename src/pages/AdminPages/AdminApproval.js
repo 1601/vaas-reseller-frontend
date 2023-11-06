@@ -51,6 +51,7 @@ const AdminApproval = () => {
         setStoreDetails((prevStoreDetails) => ({
           ...prevStoreDetails,
           needsApproval: !isApproved,
+          isApproved,
         }));
       }
     } catch (error) {
