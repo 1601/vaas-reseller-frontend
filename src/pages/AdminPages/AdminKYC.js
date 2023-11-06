@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Card, Typography, CircularProgress } from '@mui/material';
+import { Card, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import CircularLoading from '../../components/preLoader';
 
 const KYCCard = ({ title, items, onStoreClick }) => (
   <div className="mb-4 w-full">
@@ -83,7 +84,7 @@ const AdminKYC = () => {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
-        <CircularProgress />
+        <CircularLoading />
       </div>
     );
   }
