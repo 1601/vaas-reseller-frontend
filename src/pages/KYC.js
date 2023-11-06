@@ -416,7 +416,7 @@ export default function KYC() {
       {preload === 1 && (<CircularLoading />)}
       <Container maxWidth="md" style={{ textAlign: 'center', marginTop: '50px' }}>
         <Card style={{ paddingTop: '50px', paddingBottom: '50px' }}>
-          {(approvalStatus === 0 || approvalStatus === 3 )&& (
+          {approvalStatus === 0 || approvalStatus === 3 && (
             <Box sx={{ width: '100%', backgroundColor: 'white' }}>
             <Stepper activeStep={activeStep} alternativeLabel>
               {steps.map((label) => (
