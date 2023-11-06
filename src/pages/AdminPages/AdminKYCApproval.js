@@ -68,7 +68,6 @@ const AdminKYCApproval = () => {
         }
       );
       setKYCApproved(false);
-      // You might want to refresh kycDetails or navigate away after rejecting
     } catch (error) {
       console.error('Error rejecting KYC:', error);
     }
