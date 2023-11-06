@@ -388,7 +388,6 @@ export default function KYC() {
 
   const onDrop = useCallback(acceptedFiles => {
     // Do something with the files
-    console.log(acceptedFiles[0])
     const file = acceptedFiles[0]
     if(file.type === 'image/png' || file.type === 'image/jpeg'){
       setSelectedImage((selectedImage) => [...selectedImage, acceptedFiles[0]])

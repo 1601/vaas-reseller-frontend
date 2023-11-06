@@ -77,7 +77,7 @@ function applySortFilter(array, comparator, query) {
     return a[1] - b[1];
   });
   if (query) {
-    return filter(array, (_user) => _user.name.toLowerCase().indexOf(query.toLowerCase()) !== -1);
+    return filter(array, (_user) => _user.fullName.toLowerCase().indexOf(query.toLowerCase()) !== -1);
   }
   return stabilizedThis.map((el) => el[0]);
 }
@@ -86,43 +86,45 @@ function applySortFilter(array, comparator, query) {
 
 export default function CustomerPage() {
   const [open, setOpen] = useState(null);
-
   const [page, setPage] = useState(0);
-
   const [order, setOrder] = useState('asc');
-
   const [selected, setSelected] = useState([]);
-
   const [orderBy, setOrderBy] = useState('name');
-
   const [filterName, setFilterName] = useState('');
-
   const [rowsPerPage, setRowsPerPage] = useState(5);
-
   const userId = JSON.parse(localStorage.getItem('user'))._id;
-
   const userData = UserDataFetch(userId);
-
   const { storeData, editedData, platformVariables, error } = StoreDataFetch(userId);
-
   const [openModal, setOpenModal] = useState(false);
-
   const [selectedRow, setSelectedRow] = useState(null);
   const [currentTab, setCurrentTab] = useState('All');
   const [customers, setCustomers] = useState([]);
   const [activeCount, setActiveCount] = useState(0);
-  const [deactivatedCount, setDeactivatedCount] = useState(0);
+  const [inActiveCount, setInActiveCount] = useState(0);
   const [userList, setUserList] = useState()
+  const [filterCustomer, setFilterCustomer] = useState([])
 
   // const handleOpenMenu = (event) => {
   //   setOpen(event.currentTarget);
   // };
-
+  const storeAllCustomers = (customers) =>{
+    setUserList(customers)
+  }
   const handleCloseMenu = () => {
     setOpen(null);
   };
 
-  const handleTabChange = (event, newValue) => {
+  const handleTabChange = async (event, newValue) => {
+    
+    if(newValue === 'Active'){
+      const actives = userList.filter(data => data.status === true)
+      setFilterCustomer(actives)
+    }else if(newValue === 'Deactivated'){
+      const inActives = userList.filter(data => data.status === false)
+      setFilterCustomer(inActives)
+    }else{
+      setFilterCustomer(userList)
+    }
     setCurrentTab(newValue);
   };
 
@@ -198,22 +200,24 @@ export default function CustomerPage() {
       const customersDetails = customersResult.data.body
 
       setCustomers(customersDetails.length)
-      setUserList(customersDetails)
+      setFilterCustomer(customersDetails)
+      storeAllCustomers(customersDetails)
       customersDetails.forEach((data) => {
         if (data.status === true) {
           setActiveCount((activeCount) => activeCount + 1);
+         
         } else {
-          setDeactivatedCount((deactivatedCount) => deactivatedCount + 1);
+          setInActiveCount((inActiveCount) => inActiveCount + 1);
+         
         }
       });
     }
     allcustomers();
   }, [])
 
-
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - userList.length) : 0;
 
-  const filteredUsers = applySortFilter(USERLIST, getComparator(order, orderBy), filterName);
+  const filteredUsers = applySortFilter(filterCustomer, getComparator(order, orderBy), filterName);
 
   const isNotFound = !filteredUsers.length && !!filterName;
 
@@ -237,7 +241,7 @@ export default function CustomerPage() {
               handleTabChange={handleTabChange}
               customers={customers}
               activeCount={activeCount}
-              deactivatedCount={deactivatedCount}
+              inActiveCount={inActiveCount}
             />
           </div>
           <CustomerListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
@@ -254,8 +258,7 @@ export default function CustomerPage() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {userList && (userList.map((row) => {
-                    console.log(row)
+                  {(!isNotFound && filterCustomer) && (filterCustomer.map((row) => {
                     const { _id, fullName, address, role, status, profilePicture } = row;
                     let Status
                     // convert into string to avoid input error
@@ -297,31 +300,30 @@ export default function CustomerPage() {
                       <TableCell colSpan={6} />
                     </TableRow>
                   )}
+                   {isNotFound && (
+                     <TableRow>
+                     <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
+                       <Paper
+                         sx={{
+                           textAlign: 'center',
+                         }}
+                       >
+                         <Typography variant="h6" paragraph>
+                           Not found
+                         </Typography>
+
+                         <Typography variant="body2">
+                           No results found for &nbsp;
+                           <strong>&quot;{filterName}&quot;</strong>.
+                           <br /> Try checking for typos or using complete words.
+                         </Typography>
+                       </Paper>
+                     </TableCell>
+                   </TableRow>
+                )}
                 </TableBody>
 
-                {isNotFound && (
-                  <TableBody>
-                    <TableRow>
-                      <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
-                        <Paper
-                          sx={{
-                            textAlign: 'center',
-                          }}
-                        >
-                          <Typography variant="h6" paragraph>
-                            Not found
-                          </Typography>
-
-                          <Typography variant="body2">
-                            No results found for &nbsp;
-                            <strong>&quot;{filterName}&quot;</strong>.
-                            <br /> Try checking for typos or using complete words.
-                          </Typography>
-                        </Paper>
-                      </TableCell>
-                    </TableRow>
-                  </TableBody>
-                )}
+               
               </Table>
               <DetailsModal open={openModal} handleClose={handleCloseModal} selectedRow={selectedRow} />
             </TableContainer>

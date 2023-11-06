@@ -1,7 +1,7 @@
 import React from 'react';
 import { Tabs, Tab } from '@mui/material';
 
-const CustomersTabs = ({ currentTab, handleTabChange, customers, activeCount, deactivatedCount }) => {
+const CustomersTabs = ({ currentTab, handleTabChange, customers, activeCount, inActiveCount }) => {
   return (
     <Tabs value={currentTab} onChange={handleTabChange} indicatorColor="primary" textColor="primary">
       <Tab
@@ -55,7 +55,7 @@ const CustomersTabs = ({ currentTab, handleTabChange, customers, activeCount, de
                 marginLeft: '5px',
               }}
             >
-              {deactivatedCount}
+              {inActiveCount}
             </span>
           </div>
         }

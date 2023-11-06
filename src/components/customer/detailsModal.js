@@ -139,7 +139,7 @@ const DetailsModal = ({ open, handleClose, selectedRow }) => {
                                             <tr>
                                                 <th style={{ textAlign: 'left', padding: '5px' }}>Item</th>
                                                 <th style={{ textAlign: 'center', padding: '5px' }}>Amount</th>
-                                                <th style={{ textAlign: 'right', padding: '5px' }}>Details</th>
+                                                <th style={{ textAlign: 'right', padding: '5px' }}> Benef Details</th>
                                             </tr>
                                         </thead>
                                         <tbody>
