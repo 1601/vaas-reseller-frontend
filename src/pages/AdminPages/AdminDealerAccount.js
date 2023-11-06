@@ -5,7 +5,6 @@ import {
   MenuItem,
   Card,
   Typography,
-  CircularProgress,
   Table,
   TableBody,
   TableCell,
@@ -17,6 +16,7 @@ import { MoreVert as MoreVertIcon } from '@mui/icons-material';
 import { ViewUserModal } from '../../components/admin/ViewUserModal';
 import { DeleteUserModal } from '../../components/admin/DeleteUserModal';
 import ResellersModal from '../../components/admin/ResellersModal';
+import CircularLoading from '../../components/preLoader';
 
 const AdminDealerAccount = () => {
   const [users, setUsers] = useState([]);
@@ -124,7 +124,7 @@ const AdminDealerAccount = () => {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
-        <CircularProgress />
+        <CircularLoading />
       </div>
     );
   }
