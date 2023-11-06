@@ -31,7 +31,7 @@ import PlaceIcon from '@mui/icons-material/Place';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import { styled } from '@mui/material/styles';
 import Grid from '@mui/material/Grid';
-import {useDropzone} from 'react-dropzone'
+import { useDropzone } from 'react-dropzone'
 import KycImage from '../images/Rectangle 52.png'
 import UnderReview from '../images/underReview.jpeg'
 import Approved from '../images/approved.png'
@@ -99,14 +99,14 @@ const initialFormData = {
 };
 
 const initialErrorMessage = {
-  customerServiceNumber:'',
-  streetAddress:'',
-  cityAddress:'',
-  regionAddress:'',
-  zipCodeAddress:'',
-  numberOfEmployees:'',
-  uniqueIdentifier:'',
-  externalLinkAccount:''
+  customerServiceNumber: '',
+  streetAddress: '',
+  cityAddress: '',
+  regionAddress: '',
+  zipCodeAddress: '',
+  numberOfEmployees: '',
+  uniqueIdentifier: '',
+  externalLinkAccount: ''
 }
 const CircularLoading = () => (
   <>
@@ -150,7 +150,7 @@ export default function KYC() {
   // const docsInputRef = useRef(null);
   const [businessType, setBusinessType] = useState('');
   const [linkFieldsData, setLinkFieldsData] = useState([{ externalLinkAccount: '' }]);
-  const [approvalStatus, setApprovalStatus] = useState(0)
+  const [approvalStatus, setApprovalStatus] = useState()
   const [preload, setPreload] = useState(0)
   const [autoComplete, setAutoComplete] = useState()
   const [isActive1, setIsActive1] = useState(false);
@@ -172,57 +172,57 @@ export default function KYC() {
   const handleNext = () => {
     const values = Object.values(formData);
     if (activeStep === 1) {
-      if(values[0] !== ''){
+      if (values[0] !== '') {
         const regex = /[a-zA-Z]+/g; // Regular expression to match one or more letters
         const letters = values[0].match(regex);
-        if(letters){
+        if (letters) {
           return setIsError({
             ...isError,
-            customerServiceNumber:'Only valid numbers'
+            customerServiceNumber: 'Only valid numbers'
           })
         }
-      }else{
-       
+      } else {
+
         return setIsError({
           ...isError,
           customerServiceNumber: 'This is a required field'
         })
       }
 
-      if(values[1] === ''){
+      if (values[1] === '') {
         return setIsError({
           ...isError,
           streetAddress: 'Street address is required'
         })
       }
-      if(values[2] === ''){
+      if (values[2] === '') {
         return setIsError({
           ...isError,
-          cityAddress:'City address is required'
+          cityAddress: 'City address is required'
         })
       }
-      if(values[3] === ''){
+      if (values[3] === '') {
         return setIsError({
           ...isError,
-          regionAddress:'Region address is required'
+          regionAddress: 'Region address is required'
         })
       }
-      if(values[4] === ''){
+      if (values[4] === '') {
         return setIsError({
           ...isError,
-          zipCodeAddress:'Zip code is required'
+          zipCodeAddress: 'Zip code is required'
         })
       }
-      if(values[6] <= 0){
+      if (values[6] <= 0) {
         return setIsError({
           ...isError,
-          numberOfEmployees:'Invalid input, need to have greater than 0'
+          numberOfEmployees: 'Invalid input, need to have greater than 0'
         })
       }
-      if(values[7] === ''){
+      if (values[7] === '') {
         return setIsError({
           ...isError,
-          uniqueIdentifier:'Unique identifier is required'
+          uniqueIdentifier: 'Unique identifier is required'
         })
       }
     }
@@ -230,23 +230,23 @@ export default function KYC() {
     return setIsError(initialErrorMessage)
   };
 
-  function ErrorMessage(label){
-    return(
+  function ErrorMessage(label) {
+    return (
       <Box style={{
         marginTop: '0px',
-        marginBottom:'20px',
+        marginBottom: '20px',
         textAlign: 'left',
         borderRadius: '10px',
         width: '100%',
-        color:'#ff6b6b'
+        color: '#ff6b6b'
       }}>
-        <ErrorOutlineIcon/>
+        <ErrorOutlineIcon />
         <Typography
           variant='caption'
           color='#ff6b6b'
         > {label.label}</Typography>
       </Box>
-      )
+    )
   }
   const handleBack = () => {
     setActiveStep((prevStep) => prevStep - 1);
@@ -270,7 +270,7 @@ export default function KYC() {
         const mergeFileData = [
           ...selectedImage,
           ...selectedDocs]
-      
+
         const fileResult = await putFileKyc(mergeFileData)
         if (fileResult.status === 200) {
           const userData = JSON.parse(localStorage.getItem('user'));
@@ -286,7 +286,7 @@ export default function KYC() {
           setLinkFieldsData([{ externalLinkAccount: '' }])
           setSelectedDocs([])
           setSelectedImage([])
-          if(submitted){
+          if (submitted) {
             setPreload(2)
           }
           handleProceed();
@@ -300,10 +300,10 @@ export default function KYC() {
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
 
-    if(isError){
+    if (isError) {
       setIsError({
         ...isError,
-        [name]:''
+        [name]: ''
       })
     }
 
@@ -322,25 +322,25 @@ export default function KYC() {
 
 
   const handleClick = (type, number) => {
-    if(number === 1){
+    if (number === 1) {
       setIsActive1(!isActive1)
       setIsActive2(false)
       setIsActive3(false)
       setIsActive4(false)
     }
-    if(number === 2){
+    if (number === 2) {
       setIsActive1(false)
       setIsActive2(!isActive2)
       setIsActive3(false)
       setIsActive4(false)
     }
-    if(number === 3){
+    if (number === 3) {
       setIsActive1(false)
       setIsActive2(false)
       setIsActive3(!isActive3)
       setIsActive4(false)
     }
-    if(number === 4){
+    if (number === 4) {
       setIsActive1(false)
       setIsActive2(false)
       setIsActive3(false)
@@ -376,150 +376,150 @@ export default function KYC() {
   const onDrop = useCallback(acceptedFiles => {
     // Do something with the files
     const file = acceptedFiles[0]
-    if(file.type === 'image/png' || file.type === 'image/jpeg'){
+    if (file.type === 'image/png' || file.type === 'image/jpeg') {
       setSelectedImage((selectedImage) => [...selectedImage, acceptedFiles[0]])
-    }else{
-      setSelectedDocs((selectedDocs) =>[...selectedDocs, acceptedFiles[0]])
+    } else {
+      setSelectedDocs((selectedDocs) => [...selectedDocs, acceptedFiles[0]])
     }
-    
+
   }, [])
-  const {getRootProps, getInputProps, isDragActive} = useDropzone({onDrop})
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop })
   const isLastStep = activeStep === steps.length - 1;
 
 
-  useEffect(() =>{
-    kycSubmittedstatus()
-    .then(datas =>{
-      if(datas){
-        const {kycApprove} = datas.data.body[0]
-        switch(kycApprove){
-          case 1: 
+  useEffect(() => {
+    const getStatus = async () => {
+      const datas = await kycSubmittedstatus()
+      if (datas) {
+        const { kycApprove } = datas.data.body[0]
+        switch (kycApprove) {
+          case 1:
             setApprovalStatus(1);
             break;
-          case 2: 
+          case 2:
             setApprovalStatus(2);
             break;
-          case 3:  
+          case 3:
             setApprovalStatus(3);
             break;
-          default: 
-          setApprovalStatus(0);
+          default:
+            setApprovalStatus(0);
         }
       }
-      
-
-    })
-  },[])
+    }
+    getStatus()
+  }, [])
 
   return (
     <>
       {preload === 1 && (<CircularLoading />)}
-      <Container maxWidth="md" style={{ textAlign: 'center', marginTop: '50px' }}>
-        <Card style={{ paddingTop: '50px', paddingBottom: '50px' }}>
-          {approvalStatus === 0 || approvalStatus === 3 && (
-            <Box sx={{ width: '100%', backgroundColor: 'white' }}>
-            <Stepper activeStep={activeStep} alternativeLabel>
-              {steps.map((label) => (
-                <Step key={label}>
-                  <StepLabel><Responsive>{label}</Responsive></StepLabel>
-                </Step>
-              ))}
-            </Stepper>
-            <form onSubmit={(e) => e.preventDefault()}>
-              {activeStep === 0 && (
-                <Container maxWidth="md" style={{ textAlign: 'center', marginTop: '50px'}}>
-                  <Typography variant="h3" style={{ color: "#BA61E8" }}>Welcome to Vortex!</Typography>
-                  <img className="mx-auto" src={KycImage} width="150" height="auto" alt="Hero" />
-                  {approvalStatus === 3 &&(<Box
-                    style={{
-                      marginTop:'50px',
-                      textAlign: 'center',
-                      backgroundColor: '#fde4f2',
-                      border: 'solid #eea1cd 1px',
-                      borderRadius: '10px',
-                      width:'50%'
-                    }}
-                  >
-                    <Typography variant='subtitle2' color='#ff6b6b'> Please resubmit, rejected application </Typography>
-                    </Box>  )
-                  }
-                  <div style={{ marginTop: '20px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-                      <CheckCircleOutlineIcon style={{ color: 'green', marginRight: '10px' }} />
-                      <Typography variant="body1">
-                        Please provide the necessary information and documents to avoid delays in your activation
-                      </Typography>
-                    </div>
-
-                    <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-                      <CheckCircleOutlineIcon style={{ color: 'green', marginRight: '10px' }} />
-                      <Typography variant="body1">
-                        Upon submission, please give our team up to 7 working days to review your application
-                      </Typography>
-                    </div>
-
-                    <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-                      <CheckCircleOutlineIcon style={{ color: 'green', marginRight: '10px' }} />
-                      <Typography variant="body1">
-                        Please make sure that your business is not part of our list of Restricted Business
-                      </Typography>
-                    </div>
-                  </div>
-                </Container>
-              )}
-              {activeStep === 1 && (
-                <div>
-                  {/* Step 2: General Information */}
-                  <Container maxWidth="md" style={{ textAlign: "left", marginTop: "50px" }}>
-                    <Typography variant="h6" style={{ marginBottom: '10px' }}>General Information</Typography>
-                    
-                      {/* Customer Service Number */}
-                      <Typography variant="body1"> Customer Service Number </Typography>
-                      <Typography variant="caption" color='text.secondary'> This is a landline or mobile number your customer can contact</Typography>
-                      <TextField
-                        fullWidth
-                        label="Enter service number"
-                        variant="outlined"
-                        margin="normal"
-                        placeholder="+639178901234 or 0289871234"
-                        name="customerServiceNumber"
-                        value={formData.customerServiceNumber}
-                        onChange={handleInputChange}
-                        InputProps={{
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              <IconButton>
-                                <LocalPhoneIcon /> {/* Replace with your desired icon */}
-                              </IconButton>
-                            </InputAdornment>
-                          ),
+      {approvalStatus !== null && (
+        <Container maxWidth="md" style={{ textAlign: 'center', marginTop: '50px' }}>
+          <Card style={{ paddingTop: '50px', paddingBottom: '50px' }}>
+            {(approvalStatus === 0 || approvalStatus === 3) && (
+              <Box sx={{ width: '100%', backgroundColor: 'white' }}>
+                <Stepper activeStep={activeStep} alternativeLabel>
+                  {steps.map((label) => (
+                    <Step key={label}>
+                      <StepLabel><Responsive>{label}</Responsive></StepLabel>
+                    </Step>
+                  ))}
+                </Stepper>
+                <form onSubmit={(e) => e.preventDefault()}>
+                  {activeStep === 0 && (
+                    <Container maxWidth="md" style={{ textAlign: 'center', marginTop: '50px' }}>
+                      <Typography variant="h3" style={{ color: "#BA61E8" }}>Welcome to Vortex!</Typography>
+                      <img className="mx-auto" src={KycImage} width="150" height="auto" alt="Hero" />
+                      {approvalStatus === 3 && (<Box
+                        style={{
+                          marginTop: '50px',
+                          textAlign: 'center',
+                          backgroundColor: '#fde4f2',
+                          border: 'solid #eea1cd 1px',
+                          borderRadius: '10px',
+                          width: '50%'
                         }}
-                      />
-                      {isError.customerServiceNumber && (<ErrorMessage label={isError.customerServiceNumber}/>)}
-                      {/* Street Address */}
-                      <Typography variant="body1"> Business Address</Typography>
-                      <TextField
-                        fullWidth
-                        label="Street Address"
-                        variant="outlined"
-                        margin="normal"
-                        placeholder="Enter street address"
-                        name="streetAddress"
-                        value={formData.streetAddress}
-                        onChange={handleInputChange}
-                        InputProps={{
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              <IconButton>
-                                <HomeIcon /> {/* Replace with your desired icon */}
-                              </IconButton>
-                            </InputAdornment>
-                          ),
-                        }}
-                      />
-                      {isError.streetAddress && (<ErrorMessage label={isError.streetAddress}/>)}
-                      {autoComplete && (
-                        autoComplete.map((datas, index) => (
+                      >
+                        <Typography variant='subtitle2' color='#ff6b6b'> Please resubmit, rejected application </Typography>
+                      </Box>)
+                      }
+                      <div style={{ marginTop: '20px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+                          <CheckCircleOutlineIcon style={{ color: 'green', marginRight: '10px' }} />
+                          <Typography variant="body1">
+                            Please provide the necessary information and documents to avoid delays in your activation
+                          </Typography>
+                        </div>
+
+                        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+                          <CheckCircleOutlineIcon style={{ color: 'green', marginRight: '10px' }} />
+                          <Typography variant="body1">
+                            Upon submission, please give our team up to 7 working days to review your application
+                          </Typography>
+                        </div>
+
+                        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+                          <CheckCircleOutlineIcon style={{ color: 'green', marginRight: '10px' }} />
+                          <Typography variant="body1">
+                            Please make sure that your business is not part of our list of Restricted Business
+                          </Typography>
+                        </div>
+                      </div>
+                    </Container>
+                  )}
+                  {activeStep === 1 && (
+                    <div>
+                      {/* Step 2: General Information */}
+                      <Container maxWidth="md" style={{ textAlign: "left", marginTop: "50px" }}>
+                        <Typography variant="h6" style={{ marginBottom: '10px' }}>General Information</Typography>
+
+                        {/* Customer Service Number */}
+                        <Typography variant="body1"> Customer Service Number </Typography>
+                        <Typography variant="caption" color='text.secondary'> This is a landline or mobile number your customer can contact</Typography>
+                        <TextField
+                          fullWidth
+                          label="Enter service number"
+                          variant="outlined"
+                          margin="normal"
+                          placeholder="+639178901234 or 0289871234"
+                          name="customerServiceNumber"
+                          value={formData.customerServiceNumber}
+                          onChange={handleInputChange}
+                          InputProps={{
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <IconButton>
+                                  <LocalPhoneIcon /> {/* Replace with your desired icon */}
+                                </IconButton>
+                              </InputAdornment>
+                            ),
+                          }}
+                        />
+                        {isError.customerServiceNumber && (<ErrorMessage label={isError.customerServiceNumber} />)}
+                        {/* Street Address */}
+                        <Typography variant="body1"> Business Address</Typography>
+                        <TextField
+                          fullWidth
+                          label="Street Address"
+                          variant="outlined"
+                          margin="normal"
+                          placeholder="Enter street address"
+                          name="streetAddress"
+                          value={formData.streetAddress}
+                          onChange={handleInputChange}
+                          InputProps={{
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <IconButton>
+                                  <HomeIcon /> {/* Replace with your desired icon */}
+                                </IconButton>
+                              </InputAdornment>
+                            ),
+                          }}
+                        />
+                        {isError.streetAddress && (<ErrorMessage label={isError.streetAddress} />)}
+                        {autoComplete && (
+                          autoComplete.map((datas, index) => (
                             <Box key={index}
                               style={
                                 {
@@ -544,442 +544,443 @@ export default function KYC() {
                               <PlaceIcon sx={{ fontSize: '14px' }} />
                               <p>{datas.properties.formatted}</p>
                             </Box>
-                        ))
-                      )}
+                          ))
+                        )}
 
-                      {/* City Address */}
-                      <Grid container spacing={1}>
                         {/* City Address */}
-                        <Grid item xs={12} md={4}>
-                          <TextField
-                            fullWidth
-                            label="City Address"
-                            variant="outlined"
-                            margin="normal"
-                            placeholder="Enter city address"
-                            name="cityAddress"
-                            value={formData.cityAddress}
-                            onChange={handleInputChange}
-                            InputProps={{
-                              startAdornment: (
-                                <InputAdornment position="start">
-                                  <IconButton>
-                                    <LocationCityIcon /> {/* Replace with your desired icon */}
-                                  </IconButton>
-                                </InputAdornment>
-                              ),
-                            }}
-                          />
-                          {isError.cityAddress &&(<ErrorMessage label={isError.cityAddress}/>)}
+                        <Grid container spacing={1}>
+                          {/* City Address */}
+                          <Grid item xs={12} md={4}>
+                            <TextField
+                              fullWidth
+                              label="City Address"
+                              variant="outlined"
+                              margin="normal"
+                              placeholder="Enter city address"
+                              name="cityAddress"
+                              value={formData.cityAddress}
+                              onChange={handleInputChange}
+                              InputProps={{
+                                startAdornment: (
+                                  <InputAdornment position="start">
+                                    <IconButton>
+                                      <LocationCityIcon /> {/* Replace with your desired icon */}
+                                    </IconButton>
+                                  </InputAdornment>
+                                ),
+                              }}
+                            />
+                            {isError.cityAddress && (<ErrorMessage label={isError.cityAddress} />)}
+                          </Grid>
+
+                          {/* Region Address */}
+                          <Grid item xs={12} md={4}>
+                            <TextField
+                              fullWidth
+                              label="Region/State"
+                              variant="outlined"
+                              margin="normal"
+                              placeholder="Region/State"
+                              name="regionAddress"
+                              value={formData.regionAddress}
+                              onChange={handleInputChange}
+                            />
+                            {isError.regionAddress && (<ErrorMessage label={isError.regionAddress} />)}
+                          </Grid>
+
+                          {/* Zip Code Address */}
+                          <Grid item xs={12} md={4}>
+                            <TextField
+                              fullWidth
+                              label="Zip Code Address"
+                              variant="outlined"
+                              margin="normal"
+                              placeholder="Enter zip code"
+                              name="zipCodeAddress"
+                              value={formData.zipCodeAddress}
+                              onChange={handleInputChange}
+                            />
+                            {isError.zipCodeAddress && (<ErrorMessage label={isError.zipCodeAddress} />)}
+                          </Grid>
                         </Grid>
 
-                        {/* Region Address */}
-                        <Grid item xs={12} md={4}>
-                          <TextField
-                            fullWidth
-                            label="Region/State"
-                            variant="outlined"
-                            margin="normal"
-                            placeholder="Region/State"
-                            name="regionAddress"
-                            value={formData.regionAddress}
-                            onChange={handleInputChange}
-                          />
-                          {isError.regionAddress &&(<ErrorMessage label={isError.regionAddress}/>)}
-                        </Grid>
+                        {/* Physical Store Checkbox */}
+                        <FormControlLabel
+                          control={<Checkbox name="physicalStore" checked={formData.physicalStore} onChange={handleInputChange} />}
+                          label="Do you have a physical store?"
+                        />
 
-                        {/* Zip Code Address */}
-                        <Grid item xs={12} md={4}>
-                          <TextField
-                            fullWidth
-                            label="Zip Code Address"
-                            variant="outlined"
-                            margin="normal"
-                            placeholder="Enter zip code"
-                            name="zipCodeAddress"
-                            value={formData.zipCodeAddress}
-                            onChange={handleInputChange}
-                          />
-                          {isError.zipCodeAddress &&(<ErrorMessage label={isError.zipCodeAddress}/>)}
-                        </Grid>
-                      </Grid>
-                     
-                      {/* Physical Store Checkbox */}
-                      <FormControlLabel
-                        control={<Checkbox name="physicalStore" checked={formData.physicalStore} onChange={handleInputChange} />}
-                        label="Do you have a physical store?"
-                      />
-
-                      {/* Number of Employees */}
-                      <TextField
-                        fullWidth
-                        label="Number of Employees"
-                        variant="outlined"
-                        margin="normal"
-                        placeholder="Enter number of employees"
-                        name="numberOfEmployees"
-                        type="number"
-                        value={formData.numberOfEmployees}
-                        onChange={handleInputChange}
-                        InputProps={{
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              <IconButton>
-                                <PeopleAltIcon /> {/* Replace with your desired icon */}
-                              </IconButton>
-                            </InputAdornment>
-                          ),
-                        }}
-                      />
-                      {isError.numberOfEmployees && (<ErrorMessage label={isError.numberOfEmployees}/>)}
-                      <Typography variant="body1" style={{ marginTop: "30px" }}> Online Presence </Typography>
-                      <Typography variant="caption" color='text.secondary'> Help us get to know your businese more by
-                        providing atleast one link for either business website or social media
-                        account
-                      </Typography>
-                      <Typography variant="body2" style={{ marginTop: "20px" }}>Business website or social media</Typography>
-                      <Typography variant="caption" color='text.secondary'>Provide the link/s of your website
-                        and/ or social media where you conduct business with your customers.
-                        Business pages with your catalog of products and services are preferred
-                      </Typography>
-                      {/* Website links  */}
-                      {linkFieldsData.map((text, index) => (
+                        {/* Number of Employees */}
                         <TextField
                           fullWidth
-                          label="Link"
+                          label="Number of Employees"
                           variant="outlined"
                           margin="normal"
-                          placeholder="e.g. https://vortex.com"
-                          name={`externalLinkAccount-${index}`}
-                          value={text.externalLinkAccount}
-                          onChange={(event) => handleInputChangeLink(index, event)}
-                          key={index}
+                          placeholder="Enter number of employees"
+                          name="numberOfEmployees"
+                          type="number"
+                          value={formData.numberOfEmployees}
+                          onChange={handleInputChange}
                           InputProps={{
-                            endAdornment: (
-                              <InputAdornment position="end">
-                                {index > 0 ? <IconButton>
-                                  <DeleteForeverIcon onClick={() => handleDeleteField(index)} />
-                                </IconButton> : null}
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <IconButton>
+                                  <PeopleAltIcon /> {/* Replace with your desired icon */}
+                                </IconButton>
                               </InputAdornment>
                             ),
                           }}
                         />
-                      ))}
-                      {isError.externalLinkAccount &&(<ErrorMessage label={isError.externalLinkAccount}/>)}
-
-                      <Button style={{ color: "#BA61E8", fontSize: '.7rem' }} onClick={handleAddTextField}><AddLinkIcon /> Add another link</Button>
-
-                      <Typography variant='body2' style={{ marginTop: '30px' }}> Preferred Business Handle</Typography>
-                      <Typography variant='caption' style={{ color: "#BA61E8" }}> This unique identifier is like a Vortex username for your business. Note that you can't change this in the future.</Typography>
-                      <Box>
-                        <Typography variant='caption' style={{ color: "#BA61E8" }}> Use letter a - z, numbers 0-9 and dashes(-). No spaces and special character allowed</Typography>
-                        {/* Unique Identifier */}
-                        <TextField
-                          fullWidth
-                          label="Unique Identifier"
-                          variant="outlined"
-                          margin="normal"
-                          placeholder="e.g. org-Dfcdk3TgsG5nuW4"
-                          name="uniqueIdentifier"
-                          value={formData.uniqueIdentifier}
-                          onChange={handleInputChange}
-                        />
-                        {isError.uniqueIdentifier &&(<ErrorMessage label={isError.uniqueIdentifier}/>)}
-                      </Box>
-                  </Container>
-                </div>
-              )}
-              {activeStep === 2 && (
-                <div style={{ marginTop: '50px', textAlign: 'start' }}>
-                  {/* Step 3: Business Information */}
-                  <Container maxWidth="md" style={{ marginTop: "50px" }}>
-                    <Typography variant="h6">Business Information</Typography>
-                    <Typography variant="caption" color='text.secondary'> Provide more details about your business. We ask questions specific to your business type.</Typography>
-                    <Box style={{
-                      marginTop: "40px",
-                      border: "solid 2px #e0e0e0",
-                      borderRadius: "20px",
-                      padding: "30px"
-                    }}>
-                      <Typography> Choose your type of business</Typography>
-                      <Typography variant="caption" color='text.secondary'> Select appropriately to avoid delays in your application. This will be reviewd by our Onboarding team.</Typography>
-                      <Box style={{
-                        display: 'flex',
-                        gap: '10px',
-                        textAlign: "center",
-                        marginTop: "30px",
-                      }}>
-                        <Grid container spacing={1}>
-                          <Grid item xs={12} md={6}>
-                            <HoverableCard active={isActive1} onClick={() => handleClick('Individual', 1)}>
-                              <CardContent>
-                                <PersonIcon style={{ fontSize: '4rem' }} />
-                                <Typography variant="h5" component="div">
-                                  Individual
-                                </Typography>
-                                <Typography color="text.secondary">
-                                  You are the only owner of a business, and you are not registered with the DTI.
-                                </Typography>
-                              </CardContent>
-                            </HoverableCard>
-                          </Grid>
-                          <Grid item xs={12} md={6}>
-                            <HoverableCard active={isActive2} onClick={() => handleClick('Sole Proprietorship', 2)} >
-                              <CardContent>
-                                <AccountBoxIcon style={{ fontSize: "4rem" }} />
-                                <Typography variant="h5" component="div">
-                                  Sole Proprietorship
-                                </Typography>
-                                <Typography color="text.secondary">
-                                  You are the sole owner of the business, and you have it registered with the DTI.
-                                </Typography>
-                              </CardContent>
-                            </HoverableCard>
-                          </Grid>
-                          <Grid item xs={12} md={6}>
-                            <HoverableCard active={isActive3} onClick={() => handleClick('Partnership', 3)}>
-                              <CardContent>
-                                <GroupIcon style={{ fontSize: "4rem" }} />
-                                <Typography variant="h5" component="div">
-                                  Partnership
-                                </Typography>
-                                <Typography color="text.secondary">
-                                  Your businese owner by two or more individuals or partners, and it is registered with the SEC.
-                                </Typography>
-                              </CardContent>
-                            </HoverableCard>
-                          </Grid>
-                          <Grid item xs={12} md={6}>
-                            <HoverableCard active={isActive4} onClick={() => handleClick('Corporation', 4)}>
-                              <CardContent>
-                                <CorporateFareIcon style={{ fontSize: "4rem" }} />
-                                <Typography variant="h5" component="div">
-                                  Corporation
-                                </Typography>
-                                <Typography color="text.secondary">
-                                  Your business is owned by a corporate entity and is registered with the SEC.
-                                </Typography>
-                              </CardContent>
-                            </HoverableCard>
-                          </Grid>
-                        </Grid>
-                      </Box>
-                    </Box>
-                  </Container>
-                </div>
-              )}
-              {activeStep === 3 && (
-                <div style={{ marginTop: '50px', textAlign: 'start' }}>
-                  <Container maxWidth="md" style={{ marginTop: "50px" }}>
-                    <Typography variant="h6"> {businessType}- Business Information</Typography>
-                    <Typography variant="caption" color='text.secondary'> Details about your business like bank details, business documents and others</Typography>
-                    <div style={{ marginTop: '20px', marginBottom: '20px' }}>
-                      <Typography> Upload IDs</Typography>
-                      <Typography variant="caption" color='text.secondary'> Guidlines for uploading IDs</Typography>
-                      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-                        <CheckCircleOutlineIcon style={{ color: 'green', marginRight: '10px' }} />
-                        <Typography variant="body1">
-                          Do not submit expried IDs.
+                        {isError.numberOfEmployees && (<ErrorMessage label={isError.numberOfEmployees} />)}
+                        <Typography variant="body1" style={{ marginTop: "30px" }}> Online Presence </Typography>
+                        <Typography variant="caption" color='text.secondary'> Help us get to know your businese more by
+                          providing atleast one link for either business website or social media
+                          account
                         </Typography>
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-                        <CheckCircleOutlineIcon style={{ color: 'green', marginRight: '10px' }} />
-                        <Typography variant="body1">
-                          Make sure all informations are legible. Do not censor, black out or redact any data.
+                        <Typography variant="body2" style={{ marginTop: "20px" }}>Business website or social media</Typography>
+                        <Typography variant="caption" color='text.secondary'>Provide the link/s of your website
+                          and/ or social media where you conduct business with your customers.
+                          Business pages with your catalog of products and services are preferred
                         </Typography>
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-                        <CheckCircleOutlineIcon style={{ color: 'green', marginRight: '10px' }} />
-                        <Typography variant="body1">
-                          Do not crop the ID. all corners of the ID should be visible againts the backdrop.
-                        </Typography>
-                      </div>
-
-                      <div style={{ marginTop: '30px', marginBottom: '30px' }}>
-                        <Typography variant='body2'> Valid Identification Documents</Typography>
-                        <Typography variant='caption' color='text.secondary'> Upload one(1) Primary ID or two(2) Secondary IDs( only if you cannot provide a primary ID)</Typography>
-                      </div>
-
-                      <HoverableButton {...getRootProps()}>
-                        <div>
-                          <input {...getInputProps()} />
-                          <Button
-                            variant="contained"
-                            color="primary"
-                            component="span"
-                            startIcon={<CloudUploadIcon />}
-                            onClick={() => {
-                              if (fileInputRef.current) {
-                                fileInputRef.current.click();
-                              }
+                        {/* Website links  */}
+                        {linkFieldsData.map((text, index) => (
+                          <TextField
+                            fullWidth
+                            label="Link"
+                            variant="outlined"
+                            margin="normal"
+                            placeholder="e.g. https://vortex.com"
+                            name={`externalLinkAccount-${index}`}
+                            value={text.externalLinkAccount}
+                            onChange={(event) => handleInputChangeLink(index, event)}
+                            key={index}
+                            InputProps={{
+                              endAdornment: (
+                                <InputAdornment position="end">
+                                  {index > 0 ? <IconButton>
+                                    <DeleteForeverIcon onClick={() => handleDeleteField(index)} />
+                                  </IconButton> : null}
+                                </InputAdornment>
+                              ),
                             }}
-                          >
-                            Select Image
-                          </Button>
-                          <Box style={{color:'gray', fontSize:'.7rem'}}>
-                            {
-                              isDragActive ?
-                                <p>Drop the files here ...</p> :
-                                <p>Drag 'n' drop some files here, or click to select files</p>
-                            }
-                          </Box>
-                        </div>
-                        {/* </label> */}
-                        <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', marginTop: '10px' }}>
-                          {selectedImage.map((item, index) => (
-                            <div
-                              key={index}
-                              style={{
-                                backgroundColor: '#873EC0',
-                                borderRadius: '5px',
-                                color: 'white', // Changed text color to white for better contrast
-                                width: '100px', // Increased the width for more space
-                                padding: '8px', // Added padding for better spacing
-                                fontSize: '14px', // Adjusted font size
-                                textAlign: 'center', // Center-align text
-                                whiteSpace: 'nowrap',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                marginRight: '10px',
-                                marginBottom: '10px',
-                                boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.2)', // Added a subtle shadow
-                              }}
-                            >
-                              {item.name}
-                            </div>
-                          ))}
-                        </div>
-                      </HoverableButton>
+                          />
+                        ))}
+                        {isError.externalLinkAccount && (<ErrorMessage label={isError.externalLinkAccount} />)}
+
+                        <Button style={{ color: "#BA61E8", fontSize: '.7rem' }} onClick={handleAddTextField}><AddLinkIcon /> Add another link</Button>
+
+                        <Typography variant='body2' style={{ marginTop: '30px' }}> Preferred Business Handle</Typography>
+                        <Typography variant='caption' style={{ color: "#BA61E8" }}> This unique identifier is like a Vortex username for your business. Note that you can't change this in the future.</Typography>
+                        <Box>
+                          <Typography variant='caption' style={{ color: "#BA61E8" }}> Use letter a - z, numbers 0-9 and dashes(-). No spaces and special character allowed</Typography>
+                          {/* Unique Identifier */}
+                          <TextField
+                            fullWidth
+                            label="Unique Identifier"
+                            variant="outlined"
+                            margin="normal"
+                            placeholder="e.g. org-Dfcdk3TgsG5nuW4"
+                            name="uniqueIdentifier"
+                            value={formData.uniqueIdentifier}
+                            onChange={handleInputChange}
+                          />
+                          {isError.uniqueIdentifier && (<ErrorMessage label={isError.uniqueIdentifier} />)}
+                        </Box>
+                      </Container>
                     </div>
-                    <hr />
-                    <div style={{ marginTop: '20px' }}>
-                      <Typography> Upload Documents </Typography>
-                      <Typography variant="caption" color='text.secondary'> Guidlines for uploading documents</Typography>
-                      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-                        <CheckCircleOutlineIcon style={{ color: 'green', marginRight: '10px' }} />
-                        <Typography variant="body1">
-                          The documents must be in clear copies in color.
-                        </Typography>
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-                        <CheckCircleOutlineIcon style={{ color: 'green', marginRight: '10px' }} />
-                        <Typography variant="body1">
-                          Make sure the documents have complete pages
-                        </Typography>
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-                        <CheckCircleOutlineIcon style={{ color: 'green', marginRight: '10px' }} />
-                        <Typography variant="body1">
-                          The documents must not be redacted. All informations are visible
-                        </Typography>
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-                        <CheckCircleOutlineIcon style={{ color: 'green', marginRight: '10px' }} />
-                        <Typography variant="body1">
-                          All corners of the documents are visible againts the backdrop.
-                        </Typography>
-                      </div>
-
-                      <div style={{ marginTop: '30px', marginBottom: '30px' }}>
-                        <Typography variant='body2'> DTI Business Name Registration certificate </Typography>
-                      </div>
-                      <HoverableButton {...getRootProps()}>
-                        <div>
-                          <input {...getInputProps()} />
-                          <Button
-                            variant="contained"
-                            color="primary"
-                            component="span"
-                            startIcon={<CloudUploadIcon />}
-                            onClick={() => {
-                              if (fileInputRef.current) {
-                                fileInputRef.current.click();
-                              }
-                            }}
-                          >
-                            Select Image
-                          </Button>
-                          <Box style={{color:'gray', fontSize:'.7rem'}}>
-                            {
-                              isDragActive ?
-                                <p>Drop the files here ...</p> :
-                                <p>Drag 'n' drop some files here, or click to select files</p>
-                            }
+                  )}
+                  {activeStep === 2 && (
+                    <div style={{ marginTop: '50px', textAlign: 'start' }}>
+                      {/* Step 3: Business Information */}
+                      <Container maxWidth="md" style={{ marginTop: "50px" }}>
+                        <Typography variant="h6">Business Information</Typography>
+                        <Typography variant="caption" color='text.secondary'> Provide more details about your business. We ask questions specific to your business type.</Typography>
+                        <Box style={{
+                          marginTop: "40px",
+                          border: "solid 2px #e0e0e0",
+                          borderRadius: "20px",
+                          padding: "30px"
+                        }}>
+                          <Typography> Choose your type of business</Typography>
+                          <Typography variant="caption" color='text.secondary'> Select appropriately to avoid delays in your application. This will be reviewd by our Onboarding team.</Typography>
+                          <Box style={{
+                            display: 'flex',
+                            gap: '10px',
+                            textAlign: "center",
+                            marginTop: "30px",
+                          }}>
+                            <Grid container spacing={1}>
+                              <Grid item xs={12} md={6}>
+                                <HoverableCard active={isActive1} onClick={() => handleClick('Individual', 1)}>
+                                  <CardContent>
+                                    <PersonIcon style={{ fontSize: '4rem' }} />
+                                    <Typography variant="h5" component="div">
+                                      Individual
+                                    </Typography>
+                                    <Typography color="text.secondary">
+                                      You are the only owner of a business, and you are not registered with the DTI.
+                                    </Typography>
+                                  </CardContent>
+                                </HoverableCard>
+                              </Grid>
+                              <Grid item xs={12} md={6}>
+                                <HoverableCard active={isActive2} onClick={() => handleClick('Sole Proprietorship', 2)} >
+                                  <CardContent>
+                                    <AccountBoxIcon style={{ fontSize: "4rem" }} />
+                                    <Typography variant="h5" component="div">
+                                      Sole Proprietorship
+                                    </Typography>
+                                    <Typography color="text.secondary">
+                                      You are the sole owner of the business, and you have it registered with the DTI.
+                                    </Typography>
+                                  </CardContent>
+                                </HoverableCard>
+                              </Grid>
+                              <Grid item xs={12} md={6}>
+                                <HoverableCard active={isActive3} onClick={() => handleClick('Partnership', 3)}>
+                                  <CardContent>
+                                    <GroupIcon style={{ fontSize: "4rem" }} />
+                                    <Typography variant="h5" component="div">
+                                      Partnership
+                                    </Typography>
+                                    <Typography color="text.secondary">
+                                      Your businese owner by two or more individuals or partners, and it is registered with the SEC.
+                                    </Typography>
+                                  </CardContent>
+                                </HoverableCard>
+                              </Grid>
+                              <Grid item xs={12} md={6}>
+                                <HoverableCard active={isActive4} onClick={() => handleClick('Corporation', 4)}>
+                                  <CardContent>
+                                    <CorporateFareIcon style={{ fontSize: "4rem" }} />
+                                    <Typography variant="h5" component="div">
+                                      Corporation
+                                    </Typography>
+                                    <Typography color="text.secondary">
+                                      Your business is owned by a corporate entity and is registered with the SEC.
+                                    </Typography>
+                                  </CardContent>
+                                </HoverableCard>
+                              </Grid>
+                            </Grid>
                           </Box>
-                        </div>
-
-                        {/* </label> */}
-
-                        <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', marginTop: '10px' }}>
-                          {selectedDocs.map((item, index) => (
-                            <div
-                              key={index}
-                              style={{
-                                backgroundColor: '#873EC0',
-                                borderRadius: '5px',
-                                color: 'white', // Changed text color to white for better contrast
-                                width: '100px', // Increased the width for more space
-                                padding: '8px', // Added padding for better spacing
-                                fontSize: '14px', // Adjusted font size
-                                textAlign: 'center', // Center-align text
-                                whiteSpace: 'nowrap',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                marginRight: '10px',
-                                marginBottom: '10px',
-                                boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.2)', // Added a subtle shadow
-                              }}
-                            >
-                              {item.name}
-                            </div>
-                          ))}
-                        </div>
-                      </HoverableButton>
+                        </Box>
+                      </Container>
                     </div>
-                  </Container>
-                </div>
-              )}
-              
-              <div style={{ marginTop: '40px' }}>
-                <Button
-                  disabled={activeStep === 0}
-                  onClick={handleBack}
-                  sx={{ mr: 1 }}
-                >
-                  Back
-                </Button>
-                <Button
-                  variant="outlined"
-                  color="primary"
-                  style={{ color: "white", backgroundColor: "#873EC0" }}
-                  onClick={isLastStep ? handleSubmit : handleNext}
-                >
-                  {isLastStep ? 'Submit' : 'Next'}
-                </Button>
+                  )}
+                  {activeStep === 3 && (
+                    <div style={{ marginTop: '50px', textAlign: 'start' }}>
+                      <Container maxWidth="md" style={{ marginTop: "50px" }}>
+                        <Typography variant="h6"> {businessType}- Business Information</Typography>
+                        <Typography variant="caption" color='text.secondary'> Details about your business like bank details, business documents and others</Typography>
+                        <div style={{ marginTop: '20px', marginBottom: '20px' }}>
+                          <Typography> Upload IDs</Typography>
+                          <Typography variant="caption" color='text.secondary'> Guidlines for uploading IDs</Typography>
+                          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+                            <CheckCircleOutlineIcon style={{ color: 'green', marginRight: '10px' }} />
+                            <Typography variant="body1">
+                              Do not submit expried IDs.
+                            </Typography>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+                            <CheckCircleOutlineIcon style={{ color: 'green', marginRight: '10px' }} />
+                            <Typography variant="body1">
+                              Make sure all informations are legible. Do not censor, black out or redact any data.
+                            </Typography>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+                            <CheckCircleOutlineIcon style={{ color: 'green', marginRight: '10px' }} />
+                            <Typography variant="body1">
+                              Do not crop the ID. all corners of the ID should be visible againts the backdrop.
+                            </Typography>
+                          </div>
+
+                          <div style={{ marginTop: '30px', marginBottom: '30px' }}>
+                            <Typography variant='body2'> Valid Identification Documents</Typography>
+                            <Typography variant='caption' color='text.secondary'> Upload one(1) Primary ID or two(2) Secondary IDs( only if you cannot provide a primary ID)</Typography>
+                          </div>
+
+                          <HoverableButton {...getRootProps()}>
+                            <div>
+                              <input {...getInputProps()} />
+                              <Button
+                                variant="contained"
+                                color="primary"
+                                component="span"
+                                startIcon={<CloudUploadIcon />}
+                                onClick={() => {
+                                  if (fileInputRef.current) {
+                                    fileInputRef.current.click();
+                                  }
+                                }}
+                              >
+                                Select Image
+                              </Button>
+                              <Box style={{ color: 'gray', fontSize: '.7rem' }}>
+                                {
+                                  isDragActive ?
+                                    <p>Drop the files here ...</p> :
+                                    <p>Drag 'n' drop some files here, or click to select files</p>
+                                }
+                              </Box>
+                            </div>
+                            {/* </label> */}
+                            <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', marginTop: '10px' }}>
+                              {selectedImage.map((item, index) => (
+                                <div
+                                  key={index}
+                                  style={{
+                                    backgroundColor: '#873EC0',
+                                    borderRadius: '5px',
+                                    color: 'white', // Changed text color to white for better contrast
+                                    width: '100px', // Increased the width for more space
+                                    padding: '8px', // Added padding for better spacing
+                                    fontSize: '14px', // Adjusted font size
+                                    textAlign: 'center', // Center-align text
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    marginRight: '10px',
+                                    marginBottom: '10px',
+                                    boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.2)', // Added a subtle shadow
+                                  }}
+                                >
+                                  {item.name}
+                                </div>
+                              ))}
+                            </div>
+                          </HoverableButton>
+                        </div>
+                        <hr />
+                        <div style={{ marginTop: '20px' }}>
+                          <Typography> Upload Documents </Typography>
+                          <Typography variant="caption" color='text.secondary'> Guidlines for uploading documents</Typography>
+                          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+                            <CheckCircleOutlineIcon style={{ color: 'green', marginRight: '10px' }} />
+                            <Typography variant="body1">
+                              The documents must be in clear copies in color.
+                            </Typography>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+                            <CheckCircleOutlineIcon style={{ color: 'green', marginRight: '10px' }} />
+                            <Typography variant="body1">
+                              Make sure the documents have complete pages
+                            </Typography>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+                            <CheckCircleOutlineIcon style={{ color: 'green', marginRight: '10px' }} />
+                            <Typography variant="body1">
+                              The documents must not be redacted. All informations are visible
+                            </Typography>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+                            <CheckCircleOutlineIcon style={{ color: 'green', marginRight: '10px' }} />
+                            <Typography variant="body1">
+                              All corners of the documents are visible againts the backdrop.
+                            </Typography>
+                          </div>
+
+                          <div style={{ marginTop: '30px', marginBottom: '30px' }}>
+                            <Typography variant='body2'> DTI Business Name Registration certificate </Typography>
+                          </div>
+                          <HoverableButton {...getRootProps()}>
+                            <div>
+                              <input {...getInputProps()} />
+                              <Button
+                                variant="contained"
+                                color="primary"
+                                component="span"
+                                startIcon={<CloudUploadIcon />}
+                                onClick={() => {
+                                  if (fileInputRef.current) {
+                                    fileInputRef.current.click();
+                                  }
+                                }}
+                              >
+                                Select Image
+                              </Button>
+                              <Box style={{ color: 'gray', fontSize: '.7rem' }}>
+                                {
+                                  isDragActive ?
+                                    <p>Drop the files here ...</p> :
+                                    <p>Drag 'n' drop some files here, or click to select files</p>
+                                }
+                              </Box>
+                            </div>
+
+                            {/* </label> */}
+
+                            <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', marginTop: '10px' }}>
+                              {selectedDocs.map((item, index) => (
+                                <div
+                                  key={index}
+                                  style={{
+                                    backgroundColor: '#873EC0',
+                                    borderRadius: '5px',
+                                    color: 'white', // Changed text color to white for better contrast
+                                    width: '100px', // Increased the width for more space
+                                    padding: '8px', // Added padding for better spacing
+                                    fontSize: '14px', // Adjusted font size
+                                    textAlign: 'center', // Center-align text
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    marginRight: '10px',
+                                    marginBottom: '10px',
+                                    boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.2)', // Added a subtle shadow
+                                  }}
+                                >
+                                  {item.name}
+                                </div>
+                              ))}
+                            </div>
+                          </HoverableButton>
+                        </div>
+                      </Container>
+                    </div>
+                  )}
+
+                  <div style={{ marginTop: '40px' }}>
+                    <Button
+                      disabled={activeStep === 0}
+                      onClick={handleBack}
+                      sx={{ mr: 1 }}
+                    >
+                      Back
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      color="primary"
+                      style={{ color: "white", backgroundColor: "#873EC0" }}
+                      onClick={isLastStep ? handleSubmit : handleNext}
+                    >
+                      {isLastStep ? 'Submit' : 'Next'}
+                    </Button>
+                  </div>
+                </form>
+              </Box>
+            )}
+            {approvalStatus === 1 && (
+              <div style={{ marginTop: '50px', textAlign: 'center', height: '350px' }}>
+                <Container maxWidth="md" style={{ marginTop: "50px" }}>
+                  <img className="mx-auto" src={UnderReview} alt="Under review" style={{ width: "250px", height: "auto", borderRadius: '10px', marginBottom: '10px' }} />
+                  <Typography variant='h5'> Your Files are Successfuly Uploaded And it is Under Review  </Typography>
+                  <Button onClick={handleProceed} style={{ color: "white", backgroundColor: "#873EC0", marginTop: '30px', paddingLeft: '30px', paddingRight: '30px' }}> PROCEED </Button>
+                </Container>
               </div>
-            </form>
-          </Box>
-          )}
-          {approvalStatus === 1 &&(
-            <div style={{ marginTop: '50px', textAlign: 'center', height: '350px' }}>
-              <Container maxWidth="md" style={{ marginTop: "50px" }}>
-                <img className="mx-auto" src={UnderReview} alt="Under review" style={{ width: "250px", height: "auto", borderRadius:'10px', marginBottom:'10px' }}/>
-                <Typography variant='h5'> Your Files are Successfuly Uploaded And it is Under Review  </Typography>
-                <Button onClick={handleProceed} style={{ color: "white", backgroundColor: "#873EC0", marginTop: '30px', paddingLeft: '30px', paddingRight: '30px' }}> PROCEED </Button>
-              </Container>
-          </div>
-          )}
-          {approvalStatus === 2 &&(
-            <div style={{ marginTop: '50px', textAlign: 'center', height: '350px' }}>
-            <Container maxWidth="md" style={{ marginTop: "50px" }}>
-              <img className="mx-auto" src={Approved} alt="Under review" style={{ width: "250px", height: "auto", borderRadius:'10px', marginBottom:'10px' }}/>
-              <Typography variant='h5'> Submitted files are approved  </Typography>
-              <Button onClick={handleProceed} style={{ color: "white", backgroundColor: "#873EC0", marginTop: '30px', paddingLeft: '30px', paddingRight: '30px' }}> PROCEED </Button>
-            </Container>
-            </div>
-          )}
-        </Card>
-      </Container>
+            )}
+            {approvalStatus === 2 && (
+              <div style={{ marginTop: '50px', textAlign: 'center', height: '350px' }}>
+                <Container maxWidth="md" style={{ marginTop: "50px" }}>
+                  <img className="mx-auto" src={Approved} alt="Under review" style={{ width: "250px", height: "auto", borderRadius: '10px', marginBottom: '10px' }} />
+                  <Typography variant='h5'> Submitted files are approved  </Typography>
+                  <Button onClick={handleProceed} style={{ color: "white", backgroundColor: "#873EC0", marginTop: '30px', paddingLeft: '30px', paddingRight: '30px' }}> PROCEED </Button>
+                </Container>
+              </div>
+            )}
+          </Card>
+        </Container>
+      )}
     </>
   );
 }
