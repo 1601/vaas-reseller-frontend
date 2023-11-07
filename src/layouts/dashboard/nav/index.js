@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 // @mui
 import { styled, alpha } from '@mui/material/styles';
@@ -13,7 +13,7 @@ import Logo from '../../../components/logo';
 import Scrollbar from '../../../components/scrollbar';
 import NavSection from '../../../components/nav-section';
 //
-import navConfig from './config';
+import getNavConfig from './config';
 import SvgColor from '../../../components/svg-color';
 
 // ----------------------------------------------------------------------
@@ -49,7 +49,7 @@ const navConfigBottom = [
         title: 'Support',
         path: '/dashboard/settings/support',
       },
-    ]
+    ],
   },
 ];
 
@@ -61,6 +61,8 @@ const StyledAccount = styled('div')(({ theme }) => ({
   backgroundColor: alpha(theme.palette.grey[500], 0.12),
 }));
 
+const pathsToRefetch = ['/dashboard/app', '/dashboard/admin/home'];
+
 // ----------------------------------------------------------------------
 
 Nav.propTypes = {
@@ -69,23 +71,34 @@ Nav.propTypes = {
 };
 
 export default function Nav({ openNav, onCloseNav }) {
-  const { pathname } = useLocation();
+  const location = useLocation();
   const account = useAccount();
-
   const isDesktop = useResponsive('up', 'lg');
+  const [role, setRole] = useState(localStorage.getItem('role'));
+  const [currentNavConfig, setCurrentNavConfig] = useState(getNavConfig(role));
 
   useEffect(() => {
     if (openNav) {
       onCloseNav();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname]);
+  }, [location.pathname]);
 
-  const role = localStorage.getItem('role');
+  useEffect(() => {
+    if (pathsToRefetch.includes(location.pathname)) {
+      const newRole = localStorage.getItem('role');
+      setRole(newRole);
+      setCurrentNavConfig(getNavConfig(newRole));
+    }
+  }, [location.pathname]);
 
-  const filteredNavConfigBottom = role === 'admin'
-    ? navConfigBottom.filter(item => item.title !== 'upload document')
-    : navConfigBottom;
+  useEffect(() => {
+  // Whenever the role changes, update the nav config
+  setCurrentNavConfig(getNavConfig(role));
+}, [role]);
+
+  const filteredNavConfigBottom =
+    role === 'admin' ? navConfigBottom.filter((item) => item.title !== 'upload document') : navConfigBottom;
 
   const renderContent = (
     <Scrollbar
@@ -94,7 +107,6 @@ export default function Nav({ openNav, onCloseNav }) {
         '& .simplebar-content': { height: 1, display: 'flex', flexDirection: 'column' },
       }}
     >
-
       <Box sx={{ mb: 5, mx: 2.5 }}>
         <Link underline="none">
           <StyledAccount>
@@ -105,18 +117,17 @@ export default function Nav({ openNav, onCloseNav }) {
                 {account.displayName}
               </Typography>
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                {account.designation} 
+                {account.designation}
               </Typography>
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                 {account.email}
               </Typography>
             </Box>
-
           </StyledAccount>
         </Link>
       </Box>
 
-      <NavSection data={navConfig} />
+      <NavSection data={currentNavConfig} />
 
       <Box sx={{ flexGrow: 1 }} />
 
@@ -149,7 +160,6 @@ export default function Nav({ openNav, onCloseNav }) {
       <Box sx={{ px: 2.5, py: 3, display: 'inline-flex' }}>
         <Logo />
       </Box>
-
     </Scrollbar>
   );
 
