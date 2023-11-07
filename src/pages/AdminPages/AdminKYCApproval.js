@@ -86,7 +86,7 @@ const AdminKYCApproval = () => {
                   KYC Details
                 </Typography>
                 <div style={{ position: 'absolute', top: '20px', right: '20px' }}>
-                  {!kycApproved && (
+                  {kycApproved === 1 && (
                     <>
                       <Button onClick={handleApprove} variant="outlined" color="primary" style={{ marginRight: '5px' }}>
                         Approve
