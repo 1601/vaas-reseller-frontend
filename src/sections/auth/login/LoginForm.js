@@ -16,6 +16,7 @@ import {
   DialogContent,
   DialogContentText,
   DialogActions,
+  CircularProgress,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 // components
@@ -34,8 +35,8 @@ export default function LoginForm() {
   const [passwordError, setPasswordError] = useState(false);
   const [emailErrorMessage, setEmailErrorMessage] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
+  const [loggingIn, setLoggingIn] = useState(false);
 
-  // Load email from localStorage when the component mounts
   useEffect(() => {
     const savedEmail = localStorage.getItem('rememberMeEmail');
     if (savedEmail) {
@@ -66,7 +67,7 @@ export default function LoginForm() {
 
   const handleRememberMeChange = (e) => {
     setRememberMe(e.target.checked);
-  
+
     if (e.target.checked) {
       localStorage.setItem('rememberMeEmail', email);
       localStorage.setItem('rememberMe', 'true');
@@ -77,6 +78,8 @@ export default function LoginForm() {
   };
 
   const handleLogin = async () => {
+    setLoggingIn(true);
+    setError('');
     if (!email.trim() || !password.trim()) {
       setError('Please supply all required fields');
       setEmailError(!email.trim());
@@ -111,13 +114,12 @@ export default function LoginForm() {
         console.error('No role received from verifyRole API');
       }
 
-      // Save token and user info to local storage
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(response.data));
 
       // Navigate to the appropriate dashboard based on role
       navigate(role === 'admin' ? '/dashboard/admin' : '/dashboard/app', { replace: true });
-      window.location.reload();
+      setLoggingIn(false);
     } catch (error) {
       if (error.response && error.response.data) {
         setError(error.response.data.message);
@@ -125,6 +127,7 @@ export default function LoginForm() {
         setError('Invalid email or password');
       }
       setDialogOpen(true);
+      setLoggingIn(false);
     }
   };
 
@@ -211,6 +214,22 @@ export default function LoginForm() {
             Close
           </Button>
         </DialogActions>
+      </Dialog>
+      <Dialog open={loggingIn || dialogOpen} onClose={handleCloseDialog}>
+        <DialogTitle>{error ? 'Error' : loggingIn ? 'Logging in...' : 'Notice'}</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            {loggingIn ? 'Please wait while we log you in...' : error || verificationMessage}
+          </DialogContentText>
+          {loggingIn && <CircularProgress />}
+        </DialogContent>
+        {!loggingIn && (
+          <DialogActions>
+            <Button onClick={handleCloseDialog} color="primary">
+              Close
+            </Button>
+          </DialogActions>
+        )}
       </Dialog>
     </>
   );
