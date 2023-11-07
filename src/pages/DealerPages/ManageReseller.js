@@ -115,9 +115,9 @@ const ManageReseller = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deletingResellerId, setDeletingResellerId] = useState(null);
   const [resellerToDelete, setResellerToDelete] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [isLoading, setIsLoading] = useState(true);
 
   const handleCloseDeleteDialog = () => {
     setDeletingResellerId(null);
@@ -401,7 +401,7 @@ const ManageReseller = () => {
   };
 
   const fetchData = async () => {
-    setLoading(true);
+    setIsLoading(true);
 
     try {
       const fetchedResellers = await fetchResellersForUser(userId);
@@ -409,7 +409,7 @@ const ManageReseller = () => {
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -435,7 +435,7 @@ const ManageReseller = () => {
 
   return (
     <div style={{ padding: '20px' }}>
-      {loading ? (
+      {isLoading ? (
         <>
           <Box display="flex" height="100vh" alignItems="center" justifyContent="center">
             <CircularLoading />
