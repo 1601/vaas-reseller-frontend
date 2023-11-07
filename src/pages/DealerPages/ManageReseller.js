@@ -15,7 +15,6 @@ import {
   Box,
   Menu,
   MenuItem,
-  CircularProgress,
   TablePagination,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
@@ -47,6 +46,7 @@ import DeleteResellerDialog from '../../components/resellers/DeleteResellerDIalo
 // Other Component
 import SearchBar from '../../components/resellers/SearchBar';
 import ResellerActionsMenu from '../../components/resellers/ResellerActionsMenu';
+import CircularLoading from '../../components/preLoader';
 
 const StatusLabel = ({ status }) => {
   const colorMap = {
@@ -116,8 +116,6 @@ const ManageReseller = () => {
   const [deletingResellerId, setDeletingResellerId] = useState(null);
   const [resellerToDelete, setResellerToDelete] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [showSpinner, setShowSpinner] = useState(false);
-  const [dataLoaded, setDataLoaded] = useState(false);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
@@ -277,8 +275,11 @@ const ManageReseller = () => {
       companyName: true,
     });
 
-    const tempValidationErrors = {};
+    if (!formState.companyName) {
+      formState.companyName = 'N/A';
+    }
 
+    const tempValidationErrors = {};
     Object.keys(formState).forEach((field) => {
       const error = getValidationError(field, formState[field]);
       if (error) {
@@ -292,20 +293,16 @@ const ManageReseller = () => {
       try {
         const prefix = countryCodes[formState.country];
 
-        const companyName = formState.companyName || 'N/A';
+        formState.mobileNumber = prefix + formState.mobileNumber;
 
-        const requestData = {
-          ...formState,
-          companyName,
-          mobileNumber: prefix + formState.mobileNumber,
-        };
-
-        const res = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/users/${userId}/resellers`, requestData);
+        const res = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/users/${userId}/resellers`, formState);
         console.log('Reseller added successfully:', res.data);
+
         setFormState(initialFormState);
         setGeneratedPassword(res.data.password);
         setShowCredentialsPopup(true);
         setOpen(false);
+
         fetchResellersForUser(userId);
       } catch (error) {
         console.error('Error adding reseller:', error);
@@ -409,7 +406,6 @@ const ManageReseller = () => {
     try {
       const fetchedResellers = await fetchResellersForUser(userId);
       setResellers(fetchedResellers);
-      setDataLoaded(true);
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
@@ -441,232 +437,228 @@ const ManageReseller = () => {
     <div style={{ padding: '20px' }}>
       {loading ? (
         <>
-          {showSpinner && (
-            <Box display="flex" height="100vh" alignItems="center" justifyContent="center">
-              <CircularProgress />
-            </Box>
-          )}
+          <Box display="flex" height="100vh" alignItems="center" justifyContent="center">
+            <CircularLoading />
+          </Box>
         </>
       ) : (
-        dataLoaded && (
-          <>
-            <Card>
-              <CardContent>
-                <Box display="flex" justifyContent="space-between" alignItems="center" marginBottom="20px">
-                  <Typography variant="h5">My Resellers</Typography>
-                  <Button variant="contained" style={{ backgroundColor: '#000', color: '#fff' }} onClick={handleOpen}>
-                    + Add Reseller
-                  </Button>
-                </Box>
+        <>
+          <Card>
+            <CardContent>
+              <Box display="flex" justifyContent="space-between" alignItems="center" marginBottom="20px">
+                <Typography variant="h5">My Resellers</Typography>
+                <Button variant="contained" style={{ backgroundColor: '#000', color: '#fff' }} onClick={handleOpen}>
+                  + Add Reseller
+                </Button>
+              </Box>
 
-                <div style={{ display: 'flex', alignItems: 'center', overflowX: 'auto' }}>
-                  <ResellerTabs
-                    currentTab={currentTab}
-                    handleTabChange={handleTabChange}
-                    resellers={resellers}
-                    activeCount={activeCount}
-                    disabledCount={disabledCount}
-                    deactivatedCount={deactivatedCount}
-                  />
-                </div>
-
-                <SearchBar value={value} onChange={(e) => setValue(e.target.value)} />
-
-                <div style={{ overflowX: 'auto' }}>
-                  <Table>
-                    <TableHead>
-                      <TableRow>
-                        <TableCell padding="checkbox">
-                          <Checkbox checked={isAllSelected} onChange={handleHeaderCheckboxChange} />
-                        </TableCell>
-                        <TableCell style={{ cursor: 'pointer' }} onClick={() => requestSort('firstName')}>
-                          <div
-                            style={{
-                              display: 'flex',
-                              justifyContent: 'space-between',
-                              alignItems: 'center',
-                              width: '100%',
-                            }}
-                          >
-                            Name
-                            {sortConfig.key === 'firstName' &&
-                              (sortConfig.direction === 'asc' ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />)}
-                          </div>
-                        </TableCell>
-                        <TableCell style={{ cursor: 'pointer' }} onClick={() => requestSort('mobileNumber')}>
-                          <div
-                            style={{
-                              display: 'flex',
-                              justifyContent: 'space-between',
-                              alignItems: 'center',
-                              width: '100%',
-                            }}
-                          >
-                            Phone Number
-                            {sortConfig.key === 'mobileNumber' &&
-                              (sortConfig.direction === 'asc' ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />)}
-                          </div>
-                        </TableCell>
-                        <TableCell style={{ cursor: 'pointer' }} onClick={() => requestSort('companyName')}>
-                          <div
-                            style={{
-                              display: 'flex',
-                              justifyContent: 'space-between',
-                              alignItems: 'center',
-                              width: '100%',
-                            }}
-                          >
-                            Company
-                            {sortConfig.key === 'companyName' &&
-                              (sortConfig.direction === 'asc' ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />)}
-                          </div>
-                        </TableCell>
-                        <TableCell style={{ cursor: 'pointer' }} onClick={() => requestSort('status')}>
-                          <div
-                            style={{
-                              display: 'flex',
-                              justifyContent: 'space-between',
-                              alignItems: 'center',
-                              width: '100%',
-                            }}
-                          >
-                            Status
-                            {sortConfig.key === 'status' &&
-                              (sortConfig.direction === 'asc' ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />)}
-                          </div>
-                        </TableCell>
-                        <TableCell sx={{ textAlign: 'right' }}>
-                          <IconButton size="small">
-                            <MoreVertIcon fontSize="inherit" />
-                          </IconButton>
-                        </TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {sortedData
-                        .slice(
-                          page * rowsPerPage,
-                          rowsPerPage === -1 ? sortedData.length : page * rowsPerPage + rowsPerPage
-                        )
-                        .map((reseller) => (
-                          <TableRow key={reseller._id}>
-                            <TableCell padding="checkbox">
-                              <Checkbox
-                                checked={selectedRows.includes(reseller._id)}
-                                onChange={() => handleRowCheckboxChange(reseller._id)}
-                              />
-                            </TableCell>
-                            <TableCell>
-                              <div>
-                                {reseller.firstName} {reseller.lastName}
-                              </div>
-                              <Typography variant="body2" color="textSecondary">
-                                {reseller.email}
-                              </Typography>
-                            </TableCell>
-                            <TableCell>{reseller.mobileNumber}</TableCell>
-                            <TableCell>{reseller.companyName}</TableCell>
-                            <TableCell>
-                              <StatusLabel status={reseller.status} />
-                            </TableCell>
-                            <TableCell style={{ width: '50px' }}>
-                              <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                                <IconButton
-                                  size="small"
-                                  style={{ marginRight: '8px' }}
-                                  onClick={(e) => handleStatusClick(e, reseller._id)}
-                                >
-                                  <EditIcon fontSize="inherit" />
-                                </IconButton>
-                                <IconButton size="small" onClick={(e) => handleMenuOpen(e, reseller)}>
-                                  <MoreVertIcon fontSize="inherit" />
-                                </IconButton>
-
-                                <ResellerActionsMenu
-                                  menuAnchor={menuAnchor}
-                                  handleClose={handleMenuClose}
-                                  selectedRows={selectedRows}
-                                  currentReseller={currentReseller}
-                                  handleMenuAction={handleMenuAction}
-                                />
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                    </TableBody>
-                  </Table>
-                </div>
-                <TablePagination
-                  component="div"
-                  count={sortedData.length}
-                  page={page}
-                  onPageChange={(event, newPage) => setPage(newPage)}
-                  rowsPerPage={rowsPerPage}
-                  onRowsPerPageChange={(event) => {
-                    setRowsPerPage(parseInt(event.target.value, 10));
-                    setPage(0);
-                  }}
-                  rowsPerPageOptions={[5, 10, 20, { label: 'All', value: -1 }]}
+              <div style={{ display: 'flex', alignItems: 'center', overflowX: 'auto' }}>
+                <ResellerTabs
+                  currentTab={currentTab}
+                  handleTabChange={handleTabChange}
+                  resellers={resellers}
+                  activeCount={activeCount}
+                  disabledCount={disabledCount}
+                  deactivatedCount={deactivatedCount}
                 />
-              </CardContent>
-            </Card>
+              </div>
 
-            <Menu
-              id="simple-menu"
-              anchorEl={anchorEl}
-              keepMounted
-              open={Boolean(anchorEl)}
-              onClose={handleCloseStatusMenu}
-            >
-              <MenuItem onClick={() => handleStatusChange('Active')}>Active</MenuItem>
-              <MenuItem onClick={() => handleStatusChange('Disabled')}>Disabled</MenuItem>
-              <MenuItem onClick={() => handleStatusChange('Deactivated')}>Deactivated</MenuItem>
-            </Menu>
+              <SearchBar value={value} onChange={(e) => setValue(e.target.value)} />
 
-            <AddResellerDialog
-              open={open}
-              onClose={handleClose}
-              formState={formState}
-              handleInputChange={handleInputChange}
-              handleBlur={handleBlur}
-              validationErrors={validationErrors}
-              handleAddReseller={handleAddReseller}
-              countries={countries}
-              countryCodes={countryCodes}
-            />
-            <CredentialsDialog
-              open={showCredentialsPopup}
-              onClose={() => setShowCredentialsPopup(false)}
-              email={formState.email}
-              password={generatedPassword}
-              fetchData={fetchData}
-            />
-            <EditResellerDialog
-              open={editDialogOpen}
-              onClose={() => {
-                setEditDialogOpen(false);
-                setCurrentReseller(null);
-              }}
-              reseller={currentReseller}
-              onSubmit={fetchData}
-              userId={userId}
-              editingResellerId={editingResellerId}
-            />
-            <ChangePasswordDialog
-              open={changePasswordDialogOpen}
-              onClose={() => setChangePasswordDialogOpen(false)}
-              userId={userId}
-              currentReseller={currentReseller}
-            />
-            <DeleteResellerDialog
-              open={deleteDialogOpen}
-              handleCloseDeleteDialog={handleCloseDeleteDialog}
-              userId={userId}
-              resellerId={resellerToDelete?._id}
-              fetchData={fetchData}
-            />
-          </>
-        )
+              <div style={{ overflowX: 'auto' }}>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell padding="checkbox">
+                        <Checkbox checked={isAllSelected} onChange={handleHeaderCheckboxChange} />
+                      </TableCell>
+                      <TableCell style={{ cursor: 'pointer' }} onClick={() => requestSort('firstName')}>
+                        <div
+                          style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            width: '100%',
+                          }}
+                        >
+                          Name
+                          {sortConfig.key === 'firstName' &&
+                            (sortConfig.direction === 'asc' ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />)}
+                        </div>
+                      </TableCell>
+                      <TableCell style={{ cursor: 'pointer' }} onClick={() => requestSort('mobileNumber')}>
+                        <div
+                          style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            width: '100%',
+                          }}
+                        >
+                          Phone Number
+                          {sortConfig.key === 'mobileNumber' &&
+                            (sortConfig.direction === 'asc' ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />)}
+                        </div>
+                      </TableCell>
+                      <TableCell style={{ cursor: 'pointer' }} onClick={() => requestSort('companyName')}>
+                        <div
+                          style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            width: '100%',
+                          }}
+                        >
+                          Company
+                          {sortConfig.key === 'companyName' &&
+                            (sortConfig.direction === 'asc' ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />)}
+                        </div>
+                      </TableCell>
+                      <TableCell style={{ cursor: 'pointer' }} onClick={() => requestSort('status')}>
+                        <div
+                          style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            width: '100%',
+                          }}
+                        >
+                          Status
+                          {sortConfig.key === 'status' &&
+                            (sortConfig.direction === 'asc' ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />)}
+                        </div>
+                      </TableCell>
+                      <TableCell sx={{ textAlign: 'right' }}>
+                        <IconButton size="small">
+                          <MoreVertIcon fontSize="inherit" />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {sortedData
+                      .slice(
+                        page * rowsPerPage,
+                        rowsPerPage === -1 ? sortedData.length : page * rowsPerPage + rowsPerPage
+                      )
+                      .map((reseller) => (
+                        <TableRow key={reseller._id}>
+                          <TableCell padding="checkbox">
+                            <Checkbox
+                              checked={selectedRows.includes(reseller._id)}
+                              onChange={() => handleRowCheckboxChange(reseller._id)}
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <div>
+                              {reseller.firstName} {reseller.lastName}
+                            </div>
+                            <Typography variant="body2" color="textSecondary">
+                              {reseller.email}
+                            </Typography>
+                          </TableCell>
+                          <TableCell>{reseller.mobileNumber}</TableCell>
+                          <TableCell>{reseller.companyName}</TableCell>
+                          <TableCell>
+                            <StatusLabel status={reseller.status} />
+                          </TableCell>
+                          <TableCell style={{ width: '50px' }}>
+                            <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                              <IconButton
+                                size="small"
+                                style={{ marginRight: '8px' }}
+                                onClick={(e) => handleStatusClick(e, reseller._id)}
+                              >
+                                <EditIcon fontSize="inherit" />
+                              </IconButton>
+                              <IconButton size="small" onClick={(e) => handleMenuOpen(e, reseller)}>
+                                <MoreVertIcon fontSize="inherit" />
+                              </IconButton>
+
+                              <ResellerActionsMenu
+                                menuAnchor={menuAnchor}
+                                handleClose={handleMenuClose}
+                                selectedRows={selectedRows}
+                                currentReseller={currentReseller}
+                                handleMenuAction={handleMenuAction}
+                              />
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                  </TableBody>
+                </Table>
+              </div>
+              <TablePagination
+                component="div"
+                count={sortedData.length}
+                page={page}
+                onPageChange={(event, newPage) => setPage(newPage)}
+                rowsPerPage={rowsPerPage}
+                onRowsPerPageChange={(event) => {
+                  setRowsPerPage(parseInt(event.target.value, 10));
+                  setPage(0);
+                }}
+                rowsPerPageOptions={[5, 10, 20, { label: 'All', value: -1 }]}
+              />
+            </CardContent>
+          </Card>
+
+          <Menu
+            id="simple-menu"
+            anchorEl={anchorEl}
+            keepMounted
+            open={Boolean(anchorEl)}
+            onClose={handleCloseStatusMenu}
+          >
+            <MenuItem onClick={() => handleStatusChange('Active')}>Active</MenuItem>
+            <MenuItem onClick={() => handleStatusChange('Disabled')}>Disabled</MenuItem>
+            <MenuItem onClick={() => handleStatusChange('Deactivated')}>Deactivated</MenuItem>
+          </Menu>
+
+          <AddResellerDialog
+            open={open}
+            onClose={handleClose}
+            formState={formState}
+            handleInputChange={handleInputChange}
+            handleBlur={handleBlur}
+            validationErrors={validationErrors}
+            handleAddReseller={handleAddReseller}
+            countries={countries}
+            countryCodes={countryCodes}
+          />
+          <CredentialsDialog
+            open={showCredentialsPopup}
+            onClose={() => setShowCredentialsPopup(false)}
+            email={formState.email}
+            password={generatedPassword}
+            fetchData={fetchData}
+          />
+          <EditResellerDialog
+            open={editDialogOpen}
+            onClose={() => {
+              setEditDialogOpen(false);
+              setCurrentReseller(null);
+            }}
+            reseller={currentReseller}
+            onSubmit={fetchData}
+            userId={userId}
+            editingResellerId={editingResellerId}
+          />
+          <ChangePasswordDialog
+            open={changePasswordDialogOpen}
+            onClose={() => setChangePasswordDialogOpen(false)}
+            userId={userId}
+            currentReseller={currentReseller}
+          />
+          <DeleteResellerDialog
+            open={deleteDialogOpen}
+            handleCloseDeleteDialog={handleCloseDeleteDialog}
+            userId={userId}
+            resellerId={resellerToDelete?._id}
+            fetchData={fetchData}
+          />
+        </>
       )}
     </div>
   );
