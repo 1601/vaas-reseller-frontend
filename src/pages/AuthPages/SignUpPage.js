@@ -1023,7 +1023,7 @@ export default function SignUpPage() {
                     label={
                       <>
                         I agree to the
-                        <Link component="button" onClick={openTermsDialog} sx={{ pl: 1, fontSize:{xs:'.5rem'} }}>
+                        <Link component="button" onClick={openTermsDialog} sx={{ pl: 1, fontSize:{xs:'.9rem'} }}>
                           Terms and Conditions
                         </Link>
                       </>
