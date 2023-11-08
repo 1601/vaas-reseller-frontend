@@ -20,7 +20,6 @@ import CircularLoading from '../components/preLoader';
 import AccountStatusModal from '../components/user-account/AccountStatusModal';
 import UserDataFetch from '../components/user-account/UserDataFetch';
 
-
 const StorePageEdit = () => {
   const navigate = useNavigate();
   const [storeData, setStoreData] = useState(null);
@@ -38,8 +37,7 @@ const StorePageEdit = () => {
     enableGift: true,
   });
 
-  useEffect(() => {
-  }, [storeData]);
+  useEffect(() => {}, [storeData]);
 
   useEffect(() => {
     const storedUserId = JSON.parse(localStorage.getItem('user'))._id;
@@ -458,23 +456,21 @@ const StorePageEdit = () => {
           )}
 
           {/* Store Details Card */}
-          {storeData ? <>
-            <div className="mb-4 w-full">
-              <Card variant="outlined" style={{ padding: '20px', marginBottom: '20px' }}>
-                <div className="md:flex md:justify-between md:items-center mb-4">
-                  <Typography variant="h4" gutterBottom className="w-full md:w-auto">
-                    Store Details
-                  </Typography>
-                  <div className="space-x-2 md:space-x-0 md:space-y-2">
-                    {isEditing ? (
-                      <div className="flex">
+          {storeData ? (
+            <>
+              <div className="mb-4 w-full">
+                <Card variant="outlined" style={{ padding: '20px', marginBottom: '20px' }}>
+                  <div className="md:flex md:justify-between md:items-center mb-4">
+                    <Typography variant="h4" gutterBottom className="w-full md:w-auto">
+                      Store Details
+                    </Typography>
+                    <div className="flex space-x-2">
+                      {isEditing ? (
                         <Button onClick={handleSaveClick} className="bg-blue-600 text-white px-4 py-2 rounded mr-2">
                           Save
                         </Button>
-                      </div>
-                    ) : (
-                      <>
-                        <div className="flex space-x-2">
+                      ) : (
+                        <>
                           <Button
                             variant="outlined"
                             color="primary"
@@ -483,127 +479,321 @@ const StorePageEdit = () => {
                           >
                             Preview Store
                           </Button>
+                          {storeData !== null && storeData.isApproved && !storeData.isLive && (
+                            <Button
+                              variant="contained"
+                              color="secondary"
+                              className="bg-green-600 text-white px-4 py-2 rounded"
+                              onClick={!storeData.kycApprove ? undefined : handleGoLiveClick}
+                              disabled={!storeData.kycApprove}
+                            >
+                              Go Live
+                            </Button>
+                          )}
+                          {storeData !== null && storeData.isLive && (
+                            <Button
+                              variant="contained"
+                              color="secondary"
+                              className="bg-red-600 text-white px-4 py-2 rounded"
+                              onClick={!storeData.kycApprove ? undefined : handleUnliveClick}
+                              disabled={!storeData.kycApprove}
+                            >
+                              Un-Live
+                            </Button>
+                          )}
                           <Button onClick={handleEditClick} className="bg-blue-600 text-white px-4 py-2 rounded">
                             Edit
                           </Button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+
+                  {storeData && (
+                    <div>
+                      <Card style={{ marginBottom: '20px', padding: '15px' }}>
+                        <Typography variant="h5" style={{ fontWeight: 'bold', marginBottom: '5px' }}>
+                          Store Name
+                        </Typography>
+                        <Typography variant="body2" style={{ marginBottom: '8px' }}>
+                          This is the name of your store!
+                        </Typography>
+                        {isEditing ? (
+                          <input
+                            type="text"
+                            value={editedData.storeName}
+                            onChange={(e) => handleInputChange(e, 'storeName')}
+                            className="border p-2 rounded"
+                            style={{ fontSize: '1rem' }}
+                          />
+                        ) : (
+                          <Typography variant="body1">{storeData.storeName}</Typography>
+                        )}
+                      </Card>
+
+                      <Card style={{ marginBottom: '20px', padding: '15px' }}>
+                        <Typography variant="h5" style={{ fontWeight: 'bold', marginBottom: '5px' }}>
+                          Store URL
+                        </Typography>
+                        <Typography variant="body2" style={{ marginBottom: '8px' }}>
+                          This is the URL of your store!
+                        </Typography>
+                        {isEditing ? (
+                          <input
+                            type="text"
+                            value={editedData.storeUrl}
+                            onChange={(e) => handleInputChange(e, 'storeUrl')}
+                            className="border p-2 rounded"
+                            style={{ fontSize: '1rem' }}
+                            pattern="^[a-z0-9]+$"
+                            title="Please enter a lowercase alphanumeric value without special symbols."
+                          />
+                        ) : (
+                          <Typography variant="body1">{storeData.storeUrl}</Typography>
+                        )}
+                      </Card>
+
+                      <Card style={{ marginBottom: '20px', padding: '15px' }}>
+                        <Typography variant="h5" style={{ fontWeight: 'bold', marginBottom: '5px' }}>
+                          Store Approval
+                        </Typography>
+                        <Typography variant="body2" style={{ marginBottom: '8px' }}>
+                          This is the status of your store's approval!
+                        </Typography>
+                        <Typography variant="body1">
+                          {storeData.needsApproval ? 'Pending Approval' : 'Approved'}
+                        </Typography>
+                      </Card>
+
+                      <Card style={{ marginBottom: '20px', padding: '15px' }}>
+                        <Typography variant="h5" style={{ fontWeight: 'bold', marginBottom: '5px' }}>
+                          Store Live Status
+                        </Typography>
+                        <Typography variant="body2" style={{ marginBottom: '8px' }}>
+                          Check here if your store is currently Live or Offline!
+                        </Typography>
+                        <Typography variant="body1">{storeData.isLive ? 'Live' : 'Offline'}</Typography>
+                      </Card>
+                    </div>
+                  )}
+                </Card>
+              </div>
+
+              <div className="mb-4 w-full">
+                <Card variant="outlined" style={{ padding: '20px', marginBottom: '20px' }}>
+                  <Typography variant="h4" gutterBottom>
+                    Store Logo
+                  </Typography>
+                  <Typography variant="subtitle1" gutterBottom style={{ marginTop: '-10px' }}>
+                    This is where your store logo is added.
+                  </Typography>
+                  <Grid container spacing={3}>
+                    <Grid item xs={12} md={6}>
+                      <Card
+                        variant="outlined"
+                        style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}
+                      >
+                        <img
+                          src={storeData ? storeData.storeLogo : '/vortex_logo_black.png'}
+                          alt="Your Store Logo"
+                          style={{ maxWidth: '230px', maxHeight: '230px' }}
+                        />
+                      </Card>
+                    </Grid>
+                    <Grid item xs={12} md={6}>
+                      <Card
+                        variant="outlined"
+                        style={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          justifyContent: 'space-between',
+                          height: '100%',
+                          padding: '20px',
+                        }}
+                      >
+                        <div>
+                          <Typography variant="h6" gutterBottom>
+                            Default
+                          </Typography>
+                          <Typography variant="subtitle2" gutterBottom style={{ marginTop: '-10px' }}>
+                            Used for most common logo applications
+                          </Typography>
+                          <Typography variant="body2" gutterBottom style={{ marginTop: '-10px' }}>
+                            Add a default logo
+                          </Typography>
                         </div>
-                        {storeData !== null && storeData.isApproved && !storeData.isLive && (
+                        <div className="flex flex-col md:flex-row items-center space-y-2 md:space-x-2">
+                          <input
+                            type="file"
+                            accept="image/png, image/jpeg"
+                            onChange={handleFileUpload}
+                            className="w-full md:w-auto text-sm md:text-base border p-2 rounded mt-2"
+                          />
                           <Button
-                            variant="contained"
-                            color="secondary"
-                            className="bg-green-600 text-white px-4 py-2 rounded"
-                            onClick={!storeData.kycApprove ? undefined : handleGoLiveClick}
-                            disabled={!storeData.kycApprove}
+                            onClick={() => handleUploadClick('logo')}
+                            className="bg-blue-600 text-white px-4 py-2 rounded mt-4"
                           >
-                            Go Live
+                            Upload
                           </Button>
-                        )}
-                        {storeData !== null && storeData.isLive && (
-                          <Button
-                            variant="contained"
-                            color="secondary"
-                            className="bg-red-600 text-white px-4 py-2 rounded"
-                            onClick={!storeData.kycApprove ? undefined : handleUnliveClick}
-                            disabled={!storeData.kycApprove}
-                          >
-                            Un-Live
-                          </Button>
-                        )}
-                      </>
-                    )}
-                  </div>
-                </div>
-
-                {storeData && (
-                  <div>
-                    <Card style={{ marginBottom: '20px', padding: '15px' }}>
-                      <Typography variant="h5" style={{ fontWeight: 'bold', marginBottom: '5px' }}>
-                        Store Name
-                      </Typography>
-                      <Typography variant="body2" style={{ marginBottom: '8px' }}>
-                        This is the name of your store!
-                      </Typography>
-                      {isEditing ? (
-                        <input
-                          type="text"
-                          value={editedData.storeName}
-                          onChange={(e) => handleInputChange(e, 'storeName')}
-                          className="border p-2 rounded"
-                          style={{ fontSize: '1rem' }}
-                        />
-                      ) : (
-                        <Typography variant="body1">{storeData.storeName}</Typography>
-                      )}
-                    </Card>
-
-                    <Card style={{ marginBottom: '20px', padding: '15px' }}>
-                      <Typography variant="h5" style={{ fontWeight: 'bold', marginBottom: '5px' }}>
-                        Store URL
-                      </Typography>
-                      <Typography variant="body2" style={{ marginBottom: '8px' }}>
-                        This is the URL of your store!
-                      </Typography>
-                      {isEditing ? (
-                        <input
-                          type="text"
-                          value={editedData.storeUrl}
-                          onChange={(e) => handleInputChange(e, 'storeUrl')}
-                          className="border p-2 rounded"
-                          style={{ fontSize: '1rem' }}
-                          pattern="^[a-z0-9]+$"
-                          title="Please enter a lowercase alphanumeric value without special symbols."
-                        />
-                      ) : (
-                        <Typography variant="body1">{storeData.storeUrl}</Typography>
-                      )}
-                    </Card>
-
-                    <Card style={{ marginBottom: '20px', padding: '15px' }}>
-                      <Typography variant="h5" style={{ fontWeight: 'bold', marginBottom: '5px' }}>
-                        Store Approval
-                      </Typography>
-                      <Typography variant="body2" style={{ marginBottom: '8px' }}>
-                        This is the status of your store's approval!
-                      </Typography>
-                      <Typography variant="body1">{storeData.needsApproval ? 'Pending Approval' : 'Approved'}</Typography>
-                    </Card>
-
-                    <Card style={{ marginBottom: '20px', padding: '15px' }}>
-                      <Typography variant="h5" style={{ fontWeight: 'bold', marginBottom: '5px' }}>
-                        Store Live Status
-                      </Typography>
-                      <Typography variant="body2" style={{ marginBottom: '8px' }}>
-                        Check here if your store is currently Live or Offline!
-                      </Typography>
-                      <Typography variant="body1">{storeData.isLive ? 'Live' : 'Offline'}</Typography>
-                    </Card>
-                  </div>
-                )}
-              </Card>
-            </div>
-
-            <div className="mb-4 w-full">
-              <Card variant="outlined" style={{ padding: '20px', marginBottom: '20px' }}>
-                <Typography variant="h4" gutterBottom>
-                  Store Logo
-                </Typography>
-                <Typography variant="subtitle1" gutterBottom style={{ marginTop: '-10px' }}>
-                  This is where your store logo is added.
-                </Typography>
-                <Grid container spacing={3}>
-                  <Grid item xs={12} md={6}>
-                    <Card
-                      variant="outlined"
-                      style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}
-                    >
-                      <img
-                        src={storeData ? storeData.storeLogo : '/vortex_logo_black.png'}
-                        alt="Your Store Logo"
-                        style={{ maxWidth: '230px', maxHeight: '230px' }}
-                      />
-                    </Card>
+                        </div>
+                      </Card>
+                    </Grid>
                   </Grid>
-                  <Grid item xs={12} md={6}>
+                </Card>
+              </div>
+              <div className="mb-4 w-full">
+                <div className="w-full">
+                  <Card variant="outlined" style={{ padding: '20px', marginBottom: '20px' }}>
+                    <Typography variant="h4" gutterBottom>
+                      Store Colors
+                    </Typography>
+                    <Typography variant="subtitle1" gutterBottom style={{ marginTop: '-10px' }}>
+                      Choose the primary and secondary colors for your store.
+                    </Typography>
+                    <div>
+                      <Grid container spacing={3}>
+                        <Grid item xs={12} sm={6}>
+                          <Card
+                            variant="outlined"
+                            style={{
+                              display: 'flex',
+                              flexDirection: 'row',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              padding: '20px',
+                              marginBottom: '20px',
+                            }}
+                          >
+                            <div className="flex flex-col md:flex-row md:items-center md:space-x-4">
+                              <div className="mb-4 md:mb-0 w-full md:w-auto">
+                                <Typography variant="subtitle2" align="center">
+                                  Primary Color
+                                </Typography>
+                                <ChromePicker
+                                  color={color.primary.hex}
+                                  onChangeComplete={(newColor) =>
+                                    setColor({ ...color, primary: { hex: newColor.hex } })
+                                  }
+                                />
+                              </div>
+                              <div className="md:flex flex-col md:items-center">
+                                {/* Current Primary Color */}
+                                <div className="mb-4 md:mb-2">
+                                  <Typography
+                                    variant="subtitle1"
+                                    align="center"
+                                    className="text-base md:text-sm lg:text-md"
+                                  >
+                                    Current Primary Color
+                                  </Typography>
+                                  <div
+                                    className="w-full md:w-25 h-6 bg-black border border-black"
+                                    style={{ backgroundColor: storeData ? storeData.primaryColor : '#FFFFFF' }}
+                                  />
+                                </div>
+
+                                {/* New Primary Color */}
+                                <div>
+                                  <Typography
+                                    variant="subtitle1"
+                                    align="center"
+                                    className="text-base md:text-sm lg:text-md"
+                                  >
+                                    New Primary Color
+                                  </Typography>
+                                  <div
+                                    className="w-full md:w-30 h-6 bg-black border border-black"
+                                    style={{ backgroundColor: color.primary.hex }}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </Card>
+                        </Grid>
+
+                        <Grid item xs={12} sm={6}>
+                          <Card
+                            variant="outlined"
+                            style={{
+                              display: 'flex',
+                              flexDirection: 'row',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              padding: '20px',
+                              marginBottom: '20px',
+                            }}
+                          >
+                            <div className="flex flex-col md:flex-row md:items-center md:space-x-4">
+                              <div className="mb-4 md:mb-0 w-full md:w-auto">
+                                <Typography variant="subtitle2" align="center">
+                                  Secondary Color
+                                </Typography>
+                                <ChromePicker
+                                  color={color.secondary.hex}
+                                  onChangeComplete={(newColor) =>
+                                    setColor({ ...color, secondary: { hex: newColor.hex } })
+                                  }
+                                />
+                              </div>
+
+                              {/* Right side content */}
+                              <div className="md:flex flex-col md:items-center">
+                                {/* Current Secondary Color */}
+                                <div className="mb-4 md:mb-2">
+                                  <Typography
+                                    variant="subtitle1"
+                                    align="center"
+                                    className="text-base md:text-sm lg:text-md"
+                                  >
+                                    Current Secondary Color
+                                  </Typography>
+                                  <div
+                                    className="w-full md:w-25 h-6 bg-black border border-black"
+                                    style={{ backgroundColor: storeData ? storeData.secondaryColor : '#FFFFFF' }}
+                                  />
+                                </div>
+
+                                {/* New Secondary Color */}
+                                <div>
+                                  <Typography
+                                    variant="subtitle1"
+                                    align="center"
+                                    className="text-base md:text-sm lg:text-md"
+                                  >
+                                    New Secondary Color
+                                  </Typography>
+                                  <div
+                                    className="w-full md:w-30 h-6 bg-black border border-black"
+                                    style={{ backgroundColor: color.secondary.hex }}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </Card>
+                        </Grid>
+                      </Grid>
+                    </div>
+
+                    <Divider style={{ margin: '20px 0' }} />
+
+                    <div className="flex flex-col sm:flex-row justify-center sm:justify-between items-center">
+                      <Button onClick={handleSaveColorsClick} className="bg-blue-600 text-white px-4 py-2 rounded mr-2">
+                        Update Colors
+                      </Button>
+                    </div>
+                  </Card>
+                </div>
+              </div>
+
+              <div className="mb-4 w-full">
+                <div className="w-full">
+                  <Card variant="outlined" style={{ padding: '20px', marginBottom: '20px' }}>
+                    <Typography variant="h4" gutterBottom>
+                      Product Toggles
+                    </Typography>
+                    <Typography variant="subtitle1" gutterBottom style={{ marginTop: '-10px' }}>
+                      Toggle what products you want your customers to interact with.
+                    </Typography>
                     <Card
                       variant="outlined"
                       style={{
@@ -614,195 +804,43 @@ const StorePageEdit = () => {
                         padding: '20px',
                       }}
                     >
-                      <div>
-                        <Typography variant="h6" gutterBottom>
-                          Default
-                        </Typography>
-                        <Typography variant="subtitle2" gutterBottom style={{ marginTop: '-10px' }}>
-                          Used for most common logo applications
-                        </Typography>
-                        <Typography variant="body2" gutterBottom style={{ marginTop: '-10px' }}>
-                          Add a default logo
-                        </Typography>
-                      </div>
-                      <div className="flex flex-col md:flex-row items-center space-y-2 md:space-x-2">
-                        <input
-                          type="file"
-                          accept="image/png, image/jpeg"
-                          onChange={handleFileUpload}
-                          className="w-full md:w-auto text-sm md:text-base border p-2 rounded mt-2"
-                        />
-                        <Button
-                          onClick={() => handleUploadClick('logo')}
-                          className="bg-blue-600 text-white px-4 py-2 rounded mt-4"
-                        >
-                          Upload
-                        </Button>
-                      </div>
-
+                      <Grid container spacing={2}>
+                        <Grid item xs={12} sm={4}>
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                            <Typography variant="subtitle1">Enable Bills:</Typography>
+                            <Switch
+                              checked={platformVariables.enableBills}
+                              onChange={() => handleToggle('enableBills')}
+                            />
+                          </div>
+                        </Grid>
+                        <Grid item xs={12} sm={4}>
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                            <Typography variant="subtitle1">Enable Load:</Typography>
+                            <Switch
+                              checked={platformVariables.enableLoad}
+                              onChange={() => handleToggle('enableLoad')}
+                            />
+                          </div>
+                        </Grid>
+                        <Grid item xs={12} sm={4}>
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                            <Typography variant="subtitle1">Enable Gift:</Typography>
+                            <Switch
+                              checked={platformVariables.enableGift}
+                              onChange={() => handleToggle('enableGift')}
+                            />
+                          </div>
+                        </Grid>
+                      </Grid>
                     </Card>
-                  </Grid>
-                </Grid>
-              </Card>
-            </div>
-            <div className="mb-4 w-full">
-              <div className="w-full">
-                <Card variant="outlined" style={{ padding: '20px', marginBottom: '20px' }}>
-                  <Typography variant="h4" gutterBottom>
-                    Store Colors
-                  </Typography>
-                  <Typography variant="subtitle1" gutterBottom style={{ marginTop: '-10px' }}>
-                    Choose the primary and secondary colors for your store.
-                  </Typography>
-                  <div>
-                    <Grid container spacing={3}>
-                      <Grid item xs={12} sm={6}>
-                        <Card
-                          variant="outlined"
-                          style={{
-                            display: 'flex',
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            padding: '20px',
-                            marginBottom: '20px',
-                          }}
-                        >
-                          <div className="flex flex-col md:flex-row md:items-center md:space-x-4">
-                            <div className="mb-4 md:mb-0 w-full md:w-auto">
-                              <Typography variant="subtitle2" align="center">
-                                Primary Color
-                              </Typography>
-                              <ChromePicker
-                                color={color.primary.hex}
-                                onChangeComplete={(newColor) => setColor({ ...color, primary: { hex: newColor.hex } })}
-                              />
-                            </div>
-                            <div className="md:flex flex-col md:items-center">
-                              {/* Current Primary Color */}
-                              <div className="mb-4 md:mb-2">
-                                <Typography variant="subtitle1" align="center" className="text-base md:text-sm lg:text-md">
-                                  Current Primary Color
-                                </Typography>
-                                <div className="w-full md:w-25 h-6 bg-black border border-black" style={{ backgroundColor: storeData ? storeData.primaryColor : '#FFFFFF' }} />
-                              </div>
-
-                              {/* New Primary Color */}
-                              <div>
-                                <Typography variant="subtitle1" align="center" className="text-base md:text-sm lg:text-md">
-                                  New Primary Color
-                                </Typography>
-                                <div className="w-full md:w-30 h-6 bg-black border border-black" style={{ backgroundColor: color.primary.hex }} />
-                              </div>
-                            </div>
-                          </div>
-
-                        </Card>
-                      </Grid>
-
-                      <Grid item xs={12} sm={6}>
-                        <Card
-                          variant="outlined"
-                          style={{
-                            display: 'flex',
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            padding: '20px',
-                            marginBottom: '20px',
-                          }}
-                        >
-                          <div className="flex flex-col md:flex-row md:items-center md:space-x-4">
-                            <div className="mb-4 md:mb-0 w-full md:w-auto">
-                              <Typography variant="subtitle2" align="center">
-                                Secondary Color
-                              </Typography>
-                              <ChromePicker
-                                color={color.secondary.hex}
-                                onChangeComplete={(newColor) => setColor({ ...color, secondary: { hex: newColor.hex } })}
-                              />
-                            </div>
-
-                            {/* Right side content */}
-                            <div className="md:flex flex-col md:items-center">
-                              {/* Current Secondary Color */}
-                              <div className="mb-4 md:mb-2">
-                                <Typography variant="subtitle1" align="center" className="text-base md:text-sm lg:text-md">
-                                  Current Secondary Color
-                                </Typography>
-                                <div className="w-full md:w-25 h-6 bg-black border border-black" style={{ backgroundColor: storeData ? storeData.secondaryColor : '#FFFFFF' }} />
-                              </div>
-
-                              {/* New Secondary Color */}
-                              <div>
-                                <Typography variant="subtitle1" align="center" className="text-base md:text-sm lg:text-md">
-                                  New Secondary Color
-                                </Typography>
-                                <div className="w-full md:w-30 h-6 bg-black border border-black" style={{ backgroundColor: color.secondary.hex }} />
-                              </div>
-                            </div>
-                          </div>
-
-                        </Card>
-                      </Grid>
-                    </Grid>
-                  </div>
-
-                  <Divider style={{ margin: '20px 0' }} />
-
-                  <div className="flex flex-col sm:flex-row justify-center sm:justify-between items-center">
-                    <Button onClick={handleSaveColorsClick} className="bg-blue-600 text-white px-4 py-2 rounded mr-2">
-                      Update Colors
-                    </Button>
-                  </div>
-                </Card>
-              </div>
-            </div>
-
-            <div className="mb-4 w-full">
-              <div className="w-full">
-                <Card variant="outlined" style={{ padding: '20px', marginBottom: '20px' }}>
-                  <Typography variant="h4" gutterBottom>
-                    Product Toggles
-                  </Typography>
-                  <Typography variant="subtitle1" gutterBottom style={{ marginTop: '-10px' }}>
-                    Toggle what products you want your customers to interact with.
-                  </Typography>
-                  <Card
-                    variant="outlined"
-                    style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      justifyContent: 'space-between',
-                      height: '100%',
-                      padding: '20px',
-                    }}
-                  >
-                    <Grid container spacing={2}>
-                      <Grid item xs={12} sm={4}>
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                          <Typography variant="subtitle1">Enable Bills:</Typography>
-                          <Switch checked={platformVariables.enableBills} onChange={() => handleToggle('enableBills')} />
-                        </div>
-                      </Grid>
-                      <Grid item xs={12} sm={4}>
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                          <Typography variant="subtitle1">Enable Load:</Typography>
-                          <Switch checked={platformVariables.enableLoad} onChange={() => handleToggle('enableLoad')} />
-                        </div>
-                      </Grid>
-                      <Grid item xs={12} sm={4}>
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                          <Typography variant="subtitle1">Enable Gift:</Typography>
-                          <Switch checked={platformVariables.enableGift} onChange={() => handleToggle('enableGift')} />
-                        </div>
-                      </Grid>
-                    </Grid>
                   </Card>
-                </Card>
+                </div>
               </div>
-            </div>
-          </> : <CircularLoading />}
+            </>
+          ) : (
+            <CircularLoading />
+          )}
 
           {uploading && (
             <div className="fixed bottom-0 left-0 w-full bg-gray-800 text-white text-center p-4">
