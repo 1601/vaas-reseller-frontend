@@ -1026,7 +1026,10 @@ const VortexTopUp = () => {
                   variant="outlined"
                   onClick={async () => {
                     const url = 
-                    // createLink( grandTotalFee * 100, selectedProduct.code );
+                    // createLink( grandTotalFee, selectedProduct.code );
+                    // console.log ( "Link Created: ", createLink )
+                    // console.log ( "Amount: ", grandTotalFee )
+                    // console.log ( "Description: ", selectedProduct.code )
                     'https://pm.link/123123123123123za23/test/de4YiYw'
                     window.open(url, '_blank');
                     // setIsLoadingTransaction(true)
