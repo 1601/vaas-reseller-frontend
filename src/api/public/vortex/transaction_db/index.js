@@ -17,20 +17,28 @@ export const saveVortexTopUpTransaction = async ({ referenceNumber, transactionD
     
     // Default values
     const defaultReferenceNumber = '123456789'; 
-    const defaultUserId = 'Guest'; 
+    const defaultUserId = '5ff4481563135b0017a60a82'; 
     const defaultStoreId = 'default_store_id'; 
     const defaultCustomerId = 'guest_id';
     
     const reqBody = {
-      "referenceNumber": referenceNumber || defaultReferenceNumber,
+      // "referenceNumber": referenceNumber || defaultReferenceNumber,
+      // "paymentId": paymentId || 'default_payment_id',
+      // "store": store?._id || defaultStoreId,
+      // "customer": customer?._id || defaultCustomerId
       "userId": userId || defaultUserId,
       "transactionData": JSON.stringify(transactionData || { "message": "default message" }),
       "requestInputPayload": JSON.stringify(requestInputPayload),
-      "paymentId": paymentId || 'default_payment_id',
       "totalAmount": totalAmount,
-      "store": store?._id || defaultStoreId,
-      "customer": customer?._id || defaultCustomerId
+      "convenienceFee": totalAmount,
     };
+
+    console.log('Making a POST request to:', `${API}/vortex/transaction/topup`);
+    console.log('Request headers:', {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`,
+    });
+    console.log('Request body:', reqBody);
 
     return await fetch(`${API}/vortex/transaction/topup`, {
       method: "POST",

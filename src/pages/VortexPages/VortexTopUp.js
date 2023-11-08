@@ -89,6 +89,45 @@ function convertParamToCat(paramCategory) {
   }
 }
 
+const createLink = async (amount, description) => {
+  const url = 'https://api.paymongo.com/v1/links';
+
+  const payload = {
+    data: {
+      attributes: {
+        amount,
+        description,
+        remarks: 'remarks test',
+      },
+    },
+  };
+
+  const headers = {
+    Accept: 'application/json',
+    Authorization: 'Basic c2tfdGVzdF84VWhHVXBBdVZEWVBKU3BHRWVpV250Qm46',
+    'Content-Type': 'application/json',
+  };
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(payload),
+    });
+
+    if (response.ok) {
+      const responseData = await response.json();
+      const linkURL = responseData.data.attributes.url;
+      return linkURL;
+    }
+    console.error('Failed to create Paymongo link');
+    return null;
+  } catch (error) {
+    console.error('Error while making the request:', error);
+    return null; 
+  }
+};
+
 const LoginPage = () => (
   <Box>
     <div> Login Page</div>
@@ -986,7 +1025,9 @@ const VortexTopUp = () => {
                   disabled={isLoadingTransaction}
                   variant="outlined"
                   onClick={async () => {
-                    const url = 'https://pm.link/123123123123123za23/test/DGSwn7b';
+                    const url = 
+                    // createLink( grandTotalFee * 100, selectedProduct.code );
+                    'https://pm.link/123123123123123za23/test/de4YiYw'
                     window.open(url, '_blank');
                     // setIsLoadingTransaction(true)
 
