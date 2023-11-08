@@ -29,6 +29,7 @@ import { countryCodes } from '../../components/country/countryNumCodes';
 import { mobileNumberLengths } from '../../components/country/countryNumLength';
 import ValidatedTextField from '../../components/validation/ValidatedTextField';
 import { validateName, validateEmail, validateMobileNumber } from '../../components/validation/validationUtils';
+import CircularLoading from '../../components/preLoader';
 
 const ProfileSettings = () => {
   const navigate = useNavigate();
@@ -391,7 +392,7 @@ const ProfileSettings = () => {
   };
 
   if (!userData || !storeData) {
-    return <Typography>Loading...</Typography>;
+    return <CircularLoading />;
   }
 
   if (error) {

@@ -1,32 +1,21 @@
 import React, { useState } from 'react';
 import {
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Autocomplete,
   Box,
   Typography,
   Container,
   Grid,
   Card,
   CardContent,
-  TextField,
-  InputAdornment,
 } from '@mui/material';
 import UserDataFetch from '../../components/user-account/UserDataFetch';
 import StoreDataFetch from '../../components/user-account/StoreDataFetch';
-import { countries } from '../../components/country/CountriesList';
-import { countryCodes } from '../../components/country/countryNumCodes';
-import ValidatedTextField from '../../components/validation/ValidatedTextField';
+import CircularLoading from '../../components/preLoader';
 
 const ProfilePage = () => {
   const user = JSON.parse(localStorage.getItem('user'));
   const userId = user?._id || (user && user.id);
   const userData = UserDataFetch(userId);
   const { storeData, error } = StoreDataFetch(userId);
-
-  const [formState, setFormState] = useState({});
 
   const kycStatuses = ['Unsubmitted Documents', 'Pending Approval', 'Approved', 'Rejected'];
 
@@ -38,7 +27,7 @@ const ProfilePage = () => {
   };
 
   if (!userData || !storeData) {
-    return <Typography>Loading...</Typography>;
+    return <CircularLoading />;
   }
 
   if (error) {
