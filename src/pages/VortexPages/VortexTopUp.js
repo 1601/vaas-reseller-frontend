@@ -1,16 +1,7 @@
 import React, { useState, useEffect, useReducer, useContext, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SecureLS from 'secure-ls';
-import {
-  Box,
-  Button,
-  Divider,
-  Stack,
-  TextField,
-  Toolbar,
-  Typography,
-  InputBase,
-} from '@mui/material';
+import { Box, Button, Divider, Stack, TextField, Toolbar, Typography, InputBase } from '@mui/material';
 import PhoneIphoneIcon from '@mui/icons-material/PhoneIphone';
 // import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 // import { navigate } from "gatsby"
@@ -620,7 +611,7 @@ const VortexTopUp = () => {
                   paddingLeft: '0.3em',
                   zIndex: 999,
                 }}
-                placeholder="Search brands..."
+                placeholder="Search Top-up brands..."
                 value={searchQuery}
                 onChange={handleSearchInputChange}
               />
@@ -675,11 +666,14 @@ const VortexTopUp = () => {
                       key={index}
                       style={{
                         flexShrink: 0,
-                        width: '115px',
-                        height: '115px',
+                        minWidth: '100px', 
+                        maxWidth: '100px', 
+                        height: '100px',
                         display: 'flex',
                         justifyContent: 'center',
                         alignItems: 'center',
+                        marginRight: '8px', 
+                        marginLeft: '8px', 
                       }}
                     >
                       <VortexProductBrandCard
@@ -687,6 +681,11 @@ const VortexTopUp = () => {
                         image={brand.image}
                         onClick={() => {
                           _setSelectedBrand(brand.name);
+                        }}
+                        imageStyle={{
+                          objectFit: 'contain', 
+                          width: '100%', 
+                          height: '100%', 
                         }}
                       />
                     </div>
