@@ -57,6 +57,11 @@ const getNavConfig = (role) => {
         path: '/dashboard/admin/accounts',
         icon: icon('ic_customer'),
       },
+      {
+        title: 'Banner Configuration',
+        path: '/dashboard/admin/banner',
+        icon: icon('ic_product')
+      }
     ];
     
   } return [

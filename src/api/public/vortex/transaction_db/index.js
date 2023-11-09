@@ -144,16 +144,18 @@ export const saveVortexGiftTransaction = async ({ referenceNumber, transactionDa
 
 export const getAllVortexTransactions = async () => { // cashier
 
-  const ls = new SecureLS({ encodingType: "aes" })
-  const token = ls.get("token")
-  const userId = ls.get("userId")
+  // const ls = new SecureLS({ encodingType: "aes" })
+  // const token = ls.get("token")
+  // const userId = ls.get("userId")
+  
+  const userId = "5f73fde5648d74001786007a" // test userId
 
 
-  return await fetch(`${API}/vortex/transaction/all/${userId}`, {
+  return await fetch(`http://localhost:5000/v1/api/vortex/transactions/all/${userId}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${token}`,
+      // "Authorization": `Bearer ${token}`,
     },
   })
     .then((response) => response)

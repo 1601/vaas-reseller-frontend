@@ -68,10 +68,59 @@ const kycSubmittedStatus = async() =>{
   return response
 }
 
+const addBanner = async(data) =>{
+  let response
+  try{
+    const bannerDetails = {
+      title:data.title,
+      description: data.description
+    }
+      response = await axiosInstance.post('banner', bannerDetails)
+    if(response){
+      const formData = new FormData();
+      formData.append('file', data.image)
+
+      const imageResult = await axiosInstance.put(`banner/banner/${response.data.body._id}`, formData);
+      if(imageResult){
+        console.log(imageResult)
+      }else{
+        console.log(imageResult)
+      }
+    }
+  }catch(error){
+    console.log(error)
+  }
+  return response
+}
+
+const updateBannerStatus = async(data) =>{
+  let response
+  try{
+    const {idBanner, status} = data
+    response = await axiosInstance.put(`banner/status/${idBanner}/${status}`)
+    if(response){
+      return response
+    }
+  }catch(error){
+    console.log(error)
+  }
+  return response
+}
+
 const getAllBanner = async() =>{
   let response
   try{
     response = await axiosInstance.get(`banner/all-active`)
+  }catch(error){
+    console.log(error)
+  }
+  return response
+}
+
+const getAllBannersAdmin = async() =>{
+  let response
+  try{
+    response = await axiosInstance.get(`banners/admin`)
   }catch(error){
     console.log(error)
   }
@@ -94,5 +143,8 @@ export {
   autocompleteAddress,
   kycSubmittedStatus,
   getAllBanner,
-  getAllCustomers
+  getAllBannersAdmin,
+  getAllCustomers,
+  addBanner,
+  updateBannerStatus
 };

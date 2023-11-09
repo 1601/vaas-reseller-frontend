@@ -38,6 +38,8 @@ import ManageReseller from './pages/DealerPages/ManageReseller';
 import VortexTopUp from './pages/VortexPages/VortexTopUp';
 import VortexContext from './Vortex/context/VortexContext';
 import AdminDealerAccount from './pages/AdminPages/AdminDealerAccount';
+import AdminBanner from './pages/AdminPages/AdminBanner';
+import TransactionPage from './pages/DealerPages/TransactionPage'
 import { excludedPaths } from './components/subdomain/ExcludedPaths';
 
 // ----------------------------------------------------------------------
@@ -168,7 +170,7 @@ export default function Router() {
           path: 'sales',
           children: [
             { path: '/dashboard/sales', element: <Navigate to="transactions" replace />, index: true },
-            { path: 'transactions', element: <ProductsPage /> },
+            { path: 'transactions', element: <TransactionPage /> },
             { path: 'my-wallet', element: <ProductsPage /> },
             { path: 'reports', element: <ProductsPage /> },
             { path: 'point-of-sale', element: <ProductsPage /> },
@@ -200,6 +202,7 @@ export default function Router() {
         { path: 'storeapproval/:storeId', element: <AdminApproval /> },
         { path: 'kycapproval', element: <AdminKYC /> },
         { path: 'kycapprove/:storeId', element: <AdminKYCApproval /> },
+        {path: 'banner',element: <AdminBanner />},
 
         // Product Config
         { path: 'products', element: <ProductsPage /> },
