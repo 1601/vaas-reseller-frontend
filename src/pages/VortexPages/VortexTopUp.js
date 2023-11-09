@@ -96,7 +96,6 @@ const createLink = async (amount, description) => {
   const myHeaders = new Headers();
   myHeaders.append("Content-Type", "application/json");
   myHeaders.append("Authorization", "Basic c2tfdGVzdF84VWhHVXBBdVZEWVBKU3BHRWVpV250Qm46");
-  console.log("Headers set for the request.");
 
   const raw = JSON.stringify({
     "data": {
@@ -107,7 +106,6 @@ const createLink = async (amount, description) => {
       }
     }
   });
-  console.log("Payload prepared for the request.");
 
   const requestOptions = {
     method: 'POST',
@@ -115,22 +113,16 @@ const createLink = async (amount, description) => {
     body: raw,
     redirect: 'follow'
   };
-  console.log("Request options prepared.");
 
   try {
-    console.log("Sending request to Paymongo API.");
     const response = await fetch(url, requestOptions);
 
-    console.log("Request sent. Processing response.");
     if (response.ok) {
       const responseData = await response.json();
-      console.log("Response received and parsed:", responseData);
       return responseData.data.attributes.checkout_url;
     }
     
-    console.log("Response received but was not OK. Attempting to retrieve more information.");
     const textResult = await response.text();
-    console.error('Failed to create Paymongo link:', textResult);
     return null;
     
   } catch (error) {
@@ -1036,10 +1028,10 @@ const VortexTopUp = () => {
                   disabled={isLoadingTransaction}
                   variant="outlined"
                   onClick={async () => {
-                    const url = await createLink(grandTotalFee * 100, selectedProduct.code);
+                    const url = await createLink(grandTotalFee * 100, selectedProduct.name);
                     console.log ( "Link Created: ", createLink )
                     console.log ( "Amount: ", grandTotalFee )
-                    console.log ( "Description: ", selectedProduct.code )
+                    console.log ( "Description: ", selectedProduct.name )
                     // 'https://pm.link/123123123123123za23/test/de4YiYw'
                     window.open(url, '_blank');
                     // setIsLoadingTransaction(true)
