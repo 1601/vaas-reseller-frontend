@@ -2,25 +2,14 @@ import React, { useState, useEffect, useReducer, useContext, useCallback } from 
 import { useNavigate } from 'react-router-dom';
 import SecureLS from 'secure-ls';
 import {
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
   Box,
   Button,
-  Backdrop,
-  Card,
-  CardContent,
-  CircularProgress,
   Divider,
   Stack,
   TextField,
-  ListItem,
-  ListItemIcon,
   Toolbar,
   Typography,
-  ChevronRight,
-  ThemeProvider,
-  Grid,
+  InputBase,
 } from '@mui/material';
 import PhoneIphoneIcon from '@mui/icons-material/PhoneIphone';
 // import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -45,7 +34,7 @@ import {
 } from '../../api/public/vortex/transaction_db';
 import VortexError from '../../Vortex/components/VortexError';
 import VortexProductBrandCard from '../../Vortex/components/VortexProductBrandCard';
-import CenteredProgress from '../../Vortex/components/centeredProgress';
+// import CenteredProgress from '../../Vortex/components/centeredProgress';
 // import { sparkleTopupFee } from "../config/config"
 // import { PayPalButtons, PayPalScriptProvider } from "@paypal/react-paypal-js"
 // import "../../assets/css/HorizontalCardList.css"
@@ -54,7 +43,7 @@ import { primaryVortexTheme } from '../../Vortex/config/theme';
 import VortexBottomGradient from '../../Vortex/components/VortexBottomGradient';
 // import BottomNavigator from '../../Homemade/BottomNavigator';
 // import useLoggedUser from "../../../custom-hooks/useLoggedUser"
-import VortexVoucherSearchBar from '../../Vortex/components/VortexVoucherSearchBar';
+// import VortexVoucherSearchBar from '../../Vortex/components/VortexVoucherSearchBar';
 
 import {
   getContinents,
@@ -225,7 +214,7 @@ const VortexTopUp = () => {
 
   // const [platformVariables, setPlatformVariables] = useContext(PlatformVariables)
 
-  const [isLoadingPrivate, setIsLoadingPrivate] = useState(false);
+  // const [isLoadingPrivate, setIsLoadingPrivate] = useState(false);
 
   const [isLoadingTransaction, setIsLoadingTransaction] = useState(false);
 
@@ -613,7 +602,52 @@ const VortexTopUp = () => {
           }}
         />
         <Toolbar />
-        <TextField type="text" placeholder="Search brands..." value={searchQuery} onChange={handleSearchInputChange} />
+        <div
+          style={{
+            margin: '1em',
+          }}
+        >
+          <div className="heading-search-container">
+            <div className="heading-search-shape" style={{ display: 'flex' }}>
+              <InputBase
+                disabled={false}
+                style={{
+                  width: '100%',
+                  fontFamily: 'montserrat',
+                  fontSize: '1em',
+                  fontWeight: '500',
+                  color: '#6b6b6b',
+                  paddingLeft: '0.3em',
+                  zIndex: 999,
+                }}
+                placeholder="Search brands..."
+                value={searchQuery}
+                onChange={handleSearchInputChange}
+              />
+              {searchQuery.length > 0 && (
+                <button
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: 'grey',
+                    fontWeight: 'bold',
+                  }}
+                  onClick={() => {
+                    setSearchQuery('');
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      setSearchQuery('');
+                    }
+                  }}
+                >
+                  X
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
 
         {!isLoading && (
           <>
