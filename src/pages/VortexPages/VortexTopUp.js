@@ -94,24 +94,24 @@ const createLink = async (amount, description) => {
   const url = 'https://api.paymongo.com/v1/links';
 
   const myHeaders = new Headers();
-  myHeaders.append("Content-Type", "application/json");
-  myHeaders.append("Authorization", "Basic c2tfdGVzdF84VWhHVXBBdVZEWVBKU3BHRWVpV250Qm46");
+  myHeaders.append('Content-Type', 'application/json');
+  myHeaders.append('Authorization', 'Basic c2tfdGVzdF84VWhHVXBBdVZEWVBKU3BHRWVpV250Qm46');
 
   const raw = JSON.stringify({
-    "data": {
-      "attributes": {
-        "amount": amount,
-        "description": description, 
-        "remarks": 'remarks test',
-      }
-    }
+    data: {
+      attributes: {
+        amount,
+        description,
+        remarks: 'remarks test',
+      },
+    },
   });
 
   const requestOptions = {
     method: 'POST',
     headers: myHeaders,
     body: raw,
-    redirect: 'follow'
+    redirect: 'follow',
   };
 
   try {
@@ -121,13 +121,12 @@ const createLink = async (amount, description) => {
       const responseData = await response.json();
       return responseData.data.attributes.checkout_url;
     }
-    
+
     const textResult = await response.text();
     return null;
-    
   } catch (error) {
     console.error('Error while making the request:', error);
-    return null; 
+    return null;
   }
 };
 
@@ -591,6 +590,19 @@ const VortexTopUp = () => {
       [topUpProducts]
     );
 
+    // Add state for search query
+    const [searchQuery, setSearchQuery] = useState('');
+
+    // Handler for search input changes
+    const handleSearchInputChange = (event) => {
+      setSearchQuery(event.target.value.toLowerCase());
+    };
+
+    // Filter brands based on the search query
+    const filteredBrands = searchQuery
+      ? brands.filter((brand) => brand.name.toLowerCase().includes(searchQuery))
+      : brands;
+
     return (
       <>
         <VortexFormToolbar
@@ -601,11 +613,17 @@ const VortexTopUp = () => {
           }}
         />
         <Toolbar />
-        <VortexVoucherSearchBar onInput={searchLoad} />
+        <TextField type="text" placeholder="Search brands..." value={searchQuery} onChange={handleSearchInputChange} />
 
         {!isLoading && (
           <>
-            {searchResult.length === 0 ? (
+            {searchQuery && filteredBrands.length === 0 ? (
+              <>
+                <Typography margin={2} fontFamily={'Visby'} fontSize={17} color={'gray'} textAlign={'left'}>
+                  No brands found
+                </Typography>
+              </>
+            ) : (
               <>
                 <Typography margin={2} fontFamily={'Visby'} fontSize={17} color={'gray'} textAlign={'left'}>
                   Select brand
@@ -618,28 +636,27 @@ const VortexTopUp = () => {
                     gap: '1px',
                   }}
                 >
-                  {Array.isArray(brands) &&
-                    brands.map((brand, index) => (
-                      <div
-                        key={index}
-                        style={{
-                          flexShrink: 0,
-                          width: '115px',
-                          height: '115px',
-                          display: 'flex', 
-                          justifyContent: 'center',
-                          alignItems: 'center', 
+                  {(searchQuery ? filteredBrands : brands).map((brand, index) => (
+                    <div
+                      key={index}
+                      style={{
+                        flexShrink: 0,
+                        width: '115px',
+                        height: '115px',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <VortexProductBrandCard
+                        title={brand.name}
+                        image={brand.image}
+                        onClick={() => {
+                          _setSelectedBrand(brand.name);
                         }}
-                      >
-                        <VortexProductBrandCard
-                          title={brand.name}
-                          image={brand.image}
-                          onClick={() => {
-                            _setSelectedBrand(brand.name);
-                          }}
-                        />
-                      </div>
-                    ))}
+                      />
+                    </div>
+                  ))}
                 </div>
 
                 {navigation.name === 'countries' && (
@@ -668,19 +685,6 @@ const VortexTopUp = () => {
                   />
                 )}
               </>
-            ) : (
-              <Grid container spacing={2} style={{ justifyContent: 'center' }}>
-                {searchResult.map((product) => (
-                  <Grid item xs={12} sm={6} md={4} lg={3} style={{ width: '100%' }}>
-                    <div style={{ paddingTop: '100%', position: 'relative' }}>
-                      <VortexTopUpBrandProducts
-                        product={product}
-                        style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
-                      />
-                    </div>
-                  </Grid>
-                ))}
-              </Grid>
             )}
           </>
         )}
@@ -1029,9 +1033,9 @@ const VortexTopUp = () => {
                   variant="outlined"
                   onClick={async () => {
                     const url = await createLink(grandTotalFee * 100, selectedProduct.name);
-                    console.log ( "Link Created: ", createLink )
-                    console.log ( "Amount: ", grandTotalFee )
-                    console.log ( "Description: ", selectedProduct.name )
+                    console.log('Link Created: ', createLink);
+                    console.log('Amount: ', grandTotalFee);
+                    console.log('Description: ', selectedProduct.name);
                     // 'https://pm.link/123123123123123za23/test/de4YiYw'
                     window.open(url, '_blank');
                     // setIsLoadingTransaction(true)
