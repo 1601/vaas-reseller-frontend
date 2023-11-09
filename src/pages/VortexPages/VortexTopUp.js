@@ -90,38 +90,49 @@ function convertParamToCat(paramCategory) {
 }
 
 const createLink = async (amount, description) => {
+  console.log(`Creating link with amount: ${amount} and description: ${description}`);
   const url = 'https://api.paymongo.com/v1/links';
 
-  const payload = {
-    data: {
-      attributes: {
-        amount,
-        description,
-        remarks: 'remarks test',
-      },
-    },
-  };
+  const myHeaders = new Headers();
+  myHeaders.append("Content-Type", "application/json");
+  myHeaders.append("Authorization", "Basic c2tfdGVzdF84VWhHVXBBdVZEWVBKU3BHRWVpV250Qm46");
+  console.log("Headers set for the request.");
 
-  const headers = {
-    Accept: 'application/json',
-    Authorization: 'Basic c2tfdGVzdF84VWhHVXBBdVZEWVBKU3BHRWVpV250Qm46',
-    'Content-Type': 'application/json',
+  const raw = JSON.stringify({
+    "data": {
+      "attributes": {
+        "amount": amount,
+        "description": description, 
+        "remarks": 'remarks test',
+      }
+    }
+  });
+  console.log("Payload prepared for the request.");
+
+  const requestOptions = {
+    method: 'POST',
+    headers: myHeaders,
+    body: raw,
+    redirect: 'follow'
   };
+  console.log("Request options prepared.");
 
   try {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(payload),
-    });
+    console.log("Sending request to Paymongo API.");
+    const response = await fetch(url, requestOptions);
 
+    console.log("Request sent. Processing response.");
     if (response.ok) {
       const responseData = await response.json();
-      const linkURL = responseData.data.attributes.url;
-      return linkURL;
+      console.log("Response received and parsed:", responseData);
+      return responseData.data.attributes.checkout_url;
     }
-    console.error('Failed to create Paymongo link');
+    
+    console.log("Response received but was not OK. Attempting to retrieve more information.");
+    const textResult = await response.text();
+    console.error('Failed to create Paymongo link:', textResult);
     return null;
+    
   } catch (error) {
     console.error('Error while making the request:', error);
     return null; 
@@ -1025,12 +1036,11 @@ const VortexTopUp = () => {
                   disabled={isLoadingTransaction}
                   variant="outlined"
                   onClick={async () => {
-                    const url = 
-                    // createLink( grandTotalFee, selectedProduct.code );
-                    // console.log ( "Link Created: ", createLink )
-                    // console.log ( "Amount: ", grandTotalFee )
-                    // console.log ( "Description: ", selectedProduct.code )
-                    'https://pm.link/123123123123123za23/test/de4YiYw'
+                    const url = await createLink(grandTotalFee * 100, selectedProduct.code);
+                    console.log ( "Link Created: ", createLink )
+                    console.log ( "Amount: ", grandTotalFee )
+                    console.log ( "Description: ", selectedProduct.code )
+                    // 'https://pm.link/123123123123123za23/test/de4YiYw'
                     window.open(url, '_blank');
                     // setIsLoadingTransaction(true)
 
