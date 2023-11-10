@@ -114,9 +114,6 @@ export const AddBannerModal = ({ closeModal, handleSubmit}) => {
                                         />
                                     </label>
                                 </div>
-
-
-
                             </form>
                         </div>
                         {/* footer */}

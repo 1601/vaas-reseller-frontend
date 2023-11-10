@@ -1,151 +1,90 @@
 import { Helmet } from 'react-helmet-async';
 import { filter } from 'lodash';
-import { sentenceCase } from 'change-case';
 import { useEffect, useState } from 'react';
+
+import { DateRangePicker } from 'react-date-range';
+import 'react-date-range/dist/styles.css'; // main style file
+import 'react-date-range/dist/theme/default.css'; // theme css file
 // @mui
 import {
   Card,
   Table,
   Stack,
-  Paper,
-  Avatar,
   Button,
   Box,
   Popover,
-  Checkbox,
+  Paper,
   TableRow,
   MenuItem,
   TableBody,
   TableCell,
   Container,
   Typography,
-  IconButton,
   TableContainer,
   TableHead,
-  TablePagination,
-  Modal,
 } from '@mui/material';
 // components
-import PersonSearchOutlinedIcon from '@mui/icons-material/PersonSearchOutlined';
-import DetailsModal from '../../components/customer/detailsModal'
-import Label from '../../components/label';
 import Iconify from '../../components/iconify';
 import Scrollbar from '../../components/scrollbar';
 import UserDataFetch from '../../components/user-account/UserDataFetch';
 import AccountStatusModal from '../../components/user-account/AccountStatusModal';
 import StoreDataFetch from '../../components/user-account/StoreDataFetch';
 
-import { getAllVortexTransactions } from '../../api/public/vortex/transaction_db';
-
-
-// ----------------------------------------------------------------------
-
-const TABLE_HEAD = [
-  { id: 'name', label: 'Name', alignRight: false },
-  { id: 'address', label: 'Address', alignRight: false },
-  { id: 'role', label: 'Role', alignRight: false },
-  { id: 'status', label: 'Status', alignRight: false },
-  { id: '' },
-];
-
-// ----------------------------------------------------------------------
-
-function descendingComparator(a, b, orderBy) {
-  if (b[orderBy] < a[orderBy]) {
-    return -1;
-  }
-  if (b[orderBy] > a[orderBy]) {
-    return 1;
-  }
-  return 0;
-}
-
-function getComparator(order, orderBy) {
-  return order === 'desc'
-    ? (a, b) => descendingComparator(a, b, orderBy)
-    : (a, b) => -descendingComparator(a, b, orderBy);
-}
-
-function applySortFilter(array, comparator, query) {
-  const stabilizedThis = array.map((el, index) => [el, index]);
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) return order;
-    return a[1] - b[1];
-  });
-  if (query) {
-    return filter(array, (_user) => _user.fullName.toLowerCase().indexOf(query.toLowerCase()) !== -1);
-  }
-  return stabilizedThis.map((el) => el[0]);
-}
-
-
+import { getAllVortexTransactions, getAllByDateRange } from '../../api/public/vortex/transaction_db';
 
 export default function CustomerPage() {
   const [open, setOpen] = useState(null);
-  const [page, setPage] = useState(0);
-  const [order, setOrder] = useState('asc');
-  const [selected, setSelected] = useState([]);
-  const [orderBy, setOrderBy] = useState('name');
-  const [filterName, setFilterName] = useState('');
-  const [rowsPerPage, setRowsPerPage] = useState(5);
   const userId = JSON.parse(localStorage.getItem('user'))._id;
   const userData = UserDataFetch(userId);
-  const { storeData, editedData, platformVariables, error } = StoreDataFetch(userId);
-  const [openModal, setOpenModal] = useState(false);
-  const [selectedRow, setSelectedRow] = useState(null);
-  const [currentTab, setCurrentTab] = useState('All');
-  const [customers, setCustomers] = useState([]);
-  const [activeCount, setActiveCount] = useState(0);
-  const [inActiveCount, setInActiveCount] = useState(0);
+  const { storeData} = StoreDataFetch(userId);
   const [transactionList, setTransactionList] = useState()
-  const [filterCustomer, setFilterCustomer] = useState([])
+  const [isNotFound, setIsNotFound] = useState(false)
+  const [dateRange, setDateRange] = useState({
+    startDate: '',
+    endDate:''
+  })
+  const [selectedRange, setSelectedRange] = useState([
+    {
+      startDate: new Date(),
+      endDate: new Date(),
+      key: 'selection',
+    },
+  ]);
 
-  // const handleOpenMenu = (event) => {
-  //   setOpen(event.currentTarget);
-  // };
-  const storeAllCustomers = (transactions) =>{
+  const handleSelect = (ranges) => {
+    setSelectedRange([ranges.selection]);
+  };
+  const storeAllCustomers = (transactions) => {
     setTransactionList(transactions)
   }
   const handleCloseMenu = () => {
     setOpen(null);
   };
 
+  const handleGetData = async() =>{
+    const {startDate, endDate} = selectedRange[0]
+    const rangeResult = await getAllByDateRange(startDate, endDate);
+    if(rangeResult.body.length > 0){
+     setTransactionList(rangeResult.body)
+    }else{
+      setIsNotFound(true)
+      setDateRange({
+        ...dateRange,
+        startDate: new Date(startDate),
+        endDate: new Date(endDate)
+      })
+    }
+  }
 
-
-  const handleOpenModal = (row) => {
-    const purchases = row.purchase
-    const totalAmount = purchases.reduce((accumulator, data) => accumulator + data.amount, 0);
-    const averageAmount = totalAmount / purchases.length
-    const rateAverageAmount = (averageAmount / totalAmount) * 100;
-    const totalNumberOfTrans = purchases.length / 30;
-
-    row.averageOfTransaction = totalNumberOfTrans
-    row.averageAmount = averageAmount.toFixed(2)
-    row.rateAverageAmount = rateAverageAmount.toFixed(2)
-    setSelectedRow(row);
-    setOpenModal(true);
-  };
-
-  const handleCloseModal = () => {
-    setOpenModal(false);
-  };
-
-
-  useEffect(() =>{
-    const getTrans = async () =>{
-       const result = await getAllVortexTransactions()
-       const jsonResult = await result.json();
-       storeAllCustomers(jsonResult.body)
-       console.log(jsonResult)
+  useEffect(() => {
+    const getTrans = async () => {
+      const result = await getAllVortexTransactions()
+      const jsonResult = await result.json();
+      storeAllCustomers(jsonResult.body)
     }
     getTrans();
-  },[])
+  }, [])
 
-
-  const filteredUsers = applySortFilter(filterCustomer, getComparator(order, orderBy), filterName);
-
-  const isNotFound = !filteredUsers.length && !!filterName;
 
   return (
     <>
@@ -160,11 +99,32 @@ export default function CustomerPage() {
           </Typography>
         </Stack>
 
+        <Card
+          style={{ marginBottom: '.5rem' }}
+        >
+          <Box style={{ padding: '1rem' }}>
+            <Box>
+              <DateRangePicker
+                ranges={selectedRange}
+                onChange={handleSelect}
+              />
+            </Box>
+            <Box>
+              <Button 
+              variant='contained' 
+              color="secondary"
+              style={{ backgroundColor: 'violet' }}
+              onClick={handleGetData}
+              >Get Data</Button>
+            </Box>
+          </Box>
+        </Card>
+
         <Card>
           <Scrollbar>
-            <TableContainer sx={{ minWidth: 800 , padding:'20px'}}>
+            <TableContainer sx={{ minWidth: 800, padding: '20px' }}>
               <Table>
-                <TableHead sx={{ backgroundColor: '#f2f2f2'}}>
+                <TableHead sx={{ backgroundColor: '#f2f2f2' }}>
                   <TableRow>
                     <TableCell>Created At</TableCell>
                     <TableCell>Type</TableCell>
@@ -178,57 +138,86 @@ export default function CustomerPage() {
                 </TableHead>
                 <TableBody>
                   {(!isNotFound && transactionList) && (transactionList.map((row) => {
-                    const { _id, createdAt, type, referenceNumber, userId, status, paymentId, paymentMethod,} = row;
+                    const { _id, createdAt, type, referenceNumber, userId, status, paymentId, paymentMethod, } = row;
 
                     return (
                       <TableRow hover key={_id} tabIndex={-1}>
                         <TableCell component="th" scope="row" padding="none">
-                            <Typography variant="caption" noWrap>
-                                {new Date(createdAt).toDateString()}
-                            </Typography>
+                          <Typography variant="caption" noWrap>
+                            {new Date(createdAt).toDateString()}
+                          </Typography>
                         </TableCell>
                         <TableCell align='left'>
-                            <Typography variant="caption">
+                          <Typography variant="caption">
                             {type}
-                            </Typography>
+                          </Typography>
                         </TableCell>
                         <TableCell align='left'>
-                            <Typography variant='caption'>
-                                {_id}
-                            </Typography>
+                          <Typography variant='caption'>
+                            {_id}
+                          </Typography>
                         </TableCell>
                         <TableCell align='left'>
-                            <Typography variant='caption'>
-                                {referenceNumber}
-                            </Typography>
+                          <Typography variant='caption'>
+                            {referenceNumber}
+                          </Typography>
                         </TableCell>
                         <TableCell align='left'>
-                        <Typography variant='caption'>
-                                Gemar
-                            </Typography>
+                          <Typography variant='caption'>
+                            Gemar
+                          </Typography>
                         </TableCell>
                         <TableCell align='left'>
-                        <Typography variant='caption'>
-                                {status}
-                            </Typography>
+                          <Typography variant='caption'>
+                            {status}
+                          </Typography>
                         </TableCell>
                         <TableCell align='left'>
-                        <Typography variant='caption'>
-                                {paymentId}
-                            </Typography>
+                          <Typography variant='caption'>
+                            {paymentId}
+                          </Typography>
                         </TableCell>
                         <TableCell align='left'>
-                            <Typography variant='caption'>
+                          <Typography variant='caption'>
                             {paymentMethod}
-                            </Typography>
+                          </Typography>
                         </TableCell>
                       </TableRow>
                     )
                   }))}
+                   {isNotFound && (
+                     <TableRow>
+                     <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
+                       <Paper
+                         sx={{
+                           textAlign: 'center',
+                         }}
+                       >
+                         <Typography variant="h6" paragraph>
+                           Not found
+                         </Typography>
+
+                         <Typography variant="body2">
+                           No results found from &nbsp;
+                           <strong>&quot;{dateRange.startDate.toLocaleDateString()}&quot;</strong>.
+                           to
+                           <strong> &quot;{dateRange.endDate.toLocaleDateString()}&quot;</strong>.
+                         </Typography>
+                       </Paper>
+                     </TableCell>
+                   </TableRow>
+                )}
                 </TableBody>
               </Table>
             </TableContainer>
           </Scrollbar>
+          <Box style={{padding:'1rem'}}>
+            <Button 
+            variant='contained' 
+            color="primary"
+            style={{ backgroundColor: 'violet' }}
+            > Download CSV </Button>
+          </Box>
         </Card>
       </Container>
 

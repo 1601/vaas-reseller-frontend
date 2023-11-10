@@ -227,6 +227,34 @@ export const updateVortexByRefId = async ({ refId, data }) => {
     })
 }
 
+export const getAllByDateRange = async( startDate, endDate ) => {
+  console.log(startDate, endDate)
+
+  // const ls = new SecureLS({ encodingType: "aes" })
+  // const token = ls.get("token")
+
+  // const reqBody = data
+
+  const userId = "5f73fde5648d74001786007a" // test userId
+
+  return await fetch(`http://localhost:5000/v1/api/vortex/transactions/all/${userId}/data?startDate=${startDate}&endDate=${endDate}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      // "Authorization": `Bearer ${token}`,
+    }
+  })
+    .then((response) => {
+      if (response.status !== 200) {
+        throw Error("Failed creating a vortex transaction")
+      }
+      return response.json()
+    })
+    .catch((err) => {
+      throw err
+    })
+}
+
 
 
 
