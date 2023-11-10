@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useReducer, useContext, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SecureLS from 'secure-ls';
-import { Box, Button, Divider, Stack, TextField, Toolbar, Typography, InputBase } from '@mui/material';
+import { Box, Button, Divider, Stack, Grid, TextField, Toolbar, Typography, InputBase } from '@mui/material';
 import PhoneIphoneIcon from '@mui/icons-material/PhoneIphone';
 // import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 // import { navigate } from "gatsby"
@@ -1112,45 +1112,67 @@ const VortexTopUp = () => {
     );
   };
 
-  // New component for Transaction Completed state
   const TransactionCompletedForm = ({ setActiveStep, transactionData }) => {
-    // State to hold the redirect countdown
     const [redirectCountdown, setRedirectCountdown] = useState(10);
 
     useEffect(() => {
-      // Update the countdown every second
       const intervalId = setInterval(() => {
         setRedirectCountdown((prevCountdown) => prevCountdown - 1);
       }, 1000);
 
-      // Redirect when countdown reaches 0
       const timeoutId = setTimeout(() => {
         setActiveStep(0);
       }, 10000);
 
-      // Cleanup interval and timeout when component unmounts or redirect fires
       return () => {
         clearInterval(intervalId);
         clearTimeout(timeoutId);
       };
     }, [setActiveStep]);
+
     return (
-      <Box>
-        <Typography variant="h6" textAlign="center" margin={2}>
-          Transaction Completed
+      <Box sx={{ p: 3, border: '2px dashed grey', borderRadius: '10px', mt: 2 }}>
+        <Typography variant="h4" textAlign="center" margin={2} fontWeight="bold">
+          TRANSACTION RECEIPT
         </Typography>
-        <Typography variant="body1" textAlign="center">
-          Product Name: {transactionData.productName}
-        </Typography>
-        <Typography variant="body1" textAlign="center">
-          Price: {transactionData.price} {transactionData.currency}
-        </Typography>
-        <Typography variant="body1" textAlign="center">
-          Convenience Fee: {transactionData.convenienceFee} {transactionData.currency}
-        </Typography>
-        <Typography variant="body1" textAlign="center">
-          Total Price: {transactionData.totalPrice} {transactionData.currency}
-        </Typography>
+        <Divider sx={{ my: 2 }} />
+        <Grid container spacing={2}>
+          <Grid item xs={6}>
+            <Typography>Product Name:</Typography>
+          </Grid>
+          <Grid item xs={6} textAlign="right">
+            <Typography>{transactionData.productName}</Typography>
+          </Grid>
+
+          <Grid item xs={6}>
+            <Typography>Price:</Typography>
+          </Grid>
+          <Grid item xs={6} textAlign="right">
+            <Typography>
+              {transactionData.price} {transactionData.currency}
+            </Typography>
+          </Grid>
+
+          <Grid item xs={6}>
+            <Typography>Convenience Fee:</Typography>
+          </Grid>
+          <Grid item xs={6} textAlign="right">
+            <Typography>
+              {transactionData.convenienceFee} {transactionData.currency}
+            </Typography>
+          </Grid>
+
+          <Grid item xs={6}>
+            <Typography variant="subtitle1" fontWeight="bold">
+              TOTAL AMOUNT:
+            </Typography>
+          </Grid>
+          <Grid item xs={6} textAlign="right">
+            <Typography variant="subtitle1" fontWeight="bold" color="primary">
+              {transactionData.totalPrice} {transactionData.currency}
+            </Typography>
+          </Grid>
+        </Grid>
         <Typography variant="body2" textAlign="center" margin={2}>
           Redirecting back in {redirectCountdown} seconds...
         </Typography>
@@ -1158,7 +1180,6 @@ const VortexTopUp = () => {
     );
   };
 
-  // Updated FormRender switch statement
   const FormRender = ({
     activeStep,
     setActiveStep,
