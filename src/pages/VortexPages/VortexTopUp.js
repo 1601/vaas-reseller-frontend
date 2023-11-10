@@ -1113,7 +1113,27 @@ const VortexTopUp = () => {
   };
 
   // New component for Transaction Completed state
-  const TransactionCompletedForm = ({ transactionData }) => {
+  const TransactionCompletedForm = ({ setActiveStep, transactionData }) => {
+    // State to hold the redirect countdown
+    const [redirectCountdown, setRedirectCountdown] = useState(10);
+
+    useEffect(() => {
+      // Update the countdown every second
+      const intervalId = setInterval(() => {
+        setRedirectCountdown((prevCountdown) => prevCountdown - 1);
+      }, 1000);
+
+      // Redirect when countdown reaches 0
+      const timeoutId = setTimeout(() => {
+        setActiveStep(0);
+      }, 10000);
+
+      // Cleanup interval and timeout when component unmounts or redirect fires
+      return () => {
+        clearInterval(intervalId);
+        clearTimeout(timeoutId);
+      };
+    }, [setActiveStep]);
     return (
       <Box>
         <Typography variant="h6" textAlign="center" margin={2}>
@@ -1131,7 +1151,9 @@ const VortexTopUp = () => {
         <Typography variant="body1" textAlign="center">
           Total Price: {transactionData.totalPrice} {transactionData.currency}
         </Typography>
-        {/* You can add more details or styles as needed */}
+        <Typography variant="body2" textAlign="center" margin={2}>
+          Redirecting back in {redirectCountdown} seconds...
+        </Typography>
       </Box>
     );
   };
@@ -1156,7 +1178,7 @@ const VortexTopUp = () => {
       case 2:
         return <ReviewConfirmationForm setActiveStep={setActiveStep} setTransactionData={setTransactionData} />;
       case 3:
-        return <TransactionCompletedForm transactionData={transactionData} />;
+        return <TransactionCompletedForm setActiveStep={setActiveStep} transactionData={transactionData} />;
       default:
         return <AccountNoInputForm selectedBrand={selectedBrand} />;
     }
