@@ -187,6 +187,8 @@ const VortexTopUp = () => {
   const [activeStep, setActiveStep] = useState(0);
   console.log('activeStep:', activeStep);
 
+  const [transactionData, setTransactionData] = useState({});
+
   const [accountOrMobileNumber, setAccountOrMobileNumber] = useState('');
 
   const [selectedBrand, setSelectedBrand] = useState('');
@@ -899,7 +901,7 @@ const VortexTopUp = () => {
     );
   };
 
-  const ReviewConfirmationForm = () => {
+  const ReviewConfirmationForm = ({ setActiveStep, setTransactionData }) => {
     const paymentMethodType = ls.get('paymentMethodType');
 
     // const { email, name, phone, address } = getUser();
@@ -1075,6 +1077,14 @@ const VortexTopUp = () => {
                     const paymentWindowClosed = setInterval(() => {
                       if (paymentWindow.closed) {
                         clearInterval(paymentWindowClosed);
+                        // Once the payment window is closed, set the transaction data
+                        setTransactionData({
+                          productName: selectedProduct.name,
+                          price: selectedProduct.pricing.price,
+                          convenienceFee,
+                          totalPrice: grandTotalFee,
+                          currency: platformVariables?.currencySymbol,
+                        });
                         // Update the activeStep to 3 to show the transaction completed message
                         setActiveStep(3);
                       }
@@ -1103,19 +1113,23 @@ const VortexTopUp = () => {
   };
 
   // New component for Transaction Completed state
-  const TransactionCompletedForm = () => {
-    useEffect(() => {
-      const timeout = setTimeout(() => {
-        setActiveStep(0); // Redirect back to BrandSelectForm after 5 seconds
-      }, 5000);
-
-      return () => clearTimeout(timeout);
-    }, []);
-
+  const TransactionCompletedForm = ({ transactionData }) => {
     return (
       <Box>
         <Typography variant="h6" textAlign="center" margin={2}>
           Transaction Completed
+        </Typography>
+        <Typography variant="body1" textAlign="center">
+          Product Name: {transactionData.productName}
+        </Typography>
+        <Typography variant="body1" textAlign="center">
+          Price: {transactionData.price} {transactionData.currency}
+        </Typography>
+        <Typography variant="body1" textAlign="center">
+          Convenience Fee: {transactionData.convenienceFee} {transactionData.currency}
+        </Typography>
+        <Typography variant="body1" textAlign="center">
+          Total Price: {transactionData.totalPrice} {transactionData.currency}
         </Typography>
         {/* You can add more details or styles as needed */}
       </Box>
@@ -1123,7 +1137,14 @@ const VortexTopUp = () => {
   };
 
   // Updated FormRender switch statement
-  const FormRender = () => {
+  const FormRender = ({
+    activeStep,
+    setActiveStep,
+    selectedBrand,
+    setSelectedBrand,
+    setTransactionData,
+    transactionData,
+  }) => {
     console.log('Active Step:', activeStep);
     console.log('Selected Brand in FormRender:', selectedBrand);
 
@@ -1133,9 +1154,9 @@ const VortexTopUp = () => {
       case 1:
         return <AccountNoInputForm selectedBrand={selectedBrand} />;
       case 2:
-        return <ReviewConfirmationForm />;
+        return <ReviewConfirmationForm setActiveStep={setActiveStep} setTransactionData={setTransactionData} />;
       case 3:
-        return <TransactionCompletedForm />; 
+        return <TransactionCompletedForm transactionData={transactionData} />;
       default:
         return <AccountNoInputForm selectedBrand={selectedBrand} />;
     }
@@ -1184,7 +1205,14 @@ const VortexTopUp = () => {
               }}
             />
           ) : (
-            <FormRender />
+            <FormRender
+              activeStep={activeStep}
+              setActiveStep={setActiveStep}
+              selectedBrand={selectedBrand}
+              setSelectedBrand={setSelectedBrand}
+              setTransactionData={setTransactionData}
+              transactionData={transactionData}
+            />
           )}
           <Box sx={{ height: '10em' }} />
           <VortexBottomGradient />
