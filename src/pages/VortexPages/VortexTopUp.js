@@ -666,14 +666,14 @@ const VortexTopUp = () => {
                       key={index}
                       style={{
                         flexShrink: 0,
-                        minWidth: '100px', 
-                        maxWidth: '100px', 
+                        minWidth: '100px',
+                        maxWidth: '100px',
                         height: '100px',
                         display: 'flex',
                         justifyContent: 'center',
                         alignItems: 'center',
-                        marginRight: '8px', 
-                        marginLeft: '8px', 
+                        marginRight: '8px',
+                        marginLeft: '8px',
                       }}
                     >
                       <VortexProductBrandCard
@@ -683,9 +683,9 @@ const VortexTopUp = () => {
                           _setSelectedBrand(brand.name);
                         }}
                         imageStyle={{
-                          objectFit: 'contain', 
-                          width: '100%', 
-                          height: '100%', 
+                          objectFit: 'contain',
+                          width: '100%',
+                          height: '100%',
                         }}
                       />
                     </div>
@@ -1066,11 +1066,19 @@ const VortexTopUp = () => {
                   variant="outlined"
                   onClick={async () => {
                     const url = await createLink(grandTotalFee * 100, selectedProduct.name);
+                    const paymentWindow = window.open(url, '_blank');
                     console.log('Link Created: ', createLink);
                     console.log('Amount: ', grandTotalFee);
                     console.log('Description: ', selectedProduct.name);
                     // 'https://pm.link/123123123123123za23/test/de4YiYw'
-                    window.open(url, '_blank');
+                    // Polling to check if the payment window has been closed
+                    const paymentWindowClosed = setInterval(() => {
+                      if (paymentWindow.closed) {
+                        clearInterval(paymentWindowClosed);
+                        // Update the activeStep to 3 to show the transaction completed message
+                        setActiveStep(3);
+                      }
+                    }, 500);
                     // setIsLoadingTransaction(true)
 
                     // const sure = window.confirm(`Are you sure you received: ${grandTotalFee} ${platformVariables?.currencySymbol}?`)
@@ -1094,6 +1102,27 @@ const VortexTopUp = () => {
     );
   };
 
+  // New component for Transaction Completed state
+  const TransactionCompletedForm = () => {
+    useEffect(() => {
+      const timeout = setTimeout(() => {
+        setActiveStep(0); // Redirect back to BrandSelectForm after 5 seconds
+      }, 5000);
+
+      return () => clearTimeout(timeout);
+    }, []);
+
+    return (
+      <Box>
+        <Typography variant="h6" textAlign="center" margin={2}>
+          Transaction Completed
+        </Typography>
+        {/* You can add more details or styles as needed */}
+      </Box>
+    );
+  };
+
+  // Updated FormRender switch statement
   const FormRender = () => {
     console.log('Active Step:', activeStep);
     console.log('Selected Brand in FormRender:', selectedBrand);
@@ -1105,6 +1134,8 @@ const VortexTopUp = () => {
         return <AccountNoInputForm selectedBrand={selectedBrand} />;
       case 2:
         return <ReviewConfirmationForm />;
+      case 3:
+        return <TransactionCompletedForm />; 
       default:
         return <AccountNoInputForm selectedBrand={selectedBrand} />;
     }
