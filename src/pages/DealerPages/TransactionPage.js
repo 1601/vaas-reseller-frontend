@@ -66,6 +66,7 @@ export default function CustomerPage() {
     const rangeResult = await getAllByDateRange(startDate, endDate);
     if(rangeResult.body.length > 0){
      setTransactionList(rangeResult.body)
+     setIsNotFound(false)
     }else{
       setIsNotFound(true)
       setDateRange({
@@ -76,6 +77,24 @@ export default function CustomerPage() {
     }
   }
 
+  const downloadCSV = () => {
+    // // Creating the CSV content
+    // const csvContent = "data:text/csv;charset=utf-8," + 
+    //   "Column1,Column2,Column3\n" +
+    //   "Value1,Value2,Value3";
+
+    // // Creating a link element
+    // const encodedUri = encodeURI(csvContent);
+    // const link = document.createElement("a");
+    // link.setAttribute("href", encodedUri);
+    // link.setAttribute("download", "vass_transactions.csv");
+    // document.body.appendChild(link);
+
+    // // Triggering the download
+    // link.click();
+    console.log("Sulod")
+  };
+
   useEffect(() => {
     const getTrans = async () => {
       const result = await getAllVortexTransactions()
@@ -84,7 +103,6 @@ export default function CustomerPage() {
     }
     getTrans();
   }, [])
-
 
   return (
     <>
@@ -216,6 +234,7 @@ export default function CustomerPage() {
             variant='contained' 
             color="primary"
             style={{ backgroundColor: 'violet' }}
+            onClick={downloadCSV}
             > Download CSV </Button>
           </Box>
         </Card>
