@@ -1,6 +1,7 @@
 import { Helmet } from 'react-helmet-async';
 import { filter } from 'lodash';
 import { useEffect, useState } from 'react';
+import CsvDownloader from 'react-csv-downloader';
 
 import { DateRangePicker } from 'react-date-range';
 import 'react-date-range/dist/styles.css'; // main style file
@@ -32,16 +33,43 @@ import StoreDataFetch from '../../components/user-account/StoreDataFetch';
 
 import { getAllVortexTransactions, getAllByDateRange } from '../../api/public/vortex/transaction_db';
 
+
+const columns = [{
+  id: 'cell1',
+  displayName: 'Created At'
+}, {
+  id: 'cell2',
+  displayName: 'Type'
+}, {
+  id: 'cell3',
+  displayName: 'ID'
+},{
+  id: 'cell4',
+  displayName:'Ref no'
+},{
+  id: 'cell5',
+  displayName:'User'
+},{
+  id: 'cell6',
+  displayName:'Status',
+},{
+  id: 'cell7',
+  displayName:'Payment ID'
+},{
+  id: 'cell8',
+  displayName:'Method'
+}];
 export default function CustomerPage() {
   const [open, setOpen] = useState(null);
   const userId = JSON.parse(localStorage.getItem('user'))._id;
   const userData = UserDataFetch(userId);
-  const { storeData} = StoreDataFetch(userId);
+  const { storeData } = StoreDataFetch(userId);
   const [transactionList, setTransactionList] = useState()
   const [isNotFound, setIsNotFound] = useState(false)
+  const [toDownload, setToDownload] = useState([])
   const [dateRange, setDateRange] = useState({
     startDate: '',
-    endDate:''
+    endDate: ''
   })
   const [selectedRange, setSelectedRange] = useState([
     {
@@ -54,20 +82,19 @@ export default function CustomerPage() {
   const handleSelect = (ranges) => {
     setSelectedRange([ranges.selection]);
   };
-  const storeAllCustomers = (transactions) => {
-    setTransactionList(transactions)
-  }
+
   const handleCloseMenu = () => {
     setOpen(null);
   };
 
-  const handleGetData = async() =>{
-    const {startDate, endDate} = selectedRange[0]
+  const handleGetData = async () => {
+    const { startDate, endDate } = selectedRange[0]
     const rangeResult = await getAllByDateRange(startDate, endDate);
-    if(rangeResult.body.length > 0){
-     setTransactionList(rangeResult.body)
-     setIsNotFound(false)
-    }else{
+    if (rangeResult.body.length > 0) {
+      setTransactionList(rangeResult.body)
+     handleToDownloadData(rangeResult.body)
+      setIsNotFound(false)
+    } else {
       setIsNotFound(true)
       setDateRange({
         ...dateRange,
@@ -77,29 +104,29 @@ export default function CustomerPage() {
     }
   }
 
-  const downloadCSV = () => {
-    // // Creating the CSV content
-    // const csvContent = "data:text/csv;charset=utf-8," + 
-    //   "Column1,Column2,Column3\n" +
-    //   "Value1,Value2,Value3";
-
-    // // Creating a link element
-    // const encodedUri = encodeURI(csvContent);
-    // const link = document.createElement("a");
-    // link.setAttribute("href", encodedUri);
-    // link.setAttribute("download", "vass_transactions.csv");
-    // document.body.appendChild(link);
-
-    // // Triggering the download
-    // link.click();
-    console.log("Sulod")
-  };
+  const handleToDownloadData = async (datas) =>{
+    setToDownload([])
+    datas.forEach(elements => {
+      const newElements = {
+        cell1: elements.createdAt,
+        cell2: elements.type,
+        cell3: elements._id,
+        cell4: elements.referenceNumber,
+        cell5: 'Gemar',
+        cell6: elements.status,
+        cell7: elements.paymentId,
+        cell8: elements.paymentMethod
+      }
+      setToDownload(prevtoDownload => [...prevtoDownload, newElements])
+    });
+  }
 
   useEffect(() => {
     const getTrans = async () => {
       const result = await getAllVortexTransactions()
       const jsonResult = await result.json();
-      storeAllCustomers(jsonResult.body)
+      setTransactionList(jsonResult.body)
+      handleToDownloadData(jsonResult.body)
     }
     getTrans();
   }, [])
@@ -128,11 +155,11 @@ export default function CustomerPage() {
               />
             </Box>
             <Box>
-              <Button 
-              variant='contained' 
-              color="secondary"
-              style={{ backgroundColor: 'violet' }}
-              onClick={handleGetData}
+              <Button
+                variant='contained'
+                color="secondary"
+                style={{ backgroundColor: 'violet' }}
+                onClick={handleGetData}
               >Get Data</Button>
             </Box>
           </Box>
@@ -144,14 +171,9 @@ export default function CustomerPage() {
               <Table>
                 <TableHead sx={{ backgroundColor: '#f2f2f2' }}>
                   <TableRow>
-                    <TableCell>Created At</TableCell>
-                    <TableCell>Type</TableCell>
-                    <TableCell>ID</TableCell>
-                    <TableCell>Ref no</TableCell>
-                    <TableCell>User</TableCell>
-                    <TableCell>Status</TableCell>
-                    <TableCell>Payment ID</TableCell>
-                    <TableCell>Method</TableCell>
+                    {columns.map((data, index) =>(
+                      <TableCell>{data.displayName}</TableCell>
+                    ))}
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -203,39 +225,48 @@ export default function CustomerPage() {
                       </TableRow>
                     )
                   }))}
-                   {isNotFound && (
-                     <TableRow>
-                     <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
-                       <Paper
-                         sx={{
-                           textAlign: 'center',
-                         }}
-                       >
-                         <Typography variant="h6" paragraph>
-                           Not found
-                         </Typography>
+                  {isNotFound && (
+                    <TableRow>
+                      <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
+                        <Paper
+                          sx={{
+                            textAlign: 'center',
+                          }}
+                        >
+                          <Typography variant="h6" paragraph>
+                            Not found
+                          </Typography>
 
-                         <Typography variant="body2">
-                           No results found from &nbsp;
-                           <strong>&quot;{dateRange.startDate.toLocaleDateString()}&quot;</strong>.
-                           to
-                           <strong> &quot;{dateRange.endDate.toLocaleDateString()}&quot;</strong>.
-                         </Typography>
-                       </Paper>
-                     </TableCell>
-                   </TableRow>
-                )}
+                          <Typography variant="body2">
+                            No results found from &nbsp;
+                            <strong>&quot;{dateRange.startDate.toLocaleDateString()}&quot;</strong>.
+                            to
+                            <strong> &quot;{dateRange.endDate.toLocaleDateString()}&quot;</strong>.
+                          </Typography>
+                        </Paper>
+                      </TableCell>
+                    </TableRow>
+                  )}
                 </TableBody>
               </Table>
             </TableContainer>
           </Scrollbar>
-          <Box style={{padding:'1rem'}}>
-            <Button 
-            variant='contained' 
-            color="primary"
-            style={{ backgroundColor: 'violet' }}
-            onClick={downloadCSV}
-            > Download CSV </Button>
+          <Box style={{ padding: '1rem' }}>
+            <CsvDownloader
+              filename="vaas_transactions"
+              extension=".csv"
+              separator=";"
+              columns={columns}
+              datas={toDownload}
+              text="DOWNLOAD" >
+              <Button
+                variant='contained'
+                color="primary"
+                style={{ backgroundColor: 'violet' }}
+              > Download CSV </Button>
+
+            </CsvDownloader>
+
           </Box>
         </Card>
       </Container>

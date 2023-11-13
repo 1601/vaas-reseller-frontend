@@ -228,7 +228,6 @@ export const updateVortexByRefId = async ({ refId, data }) => {
 }
 
 export const getAllByDateRange = async( startDate, endDate ) => {
-  console.log(startDate, endDate)
 
   // const ls = new SecureLS({ encodingType: "aes" })
   // const token = ls.get("token")
