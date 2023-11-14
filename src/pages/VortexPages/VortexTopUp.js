@@ -1168,8 +1168,22 @@ const VortexTopUp = () => {
     };
 
     return (
-      <Box sx={{ p: 3, border: '2px dashed grey', borderRadius: '10px', mt: 2 }}>
-        <Typography variant="h4" textAlign="center" margin={2} fontWeight="bold">
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'flex-start',
+          alignItems: 'center',
+          height: '100vh',
+          p: 3,
+          border: '2px dashed grey',
+          borderRadius: '10px',
+          m: 2,
+          maxWidth: 600,
+          mx: 'auto',
+        }}
+      >
+        <Typography variant="h4" textAlign="center" mt={2} mb={4} fontWeight="bold">
           TRANSACTION RECEIPT
         </Typography>
         <Divider sx={{ my: 2 }} />
@@ -1199,6 +1213,10 @@ const VortexTopUp = () => {
             </Typography>
           </Grid>
 
+          <Grid item xs={12}>
+            <Divider sx={{ my: 3, borderWidth: 2 }} />
+          </Grid>
+
           <Grid item xs={6}>
             <Typography variant="subtitle1" fontWeight="bold">
               TOTAL AMOUNT:
@@ -1210,7 +1228,8 @@ const VortexTopUp = () => {
             </Typography>
           </Grid>
         </Grid>
-        <Box textAlign="center" margin={2}>
+        <Box textAlign="center" mt={4}>
+          {' '}
           <Button variant="outlined" color="primary" onClick={handleConfirmClick}>
             Confirm Transaction
           </Button>
