@@ -1163,22 +1163,9 @@ const VortexTopUp = () => {
   };
 
   const TransactionCompletedForm = ({ setActiveStep, transactionData }) => {
-    const [redirectCountdown, setRedirectCountdown] = useState(10);
-
-    useEffect(() => {
-      const intervalId = setInterval(() => {
-        setRedirectCountdown((prevCountdown) => prevCountdown - 1);
-      }, 1000);
-
-      const timeoutId = setTimeout(() => {
-        setActiveStep(0);
-      }, 10000);
-
-      return () => {
-        clearInterval(intervalId);
-        clearTimeout(timeoutId);
-      };
-    }, [setActiveStep]);
+    const handleConfirmClick = () => {
+      setActiveStep(0);
+    };
 
     return (
       <Box sx={{ p: 3, border: '2px dashed grey', borderRadius: '10px', mt: 2 }}>
@@ -1223,9 +1210,11 @@ const VortexTopUp = () => {
             </Typography>
           </Grid>
         </Grid>
-        <Typography variant="body2" textAlign="center" margin={2}>
-          Redirecting back in {redirectCountdown} seconds...
-        </Typography>
+        <Box textAlign="center" margin={2}>
+          <Button variant="outlined" color="primary" onClick={handleConfirmClick}>
+            Confirm Transaction
+          </Button>
+        </Box>
       </Box>
     );
   };
