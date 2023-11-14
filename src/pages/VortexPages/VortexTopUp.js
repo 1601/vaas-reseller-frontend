@@ -843,6 +843,10 @@ const VortexTopUp = () => {
       };
     };
 
+    useEffect(() => {
+      validateInput(accountNumber, selectedBrand?.toUpperCase() || '');
+    }, [selectedBrand, accountNumber]);
+
     return (
       <Box>
         {/* } {!isLoggin ? (
@@ -1228,7 +1232,7 @@ const VortexTopUp = () => {
             </Typography>
           </Grid>
         </Grid>
-        <Box textAlign="center" mt={4}>
+        <Box textAlign="center" mt={10}>
           {' '}
           <Button variant="outlined" color="primary" onClick={handleConfirmClick}>
             Confirm Transaction
