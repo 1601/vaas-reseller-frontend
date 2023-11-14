@@ -896,7 +896,7 @@ const VortexTopUp = () => {
               </Stack>
               <Stack direction={'row'} justifyContent={'center'}>
                 <Button
-                  disabled={isFormLoading}
+                  disabled={isFormLoading || error !== ''}
                   variant="outlined"
                   sx={{
                     width: '100%',
