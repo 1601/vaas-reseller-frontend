@@ -762,34 +762,85 @@ const VortexTopUp = () => {
     });
 
     // const [countryCode, setcountryCode] = useState('63');
-    const [accountNumber, setAccountNUmber] = useState(accountOrMobileNumber);
+    const [accountNumber, setAccountNumber] = useState(accountOrMobileNumber);
 
     const [isFormLoading, setIsFormLoading] = useState(false);
 
-    const inputProps = (brand) => {
+    const [inputValue, setInputValue] = useState('');
+
+    const [error, setError] = useState('');
+
+    const validateInput = (value, brand) => {
+      let maxLength;
+      let errorMessageTooLong;
+      let errorMessageTooShort;
+
       switch (brand) {
         case 'MERALCO':
-          return {
-            title: 'Meralco Account Number',
-            maxLength: 12,
-            helperText: 'Type your meralco load account number',
-            placeholder: '111122223333',
-          };
+          maxLength = 16;
+          errorMessageTooLong = 'Account Number is too long';
+          errorMessageTooShort = 'Account Number is too short';
+          break;
         case 'CIGNAL':
-          return {
-            title: 'CCA Number',
-            maxLength: 12,
-            helperText: 'Type your account number',
-            placeholder: '111122223333',
-          };
+          maxLength = 10;
+          errorMessageTooLong = 'Account Number is too long';
+          errorMessageTooShort = 'Account Number is too short';
+          break;
         default:
-          return {
-            title: 'Mobile Number',
-            maxLength: 12,
-            helperText: 'Type your mobile number with country code',
-            placeholder: '639273342196',
-          };
+          maxLength = 12;
+          errorMessageTooLong = 'Mobile Number is too long';
+          errorMessageTooShort = 'Mobile Number is too short';
       }
+
+      if (value.length > maxLength) {
+        setError(errorMessageTooLong);
+      } else if (value.length < maxLength) {
+        setError(errorMessageTooShort);
+      } else {
+        setError('');
+      }
+    };
+
+    const handleChange = (event) => {
+      const value = event.target.value;
+      const validValue = value.replace(/[^0-9]/g, '');
+      setAccountNumber(validValue);
+      validateInput(validValue, selectedBrand?.toUpperCase() || '');
+    };
+
+    const inputProps = (brand) => {
+      let maxLength;
+      switch (brand) {
+        case 'MERALCO':
+          maxLength = 16;
+          break;
+        case 'CIGNAL':
+          maxLength = 10;
+          break;
+        default:
+          maxLength = 12;
+      }
+
+      const showTypeYourMessage = accountNumber.length !== maxLength && !error;
+
+      return {
+        title: brand === 'MERALCO' ? 'Meralco Account Number' : brand === 'CIGNAL' ? 'CCA Number' : 'Mobile Number',
+        maxLength,
+        helperText:
+          error ||
+          (showTypeYourMessage
+            ? `Type your ${
+                brand === 'MERALCO'
+                  ? 'meralco load account number'
+                  : brand === 'CIGNAL'
+                  ? 'account number'
+                  : 'mobile number with country code'
+              }`
+            : ''),
+        placeholder: brand === 'MERALCO' ? '1234567890123456' : brand === 'CIGNAL' ? '1234567890' : '639273342196',
+        error: !!error,
+        onChange: handleChange,
+      };
     };
 
     return (
@@ -836,12 +887,11 @@ const VortexTopUp = () => {
                   value={accountNumber}
                   placeholder={inputProps(selectedBrand?.toUpperCase() || '').placeholder}
                   helperText={inputProps(selectedBrand?.toUpperCase() || '').helperText}
-                  onChange={(e) => {
-                    setAccountNUmber(e.target.value);
-                  }}
+                  onChange={handleChange}
                   inputProps={{
                     maxLength: inputProps(selectedBrand?.toUpperCase() || '').maxLength,
                   }}
+                  error={inputProps(selectedBrand?.toUpperCase() || '').error}
                 />
               </Stack>
               <Stack direction={'row'} justifyContent={'center'}>
