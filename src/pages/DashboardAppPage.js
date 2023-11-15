@@ -1,7 +1,7 @@
 import { Helmet } from 'react-helmet-async';
 import { faker } from '@faker-js/faker';
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 // @mui
 import { useTheme } from '@mui/material/styles';
@@ -28,23 +28,48 @@ import CircularLoading from '../components/preLoader';
 // ----------------------------------------------------------------------
 
 export default function DashboardAppPage() {
+  const navigate = useNavigate();
   const theme = useTheme();
   const [kycApprove, setKycApprove] = useState(null);
   const [daysLeft, setDaysLeft] = useState(null);
   const [displayMessage, setDisplayMessage] = useState('');
-  const userId = JSON.parse(localStorage.getItem('user'))._id;
+
+  let userId;
+  try {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      userId = JSON.parse(storedUser)._id;
+    }
+  } catch (error) {
+    console.error('Error parsing user data from localStorage:', error);
+  }
 
   const { storeData, editedData, platformVariables, error } = StoreDataFetch(userId);
   const userData = UserDataFetch(userId);
 
   useEffect(() => {
+    if (!userId || (userData && !userData._id)) {
+      const rememberMe = localStorage.getItem('rememberMe') === 'true';
+      const rememberMeEmail = localStorage.getItem('rememberMeEmail');
+
+      localStorage.clear();
+
+      if (rememberMe) {
+        localStorage.setItem('rememberMeEmail', rememberMeEmail);
+        localStorage.setItem('rememberMe', 'true');
+      }
+
+      navigate('/login', { replace: true }); 
+      return;
+    }
+
     if (userData) {
       const existingData = JSON.parse(localStorage.getItem('user')) || {};
       const mergedData = { ...existingData, ...userData };
 
       localStorage.setItem('user', JSON.stringify(mergedData));
     }
-  }, [userData]);
+  }, [userData, navigate, userId]);
 
   useEffect(() => {
     if (storeData && storeData._id) {
