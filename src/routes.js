@@ -41,6 +41,7 @@ import AdminDealerAccount from './pages/AdminPages/AdminDealerAccount';
 import AdminBanner from './pages/AdminPages/AdminBanner';
 import TransactionPage from './pages/DealerPages/TransactionPage'
 import { excludedPaths } from './components/subdomain/ExcludedPaths';
+import TopUpProducts from './pages/AdminPages/Products/TopUpProducts';
 
 // ----------------------------------------------------------------------
 
@@ -207,7 +208,7 @@ export default function Router() {
         // Product Config
         { path: 'products', element: <ProductsPage /> },
         { path: 'products/bills', element: <ProductsPage /> },
-        { path: 'products/topup', element: <ProductsPage /> },
+        { path: 'products/topup', element: <TopUpProducts /> },
         { path: 'products/egift', element: <ProductsPage /> },
 
         // Dealer Accounts
