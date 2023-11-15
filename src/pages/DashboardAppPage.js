@@ -126,8 +126,14 @@ export default function DashboardAppPage() {
         <title> Dashboard | VAAS </title>
       </Helmet>
 
-      {!trialMessageCard && !verificationCard ? ( // Check if both variables are falsy
-        <CircularLoading /> // Render CircularLoading if they are falsy
+      {!trialMessageCard && !verificationCard ? (
+        userData && userData.mobileNumberVerified && userData.isActive && userData.accountStatus === 'Active' ? (
+          <Typography variant="h2" textAlign="center">
+            All Verifications Complete!
+          </Typography>
+        ) : (
+          <CircularLoading />
+        )
       ) : (
         <Container maxWidth="xl">
           {trialMessageCard || verificationCard ? (
