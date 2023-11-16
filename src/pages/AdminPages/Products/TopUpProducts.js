@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Switch, FormControlLabel, Grid, Paper, Typography } from '@mui/material';
+import CircularLoading from '../../../components/preLoader';
 
 const TopUpProducts = () => {
   const [topUpToggles, setTopUpToggles] = useState({
@@ -11,6 +12,7 @@ const TopUpProducts = () => {
     MERALCO: true,
     CIGNAL: true,
   });
+  const [isLoading, setIsLoading] = useState(true);
 
   const token = localStorage.getItem('token');
 
@@ -23,15 +25,19 @@ const TopUpProducts = () => {
       })
       .then((response) => {
         setTopUpToggles(response.data);
+        setIsLoading(false);
       })
-      .catch((error) => console.error('Error fetching topup toggles:', error));
+      .catch((error) => {
+        console.error('Error fetching topup toggles:', error);
+        setIsLoading(false);
+      });
   }, [token]);
 
   const handleToggleChange = (event) => {
     const { name, checked } = event.target;
     setTopUpToggles((prevState) => ({ ...prevState, [name]: checked }));
 
-    console.log('Headers for PUT request:', { Authorization: `Bearer ${token}` }); // Log headers for PUT request
+    console.log('Headers for PUT request:', { Authorization: `Bearer ${token}` });
 
     axios
       .put(
@@ -41,6 +47,10 @@ const TopUpProducts = () => {
       )
       .catch((error) => console.error('Error updating topup toggles:', error));
   };
+
+  if (isLoading) {
+    return <CircularLoading />;
+  }
 
   return (
     <Grid container spacing={2}>
