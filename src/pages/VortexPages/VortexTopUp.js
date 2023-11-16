@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useReducer, useContext, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import SecureLS from 'secure-ls';
 import { Box, Button, Divider, Stack, Grid, TextField, Toolbar, Typography, InputBase } from '@mui/material';
 import PhoneIphoneIcon from '@mui/icons-material/PhoneIphone';
@@ -268,38 +269,57 @@ const VortexTopUp = () => {
 
   // }, [])
 
+  const [topupToggles, setTopupToggles] = useState({});
+
+  useEffect(() => {
+    console.log('Fetching top-up toggles from the server...');
+
+    axios
+      .get(`${process.env.REACT_APP_BACKEND_URL}/api/admin/topup-toggles`, {
+      })
+      .then((response) => {
+        console.log('Top-up toggles successfully fetched:', response.data);
+        setTopupToggles(response.data);
+      })
+      .catch((error) => {
+        console.error('Error fetching top-up toggles:', error);
+      });
+  }, []);
+
   useEffect(() => {
     if (data && data.length > 0) {
       const collectedBrands = [];
 
       for (let index = 0; index < data.length; index += 1) {
-        if (data[index].category === 'Electronic Load' || data[index].category === 'Data Bundles') {
-          topUpProducts.push(data[index]);
+        const product = data[index];
+
+        // Filter products based on the top-up toggles
+        if (
+          topupToggles[product.brand] &&
+          (product.category === 'Electronic Load' || product.category === 'Data Bundles')
+        ) {
+          topUpProducts.push(product);
         }
 
-        if (data[index].category === 'Electronic Load') {
-          if (data[index].brand === 'ROW') addToInternationalLoad(data[index]);
-          console.log('CollectedBrands:', collectedBrands);
+        if (topupToggles[product.brand] && product.category === 'Electronic Load') {
+          if (product.brand === 'ROW') {
+            addToInternationalLoad(product);
+          }
 
-          if (
-            Array.isArray(collectedBrands) &&
-            !collectedBrands.filter((brand) => brand.name === data[index].brand).length > 0
-          ) {
+          if (!collectedBrands.some((brand) => brand.name === product.brand)) {
             collectedBrands.push({
-              name: data[index].brand,
-              image: data[index].catalogImageURL,
-              rank: localTelecomRankProvider(data[index].brand),
+              name: product.brand,
+              image: product.catalogImageURL,
+              rank: localTelecomRankProvider(product.brand),
             });
           }
         }
       }
 
-      console.log('the collected brands are');
-      console.log(collectedBrands);
-
+      console.log('Filtered and collected brands:', collectedBrands);
       setbrands(collectedBrands.sort((brand, previous) => previous.rank - brand.rank));
     }
-  }, [data]);
+  }, [data, topupToggles]);
 
   const getServiceFee = ({ amount, currency }) => {
     // let paypalPercentage = amount * 0.0355
