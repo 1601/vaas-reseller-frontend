@@ -22,30 +22,37 @@ const AdminHome = () => {
       setIsLoading(true);
       try {
         const user = JSON.parse(localStorage.getItem('user'));
-        if (user) {
-          setUsername(user.username || 'Not Available');
-          setEmail(user.email || 'Not Available');
+        let token;
+
+        // Check for token in different locations
+        if (user && user.token) {
+          token = user.token; // Token inside the user object
+        } else {
+          token = localStorage.getItem('token'); // Token directly in local storage
         }
 
+        if (!token) {
+          console.error('No token found');
+          setIsLoading(false);
+          return;
+        }
+
+        setUsername(user?.username || 'Not Available');
+        setEmail(user?.email || 'Not Available');
+
+        // Headers with token
+        const headers = {
+          Authorization: `Bearer ${token}`,
+        };
+
         // Fetch KYC data
-        const pendingResponse = await axios.get(`${BACKEND_URL}/v1/api/kyc-business/pending`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        });
-        const totalResponse = await axios.get(`${BACKEND_URL}/api/users`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        });
+        const pendingResponse = await axios.get(`${BACKEND_URL}/v1/api/kyc-business/pending`, { headers });
+        const totalResponse = await axios.get(`${BACKEND_URL}/api/users`, { headers });
 
         // Fetch store data
-        const storeResponse = await axios.get(`${BACKEND_URL}/api/stores`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        });
+        const storeResponse = await axios.get(`${BACKEND_URL}/api/stores`, { headers });
 
+        // Process responses
         if (Array.isArray(pendingResponse.data)) {
           setAccountsNeedingKYC(pendingResponse.data.length);
         }
@@ -60,13 +67,33 @@ const AdminHome = () => {
 
         setIsLoading(false);
       } catch (error) {
-        console.error('Error fetching data:', error);
         setIsLoading(false);
+
+        // Check if the response status is 403, which might indicate an expired JWT
+        if (error.response && error.response.status === 403) {
+          logoutUser(); // Call the logout function
+        } else {
+          console.error('Error fetching data:', error);
+        }
       }
     };
 
     fetchData();
   }, [BACKEND_URL]);
+
+  const logoutUser = () => {
+    const rememberMe = localStorage.getItem('rememberMe') === 'true';
+    const rememberMeEmail = localStorage.getItem('rememberMeEmail');
+
+    localStorage.clear();
+
+    if (rememberMe) {
+      localStorage.setItem('rememberMeEmail', rememberMeEmail);
+      localStorage.setItem('rememberMe', 'true');
+    }
+
+    navigate('/login', { replace: true });
+  };
 
   const handleStoreApproval = () => {
     navigate('/dashboard/admin/storeapproval');
@@ -103,7 +130,12 @@ const AdminHome = () => {
                   <Typography variant="h4" gutterBottom align="center">
                     Navigation
                   </Typography>
-                  <Button onClick={handleStoreApproval} variant="outlined" color="primary" style={{ marginRight: '8px' }}>
+                  <Button
+                    onClick={handleStoreApproval}
+                    variant="outlined"
+                    color="primary"
+                    style={{ marginRight: '8px' }}
+                  >
                     Store Approval
                   </Button>
                   <Button onClick={handleKYCApproval} variant="outlined" color="primary">
