@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Box, Switch, FormControlLabel, Grid, Paper, Typography } from '@mui/material';
+import { Box, CardMedia, Switch, FormControlLabel, Grid, Paper, Typography } from '@mui/material';
 import CircularLoading from '../../../components/preLoader';
+import TopUpImage from '../../../components/vortex/TopUpImage';
 
 const TopUpProducts = () => {
   const [topUpToggles, setTopUpToggles] = useState({
@@ -63,8 +64,8 @@ const TopUpProducts = () => {
           {Object.entries(topUpToggles).map(([key, value]) => (
             <Grid item xs={12} sm={6} md={4} key={key}>
               <Paper elevation={3} sx={{ padding: '10px', textAlign: 'center' }}>
-                {' '}
                 <Typography variant="h6">{key}</Typography>
+                <TopUpImage title={key} />
                 <FormControlLabel
                   control={<Switch checked={value} onChange={handleToggleChange} name={key} />}
                   label={value ? 'Enabled' : 'Disabled'}
