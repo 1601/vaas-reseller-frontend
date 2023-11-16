@@ -48,7 +48,13 @@ export default function DashboardAppPage() {
   const userData = UserDataFetch(userId);
 
   useEffect(() => {
-    if (!userId || (userData && !userData._id)) {
+    const existingUserData = JSON.parse(localStorage.getItem('user'));
+
+    if ((userId && userData && userData._id) || (existingUserData && (existingUserData.id || existingUserData._id))) {
+      const mergedData = { ...existingUserData, ...userData };
+
+      localStorage.setItem('user', JSON.stringify(mergedData));
+    } else {
       const rememberMe = localStorage.getItem('rememberMe') === 'true';
       const rememberMeEmail = localStorage.getItem('rememberMeEmail');
 
@@ -59,15 +65,7 @@ export default function DashboardAppPage() {
         localStorage.setItem('rememberMe', 'true');
       }
 
-      navigate('/login', { replace: true }); 
-      return;
-    }
-
-    if (userData) {
-      const existingData = JSON.parse(localStorage.getItem('user')) || {};
-      const mergedData = { ...existingData, ...userData };
-
-      localStorage.setItem('user', JSON.stringify(mergedData));
+      navigate('/login', { replace: true });
     }
   }, [userData, navigate, userId]);
 
