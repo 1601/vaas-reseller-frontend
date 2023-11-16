@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import SecureLS from 'secure-ls';
 import {
   Menu,
   MenuItem,
@@ -73,10 +74,19 @@ const AdminDealerAccount = () => {
 
   useEffect(() => {
     const fetchUsers = async () => {
+      setIsLoading(true);
+
       try {
+        const rawToken = localStorage.getItem('token');
+        const isValidToken = rawToken && rawToken.split('.').length === 3;
+
+        if (!isValidToken) {
+          throw new Error('Invalid token format');
+        }
+
         const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users`, {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            Authorization: `Bearer ${rawToken}`,
           },
         });
 
