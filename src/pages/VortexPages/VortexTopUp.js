@@ -163,6 +163,12 @@ const VortexTopUp = () => {
         });
       } catch (error) {
         console.error('Failed to fetch platform variables:', error);
+
+        // Reload the page if encountering "Could not parse JSON" error
+        if (error.message.includes('Could not parse JSON')) {
+          console.log('Encountered JSON parse error, reloading page.');
+          window.location.reload();
+        }
       }
     };
 
@@ -275,8 +281,7 @@ const VortexTopUp = () => {
     console.log('Fetching top-up toggles from the server...');
 
     axios
-      .get(`${process.env.REACT_APP_BACKEND_URL}/api/admin/topup-toggles`, {
-      })
+      .get(`${process.env.REACT_APP_BACKEND_URL}/api/admin/topup-toggles`, {})
       .then((response) => {
         console.log('Top-up toggles successfully fetched:', response.data);
         setTopupToggles(response.data);
