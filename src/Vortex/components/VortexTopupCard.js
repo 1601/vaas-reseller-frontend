@@ -6,13 +6,14 @@ import {
   Stack,
   Typography,
   Divider,
-} from "@mui/material"
-import ChevronRightIcon from "@mui/icons-material/ChevronRight"
-import React, { useState } from "react"
-import { LazyLoadImage } from "react-lazy-load-image-component"
-import "react-lazy-load-image-component/src/effects/blur.css"
+  Grid,
+} from "@mui/material";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import React, { useState } from "react";
+import { LazyLoadImage } from "react-lazy-load-image-component";
+import "react-lazy-load-image-component/src/effects/blur.css";
 
-import { primaryVortexTheme } from "../config/theme"
+import { primaryVortexTheme } from "../config/theme";
 
 const VortexTopupCard = ({
   code = "W100",
@@ -23,78 +24,68 @@ const VortexTopupCard = ({
   unit = "USD",
   onClick = () => { },
 }) => {
-  const [imgUrl, setImgUrl] = useState(imageUrl)
+  const [imgUrl, setImgUrl] = useState(imageUrl);
   return (
     <>
       <ListItem
         button
         onClick={() => {
-          onClick()
+          onClick();
         }}
       >
-        {/* <ListItemIcon>
-          <Avatar>{name.substring(0, 1)}</Avatar>
-        </ListItemIcon> */}
-        <Stack
-          direction={"row"}
-          alignItems={"center"}
-          width="100%"
-          margin="1em"
-        >
-          <Stack direction='column' width='24%'>
-            <Typography
-              margin={2}
-              fontFamily={"Visby"}
-              fontWeight={700}
-              style={{
-                margin: "0px",
-                fontSize: "1.6em",
-                color: primaryVortexTheme.secondarytextcolor,
-              }}
-            >
-              {price.toFixed(2)}
-            </Typography>
-            <Typography
-              textAlign={"start"}
-              fontFamily={"Visby"}
-              style={{
-                fontSize: "1em",
-                color: primaryVortexTheme.secondarytextcolor,
-              }}
-            >
-              {unit}
-            </Typography>
-          </Stack>
-          <Stack direction='column' width='90%' marginLeft={3}>
-            <Typography
-              fontFamily={"Visby"}
-              fontWeight={"bold"}
-              style={{
-                color: primaryVortexTheme.primarytextcolor,
-              }}
-            >
-              {name}
-            </Typography>
-            <Typography
-              textAlign={"start"}
-              fontSize={"12px"}
-              color={primaryVortexTheme.primarytextcolor}
-            >
-              {desc}
-            </Typography>
-            {/* <Stack direction={"row"} spacing={1}>
-            <Typography>{price}</Typography>
-            <Typography>{unit}</Typography>
-          </Stack> */}
-          </Stack>
-        </Stack>
-        <ListItemIcon>
-          <ChevronRightIcon style={{ color: "#0060bf" }} />
-        </ListItemIcon>
+        <Grid container alignItems="center">
+          <Grid item xs={4} sm={3}>
+            <Stack direction="column" spacing={0.75}>
+              <Typography
+                fontFamily="Visby"
+                fontWeight={700}
+                style={{
+                  fontSize: "1.2em",
+                  color: primaryVortexTheme.secondarytextcolor,
+                }}
+              >
+                {price.toFixed(2)}
+              </Typography>
+              <Typography
+                fontFamily="Visby"
+                style={{
+                  fontSize: "0.8em",
+                  color: primaryVortexTheme.secondarytextcolor,
+                }}
+              >
+                {unit}
+              </Typography>
+            </Stack>
+          </Grid>
+          <Grid item xs={6} sm={7}>
+            <Stack direction="column" spacing={1}>
+              <Typography
+                fontFamily="Visby"
+                fontWeight="bold"
+                style={{
+                  color: primaryVortexTheme.primarytextcolor,
+                }}
+              >
+                {name}
+              </Typography>
+              <Typography
+                fontSize={"0.5em"}
+                color={primaryVortexTheme.primarytextcolor}
+              >
+                {desc}
+              </Typography>
+            </Stack>
+          </Grid>
+          <Grid item xs={2} sm={2}>
+            <ListItemIcon>
+              <ChevronRightIcon style={{ color: "#0060bf" }} />
+            </ListItemIcon>
+          </Grid>
+        </Grid>
       </ListItem>
       <Divider />
     </>
-  )
-}
+  );
+};
 
-export default VortexTopupCard
+export default VortexTopupCard;
