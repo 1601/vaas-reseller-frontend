@@ -1,14 +1,22 @@
-export const handleLogout = (closePopover, navigateTo) => {
-  const rememberMe = localStorage.getItem('rememberMe') === 'true';
-  const rememberMeEmail = localStorage.getItem('rememberMeEmail');
+import SecureLS from 'secure-ls';
 
-  // Clear all items from localStorage
+const ls = new SecureLS({ encodingType: 'aes' });
+
+export const handleLogout = (closePopover, navigateTo) => {
+  // Retrieve rememberMe status and credentials before clearing SecureLS
+  const rememberMeStatus = ls.get('rememberMe');
+  const rememberMeEmail = ls.get('rememberMeEmail');
+  const rememberMePassword = ls.get('rememberMePassword');
+
+  // Clear all localStorage and SecureLS items
   localStorage.clear();
-  
-  // Conditionally retain the email and rememberMe status based on 'rememberMe' status
-  if (rememberMe) {
-    localStorage.setItem('rememberMeEmail', rememberMeEmail);
-    localStorage.setItem('rememberMe', 'true');
+  ls.removeAll();
+
+  // Conditionally retain the email, password, and rememberMe status based on 'rememberMe' status
+  if (rememberMeStatus === 'true') {
+    ls.set('rememberMeEmail', rememberMeEmail);
+    ls.set('rememberMePassword', rememberMePassword);
+    ls.set('rememberMe', 'true');
   }
 
   closePopover();

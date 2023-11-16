@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import SecureLS from 'secure-ls';
 // @mui
 import {
   Button,
@@ -23,6 +24,8 @@ import { LoadingButton } from '@mui/lab';
 import Iconify from '../../../components/iconify';
 // ----------------------------------------------------------------------
 
+const ls = new SecureLS({ encodingType: 'aes' });
+
 export default function LoginForm() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
@@ -38,9 +41,16 @@ export default function LoginForm() {
   const [loggingIn, setLoggingIn] = useState(false);
 
   useEffect(() => {
-    const savedEmail = localStorage.getItem('rememberMeEmail');
-    if (savedEmail) {
-      setEmail(savedEmail);
+    try {
+      const savedEmail = ls.get('rememberMeEmail');
+      const savedPassword = ls.get('rememberMePassword');
+      if (savedEmail && savedPassword) {
+        setEmail(savedEmail);
+        setPassword(savedPassword);
+        setRememberMe(true);
+      }
+    } catch (error) {
+      console.error('Error reading from SecureLS:', error);
     }
   }, []);
 
@@ -67,14 +77,6 @@ export default function LoginForm() {
 
   const handleRememberMeChange = (e) => {
     setRememberMe(e.target.checked);
-
-    if (e.target.checked) {
-      localStorage.setItem('rememberMeEmail', email);
-      localStorage.setItem('rememberMe', 'true');
-    } else {
-      localStorage.removeItem('rememberMeEmail');
-      localStorage.removeItem('rememberMe');
-    }
   };
 
   const handleLogin = async () => {
@@ -103,7 +105,9 @@ export default function LoginForm() {
       const { token, username, _id, role, email: userEmail, isActive } = response.data;
 
       if (rememberMe) {
-        localStorage.setItem('rememberMeEmail', email);
+        ls.set('rememberMeEmail', email);
+        ls.set('rememberMePassword', password);
+        ls.set('rememberMe', 'true');
       }
 
       const verifiedRole = await verifyRole(token);
@@ -117,7 +121,6 @@ export default function LoginForm() {
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(response.data));
 
-      // Navigate to the appropriate dashboard based on role
       navigate(role === 'admin' ? '/dashboard/admin' : '/dashboard/app', { replace: true });
       setLoggingIn(false);
     } catch (error) {
@@ -194,8 +197,16 @@ export default function LoginForm() {
         size="large"
         color="inherit"
         variant="outlined"
-        onClick={handleLogin}
-        disabled={!email.trim() || !password.trim()}
+        onClick={() => {
+          handleLogin();
+          if (rememberMe) {
+            ls.set('rememberMe', 'true');
+          } else {
+            ls.remove('rememberMe');
+            ls.remove('rememberMeEmail');
+            ls.remove('rememberMePassword');
+          }
+        }}
       >
         Login
       </Button>
