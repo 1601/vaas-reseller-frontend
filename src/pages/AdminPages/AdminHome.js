@@ -18,6 +18,7 @@ const AdminHome = () => {
   const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
 
   useEffect(() => {
+    document.title = "Admin CRM | VAAS";
     const fetchData = async () => {
       setIsLoading(true);
       try {
