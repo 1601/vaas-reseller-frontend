@@ -31,69 +31,28 @@ const StyledContent = styled('div')(({ theme }) => ({
 
 export default function LandingPage() {
   return (
-    <div className="flex flex-col min-h-screen overflow-hidden" style={{backgroundColor: "#FFF"}}>
-  
-  {/*  Site header */}
-  <Header />
+    <>
+      <Helmet>
+        <title>VAAS</title>
+      </Helmet>
 
-  {/*  Page content */}
-  <main className="flex-grow">
+      <div className="flex flex-col min-h-screen overflow-hidden" style={{backgroundColor: "#FFF"}}>
+        {/*  Site header */}
+        <Header />
 
+        {/*  Page content */}
+        <main className="flex-grow">
+          {/*  Page sections */}
+          <HeroHome />
+          <FeaturesHome />
+          <FeaturesBlocks />
+          <Testimonials />
+          <Newsletter />
+        </main>
 
-    {/*  Page sections */}
-    
-    <HeroHome />
-    <FeaturesHome />
-    <FeaturesBlocks />
-    <Testimonials />
-    <Newsletter />
-
-  </main>
-
-  {/* <Banner /> */}
-
-  {/*  Site footer */}
-  <Footer />
-
-</div>
-    // <>
-    //   <Helmet>
-    //     <title> VAAS </title>
-    //   </Helmet>
-
-    //   <Container>
-    //     {/*  Site header */}
-    //       <Header />
-
-    //     {/*  Page content */}
-    //     <main className="flex-grow">          
-    //       <HeroHome />
-    //       <FeaturesHome />
-    //       <FeaturesBlocks />
-    //     </main>
-
-    //     <Footer />
-    //     <StyledContent sx={{ textAlign: 'center', alignItems: 'center' }}>
-    //       <Typography variant="h3" paragraph>
-    //        Hello World
-    //       </Typography>
-
-    //       <Typography sx={{ color: 'text.secondary' }}>
-    //       Welcome to the Vehicle as a Service (VAAS) platform. 
-    //       This platform is designed to help you manage your vehicle fleet and provide a better service to your customers. 
-    //       </Typography>
-
-    //       <Box
-    //         component="img"
-    //         src="/assets/illustrations/illustration_404.svg"
-    //         sx={{ height: 260, mx: 'auto', my: { xs: 5, sm: 10 } }}
-    //       />
-
-    //       <Button to="/" size="large" variant="contained" component={RouterLink}>
-    //         Go to Home
-    //       </Button>
-    //     </StyledContent>
-    //   </Container>
-    // </>
+        {/* Site footer */}
+        <Footer />
+      </div>
+    </>
   );
 }
