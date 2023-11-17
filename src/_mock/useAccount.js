@@ -1,6 +1,9 @@
-// ----------------------------------------------------------------------
-
 import { useState, useEffect } from 'react';
+
+function capitalizeFirstLetter(string) {
+  if (!string) return string;
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
 
 function useAccount() {
   const [account, setAccount] = useState({
@@ -16,7 +19,7 @@ function useAccount() {
     if (user) {
       const updatedAccount = {
         displayName: user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.username,
-        email: role,
+        email: role ? capitalizeFirstLetter(role) : role,
         photoURL: '/assets/images/avatars/avatar_default.jpg',
       };
       setAccount(updatedAccount);
