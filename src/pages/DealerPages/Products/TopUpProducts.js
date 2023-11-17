@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Box, Switch, FormControlLabel, Grid, Paper, Typography, TextField } from '@mui/material';
+import { Box, Button, Switch, FormControlLabel, Grid, Paper, Typography, TextField } from '@mui/material';
 import CircularLoading from '../../../components/preLoader';
 import TopUpImage from '../../../components/vortex/TopUpImage';
 
@@ -17,6 +17,8 @@ const TopUpProducts = () => {
 
   const token = localStorage.getItem('token');
   const userId = JSON.parse(localStorage.getItem('user'))._id;
+
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
   useEffect(() => {
     axios
@@ -38,12 +40,34 @@ const TopUpProducts = () => {
 
   const handleToggleChange = (event) => {
     const { name, checked } = event.target;
-    setTopUpToggles((prevState) => ({
-      ...prevState,
-      [name]: { ...prevState[name], enabled: checked },
-    }));
+    setTopUpToggles((prevState) => ({ ...prevState, [name]: checked }));
 
-    // Send update to backend here
+    axios
+      .put(
+        `${process.env.REACT_APP_BACKEND_URL}/api/dealer/topup-toggles/${userId}`,
+        { topupToggles: { ...topUpToggles, [name]: checked } },
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
+      .catch((error) => console.error('Error updating topup toggles:', error));
+  };
+
+  if (isLoading) {
+    return <CircularLoading />;
+  }
+
+  const configureButtonStyle = {
+    color: 'black',
+    backgroundColor: 'white',
+    '&:hover': {
+      color: 'white',
+      backgroundColor: 'skyblue',
+    },
+  };
+
+  const handleConfigure = (productName) => {
+    setSelectedProduct(productName);
+    // Navigate to configuration page or open a modal for configuration
+    // For example: navigate(`/configure/${productName}`);
   };
 
   const handleMarkupChange = (name, value) => {
@@ -73,32 +97,22 @@ const TopUpProducts = () => {
           Top-Up Products
         </Typography>
         <Grid container spacing={2}>
-          {Object.entries(topUpToggles).map(([key, { enabled, defaultPrice, markup, discount }]) => (
+          {Object.keys(topUpToggles).map((key) => (
             <Grid item xs={12} sm={6} md={4} key={key}>
               <Paper elevation={3} sx={{ padding: '10px', textAlign: 'center' }}>
                 <Typography variant="h6">{key}</Typography>
                 <TopUpImage title={key} />
                 <FormControlLabel
-                  control={<Switch checked={enabled} onChange={(e) => handleToggleChange(e)} name={key} />}
-                  label={enabled ? 'Enabled' : 'Disabled'}
+                  control={
+                    <Switch checked={topUpToggles[key].enabled} onChange={(e) => handleToggleChange(e)} name={key} />
+                  }
+                  label={topUpToggles[key].enabled ? 'Enabled' : 'Disabled'}
                 />
-                <Typography>Default Price: {defaultPrice}</Typography>
-                <Typography>Mark-Up Price</Typography>
-                <TextField
-                  fullWidth
-                  variant="outlined"
-                  value={markup}
-                  onChange={(e) => handleMarkupChange(key, e.target.value)}
-                  placeholder="Enter mark-up price"
-                />
-                <Typography>Discount</Typography>
-                <TextField
-                  fullWidth
-                  variant="outlined"
-                  value={discount}
-                  onChange={(e) => handleDiscountChange(key, e.target.value)}
-                  placeholder="Enter discount"
-                />
+                {topUpToggles[key].enabled && (
+                  <Button variant="contained" sx={configureButtonStyle} onClick={() => handleConfigure(key)}>
+                    Configure
+                  </Button>
+                )}
               </Paper>
             </Grid>
           ))}
