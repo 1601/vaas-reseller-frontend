@@ -16,10 +16,11 @@ const TopUpProducts = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   const token = localStorage.getItem('token');
+  const userId = JSON.parse(localStorage.getItem('user'))._id; 
 
   useEffect(() => {
     axios
-      .get(`${process.env.REACT_APP_BACKEND_URL}/api/admin/topup-toggles`, {
+      .get(`${process.env.REACT_APP_BACKEND_URL}/api/dealer/topup-toggles/${userId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -32,17 +33,15 @@ const TopUpProducts = () => {
         console.error('Error fetching topup toggles:', error);
         setIsLoading(false);
       });
-  }, [token]);
+  }, [token, userId]);
 
   const handleToggleChange = (event) => {
     const { name, checked } = event.target;
     setTopUpToggles((prevState) => ({ ...prevState, [name]: checked }));
 
-    console.log('Headers for PUT request:', { Authorization: `Bearer ${token}` });
-
     axios
       .put(
-        `${process.env.REACT_APP_BACKEND_URL}/api/admin/topup-toggles`,
+        `${process.env.REACT_APP_BACKEND_URL}/api/dealer/topup-toggles/${userId}`,
         { topupToggles: { ...topUpToggles, [name]: checked } },
         { headers: { Authorization: `Bearer ${token}` } }
       )
@@ -55,7 +54,6 @@ const TopUpProducts = () => {
 
   return (
     <Box sx={{ padding: '20px' }}>
-      {' '}
       <Paper elevation={3} sx={{ margin: 'auto', maxWidth: '90%', padding: '20px' }}>
         <Typography variant="h4" sx={{ fontWeight: 'bold', marginBottom: '20px', textAlign: 'center' }}>
           Top-Up Products
