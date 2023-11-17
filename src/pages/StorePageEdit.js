@@ -30,6 +30,7 @@ const StorePageEdit = () => {
   const [progressText, setProgressText] = useState('Uploading...');
   const userId = JSON.parse(localStorage.getItem('user'))._id;
   const userData = UserDataFetch(userId);
+  const [isStoreUrlValid, setIsStoreUrlValid] = useState(true);
 
   const [platformVariables, setPlatformVariables] = useState({
     enableBills: true,
@@ -140,6 +141,10 @@ const StorePageEdit = () => {
   const [errorMessage, setErrorMessage] = useState('');
 
   const handleInputChange = (e, field) => {
+    if (field === 'storeUrl') {
+      const isValid = /^[a-z0-9]+$/i.test(e.target.value);
+      setIsStoreUrlValid(isValid);
+    }
     setEditedData({
       ...editedData,
       [field]: e.target.value,
@@ -539,15 +544,24 @@ const StorePageEdit = () => {
                           This is the URL of your store!
                         </Typography>
                         {isEditing ? (
-                          <input
-                            type="text"
-                            value={editedData.storeUrl}
-                            onChange={(e) => handleInputChange(e, 'storeUrl')}
-                            className="border p-2 rounded"
-                            style={{ fontSize: '1rem' }}
-                            pattern="^[a-z0-9]+$"
-                            title="Please enter a lowercase alphanumeric value without special symbols."
-                          />
+                          <>
+                            <input
+                              type="text"
+                              value={editedData.storeUrl.replace(/\./g, '')}
+                              onChange={(e) => handleInputChange(e, 'storeUrl')}
+                              className="border p-2 rounded"
+                              style={{
+                                fontSize: '1rem',
+                                borderColor: !isStoreUrlValid ? 'red' : '#d1d5db', 
+                                backgroundColor: !isStoreUrlValid ? '#ffe5e5' : 'white', 
+                              }}
+                            />
+                            {!isStoreUrlValid && (
+                              <Typography variant="body2" style={{ color: 'red' }}>
+                                Invalid Format
+                              </Typography>
+                            )}
+                          </>
                         ) : (
                           <Typography variant="body1">{storeData.storeUrl}</Typography>
                         )}
