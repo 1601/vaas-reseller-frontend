@@ -41,7 +41,7 @@ import AdminDealerAccount from './pages/AdminPages/AdminDealerAccount';
 import AdminBanner from './pages/AdminPages/AdminBanner';
 import TransactionPage from './pages/DealerPages/TransactionPage'
 import { excludedPaths } from './components/subdomain/ExcludedPaths';
-import TopUpProducts from './pages/AdminPages/Products/TopUpProducts';
+import TopUpProducts from './pages/DealerPages/Products/TopUpProducts';
 
 // ----------------------------------------------------------------------
 
@@ -152,7 +152,7 @@ export default function Router() {
           children: [
             { path: '/dashboard/products', element: <Navigate to="bills-payment" replace />, index: true },
             { path: 'bills-payment', element: <ProductsPage /> },
-            { path: 'top-up', element: <ProductsPage /> },
+            { path: 'top-up', element: <TopUpProducts /> },
             { path: 'e-gifts', element: <ProductsPage /> },
           ],
         },
@@ -206,10 +206,10 @@ export default function Router() {
         {path: 'banner',element: <AdminBanner />},
 
         // Product Config
-        { path: 'products', element: <ProductsPage /> },
-        { path: 'products/bills', element: <ProductsPage /> },
-        { path: 'products/topup', element: <TopUpProducts /> },
-        { path: 'products/egift', element: <ProductsPage /> },
+        // { path: 'products', element: <ProductsPage /> },
+        // { path: 'products/bills', element: <ProductsPage /> },
+        // { path: 'products/topup', element: <TopUpProducts /> },
+        // { path: 'products/egift', element: <ProductsPage /> },
 
         // Dealer Accounts
         { path: 'accounts', element: <AdminDealerAccount /> },
