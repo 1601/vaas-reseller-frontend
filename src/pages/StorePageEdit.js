@@ -31,6 +31,7 @@ const StorePageEdit = () => {
   const userId = JSON.parse(localStorage.getItem('user'))._id;
   const userData = UserDataFetch(userId);
   const [isStoreUrlValid, setIsStoreUrlValid] = useState(true);
+  const [isStoreNameValid, setIsStoreNameValid] = useState(true);
 
   const [platformVariables, setPlatformVariables] = useState({
     enableBills: true,
@@ -141,6 +142,14 @@ const StorePageEdit = () => {
   const [errorMessage, setErrorMessage] = useState('');
 
   const handleInputChange = (e, field) => {
+    let value = e.target.value;
+
+    if (field === 'storeName') {
+      const isValid = /^[a-z0-9\s]{1,30}$/i.test(value);
+      setIsStoreNameValid(isValid);
+      value = value.replace(/[^a-z0-9\s]/gi, '').substring(0, 30);
+    }
+
     if (field === 'storeUrl') {
       const isValid = /^[a-z0-9]+$/i.test(e.target.value);
       setIsStoreUrlValid(isValid);
@@ -524,13 +533,25 @@ const StorePageEdit = () => {
                           This is the name of your store!
                         </Typography>
                         {isEditing ? (
-                          <input
-                            type="text"
-                            value={editedData.storeName}
-                            onChange={(e) => handleInputChange(e, 'storeName')}
-                            className="border p-2 rounded"
-                            style={{ fontSize: '1rem' }}
-                          />
+                          <>
+                            <input
+                              type="text"
+                              value={editedData.storeName}
+                              onChange={(e) => handleInputChange(e, 'storeName')}
+                              className={`border p-2 rounded ${!isStoreNameValid ? 'border-red-500' : ''}`}
+                              style={{
+                                fontSize: '1rem',
+                                borderColor: !isStoreNameValid ? 'red' : '#d1d5db',
+                                backgroundColor: !isStoreNameValid ? '#ffe5e5' : 'white',
+                              }}
+                              maxLength={30}
+                            />
+                            {!isStoreNameValid && (
+                              <Typography variant="body2" style={{ color: 'red' }}>
+                                Invalid Format
+                              </Typography>
+                            )}
+                          </>
                         ) : (
                           <Typography variant="body1">{storeData.storeName}</Typography>
                         )}
@@ -552,8 +573,8 @@ const StorePageEdit = () => {
                               className="border p-2 rounded"
                               style={{
                                 fontSize: '1rem',
-                                borderColor: !isStoreUrlValid ? 'red' : '#d1d5db', 
-                                backgroundColor: !isStoreUrlValid ? '#ffe5e5' : 'white', 
+                                borderColor: !isStoreUrlValid ? 'red' : '#d1d5db',
+                                backgroundColor: !isStoreUrlValid ? '#ffe5e5' : 'white',
                               }}
                             />
                             {!isStoreUrlValid && (
