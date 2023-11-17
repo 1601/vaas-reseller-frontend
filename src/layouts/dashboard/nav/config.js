@@ -30,28 +30,28 @@ const getNavConfig = (role) => {
           },
         ],
       },
-      {
-        title: 'Product Configuration',
-        path: '/dashboard/admin/products',
-        icon: icon('ic_product'),
-        children: [
-          {
-            title: 'Bills',
-            path: '/dashboard/admin/products/bills',
-            icon: icon('ic_bills'),
-          },
-          {
-            title: 'Top-Up',
-            path: '/dashboard/admin/products/topup',
-            icon: icon('ic_topup'),
-          },
-          {
-            title: 'E-Gifts',
-            path: '/dashboard/admin/products/egift',
-            icon: icon('ic_egift'),
-          },
-        ],
-      },
+      // {
+      //  title: 'Product Configuration',
+      //  path: '/dashboard/admin/products',
+      //  icon: icon('ic_product'),
+      //  children: [
+      //    {
+      //      title: 'Bills',
+      //      path: '/dashboard/admin/products/bills',
+      //      icon: icon('ic_bills'),
+      //    },
+      //    {
+      //      title: 'Top-Up',
+      //      path: '/dashboard/admin/products/topup',
+      //      icon: icon('ic_topup'),
+      //    },
+      //    {
+      //      title: 'E-Gifts',
+      //      path: '/dashboard/admin/products/egift',
+      //      icon: icon('ic_egift'),
+      //    },
+      //  ],
+      // },
       {
         title: 'Dealer Accounts',
         path: '/dashboard/admin/accounts',
