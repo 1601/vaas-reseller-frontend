@@ -50,7 +50,7 @@ const LiveStorePage = () => {
 
     if (
       subdomain === 'localhost' ||
-      subdomain === 'lvh' || // note that it's 'lvh' not 'lvh.me'
+      subdomain === 'lvh' || 
       subdomain === 'sevenstarjasem' ||
       subdomain === 'pldt-vaas-frontend'
     ) {
@@ -121,6 +121,16 @@ const LiveStorePage = () => {
 
     return () => {};
   }, [storeData, notFound]);
+
+  useEffect(() => {
+    if (storeData && storeData.storeName) {
+      document.title = `${storeData.storeName} | VAAS`;
+    } else if (showNotFoundError) {
+      document.title = "Domain Not Found | VAAS";
+    } else {
+      document.title = "Store Page | VAAS";
+    }
+  }, [storeData, showNotFoundError]);
 
   if (showNotFoundError) {
     return (
