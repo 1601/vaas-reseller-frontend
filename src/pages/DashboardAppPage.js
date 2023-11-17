@@ -146,7 +146,7 @@ export default function DashboardAppPage() {
   return (
     <>
       <Helmet>
-        <title> Dashboard | VAAS </title>
+        <title> Dealer Dashboard | VAAS </title>
       </Helmet>
 
       {!trialMessageCard && !verificationCard ? (
