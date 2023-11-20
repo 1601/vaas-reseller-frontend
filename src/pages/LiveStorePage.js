@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, useParams, useLocation } from 'react-router-dom';
+import SecureLS from 'secure-ls';
 import { Container, Stack, Link, Button } from '@mui/material';
 import axios from 'axios';
 import BillsImage from '../images/logos/bills.svg';
 import LoadImage from '../images/logos/load.svg';
 import VoucherImage from '../images/logos/voucher.svg';
 import { useStore } from '../StoreContext';
+
+const ls = new SecureLS({ encodingType: 'aes' });
 
 const LiveStorePage = () => {
   const { storeData, setStoreData } = useStore();
@@ -50,7 +53,7 @@ const LiveStorePage = () => {
 
     if (
       subdomain === 'localhost' ||
-      subdomain === 'lvh' || 
+      subdomain === 'lvh' ||
       subdomain === 'sevenstarjasem' ||
       subdomain === 'pldt-vaas-frontend'
     ) {
@@ -123,12 +126,30 @@ const LiveStorePage = () => {
   }, [storeData, notFound]);
 
   useEffect(() => {
+    if (storeData && storeData.storeUrl) {
+      const fetchUserId = async () => {
+        try {
+          const response = await axios.get(
+            `${process.env.REACT_APP_BACKEND_URL}/api/stores/url/${storeData.storeUrl}/user`
+          );
+          const userId = response.data.userId;
+
+          ls.set('encryptedUserId', userId);
+        } catch (error) {
+          console.error('Could not fetch user ID for store', error);
+        }
+      };
+      fetchUserId();
+    }
+  }, [storeData]);
+
+  useEffect(() => {
     if (storeData && storeData.storeName) {
       document.title = `${storeData.storeName} | VAAS`;
     } else if (showNotFoundError) {
-      document.title = "Domain Not Found | VAAS";
+      document.title = 'Domain Not Found | VAAS';
     } else {
-      document.title = "Store Page | VAAS";
+      document.title = 'Store Page | VAAS';
     }
   }, [storeData, showNotFoundError]);
 
@@ -241,6 +262,7 @@ const LiveStorePage = () => {
                   </Link>
                 </div>
               )}
+
               {platformVariables.enableGift && (
                 <div
                   style={{
