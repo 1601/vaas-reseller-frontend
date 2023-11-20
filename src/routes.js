@@ -3,7 +3,7 @@ import { Navigate, useRoutes } from 'react-router-dom';
 // layouts
 import DashboardLayout from './layouts/dashboard';
 import SimpleLayout from './layouts/simple';
-//
+// pages
 import BlogPage from './pages/BlogPage';
 import CustomerPage from './pages/DealerPages/CustomerPage';
 import UserPage from './pages/UserPage';
