@@ -85,6 +85,10 @@ export default function Router() {
       return;
     }
 
+    if (currentHostname.includes('vercel.app')) {
+      return;
+    }
+
     if (match) {
       const storeUrl = match[1];
 
