@@ -5,7 +5,6 @@ import { excludedPaths } from './components/subdomain/ExcludedPaths';
 
 const SubdomainHandler = () => {
   const { setStoreData, setHasSubdomain } = useStore();
-  const excludedSubdomains = ['pldt-vaas-frontend', 'www', 'lvh', 'localhost'];
 
   useEffect(() => {
     const hostname = window.location.hostname;
@@ -32,7 +31,7 @@ const SubdomainHandler = () => {
       storeUrl = parts.length > 2 ? parts[0] : null;
     }
 
-    if (storeUrl && !excludedSubdomains.includes(storeUrl) && !storeUrl.startsWith('pldt-vaas-frontend')) {
+    if (storeUrl && !storeUrl.includes('pldt-vaas-frontend')) {
       axios
         .get(`${process.env.REACT_APP_BACKEND_URL}/api/stores/url/${storeUrl}`, {
           headers: {

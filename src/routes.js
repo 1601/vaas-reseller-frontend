@@ -58,6 +58,7 @@ export default function Router() {
 
   useEffect(() => {
     const currentHostname = window.location.hostname;
+    console.log ("current HostName: ", currentHostname )
     const currentPort = window.location.port;
     const currentPath = window.location.pathname;
     const storeUrlPattern = /^\/([a-zA-Z0-9_-]+)$/;
