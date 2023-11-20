@@ -39,9 +39,10 @@ import VortexTopUp from './pages/VortexPages/VortexTopUp';
 import VortexContext from './Vortex/context/VortexContext';
 import AdminDealerAccount from './pages/AdminPages/AdminDealerAccount';
 import AdminBanner from './pages/AdminPages/AdminBanner';
-import TransactionPage from './pages/DealerPages/TransactionPage'
+import TransactionPage from './pages/DealerPages/TransactionPage';
 import { excludedPaths } from './components/subdomain/ExcludedPaths';
 import TopUpProducts from './pages/DealerPages/Products/TopUpProducts';
+import TopUpConfig from './pages/DealerPages/Products/TopUpConfig';
 
 // ----------------------------------------------------------------------
 
@@ -152,7 +153,13 @@ export default function Router() {
           children: [
             { path: '/dashboard/products', element: <Navigate to="bills-payment" replace />, index: true },
             { path: 'bills-payment', element: <ProductsPage /> },
-            { path: 'top-up', element: <TopUpProducts /> },
+            {
+              path: 'top-up',
+              children: [
+                { path: '/dashboard/products/top-up', element: <TopUpProducts />, index: true },
+                { path: ':productName', element: <TopUpConfig /> },
+              ],
+            },
             { path: 'e-gifts', element: <ProductsPage /> },
           ],
         },
@@ -203,7 +210,7 @@ export default function Router() {
         { path: 'storeapproval/:storeId', element: <AdminApproval /> },
         { path: 'kycapproval', element: <AdminKYC /> },
         { path: 'kycapprove/:storeId', element: <AdminKYCApproval /> },
-        {path: 'banner',element: <AdminBanner />},
+        { path: 'banner', element: <AdminBanner /> },
 
         // Product Config
         // { path: 'products', element: <ProductsPage /> },
