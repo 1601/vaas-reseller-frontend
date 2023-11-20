@@ -7,12 +7,12 @@ import TopUpImage from '../../../components/vortex/TopUpImage';
 
 const TopUpProducts = () => {
   const [topUpToggles, setTopUpToggles] = useState({
-    SMARTPH: { enabled: true, defaultPrice: 'N/A', markup: '', discount: '' },
-    TNTPH: { enabled: true, defaultPrice: 'N/A', markup: '', discount: '' },
-    PLDTPH: { enabled: true, defaultPrice: 'N/A', markup: '', discount: '' },
-    GLOBE: { enabled: true, defaultPrice: 'N/A', markup: '', discount: '' },
-    MERALCO: { enabled: true, defaultPrice: 'N/A', markup: '', discount: '' },
-    CIGNAL: { enabled: true, defaultPrice: 'N/A', markup: '', discount: '' },
+    SMARTPH: true,
+    TNTPH: true,
+    PLDTPH: true,
+    GLOBE: true,
+    MERALCO: true,
+    CIGNAL: true,
   });
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
@@ -28,8 +28,11 @@ const TopUpProducts = () => {
         },
       })
       .then((response) => {
-        // Map response to your state structure
-        // setTopUpToggles(response.data);
+        const fetchedToggles = response.data;
+        setTopUpToggles((prevState) => ({
+          ...prevState,
+          ...fetchedToggles,
+        }));
         setIsLoading(false);
       })
       .catch((error) => {
@@ -40,7 +43,10 @@ const TopUpProducts = () => {
 
   const handleToggleChange = (event) => {
     const { name, checked } = event.target;
-    setTopUpToggles((prevState) => ({ ...prevState, [name]: checked }));
+    setTopUpToggles((prevState) => ({
+      ...prevState,
+      [name]: checked,
+    }));
 
     axios
       .put(
@@ -81,18 +87,37 @@ const TopUpProducts = () => {
         <Grid container spacing={2}>
           {Object.keys(topUpToggles).map((key) => (
             <Grid item xs={12} sm={6} md={4} key={key}>
-              <Paper elevation={3} sx={{ padding: '10px', textAlign: 'center' }}>
+              <Paper
+                elevation={3}
+                sx={{
+                  padding: '10px',
+                  textAlign: 'center',
+                  backgroundColor: topUpToggles[key] ? 'transparent' : 'lightgrey',
+                  opacity: topUpToggles[key] ? '1' : '0.5',
+                }}
+              >
                 <Typography variant="h6">{key}</Typography>
-                <TopUpImage title={key} />
+                <TopUpImage title={key} style={{ filter: topUpToggles[key] ? 'none' : 'grayscale(100%)' }} />
+                <Button
+                  variant="contained"
+                  disabled={!topUpToggles[key]} 
+                  sx={{
+                    ...configureButtonStyle,
+                    backgroundColor: topUpToggles[key] ? 'skyblue' : 'grey',
+                    '&:hover': {
+                      backgroundColor: topUpToggles[key] ? 'lightblue' : 'grey',
+                    },
+                    marginBottom: '10px',
+                  }}
+                  onClick={() => handleConfigure(key)}
+                >
+                  Configure
+                </Button>
                 <FormControlLabel
-                  control={<Switch checked={topUpToggles[key].enabled} onChange={handleToggleChange} name={key} />}
-                  label={topUpToggles[key].enabled ? 'Enabled' : 'Disabled'}
+                  control={<Switch checked={topUpToggles[key]} onChange={handleToggleChange} name={key} />}
+                  label={topUpToggles[key] ? 'Enabled' : 'Disabled'}
+                  sx={{ marginTop: '10px' }}
                 />
-                {topUpToggles[key].enabled && (
-                  <Button variant="contained" sx={configureButtonStyle} onClick={() => handleConfigure(key)}>
-                    Configure
-                  </Button>
-                )}
               </Paper>
             </Grid>
           ))}
