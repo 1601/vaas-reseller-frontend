@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Box, Button, Switch, FormControlLabel, Grid, Paper, Typography, TextField } from '@mui/material';
 import CircularLoading from '../../../components/preLoader';
@@ -14,11 +15,10 @@ const TopUpProducts = () => {
     CIGNAL: { enabled: true, defaultPrice: 'N/A', markup: '', discount: '' },
   });
   const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
 
   const token = localStorage.getItem('token');
   const userId = JSON.parse(localStorage.getItem('user'))._id;
-
-  const [selectedProduct, setSelectedProduct] = useState(null);
 
   useEffect(() => {
     axios
@@ -65,25 +65,7 @@ const TopUpProducts = () => {
   };
 
   const handleConfigure = (productName) => {
-    setSelectedProduct(productName);
-    // Navigate to configuration page or open a modal for configuration
-    // For example: navigate(`/configure/${productName}`);
-  };
-
-  const handleMarkupChange = (name, value) => {
-    // Update markup price for a product
-    setTopUpToggles((prevState) => ({
-      ...prevState,
-      [name]: { ...prevState[name], markup: value },
-    }));
-  };
-
-  const handleDiscountChange = (name, value) => {
-    // Update discount for a product
-    setTopUpToggles((prevState) => ({
-      ...prevState,
-      [name]: { ...prevState[name], discount: value },
-    }));
+    navigate(`/dashboard/products/top-up/${productName}`);
   };
 
   if (isLoading) {
@@ -103,9 +85,7 @@ const TopUpProducts = () => {
                 <Typography variant="h6">{key}</Typography>
                 <TopUpImage title={key} />
                 <FormControlLabel
-                  control={
-                    <Switch checked={topUpToggles[key].enabled} onChange={(e) => handleToggleChange(e)} name={key} />
-                  }
+                  control={<Switch checked={topUpToggles[key].enabled} onChange={handleToggleChange} name={key} />}
                   label={topUpToggles[key].enabled ? 'Enabled' : 'Disabled'}
                 />
                 {topUpToggles[key].enabled && (
