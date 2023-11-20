@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Box, Button, Switch, FormControlLabel, Grid, Paper, Typography, TextField } from '@mui/material';
+import { Stack, Box, Button, Switch, FormControlLabel, Grid, Paper, Typography, TextField } from '@mui/material';
 import CircularLoading from '../../../components/preLoader';
 import TopUpImage from '../../../components/vortex/TopUpImage';
 
@@ -91,33 +91,40 @@ const TopUpProducts = () => {
                 elevation={3}
                 sx={{
                   padding: '10px',
+                  display: 'flex', 
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                   textAlign: 'center',
                   backgroundColor: topUpToggles[key] ? 'transparent' : 'lightgrey',
                   opacity: topUpToggles[key] ? '1' : '0.5',
                 }}
               >
                 <Typography variant="h6">{key}</Typography>
-                <TopUpImage title={key} style={{ filter: topUpToggles[key] ? 'none' : 'grayscale(100%)' }} />
-                <Button
-                  variant="contained"
-                  disabled={!topUpToggles[key]} 
-                  sx={{
-                    ...configureButtonStyle,
-                    backgroundColor: topUpToggles[key] ? 'skyblue' : 'grey',
-                    '&:hover': {
-                      backgroundColor: topUpToggles[key] ? 'lightblue' : 'grey',
-                    },
-                    marginBottom: '10px',
-                  }}
-                  onClick={() => handleConfigure(key)}
-                >
-                  Configure
-                </Button>
-                <FormControlLabel
-                  control={<Switch checked={topUpToggles[key]} onChange={handleToggleChange} name={key} />}
-                  label={topUpToggles[key] ? 'Enabled' : 'Disabled'}
-                  sx={{ marginTop: '10px' }}
+                <TopUpImage
+                  title={key}
+                  style={{ filter: topUpToggles[key] ? 'none' : 'grayscale(100%)', marginBottom: '10px' }}
                 />
+                <Stack direction="column" spacing={1} alignItems="center">
+                  {/* Configure Button */}
+                  <Button
+                    variant="contained"
+                    disabled={!topUpToggles[key]}
+                    sx={{
+                      ...configureButtonStyle,
+                      width: '100%', 
+                      marginBottom: '10px',
+                    }}
+                    onClick={() => handleConfigure(key)}
+                  >
+                    Configure
+                  </Button>
+                  {/* Toggle Switch */}
+                  <FormControlLabel
+                    control={<Switch checked={topUpToggles[key]} onChange={handleToggleChange} name={key} />}
+                    label={topUpToggles[key] ? 'Enabled' : 'Disabled'}
+                  />
+                </Stack>
               </Paper>
             </Grid>
           ))}
