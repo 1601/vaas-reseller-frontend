@@ -282,19 +282,22 @@ const VortexTopUp = () => {
   useEffect(() => {
     const fetchTopupToggles = async () => {
       try {
-        const togglesResponse = await axios.get(
-          `${process.env.REACT_APP_BACKEND_URL}/api/dealer/topup-toggles/public/${userId}`
-        );
-        setTopupToggles(togglesResponse.data);
+        const encryptedUserId = localStorage.getItem('encryptedUserId');
+        const decryptedUserId = ls.get('encryptedUserId');
+
+        if (decryptedUserId) {
+          const togglesResponse = await axios.get(
+            `${process.env.REACT_APP_BACKEND_URL}/api/dealer/topup-toggles/public/${decryptedUserId}`
+          );
+          setTopupToggles(togglesResponse.data);
+        }
       } catch (error) {
         console.error('Error fetching top-up toggles:', error);
       }
     };
 
-    if (userId) {
-      fetchTopupToggles();
-    }
-  }, [userId]);
+    fetchTopupToggles();
+  }, []);
 
   useEffect(() => {
     if (data && data.length > 0) {
