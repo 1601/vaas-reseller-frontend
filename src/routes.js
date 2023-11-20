@@ -101,6 +101,10 @@ export default function Router() {
         return;
       }
 
+      if (currentHostname.includes('pldt-vaas-frontend')) {
+        return;
+      }
+
       fetch(`${process.env.REACT_APP_BACKEND_URL}/api/stores/url/${storeUrl}`)
         .then((response) => response.json())
         .then((data) => {
