@@ -9,7 +9,6 @@ const SubdomainHandler = () => {
   useEffect(() => {
     const hostname = window.location.hostname;
     const pathname = window.location.pathname;
-    const parts = hostname.split('.');
 
     if (excludedPaths.some((path) => pathname.includes(path))) {
       setHasSubdomain(false);
@@ -23,11 +22,13 @@ const SubdomainHandler = () => {
       return;
     }
 
-    if (hostname.includes('localhost') && pathname !== '/') {
+    if (hostname.includes('pldt-vaas-frontend')) {
+      const pathParts = pathname.split('/');
+      storeUrl = pathParts.length > 1 ? pathParts[1] : null;
+    } else if (hostname.includes('localhost') && pathname !== '/') {
       storeUrl = pathname.slice(1);
-    } else if (hostname.includes('lvh.me') || hostname.includes('localhost')) {
-      storeUrl = parts[0];
     } else {
+      const parts = hostname.split('.');
       storeUrl = parts.length > 2 ? parts[0] : null;
     }
 
