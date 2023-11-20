@@ -60,6 +60,7 @@ export default function Router() {
 
   useEffect(() => {
     const currentHostname = window.location.hostname;
+    const currentPort = window.location.port;
     const currentPath = window.location.pathname;
     const hostnameParts = currentHostname.split('.');
     const subdomain = hostnameParts.length > 2 ? hostnameParts[0] : null;

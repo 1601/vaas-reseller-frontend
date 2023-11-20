@@ -104,7 +104,9 @@ export default function LoginPage() {
       'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile'
     );
 
-    const googleLoginUrl = `https://accounts.google.com/o/oauth2/v2/auth?scope=${scope}&access_type=offline&include_granted_scopes=true&redirect_uri=${redirectUri}&response_type=code&client_id=${clientId}`;
+    const state = encodeURIComponent(window.location.origin);
+
+    const googleLoginUrl = `https://accounts.google.com/o/oauth2/v2/auth?scope=${scope}&access_type=offline&include_granted_scopes=true&redirect_uri=${redirectUri}&response_type=code&client_id=${clientId}&state=${state}`;
 
     window.location.href = googleLoginUrl;
   };
@@ -153,13 +155,7 @@ export default function LoginPage() {
             </Divider>
 
             <Stack direction="column" spacing={2}>
-              <Button
-                fullWidth
-                size="large"
-                color="inherit"
-                variant="outlined"
-                onClick={handleGoogleLogin}
-              >
+              <Button fullWidth size="large" color="inherit" variant="outlined" onClick={handleGoogleLogin}>
                 <Iconify icon="eva:google-fill" color="#DF3E30" width={22} height={22} />
                 Continue with Google
               </Button>
