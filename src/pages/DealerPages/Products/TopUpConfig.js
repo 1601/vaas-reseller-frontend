@@ -1,18 +1,22 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
-import { Box, Paper, Typography, TextField, Button } from '@mui/material';
+import { Box, Paper, Typography, TextField, Button, IconButton } from '@mui/material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
-const TopUpConfig = ({ productName, token, userId }) => {
+const TopUpConfig = ({ token, userId }) => {
+  const { productName } = useParams();
+
   const defaultConfig = {
     defaultPrice: 'N/A',
     markup: '0',
-    discount: '0'
+    discount: '0',
   };
 
   const [productConfig, setProductConfig] = useState(defaultConfig);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Fetch the current configuration for the product
     axios
       .get(`${process.env.REACT_APP_BACKEND_URL}/api/dealer/product-config/${userId}/${productName}`, {
         headers: {
@@ -24,22 +28,17 @@ const TopUpConfig = ({ productName, token, userId }) => {
       })
       .catch((error) => {
         console.error('Error fetching product configuration:', error);
-        setProductConfig(defaultConfig); // Use default config on error
+        setProductConfig(defaultConfig); 
       });
   }, [productName, token, userId]);
 
   const handleSave = () => {
-    // Save the updated configuration
     axios
-      .put(
-        `${process.env.REACT_APP_BACKEND_URL}/api/dealer/product-config/${userId}/${productName}`,
-        productConfig,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
+      .put(`${process.env.REACT_APP_BACKEND_URL}/api/dealer/product-config/${userId}/${productName}`, productConfig, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
       .then(() => {
         alert('Configuration updated successfully!');
       })
@@ -52,16 +51,21 @@ const TopUpConfig = ({ productName, token, userId }) => {
     const { name, value } = event.target;
     setProductConfig((prevConfig) => ({
       ...prevConfig,
-      [name]: value
+      [name]: value,
     }));
   };
 
   return (
     <Box sx={{ padding: '20px' }}>
       <Paper elevation={3} sx={{ padding: '20px', margin: 'auto', maxWidth: '500px' }}>
-        <Typography variant="h4" sx={{ fontWeight: 'bold', marginBottom: '20px', textAlign: 'center' }}>
-          Configure: {productName}
-        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
+          <IconButton onClick={() => navigate(-1)} aria-label="back">
+            <ArrowBackIcon />
+          </IconButton>
+          <Typography variant="h4" sx={{ fontWeight: 'bold', flexGrow: 1, textAlign: 'center' }}>
+            Configure: {productName}
+          </Typography>
+        </Box>
         <TextField
           fullWidth
           label="Default Price"
@@ -86,9 +90,11 @@ const TopUpConfig = ({ productName, token, userId }) => {
           onChange={handleChange}
           margin="normal"
         />
-        <Button variant="contained" color="primary" onClick={handleSave} sx={{ marginTop: '20px' }}>
-          Save Changes
-        </Button>
+        <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+          <Button variant="outlined" color="primary" onClick={handleSave}>
+            Save Changes
+          </Button>
+        </Box>
       </Paper>
     </Box>
   );
