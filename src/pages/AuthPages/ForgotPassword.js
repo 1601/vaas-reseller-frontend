@@ -43,6 +43,8 @@ export default function ForgotPasswordPage() {
   const navigate = useNavigate();
 
   const handleRequestPasswordChange = async () => {
+    const state = encodeURIComponent(window.location.origin);
+
     // Clear previous messages
     setFieldError('');
     setErrorMessage('');
@@ -58,6 +60,7 @@ export default function ForgotPasswordPage() {
     try {
       const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/send-password-change-email`, {
         email,
+        state,
       });
 
       if (response.status === 200) {
