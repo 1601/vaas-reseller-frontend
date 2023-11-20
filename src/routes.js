@@ -51,16 +51,19 @@ const excludedSubdomains = ['www', 'lvh', 'localhost'];
 export default function Router() {
   const hostnameParts = window.location.hostname.split('.');
   const subdomain = hostnameParts.length > 2 ? hostnameParts[0] : null;
-  const isExcludedSubdomain = subdomain ? (excludedSubdomains.includes(subdomain) || subdomain.includes('pldt-vaas-frontend')) : false;
+  const isExcludedSubdomain = subdomain
+    ? excludedSubdomains.includes(subdomain) || subdomain.includes('pldt-vaas-frontend')
+    : false;
   const isLoggedIn = localStorage.getItem('token');
   const isSubdomain = subdomain && !isExcludedSubdomain;
   const role = localStorage.getItem('role');
 
   useEffect(() => {
     const currentHostname = window.location.hostname;
-    console.log ("current HostName: ", currentHostname )
-    const currentPort = window.location.port;
     const currentPath = window.location.pathname;
+    const hostnameParts = currentHostname.split('.');
+    const subdomain = hostnameParts.length > 2 ? hostnameParts[0] : null;
+
     const storeUrlPattern = /^\/([a-zA-Z0-9_-]+)$/;
     const match = currentPath.match(storeUrlPattern);
     const noRedirectPaths = [
@@ -86,24 +89,12 @@ export default function Router() {
       return;
     }
 
-    if (currentHostname.includes('pldt-vaas-frontend')) {
+    if (subdomain && subdomain.includes('pldt-vaas-frontend')) {
       return;
     }
 
-    if (match) {
+    if (match && !subdomain.includes('pldt-vaas-frontend')) {
       const storeUrl = match[1];
-
-      if (storeUrl === 'localhost') {
-        return;
-      }
-
-      if (currentHostname.includes('localhost')) {
-        return;
-      }
-
-      if (currentHostname.includes('pldt-vaas-frontend')) {
-        return;
-      }
 
       fetch(`${process.env.REACT_APP_BACKEND_URL}/api/stores/url/${storeUrl}`)
         .then((response) => response.json())
