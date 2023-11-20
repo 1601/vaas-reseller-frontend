@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useReducer, useContext, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import SecureLS from 'secure-ls';
 import { Box, Button, Divider, Stack, Grid, TextField, Toolbar, Typography, InputBase } from '@mui/material';
@@ -179,6 +179,8 @@ const VortexTopUp = () => {
 
   const ls = new SecureLS({ encodingType: 'aes' });
 
+  const { userId } = useParams();
+
   const [error, setErrorData] = useState({ isError: false, message: '' });
 
   const [retry, setRetry] = useState(null);
@@ -278,18 +280,21 @@ const VortexTopUp = () => {
   const [topupToggles, setTopupToggles] = useState({});
 
   useEffect(() => {
-    console.log('Fetching top-up toggles from the server...');
-
-    axios
-      .get(`${process.env.REACT_APP_BACKEND_URL}/api/admin/topup-toggles`, {})
-      .then((response) => {
-        console.log('Top-up toggles successfully fetched:', response.data);
-        setTopupToggles(response.data);
-      })
-      .catch((error) => {
+    const fetchTopupToggles = async () => {
+      try {
+        const togglesResponse = await axios.get(
+          `${process.env.REACT_APP_BACKEND_URL}/api/dealer/topup-toggles/public/${userId}`
+        );
+        setTopupToggles(togglesResponse.data);
+      } catch (error) {
         console.error('Error fetching top-up toggles:', error);
-      });
-  }, []);
+      }
+    };
+
+    if (userId) {
+      fetchTopupToggles();
+    }
+  }, [userId]);
 
   useEffect(() => {
     if (data && data.length > 0) {
