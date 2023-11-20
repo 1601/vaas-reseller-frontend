@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Navigate, Route, Routes, useRoutes } from 'react-router-dom';
+import { Navigate, useRoutes } from 'react-router-dom';
 // layouts
 import DashboardLayout from './layouts/dashboard';
 import SimpleLayout from './layouts/simple';
@@ -46,12 +46,12 @@ import TopUpConfig from './pages/DealerPages/Products/TopUpConfig';
 
 // ----------------------------------------------------------------------
 
-const excludedSubdomains = ['pldt-vaas-frontend', 'www', 'lvh'];
+const excludedSubdomains = ['www', 'lvh', 'localhost'];
 
 export default function Router() {
   const hostnameParts = window.location.hostname.split('.');
   const subdomain = hostnameParts.length > 2 ? hostnameParts[0] : null;
-  const isExcludedSubdomain = subdomain ? excludedSubdomains.includes(subdomain) : false;
+  const isExcludedSubdomain = subdomain ? (excludedSubdomains.includes(subdomain) || subdomain.includes('pldt-vaas-frontend')) : false;
   const isLoggedIn = localStorage.getItem('token');
   const isSubdomain = subdomain && !isExcludedSubdomain;
   const role = localStorage.getItem('role');
