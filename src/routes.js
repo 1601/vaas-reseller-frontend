@@ -67,30 +67,11 @@ export default function Router() {
 
     const storeUrlPattern = /^\/([a-zA-Z0-9_-]+)$/;
     const match = currentPath.match(storeUrlPattern);
-    const noRedirectPaths = [
-      '/dashboard',
-      '/login',
-      '/signup',
-      '/forgotpassword',
-      '/reset-password',
-      '/verify',
-      '/bills',
-      '/voucher',
-      '/gift',
-      '/topup',
-      '/transactions',
-      '/404',
-    ];
+    const isExcludedSubdomain = subdomain
+      ? excludedSubdomains.includes(subdomain) || subdomain.includes('pldt-vaas-frontend')
+      : false;
 
-    if (excludedPaths.some((path) => currentPath.includes(path))) {
-      return;
-    }
-
-    if (noRedirectPaths.some((path) => currentPath.includes(path))) {
-      return;
-    }
-
-    if (subdomain && subdomain.includes('pldt-vaas-frontend')) {
+    if (excludedPaths.some((path) => currentPath.includes(path)) || isExcludedSubdomain) {
       return;
     }
 
@@ -282,6 +263,18 @@ export default function Router() {
         { path: 'voucher', element: <div> Voucher </div> },
         { path: 'transactions', element: <div> Transactions </div> },
       ],
+
+      loader: async ({ params }) => {
+        const { storeUrl } = params;
+        if (!storeUrl.includes('pldt-vaas-frontend')) {
+          const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/stores/url/${storeUrl}`);
+          const storeData = await response.json();
+          if (storeData.isLive === false) {
+            console.log('Store is not live.');
+          }
+          useStore().setStoreData({ subdomain: storeUrl, ...storeData });
+        }
+      },
     },
     {
       element: <SimpleLayout />,
