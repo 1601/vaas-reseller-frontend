@@ -85,7 +85,7 @@ export default function Router() {
       return;
     }
 
-    if (currentHostname.includes('vercel.app')) {
+    if (currentHostname.includes('pldt-vaas-frontend')) {
       return;
     }
 
