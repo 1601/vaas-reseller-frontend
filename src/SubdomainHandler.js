@@ -10,6 +10,12 @@ const SubdomainHandler = () => {
     const hostname = window.location.hostname;
     const pathname = window.location.pathname;
 
+    // Ensure pathname and hostname are not null
+    if (!pathname || !hostname) {
+      setHasSubdomain(false);
+      return;
+    }
+
     if (excludedPaths.some((path) => pathname.includes(path))) {
       setHasSubdomain(false);
       return;
