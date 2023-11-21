@@ -71,11 +71,11 @@ export default function Router() {
       ? excludedSubdomains.includes(subdomain) || subdomain.includes('pldt-vaas-frontend')
       : false;
 
-    if (excludedPaths.some((path) => currentPath.includes(path)) || isExcludedSubdomain) {
+    if ((currentPath && excludedPaths.some((path) => currentPath.includes(path))) || isExcludedSubdomain) {
       return;
     }
 
-    if (match && !subdomain.includes('pldt-vaas-frontend')) {
+    if (match && subdomain && !subdomain.includes('pldt-vaas-frontend')) {
       const storeUrl = match[1];
 
       fetch(`${process.env.REACT_APP_BACKEND_URL}/api/stores/url/${storeUrl}`)
@@ -271,9 +271,11 @@ export default function Router() {
           const storeData = await response.json();
           if (storeData.isLive === false) {
             console.log('Store is not live.');
+            return null; 
           }
-          useStore().setStoreData({ subdomain: storeUrl, ...storeData });
+          return { storeData };
         }
+        return null; 
       },
     },
     {
