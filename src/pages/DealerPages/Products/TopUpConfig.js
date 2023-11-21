@@ -1,11 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
-import { Box, Paper, Typography, TextField, Button, IconButton } from '@mui/material';
+import {
+  Box,
+  Paper,
+  Typography,
+  IconButton,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Switch,
+} from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
-const TopUpConfig = ({ token, userId }) => {
+const TopUpConfig = ({ token }) => {
   const { productName } = useParams();
+  const [productConfigs, setProductConfigs] = useState([]);
+  const [productConfig, setProductConfig] = useState([]);
+  const userId = JSON.parse(localStorage.getItem('user'))._id;
 
   const defaultConfig = {
     defaultPrice: 'N/A',
@@ -13,7 +28,6 @@ const TopUpConfig = ({ token, userId }) => {
     discount: '0',
   };
 
-  const [productConfig, setProductConfig] = useState(defaultConfig);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -24,13 +38,16 @@ const TopUpConfig = ({ token, userId }) => {
         },
       })
       .then((response) => {
-        setProductConfig(response.data);
+        setProductConfigs(response.data);
       })
       .catch((error) => {
-        console.error('Error fetching product configuration:', error);
-        setProductConfig(defaultConfig); 
+        console.error('Error fetching product configurations:', error);
       });
-  }, [productName, token, userId]);
+  }, [userId, token]);
+
+  const handleToggle = (configId, enabled) => {
+    // Logic to handle toggle change
+  };
 
   const handleSave = () => {
     axios
@@ -57,7 +74,7 @@ const TopUpConfig = ({ token, userId }) => {
 
   return (
     <Box sx={{ padding: '20px' }}>
-      <Paper elevation={3} sx={{ padding: '20px', margin: 'auto', maxWidth: '500px' }}>
+      <Paper elevation={3} sx={{ padding: '20px', margin: 'auto', maxWidth: '800px' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
           <IconButton onClick={() => navigate(-1)} aria-label="back">
             <ArrowBackIcon />
@@ -66,35 +83,33 @@ const TopUpConfig = ({ token, userId }) => {
             Configure: {productName}
           </Typography>
         </Box>
-        <TextField
-          fullWidth
-          label="Default Price"
-          name="defaultPrice"
-          value={productConfig.defaultPrice}
-          onChange={handleChange}
-          margin="normal"
-        />
-        <TextField
-          fullWidth
-          label="Mark-Up Price"
-          name="markup"
-          value={productConfig.markup}
-          onChange={handleChange}
-          margin="normal"
-        />
-        <TextField
-          fullWidth
-          label="Discount"
-          name="discount"
-          value={productConfig.discount}
-          onChange={handleChange}
-          margin="normal"
-        />
-        <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
-          <Button variant="outlined" color="primary" onClick={handleSave}>
-            Save Changes
-          </Button>
-        </Box>
+
+        <TableContainer>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Product</TableCell>
+                <TableCell align="right">Default Price</TableCell>
+                <TableCell align="right">Mark-Up Price</TableCell>
+                <TableCell align="right">Discount</TableCell>
+                <TableCell align="center">Toggle</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {productConfigs.map((config) => (
+                <TableRow key={config.id}>
+                  <TableCell>{config.productName}</TableCell>
+                  <TableCell align="right">{config.defaultPrice}</TableCell>
+                  <TableCell align="right">{config.markup}</TableCell>
+                  <TableCell align="right">{config.discount}</TableCell>
+                  <TableCell align="center">
+                    <Switch checked={config.enabled} onChange={() => handleToggle(config.id, !config.enabled)} />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
       </Paper>
     </Box>
   );
