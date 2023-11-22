@@ -98,7 +98,7 @@ export default function VerifyPage({ email, firstName, lastName }) {
       });
 
       if (response.status === 200) {
-        await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/updateUserStatus`, {
+        await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/auth/userstatus`, {
           email,
         });
 
