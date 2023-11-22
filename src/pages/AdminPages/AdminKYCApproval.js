@@ -13,7 +13,7 @@ const AdminKYCApproval = () => {
     const fetchKYCDetails = async () => {
       try {
         const response = await axios.get(
-          `${process.env.REACT_APP_BACKEND_URL}/v1/api/kyc-business/${storeId}`,
+          `${process.env.REACT_APP_BACKEND_URL}/v1/api/kyc-business/store/${storeId}`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem('token')}`,
