@@ -84,7 +84,7 @@ const AdminDealerAccount = () => {
           throw new Error('Invalid token format');
         }
 
-        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users`, {
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/admin/users`, {
           headers: {
             Authorization: `Bearer ${rawToken}`,
           },
