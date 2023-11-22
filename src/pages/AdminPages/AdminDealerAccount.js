@@ -45,7 +45,7 @@ const AdminDealerAccount = () => {
 
   const confirmDelete = async () => {
     try {
-      await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/users/${userToDelete}`, {
+      await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/admin/users/${userToDelete}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
