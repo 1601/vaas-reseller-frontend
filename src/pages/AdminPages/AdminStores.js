@@ -34,7 +34,7 @@ const AdminStores = () => {
 
   const fetchData = useCallback(async () => {
     try {
-      const storesNeedingApproval = await fetchStores('stores/pending', token);
+      const storesNeedingApproval = await fetchStores('stores/admin/pending', token);
       const allApprovedStores = await fetchStores('storeapproved', token);
       const liveStores = await fetchStores('store/live', token);
       const filteredApprovedStores = allApprovedStores.filter((store) => !store.isLive);
@@ -44,7 +44,7 @@ const AdminStores = () => {
       setLiveStores(liveStores);
       setIsLoading(false);
     } catch (error) {
-      console.error('Error fetching stores', error);
+      console.error('Error fetching stores', error); 
     }
   }, [token]);
 
