@@ -204,7 +204,7 @@ const StorePageEdit = () => {
 
     try {
       const response = await axios.put(
-        `${process.env.REACT_APP_BACKEND_URL}/api/updatePlatformVariables/${storedUserId}`,
+        `${process.env.REACT_APP_BACKEND_URL}/api"/dealer/update/platvar/${storedUserId}`,
         requestBody
       );
       if (response.status !== 200) {
