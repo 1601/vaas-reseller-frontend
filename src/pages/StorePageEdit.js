@@ -204,7 +204,7 @@ const StorePageEdit = () => {
 
     try {
       const response = await axios.put(
-        `${process.env.REACT_APP_BACKEND_URL}/api"/dealer/update/platvar/${storedUserId}`,
+        `${process.env.REACT_APP_BACKEND_URL}/api/dealer/${storedUserId}/platvar`,
         requestBody
       );
       if (response.status !== 200) {
@@ -266,7 +266,7 @@ const StorePageEdit = () => {
 
       try {
         const response = await axios.put(
-          `${process.env.REACT_APP_BACKEND_URL}/api/upload-logo/${proseso}/${storedUserId}`,
+          `${process.env.REACT_APP_BACKEND_URL}/api/stores/logo/${proseso}/${storedUserId}`,
           formData,
           config
         );

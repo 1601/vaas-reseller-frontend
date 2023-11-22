@@ -287,7 +287,7 @@ const VortexTopUp = () => {
 
         if (decryptedUserId) {
           const togglesResponse = await axios.get(
-            `${process.env.REACT_APP_BACKEND_URL}/api/dealer/topup-toggles/public/${decryptedUserId}`
+            `${process.env.REACT_APP_BACKEND_URL}/api/dealer/${decryptedUserId}/topup-toggles/public`
           );
           setTopupToggles(togglesResponse.data);
         }

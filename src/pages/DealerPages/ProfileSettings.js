@@ -200,10 +200,10 @@ const ProfileSettings = () => {
 
   const handleChangePassword = async () => {
     const baseUrl = process.env.REACT_APP_BACKEND_URL;
-    let endpoint = `${baseUrl}/api/change-password`;
+    let endpoint = `${baseUrl}/api/dealer/password`;
 
     if (!userData.hasPassword) {
-      endpoint = `${baseUrl}/api/set-password`;
+      endpoint = `${baseUrl}/api/dealer/password/new`;
     }
 
     const newPasswordValidationError = validatePassword(newPassword);

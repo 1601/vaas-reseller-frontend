@@ -22,7 +22,7 @@ const TopUpProducts = () => {
 
   useEffect(() => {
     axios
-      .get(`${process.env.REACT_APP_BACKEND_URL}/api/dealer/topup-toggles/${userId}`, {
+      .get(`${process.env.REACT_APP_BACKEND_URL}/api/dealer/${userId}/topup-toggles`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -50,7 +50,7 @@ const TopUpProducts = () => {
 
     axios
       .put(
-        `${process.env.REACT_APP_BACKEND_URL}/api/dealer/topup-toggles/${userId}`,
+        `${process.env.REACT_APP_BACKEND_URL}/api/dealer/${userId}/topup-toggles`,
         { topupToggles: { ...topUpToggles, [name]: checked } },
         { headers: { Authorization: `Bearer ${token}` } }
       )
