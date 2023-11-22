@@ -159,7 +159,7 @@ const ManageReseller = () => {
 
   const handleStatusChange = async (newStatus) => {
     try {
-      await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/users/${userId}/resellers/${editingResellerId}`, {
+      await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/dealer/${userId}/${editingResellerId}`, {
         status: newStatus,
       });
       const updatedResellers = await fetchResellersForUser(userId);
@@ -295,7 +295,7 @@ const ManageReseller = () => {
 
         formState.mobileNumber = prefix + formState.mobileNumber;
 
-        const res = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/users/${userId}/resellers`, formState);
+        const res = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/dealer/${userId}/resellers`, formState);
         console.log('Reseller added successfully:', res.data);
 
         setFormState(initialFormState);
@@ -342,7 +342,7 @@ const ManageReseller = () => {
 
   const fetchResellersForUser = async (userId) => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users/${userId}/resellers`);
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/dealer/${userId}/resellers`);
       return response.data;
     } catch (error) {
       console.error('Error fetching resellers:', error);

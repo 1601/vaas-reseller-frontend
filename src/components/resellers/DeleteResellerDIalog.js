@@ -12,7 +12,7 @@ const DeleteResellerDialog = ({ open, handleCloseDeleteDialog, userId, resellerI
         }
 
         try {
-            await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/users/${userId}/resellers/${resellerId}`);
+            await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/dealer/${userId}/${resellerId}`);
             handleCloseDeleteDialog();
             if (fetchData) {
                 fetchData();  
