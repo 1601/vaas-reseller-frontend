@@ -39,7 +39,7 @@ const AdminApproval = () => {
   const handleApprovalChange = async (isApproved) => {
     try {
       const response = await axios.put(
-        `${BACKEND_URL}/api/stores/admin/${isApproved ? 'approve' : 'unapprove'}/${storeId}`,
+        `${BACKEND_URL}/api/admin/stores/${isApproved ? 'approve' : 'unapprove'}/${storeId}`,
         {},
         {
           headers: {
