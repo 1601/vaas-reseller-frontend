@@ -34,7 +34,7 @@ const AdminStores = () => {
 
   const fetchData = useCallback(async () => {
     try {
-      const storesNeedingApproval = await fetchStores('storepending', token);
+      const storesNeedingApproval = await fetchStores('store/pending', token);
       const allApprovedStores = await fetchStores('storeapproved', token);
       const liveStores = await fetchStores('store/live', token);
       const filteredApprovedStores = allApprovedStores.filter((store) => !store.isLive);
