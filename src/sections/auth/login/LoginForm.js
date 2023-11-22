@@ -136,7 +136,7 @@ export default function LoginForm() {
 
   const verifyRole = async (token) => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/role`, {
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/auth/role`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

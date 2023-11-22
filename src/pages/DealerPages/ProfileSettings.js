@@ -315,7 +315,7 @@ const ProfileSettings = () => {
     }
 
     try {
-      const response = await fetch(`${baseUrl}/api/users/${userId}`, {
+      const response = await fetch(`${baseUrl}/api/dealer/${userId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
