@@ -72,7 +72,7 @@ export default function DashboardAppPage() {
   useEffect(() => {
     if (storeData && storeData._id) {
       console.log('Fetching store status for _id:', storeData._id);
-      fetch(`${process.env.REACT_APP_BACKEND_URL}/api/stores/${storeData._id}/status`)
+      fetch(`${process.env.REACT_APP_BACKEND_URL}/api/stores/status/${storeData._id}`)
         .then((response) => {
           if (!response.ok) {
             throw new Error(`Network response was not ok: ${response.statusText}`);
