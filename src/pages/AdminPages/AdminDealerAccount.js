@@ -45,13 +45,13 @@ const AdminDealerAccount = () => {
 
   const confirmDelete = async () => {
     try {
-      await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/admin/users/${userToDelete}`, {
+      await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/v1/api/admin/users/${userToDelete}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
       });
 
-      await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/admin/stores/${userToDelete}`, {
+      await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/v1/api/admin/stores/${userToDelete}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
@@ -84,7 +84,7 @@ const AdminDealerAccount = () => {
           throw new Error('Invalid token format');
         }
 
-        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/admin/users`, {
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/admin/users`, {
           headers: {
             Authorization: `Bearer ${rawToken}`,
           },
@@ -93,7 +93,7 @@ const AdminDealerAccount = () => {
         if (Array.isArray(response.data)) {
           const fetchStoreDetailsPromises = response.data.map(async (user) => {
             try {
-              const storeResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/stores/${user._id}`, {
+              const storeResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/${user._id}`, {
                 headers: {
                   Authorization: `Bearer ${localStorage.getItem('token')}`,
                 },

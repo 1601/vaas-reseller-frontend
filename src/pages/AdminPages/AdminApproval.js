@@ -16,7 +16,7 @@ const AdminApproval = () => {
   useEffect(() => {
     const fetchStoreDetails = async () => {
       try {
-        const response = await axios.get(`${BACKEND_URL}/api/stores/${storeId}`, {
+        const response = await axios.get(`${BACKEND_URL}/v1/api/stores/${storeId}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
@@ -39,7 +39,7 @@ const AdminApproval = () => {
   const handleApprovalChange = async (isApproved) => {
     try {
       const response = await axios.put(
-        `${BACKEND_URL}/api/admin/stores/${isApproved ? 'approve' : 'unapprove'}/${storeId}`,
+        `${BACKEND_URL}/v1/api/admin/stores/${isApproved ? 'approve' : 'unapprove'}/${storeId}`,
         {},
         {
           headers: {
@@ -62,7 +62,7 @@ const AdminApproval = () => {
   const handleLiveStatusChange = async (isLive) => {
     try {
       const response = await axios.put(
-        `${BACKEND_URL}/api/stores/owner/update/${ownerId}`,
+        `${BACKEND_URL}/v1/api/stores/owner/${ownerId}`,
         { isLive },
         {
           headers: {

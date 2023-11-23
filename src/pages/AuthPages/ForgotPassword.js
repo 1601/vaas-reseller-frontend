@@ -58,7 +58,7 @@ export default function ForgotPasswordPage() {
         return;
       }
     try {
-      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/send-password-change-email`, {
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/password/email`, {
         email,
         state,
       });

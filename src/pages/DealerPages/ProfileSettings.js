@@ -75,7 +75,7 @@ const ProfileSettings = () => {
 
   const openOtpDialog = async () => {
     const baseUrl = process.env.REACT_APP_BACKEND_URL;
-    const endpoint = `${baseUrl}/api/send-otp`;
+    const endpoint = `${baseUrl}/v1/api/auth/mobile/otp`;
 
     try {
       const response = await fetch(endpoint, {
@@ -125,7 +125,7 @@ const ProfileSettings = () => {
 
   const verifyOtp = async () => {
     const baseUrl = process.env.REACT_APP_BACKEND_URL;
-    const endpoint = `${baseUrl}/api/verify-otp`;
+    const endpoint = `${baseUrl}/v1/api/auth/mobile/verify`;
 
     try {
       const response = await fetch(endpoint, {
@@ -200,10 +200,10 @@ const ProfileSettings = () => {
 
   const handleChangePassword = async () => {
     const baseUrl = process.env.REACT_APP_BACKEND_URL;
-    let endpoint = `${baseUrl}/api/dealer/password`;
+    let endpoint = `${baseUrl}/v1/api/dealer/password`;
 
     if (!userData.hasPassword) {
-      endpoint = `${baseUrl}/api/dealer/password/new`;
+      endpoint = `${baseUrl}/v1/api/dealer/password/new`;
     }
 
     const newPasswordValidationError = validatePassword(newPassword);
@@ -315,7 +315,7 @@ const ProfileSettings = () => {
     }
 
     try {
-      const response = await fetch(`${baseUrl}/api/dealer/${userId}`, {
+      const response = await fetch(`${baseUrl}/v1/api/dealer/${userId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -365,7 +365,7 @@ const ProfileSettings = () => {
     const baseUrl = process.env.REACT_APP_BACKEND_URL;
 
     try {
-      const response = await fetch(`${baseUrl}/api/send-verification-email`, {
+      const response = await fetch(`${baseUrl}/v1/api/auth/email`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

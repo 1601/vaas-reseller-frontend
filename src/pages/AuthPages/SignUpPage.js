@@ -308,7 +308,7 @@ export default function SignUpPage() {
     // If client-side validation passes, check with the server
     if (valid) {
       try {
-        await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/check-email`, {
+        await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/email`, {
           params: { email },
         });
       } catch (error) {
@@ -398,13 +398,13 @@ export default function SignUpPage() {
           mobileNumber: countryCodes[formData.country] + formData.mobileNumber,
         };
 
-        const signupResponse = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/signup`, submissionData);
+        const signupResponse = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/signup`, submissionData);
 
         if (signupResponse.status === 200) {
           // If signup is successful, send the verification email
           try {
             const verificationResponse = await axios.post(
-              `${process.env.REACT_APP_BACKEND_URL}/api/send-verification-email`,
+              `${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/email`,
               {
                 email: formData.email,
                 firstName: formData.firstName,
@@ -501,7 +501,7 @@ export default function SignUpPage() {
   useEffect(() => {
     // const fetchIPAddress = async () => {
     //   try {
-    //     const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/fetch-ip`);
+    //     const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/auth/ip`);
     //     setFormData((prevFormData) => ({
     //       ...prevFormData,
     //       ipAddress: response.data.ipAddress,

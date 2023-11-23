@@ -78,7 +78,7 @@ export default function ResetPasswordPage() {
     }
 
     try {
-      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/updateUserPassword`, {
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/password`, {
         token,
         password: newPassword,
       });

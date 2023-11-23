@@ -32,7 +32,7 @@ const TopUpConfig = ({ token }) => {
 
   useEffect(() => {
     axios
-      .get(`${process.env.REACT_APP_BACKEND_URL}/api/dealer/product-config/${userId}/${productName}`, {
+      .get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/product-config/${userId}/${productName}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -51,7 +51,7 @@ const TopUpConfig = ({ token }) => {
 
   const handleSave = () => {
     axios
-      .put(`${process.env.REACT_APP_BACKEND_URL}/api/dealer/product-config/${userId}/${productName}`, productConfig, {
+      .put(`${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/product-config/${userId}/${productName}`, productConfig, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

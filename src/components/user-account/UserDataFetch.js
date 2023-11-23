@@ -7,14 +7,14 @@ const UserDataFetch = (userId) => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/user/${userId}`);
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/${userId}`);
         setUserData(response.data);
       } catch (error) {
         console.error('Could not fetch user data', error);
       }
     };
 
-    if (userId) {
+    if (userId) { 
       fetchUserData();
     }
   }, [userId]);

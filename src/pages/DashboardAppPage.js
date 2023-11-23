@@ -46,6 +46,7 @@ export default function DashboardAppPage() {
 
   const { storeData, editedData, platformVariables, error } = StoreDataFetch(userId);
   const userData = UserDataFetch(userId);
+  console.log ("UserData: ", userData)
 
   useEffect(() => {
     const existingUserData = JSON.parse(localStorage.getItem('user'));
@@ -72,7 +73,7 @@ export default function DashboardAppPage() {
   useEffect(() => {
     if (storeData && storeData._id) {
       console.log('Fetching store status for _id:', storeData._id);
-      fetch(`${process.env.REACT_APP_BACKEND_URL}/api/stores/status/${storeData._id}`)
+      fetch(`${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/status/${storeData._id}`)
         .then((response) => {
           if (!response.ok) {
             throw new Error(`Network response was not ok: ${response.statusText}`);

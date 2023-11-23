@@ -29,7 +29,7 @@ const EditResellerDialog = ({ open, onClose, reseller, onSubmit, userId, refresh
   const handleFormSubmit = async () => {
     try {
       const response = await axios.put(
-        `${process.env.REACT_APP_BACKEND_URL}/api/users/${userId}/resellers/${editingResellerId}`,
+        `${process.env.REACT_APP_BACKEND_URL}/v1/api/users/${userId}/resellers/${editingResellerId}`,
         formState
       );
 

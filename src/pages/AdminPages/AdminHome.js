@@ -48,10 +48,10 @@ const AdminHome = () => {
 
         // Fetch KYC data
         const pendingResponse = await axios.get(`${BACKEND_URL}/v1/api/kyc-business/pending`, { headers });
-        const totalResponse = await axios.get(`${BACKEND_URL}/api/admin/users`, { headers });
+        const totalResponse = await axios.get(`${BACKEND_URL}/v1/api/admin/users`, { headers });
 
         // Fetch store data
-        const storeResponse = await axios.get(`${BACKEND_URL}/api/admin/stores`, { headers });
+        const storeResponse = await axios.get(`${BACKEND_URL}/v1/api/admin/stores`, { headers });
 
         // Process responses
         if (Array.isArray(pendingResponse.data)) {

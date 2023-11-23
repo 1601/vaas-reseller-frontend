@@ -40,7 +40,7 @@ const SubdomainHandler = () => {
 
     if (storeUrl && !storeUrl.includes('pldt-vaas-frontend')) {
       axios
-        .get(`${process.env.REACT_APP_BACKEND_URL}/api/stores/url/${storeUrl}`, {
+        .get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/url/${storeUrl}`, {
           headers: {
             'x-subdomain': storeUrl,
           },

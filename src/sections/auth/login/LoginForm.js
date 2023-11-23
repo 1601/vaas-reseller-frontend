@@ -97,7 +97,7 @@ export default function LoginForm() {
       return;
     }
     try {
-      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/login`, {
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/login`, {
         email,
         password,
       });
@@ -136,7 +136,7 @@ export default function LoginForm() {
 
   const verifyRole = async (token) => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/auth/role`, {
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/role`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

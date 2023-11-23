@@ -70,7 +70,7 @@ export default function LoginPage() {
 
       // Fetch user details by email
       axios
-        .get(`${process.env.REACT_APP_BACKEND_URL}/api/user-by-email?email=${email}`)
+        .get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/email?email=${email}`)
         .then((response) => {
           const { firstName, lastName, testBalance, accountBalance, accountStatus, _id } = response.data;
 

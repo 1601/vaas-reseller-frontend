@@ -10,7 +10,7 @@ const ResellersModal = ({ open, onClose, userId }) => {
     if (open) {
       setLoading(true);
       axios
-        .get(`${process.env.REACT_APP_BACKEND_URL}/api/admin/${userId}/resellers`, {
+        .get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/admin/${userId}/resellers`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },

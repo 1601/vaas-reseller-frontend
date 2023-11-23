@@ -68,7 +68,7 @@ export default function VerifyInLoginPage() {
 
   const resendCode = async () => {
     try {
-      await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/resend-verification-email`, {
+      await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/email/resend`, {
         email,
       });
       setCountdown(180);
@@ -99,13 +99,13 @@ export default function VerifyInLoginPage() {
       return;
     }
     try {
-      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/verify`, {
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/email/verify`, {
         email,
         code,
       });
 
       if (response.status === 200) {
-        await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/auth/userstatus`, {
+        await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/userstatus`, {
           email,
         });
 

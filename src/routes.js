@@ -78,7 +78,7 @@ export default function Router() {
     if (match && subdomain && !subdomain.includes('pldt-vaas-frontend')) {
       const storeUrl = match[1];
 
-      fetch(`${process.env.REACT_APP_BACKEND_URL}/api/stores/url/${storeUrl}`)
+      fetch(`${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/url/${storeUrl}`)
         .then((response) => response.json())
         .then((data) => {
           if (data.isLive === false) {
@@ -267,7 +267,7 @@ export default function Router() {
       loader: async ({ params }) => {
         const { storeUrl } = params;
         if (!storeUrl.includes('pldt-vaas-frontend')) {
-          const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/stores/url/${storeUrl}`);
+          const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/url/${storeUrl}`);
           const storeData = await response.json();
           if (storeData.isLive === false) {
             console.log('Store is not live.');

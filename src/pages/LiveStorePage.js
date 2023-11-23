@@ -93,7 +93,7 @@ const LiveStorePage = () => {
       const fetchStoreData = async () => {
         try {
           const response = await axios.get(
-            `${process.env.REACT_APP_BACKEND_URL}/api/stores/url/${subdomainOrStoreUrl}`
+            `${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/url/${subdomainOrStoreUrl}`
           );
           setStoreData(response.data);
 
@@ -130,7 +130,7 @@ const LiveStorePage = () => {
       const fetchUserId = async () => {
         try {
           const response = await axios.get(
-            `${process.env.REACT_APP_BACKEND_URL}/api/stores/url/${storeData.storeUrl}/user`
+            `${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/url/${storeData.storeUrl}/user`
           );
           const userId = response.data.userId;
 

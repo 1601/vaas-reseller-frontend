@@ -18,7 +18,7 @@ const ChangePasswordDialog = ({ open, onClose, userId, currentReseller }) => {
     }
     try {
       await axios.put(
-        `${process.env.REACT_APP_BACKEND_URL}/api/dealer/${userId}/${currentReseller}/password`,
+        `${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/${userId}/${currentReseller}/password`,
         {
           newPassword,
         }

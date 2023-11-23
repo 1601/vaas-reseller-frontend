@@ -8,9 +8,9 @@ const StoreDataFetch = (userId) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchStoreData = async () => {
+    const fetchStoreData = async () => { 
       try {
-        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/stores/owner/${userId}`);
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/owner/${userId}`);
         setStoreData(response.data);
         setEditedData(response.data);
         setPlatformVariables(response.data.platformVariables);

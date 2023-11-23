@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import CircularLoading from '../../components/preLoader';
 
 const fetchStores = async (endpoint, token) => {
-  const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/${endpoint}`, {
+  const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/${endpoint}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

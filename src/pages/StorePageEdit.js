@@ -46,7 +46,7 @@ const StorePageEdit = () => {
 
     const fetchStoreData = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/stores/owner/${storedUserId}`);
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/owner/${storedUserId}`);
         setStoreData(response.data);
         setEditedData(response.data);
         setPlatformVariables(response.data.platformVariables);
@@ -109,7 +109,7 @@ const StorePageEdit = () => {
       delete updatedData.storeLogo;
 
       const response = await axios.put(
-        `${process.env.REACT_APP_BACKEND_URL}/api/stores/owner/update/${storedUserId}`,
+        `${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/owner/${storedUserId}`,
         updatedData
       );
 
@@ -204,7 +204,7 @@ const StorePageEdit = () => {
 
     try {
       const response = await axios.put(
-        `${process.env.REACT_APP_BACKEND_URL}/api/dealer/${storedUserId}/platvar`,
+        `${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/${storedUserId}/platvar`,
         requestBody
       );
       if (response.status !== 200) {
@@ -221,7 +221,7 @@ const StorePageEdit = () => {
 
   const handleUploadClick = async (proseso) => {
     try {
-      await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/stores/owner/update/${storedUserId}`, {
+      await axios.put(`${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/owner/${storedUserId}`, {
         isLive: false,
         isApproved: false,
       });
@@ -266,7 +266,7 @@ const StorePageEdit = () => {
 
       try {
         const response = await axios.put(
-          `${process.env.REACT_APP_BACKEND_URL}/api/stores/logo/${proseso}/${storedUserId}`,
+          `${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/logo/${proseso}/${storedUserId}`,
           formData,
           config
         );
@@ -298,11 +298,11 @@ const StorePageEdit = () => {
   const handleGoLiveClick = async () => {
     try {
       const storedUserId = JSON.parse(localStorage.getItem('user'))._id;
-      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/stores/owner/${storedUserId}`);
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/owner/${storedUserId}`);
       const updatedStoreData = response.data;
 
       const updateResponse = await axios.put(
-        `${process.env.REACT_APP_BACKEND_URL}/api/stores/owner/update/${storedUserId}`,
+        `${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/owner/${storedUserId}`,
         {
           isLive: true,
         },
@@ -329,11 +329,11 @@ const StorePageEdit = () => {
   const handleUnliveClick = async () => {
     try {
       const storedUserId = JSON.parse(localStorage.getItem('user'))._id;
-      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/stores/owner/${storedUserId}`);
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/owner/${storedUserId}`);
       const updatedStoreData = response.data;
 
       const updateResponse = await axios.put(
-        `${process.env.REACT_APP_BACKEND_URL}/api/stores/owner/update/${storedUserId}`,
+        `${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/owner/${storedUserId}`,
         {
           isLive: false,
         },
@@ -373,9 +373,9 @@ const StorePageEdit = () => {
       };
 
       const token = localStorage.getItem('token');
-      const ownerId = JSON.parse(localStorage.getItem('user'))._id;
+      const userId = JSON.parse(localStorage.getItem('user'))._id;
 
-      const response = await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/updateColors/${ownerId}`, dataToSend, {
+      const response = await axios.put(`${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/colors/${userId}`, dataToSend, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
