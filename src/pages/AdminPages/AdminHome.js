@@ -18,7 +18,7 @@ const AdminHome = () => {
   const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
 
   useEffect(() => {
-    document.title = "Admin CRM | VAAS";
+    document.title = 'Admin CRM | VAAS';
     const fetchData = async () => {
       setIsLoading(true);
       try {
@@ -51,19 +51,23 @@ const AdminHome = () => {
         const totalResponse = await axios.get(`${BACKEND_URL}/v1/api/admin/users`, { headers });
 
         // Fetch store data
-        const storeResponse = await axios.get(`${BACKEND_URL}/v1/api/admin/stores`, { headers });
+        const storeResponse = await axios.get(`${BACKEND_URL}/v1/api/stores/all/admin`, { headers });
 
-        // Process responses
+        // Process KYC responses
         if (Array.isArray(pendingResponse.data)) {
           setAccountsNeedingKYC(pendingResponse.data.length);
         }
         if (Array.isArray(totalResponse.data)) {
           setTotalAccounts(totalResponse.data.length);
         }
-        if (Array.isArray(storeResponse.data)) {
-          const storesNeedingApproval = storeResponse.data.filter((store) => !store.needsApproval);
-          setStoresNeedingApproval(storesNeedingApproval.length);
-          setTotalStores(storeResponse.data.length);
+
+        // Process store response
+        if (Array.isArray(storeResponse.data.stores)) {
+          const stores = storeResponse.data.stores;
+          const storesNeedingApprovalCount = stores.filter((store) => store.needsApproval).length;
+
+          setStoresNeedingApproval(storesNeedingApprovalCount);
+          setTotalStores(stores.length);
         }
 
         setIsLoading(false);

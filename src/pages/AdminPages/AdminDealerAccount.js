@@ -51,7 +51,7 @@ const AdminDealerAccount = () => {
         },
       });
 
-      await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/v1/api/admin/stores/${userToDelete}`, {
+      await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/${userToDelete}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
