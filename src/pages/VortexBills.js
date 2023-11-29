@@ -159,8 +159,10 @@ const VortexBillsPaymentPage = () => {
   }
 
   function stepForward() {
-    setActiveStep(activeStep + 1)
-  }
+    const nextStep = activeStep + 1;
+    console.log("Current step:", activeStep, "Next step:", nextStep);
+    setActiveStep(nextStep);
+  }  
 
   async function handleVortexRequestGCash({ paymentData }) {
     try {
@@ -562,9 +564,9 @@ const VortexBillsPaymentPage = () => {
               <VortexBillerCard
                 title={v.name}
                 onClick={() => {
-                  setSelectedBiller(v)
-                  stepForward()
-                }}
+                  setSelectedBiller(v);
+                  setActiveStep(1);
+                }}                
               />
             ))}
         </List>
@@ -575,30 +577,38 @@ const VortexBillsPaymentPage = () => {
   // This is the main layout for biller details
   const BillerDetails = () => {
     const [billerDetails, setbillerDetails] = useState(null)
-
     const [isLoadingBiller, setIsLoadingBiller] = useState(false)
 
-    useEffect(async () => {
-      setIsLoadingBiller(true)
-      const vortexTokenResponse = await getVortexTokenBase()
-
-      if (vortexTokenResponse.status === 200) {
-        const vortextTokenResult = await vortexTokenResponse.json()
-        getBillerById(vortextTokenResult.access_token, selectedBiller.id).then(
-          (response) => {
+    useEffect(() => {
+      const fetchData = async () => {
+        try {
+          setIsLoadingBiller(true);
+          const vortexTokenResponse = await getVortexTokenBase();
+          
+          if (vortexTokenResponse.status === 200) {
+            const vortextTokenResult = await vortexTokenResponse.json();
+            const response = await getBillerById(
+              vortextTokenResult.access_token,
+              selectedBiller.id
+            );
+            
             if (response.status === 200) {
-              response.json().then((result) => {
-                console.log(result)
-                setbillerDetails(result)
-                setIsLoadingBiller(false)
-              })
+              const result = await response.json();
+              console.log(result);
+              setbillerDetails(result);
+              setIsLoadingBiller(false);
             }
+          } else {
+            setIsLoadingBiller(false);
           }
-        )
-      } else {
-        setIsLoadingBiller(false)
-      }
-    }, [])
+        } catch (error) {
+          console.error(error);
+          setIsLoadingBiller(false);
+        }
+      };
+    
+      fetchData();
+    }, []);
 
     if (isLoadingBiller) {
       return <CenteredProgress />
@@ -610,7 +620,7 @@ const VortexBillsPaymentPage = () => {
             <VortexFormToolbar
               title={"Bills"}
               onClickBack={() => {
-                stepBack()
+                setActiveStep(0);
               }}
             />
             <Toolbar />
@@ -882,7 +892,9 @@ const VortexBillsPaymentPage = () => {
 
   const ReviewConfirmationForm = () => {
     const paymentMethodType = ls.get("paymentMethodType")
-    const fields = jsonFieldsToArray(billDetails)
+    const fields = jsonFieldsToArray(billDetails);
+    console.log("Transformed fields:", fields);
+    
     // let [paymentDetails, setPaymentDetails] = useState({})
 
     // const { email, name, phone, address } = getUser()
@@ -895,7 +907,7 @@ const VortexBillsPaymentPage = () => {
       currency: "PHP",
     })
 
-    const [isLoadingPrivate, setIsLoadingPrivate] = useState(true) // true for render testing
+    const [isLoadingPrivate, setIsLoadingPrivate] = useState(false); // true for render testing
     const [isPaymentMethodGCash, setisPaymentMethodGCash] = useState(false)
     const [expanded, setExpanded] = useState("panel1")
 
@@ -923,7 +935,7 @@ const VortexBillsPaymentPage = () => {
                 <VortexFormToolbar
                   title={"Bills payment"}
                   onClickBack={() => {
-                    stepBack()
+                    setActiveStep(1);
                   }}
                 />
                 <Toolbar />
@@ -957,83 +969,96 @@ const VortexBillsPaymentPage = () => {
                         {paymentDetails?.name}
                       </Typography>
                     </Stack> */}
-                    {fields.map((field) => (
-                        <Stack
-                          direction={"row"}
-                          justifyContent={"space-between"}
-                        >
-                          <Typography
-                            fontWeight={"bold"}
-                            style={{
-                              color: "grey",
-                            }}
-                            sx={{ textTransform: "capitalize" }}
-                          >
-                            {field[0]
-                              .replace("_", " ")
-                              .trim()
-                              .replace(/[A-Z]/g, " $&")
-                              .trim()}
-                          </Typography>
-
-                          <Typography fontWeight={"bold"}>
-                            {field[1]}
-                          </Typography>
-                        </Stack>
-                      ))}
-                    <Divider />
-
-                    <Typography
-                      style={{
-                        color: "#0060bf",
-                        marginTop: "1em",
-                      }}
-                      fontWeight={"bold"}
-                      fontSize={15}
-                    >
-                      You're about to pay
-                    </Typography>
-
-                    <Stack direction={"row"} justifyContent={"space-between"}>
-                      <Typography
-                        fontWeight={"bold"}
-                        style={{
-                          color: "grey",
-                        }}
-                        sx={{ textTransform: "capitalize" }}
+                    {fields.map((field, index) => (
+                      <Stack
+                        key={index}
+                        direction={"row"}
+                        justifyContent={"space-between"}
                       >
-                        Convenience Fee
-                      </Typography>
-
-                      {expanded === "panel2" ? (
-                        <Typography fontWeight={"bold"}>{`0 PHP`}</Typography>
-                      ) : (
                         <Typography
                           fontWeight={"bold"}
-                          style={{ marginRight: "2em" }}
-                        >{`${convenienceFee} ${platformVariables.currencySymbol}`}</Typography>
-                      )}
-                    </Stack>
+                          style={{
+                            color: "grey",
+                          }}
+                          sx={{ textTransform: "capitalize" }}
+                        >
+                          {field[0]
+                            .replace("_", " ")
+                            .trim()
+                            .replace(/[A-Z]/g, " $&")
+                            .trim()}
+                        </Typography>
 
-                    <Stack direction={"row"} justifyContent={"space-between"}>
-                      <Typography
-                        fontWeight={"bold"}
-                        style={{
-                          color: "grey",
-                        }}
-                      >{`Total Amount`}</Typography>
-                      <Typography
-                        fontWeight={"bold"}
-                        style={{ marginRight: "2em" }}
-                      >{`${grandTotalFee} ${platformVariables.currencySymbol}`}</Typography>
-                    </Stack>
-                    <Box height={20} />
-                    <Button
-                      disabled={isLoadingPrivate}
-                      variant="contained"
-                      onClick={async () => {
-                        const url = 'https://pm.link/123123123123123za23/test/DGSwn7b';
-                        window.open(url, '_blank');
+                        <Typography
+                          fontWeight={"bold"}
+                          style={{ color: "black" }} 
+                        >
+                          {field[1]}
+                        </Typography>
+                      </Stack>
+                    ))}
+                  <Divider />
+
+                  <Typography
+                    style={{
+                      color: "black", 
+                      marginTop: "1em",
+                    }}
+                    fontWeight={"bold"}
+                    fontSize={15}
+                  >
+                    You're about to pay
+                  </Typography>
+
+                  <Stack direction={"row"} justifyContent={"space-between"}>
+                    <Typography
+                      fontWeight={"bold"}
+                      style={{ color: "black" }}
+                      sx={{ textTransform: "capitalize" }}
+                    >
+                      Convenience Fee
+                    </Typography>
+
+                    <Typography
+                      fontWeight={"bold"}
+                      style={{ color: "black", marginRight: "2em" }}
+                    >
+                      {expanded === "panel2" ? "0 PHP" : `${(convenienceFee && !Number.isNaN(parseFloat(convenienceFee)) ? parseFloat(convenienceFee).toFixed(2) : '0')} 
+                      ${platformVariables.currencySymbol || 'PHP'}`}
+                    </Typography>
+                  </Stack>
+
+                  <Stack direction={"row"} justifyContent={"space-between"}>
+                    <Typography
+                      fontWeight={"bold"}
+                      style={{ color: "black" }}
+                    >
+                      Total Amount
+                    </Typography>
+                    <Typography
+                      fontWeight={"bold"}
+                      style={{ color: "black", marginRight: "2em" }}
+                    >
+                      {`${(Number.isNaN(parseFloat(convenienceFee)) || convenienceFee == null ? 0 : parseFloat(convenienceFee)) + parseFloat(billDetails?.billAmount || 0)
+                      } ${platformVariables.currencySymbol || 'PHP'}`}
+                    </Typography>
+                  </Stack>
+
+                  <Box height={20} />
+                  <Button
+                    disabled={isLoadingPrivate}
+                    variant="outlined"
+                    onClick={async () => {
+                      const url = 'https://pm.link/123123123123123za23/test/DGSwn7b';
+                      const newWindow = window.open(url, '_blank');
+                      const pollTimer = window.setInterval(() => {
+                        if (newWindow.closed) {
+                          window.clearInterval(pollTimer);
+                          // Reset to step 0 or perform any other actions needed
+                          // For example, if you have a state that tracks the current step:
+                          setActiveStep(0);
+                        }
+                      }, 200);
                         // setIsLoadingPrivate(true)
                         // await handleVortexCashRequest({
                         //   docId: transactionDocId,
@@ -1137,7 +1162,7 @@ const VortexBillsPaymentPage = () => {
       case 2:
         return <ReviewConfirmationForm />
       default:
-
+        return <BillsPaymentCategoriesPage />
     }
   }
 
