@@ -45,49 +45,33 @@ const LiveStorePage = () => {
   const notFound = queryParams.get('notFound');
   const user = JSON.parse(localStorage.getItem('user'));
 
-  useEffect(() => {
-    let subdomainOrStoreUrl;
-
+  // New function to parse and return the correct store URL
+  const getSubdomainOrStoreUrl = () => {
     const hostnameParts = window.location.hostname.split('.');
     const subdomain = hostnameParts[0];
 
-    if (
-      subdomain === 'localhost' ||
-      subdomain === 'lvh' ||
-      subdomain === 'sevenstarjasem' ||
-      subdomain === 'pldt-vaas-frontend'
-    ) {
-      subdomainOrStoreUrl = storeUrl;
-    } else {
-      const hostnameParts = window.location.hostname.split('.');
-      subdomainOrStoreUrl = hostnameParts[0];
+    if (['localhost', 'lvh', 'sevenstarjasem', 'pldt-vaas-frontend'].includes(subdomain)) {
+      return storeUrl;
     }
 
-    if (
-      subdomainOrStoreUrl === 'www' ||
-      subdomainOrStoreUrl === 'sevenstarjasem' ||
-      subdomainOrStoreUrl === 'pldt-vaas-frontend'
-    ) {
-      subdomainOrStoreUrl = storeUrl;
+    if (['www', 'sevenstarjasem', 'pldt-vaas-frontend'].includes(subdomain)) {
+      return storeUrl;
     }
 
-    // Check if the subdomain is empty
-    if (!subdomainOrStoreUrl) {
-      // Extract storeName from the path, assuming the format is "/storeName"
-      const pathParts = window.location.pathname.split('/');
-      if (pathParts.length > 1) {
-        subdomainOrStoreUrl = pathParts[1];
-      }
+    const pathParts = window.location.pathname.split('/');
+    if (pathParts.length > 1) {
+      return pathParts[1];
     }
 
-    // Check if running on localhost and no subdomainOrStoreUrl was found
-    if (window.location.hostname === 'localhost' || !subdomainOrStoreUrl) {
-      // Extract subdomainOrStoreUrl from the URL in the format "localhost:3000/subdomainOrStoreUrl"
-      const pathParts = window.location.href.split('/');
-      if (pathParts.length > 3) {
-        subdomainOrStoreUrl = pathParts[3];
-      }
-    }
+    return subdomain;
+  };
+
+  useEffect(() => {
+    setPreviewStoreUrl(`/${storeUrl}`);
+  }, [storeUrl]);
+
+  useEffect(() => {
+    const subdomainOrStoreUrl = getSubdomainOrStoreUrl();
 
     if (subdomainOrStoreUrl) {
       const fetchStoreData = async () => {
@@ -96,7 +80,6 @@ const LiveStorePage = () => {
             `${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/url/${subdomainOrStoreUrl}`
           );
           setStoreData(response.data);
-
           if (response.data.platformVariables) {
             setPlatformVariables(response.data.platformVariables);
           }
