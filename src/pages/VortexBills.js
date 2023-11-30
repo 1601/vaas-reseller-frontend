@@ -1054,8 +1054,6 @@ const VortexBillsPaymentPage = () => {
                       const pollTimer = window.setInterval(() => {
                         if (newWindow.closed) {
                           window.clearInterval(pollTimer);
-                          // Reset to step 0 or perform any other actions needed
-                          // For example, if you have a state that tracks the current step:
                           setActiveStep(0);
                         }
                       }, 200);
