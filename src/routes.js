@@ -43,6 +43,7 @@ import TransactionPage from './pages/DealerPages/TransactionPage';
 import { excludedPaths } from './components/subdomain/ExcludedPaths';
 import TopUpProducts from './pages/DealerPages/Products/TopUpProducts';
 import TopUpConfig from './pages/DealerPages/Products/TopUpConfig';
+import BillerProducts from './pages/DealerPages/Products/BillerProducts';
 
 // ----------------------------------------------------------------------
 
@@ -134,7 +135,7 @@ export default function Router() {
           path: 'products',
           children: [
             { path: '/dashboard/products', element: <Navigate to="bills-payment" replace />, index: true },
-            { path: 'bills-payment', element: <ProductsPage /> },
+            { path: 'bills-payment', element: <BillerProducts /> },
             {
               path: 'top-up',
               children: [
