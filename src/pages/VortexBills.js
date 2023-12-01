@@ -332,17 +332,23 @@ const VortexBillsPaymentPage = () => {
     const hostname = window.location.hostname;
     const pathname = window.location.pathname;
     let storeUrl;
-
-    // Check if it's a subdomain
-    const parts = hostname.split('.');
-    if (parts.length >= 3) {
-      storeUrl = parts[0]; // Assuming storeUrl is the subdomain
-    } else {
+  
+    // Check if the hostname contains 'pldt-vaas-frontend'
+    if (hostname.includes('pldt-vaas-frontend')) {
       // Assuming the storeUrl is the first segment of the pathname
       storeUrl = pathname.split('/')[1];
+    } else {
+      const parts = hostname.split('.');
+      if (parts.length >= 3) {
+        // storeUrl is the subdomain
+        storeUrl = parts[0];
+      } else {
+        // Assuming the storeUrl is the first segment of the pathname
+        storeUrl = pathname.split('/')[1];
+      }
     }
     return storeUrl;
-  }
+  };  
 
   // Function to flatten the dealerData object
   function flattenDealerData(dealerData) {
