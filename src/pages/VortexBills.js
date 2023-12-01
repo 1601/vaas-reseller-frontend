@@ -355,6 +355,38 @@ const VortexBillsPaymentPage = () => {
     return flatData;
   }
 
+  function calculateSimilarity(str1, str2) {
+    str1 = str1.toLowerCase();
+    str2 = str2.toLowerCase();
+    const totalLength = Math.max(str1.length, str2.length);
+    let matches = 0;
+  
+    for (let i = 0; i < totalLength; i++) {
+      if (str1[i] && str2[i] && str1[i] === str2[i]) {
+        matches++;
+      }
+    }
+  
+    return (matches / totalLength);
+  }  
+
+  function isBillerEnabled(billerName, dealerData) {
+    let isEnabled = true; 
+    let bestMatchScore = 0;
+  
+    Object.entries(dealerData).forEach(([category, billers]) => {
+      Object.keys(billers).forEach(dealerBillerName => {
+        const similarityScore = calculateSimilarity(billerName, dealerBillerName);
+        if (similarityScore > bestMatchScore) {
+          bestMatchScore = similarityScore;
+          isEnabled = similarityScore >= 0.5 ? (billers[dealerBillerName] !== undefined ? billers[dealerBillerName] : true) : true;
+        }
+      });
+    });
+  
+    return isEnabled;
+  }  
+
   useEffect(() => {
     async function fetchUserDataAndBillers() {
       console.log("Starting to fetch user data and billers");
@@ -391,11 +423,8 @@ const VortexBillsPaymentPage = () => {
                 const billers = await response.json();
                 console.log("All Billers:", billers);
           
-                const flatDealerData = flattenDealerData(dealerData);
-                console.log("Flattened Dealer Data:", flatDealerData);
-          
                 const filteredBillers = billers.filter(biller => {
-                  const isEnabled = flatDealerData[biller.name];
+                  const isEnabled = isBillerEnabled(biller.name, dealerData);
                   console.log(`Biller: ${biller.name}, Enabled: ${isEnabled}`);
                   return isEnabled;
                 });
@@ -416,7 +445,6 @@ const VortexBillsPaymentPage = () => {
     fetchUserDataAndBillers();
   }, []);
 
-  
   // This will compile all biller categories when data is received
   useEffect(() => {
     const gatheredCategories = []
