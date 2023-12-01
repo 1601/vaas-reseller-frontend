@@ -121,6 +121,10 @@ const VortexBillsPaymentPage = () => {
 
   const [isLoggin, setisLoggin] = useState(null)
 
+  const [dealerSettings, setDealerSettings] = useState(null);
+
+  const [isLoading, setisLoading] = useState(false)
+
   // Getting store env and user status
   // const { getUser } = useLoggedUser()
 
@@ -151,8 +155,6 @@ const VortexBillsPaymentPage = () => {
 
     return { convenienceFee, grandTotalFee }
   }
-
-  const [isLoading, setisLoading] = useState(false)
 
   function stepBack() {
     setActiveStep(activeStep - 1)
@@ -326,43 +328,95 @@ const VortexBillsPaymentPage = () => {
     }
   }
 
-  // This will load all billers when component is rendered
-  useEffect(async () => {
-    setisLoading(true)
-    const vortexTokenResponse = await getVortexTokenBase()
+  const extractStoreUrl = () => {
+    const hostname = window.location.hostname;
+    const pathname = window.location.pathname;
+    let storeUrl;
 
-    if (vortexTokenResponse.status === 200) {
-      const vortextTokenResult = await vortexTokenResponse.json()
-
-      getBillers(vortextTokenResult.access_token, 1, 1000).then((response) => {
-        
-        setisLoading(false)
-        if (response.status === 200) {
-          response.json().then((result) => {
-            console.log(result) // currently 119 billers
-            setData(result)
-          })
-        } else {
-          setisLoading(false)
-          response.json().then((result) => {
-            setErrorData({
-              isError: true,
-              message: result.error.message,
-            })
-          })
-        }
-      })
+    // Check if it's a subdomain
+    const parts = hostname.split('.');
+    if (parts.length >= 3) {
+      storeUrl = parts[0]; // Assuming storeUrl is the subdomain
     } else {
-      setisLoading(false)
-      vortexTokenResponse.json().then((result) => {
-        setErrorData({
-          isError: true,
-          message: result.error.message,
-        })
-      })
+      // Assuming the storeUrl is the first segment of the pathname
+      storeUrl = pathname.split('/')[1];
     }
-  }, [])
+    return storeUrl;
+  }
 
+  // Function to flatten the dealerData object
+  function flattenDealerData(dealerData) {
+    const flatData = {};
+    Object.keys(dealerData).forEach(category => {
+      Object.keys(dealerData[category]).forEach(biller => {
+        flatData[biller] = dealerData[category][biller];
+      });
+    });
+    return flatData;
+  }
+
+  useEffect(() => {
+    async function fetchUserDataAndBillers() {
+      console.log("Starting to fetch user data and billers");
+      setisLoading(true);
+  
+      const storeUrl = extractStoreUrl();
+      console.log("Extracted Store URL:", storeUrl);
+  
+      try {
+        const userResponse = await fetch(`${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/url/${storeUrl}/user`);
+        console.log("User Response Status:", userResponse.status);
+  
+        if (userResponse.status === 200) {
+          const { userId } = await userResponse.json();
+          console.log("User ID:", userId);
+  
+          const dealerResponse = await fetch(`${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/${userId}/billertoggles/public`);
+          console.log("Dealer Response Status:", dealerResponse.status);
+  
+          if (dealerResponse.status === 200) {
+            const dealerData = await dealerResponse.json();
+            console.log("Dealer Data:", dealerData);
+            setDealerSettings(dealerData);
+  
+            const vortexTokenResponse = await getVortexTokenBase();
+            console.log("Vortex Token Response Status:", vortexTokenResponse.status);
+  
+            if (vortexTokenResponse.status === 200) {
+              const vortexTokenResult = await vortexTokenResponse.json();
+              const response = await getBillers(vortexTokenResult.access_token, 1, 1000);
+              console.log("Billers Response Status:", response.status);
+  
+              if (response.status === 200) {
+                const billers = await response.json();
+                console.log("All Billers:", billers);
+          
+                const flatDealerData = flattenDealerData(dealerData);
+                console.log("Flattened Dealer Data:", flatDealerData);
+          
+                const filteredBillers = billers.filter(biller => {
+                  const isEnabled = flatDealerData[biller.name];
+                  console.log(`Biller: ${biller.name}, Enabled: ${isEnabled}`);
+                  return isEnabled;
+                });
+          
+                console.log("Filtered Billers:", filteredBillers);
+                setData(filteredBillers);
+              }
+            }
+          }
+        }
+        setisLoading(false);
+      } catch (error) {
+        console.error('Error in fetchUserDataAndBillers:', error);
+        setisLoading(false);
+      }
+    }
+  
+    fetchUserDataAndBillers();
+  }, []);
+
+  
   // This will compile all biller categories when data is received
   useEffect(() => {
     const gatheredCategories = []
