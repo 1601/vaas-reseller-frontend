@@ -245,40 +245,44 @@ export default function Router() {
       path: 'survey-privacy-policy',
       element: <SurveyPrivacyPolicy />,
     },
-    {
-      path: ':storeUrl',
-      element: <LiveStorePage />,
-      children: [
-        {
-          path: 'bills',
-          element: <VortexBills />,
-        },
-        {
-          path: 'topup',
-          element: (
-            <VortexContext>
-              <VortexTopUp />
-            </VortexContext>
-          ),
-        },
-        { path: 'voucher', element: <div> Voucher </div> },
-        { path: 'transactions', element: <div> Transactions </div> },
-      ],
+    ...(!isSubdomain
+      ? [
+          {
+            path: ':storeUrl',
+            element: <LiveStorePage />,
+            children: [
+              {
+                path: 'bills',
+                element: <VortexBills />,
+              },
+              {
+                path: 'topup',
+                element: (
+                  <VortexContext>
+                    <VortexTopUp />
+                  </VortexContext>
+                ),
+              },
+              { path: 'voucher', element: <div> Voucher </div> },
+              { path: 'transactions', element: <div> Transactions </div> },
+            ],
 
-      loader: async ({ params }) => {
-        const { storeUrl } = params;
-        if (!storeUrl.includes('pldt-vaas-frontend')) {
-          const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/url/${storeUrl}`);
-          const storeData = await response.json();
-          if (storeData.isLive === false) {
-            console.log('Store is not live.');
-            return null; 
-          }
-          return { storeData };
-        }
-        return null; 
-      },
-    },
+            loader: async ({ params }) => {
+              const { storeUrl } = params;
+              if (!storeUrl.includes('pldt-vaas-frontend')) {
+                const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/url/${storeUrl}`);
+                const storeData = await response.json();
+                if (storeData.isLive === false) {
+                  console.log('Store is not live.');
+                  return null;
+                }
+                return { storeData };
+              }
+              return null;
+            },
+          },
+        ]
+      : []),
     {
       element: <SimpleLayout />,
       children: [
