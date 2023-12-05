@@ -45,24 +45,36 @@ const LiveStorePage = () => {
   const notFound = queryParams.get('notFound');
   const user = JSON.parse(localStorage.getItem('user'));
 
-  // New function to parse and return the correct store URL
   const getSubdomainOrStoreUrl = () => {
-    const hostnameParts = window.location.hostname.split('.');
-    const subdomain = hostnameParts[0];
+    const hostname = window.location.hostname;
+    let subdomain = hostname.split('.')[0];
 
+    // Check if the hostname is 'localhost' or another known development environment
     if (['localhost', 'lvh', 'sevenstarjasem', 'pldt-vaas-frontend'].includes(subdomain)) {
       return storeUrl;
     }
 
-    if (['www', 'sevenstarjasem', 'pldt-vaas-frontend'].includes(subdomain)) {
-      return storeUrl;
+    // Handle 'lvh.me' domain with development environment subdomains
+    if (hostname.endsWith('lvh.me')) {
+      // Extract subdomain and check if it's a development environment identifier
+      subdomain = hostname.split('.')[0];
+      if (subdomain.startsWith('pldt-vaas-frontend')) {
+        // Extract the actual store URL from the path
+        const pathParts = window.location.pathname.split('/');
+        if (pathParts.length > 1) {
+          return pathParts[1];
+        }
+      }
+      return subdomain;
     }
 
+    // For production or other environments
     const pathParts = window.location.pathname.split('/');
     if (pathParts.length > 1) {
       return pathParts[1];
     }
 
+    // Return the subdomain or extracted path part as the store URL
     return subdomain;
   };
 
