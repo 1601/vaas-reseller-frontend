@@ -13,21 +13,15 @@ import {
   TableHead,
   TableRow,
   Switch,
+  TextField,
+  Button
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 const TopUpConfig = ({ token }) => {
   const { productName } = useParams();
   const [productConfigs, setProductConfigs] = useState([]);
-  const [productConfig, setProductConfig] = useState([]);
   const userId = JSON.parse(localStorage.getItem('user'))._id;
-
-  const defaultConfig = {
-    defaultPrice: 'N/A',
-    markup: '0',
-    discount: '0',
-  };
-
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -38,40 +32,25 @@ const TopUpConfig = ({ token }) => {
         },
       })
       .then((response) => {
-        setProductConfigs(response.data);
+        setProductConfigs(response.data.products);
       })
       .catch((error) => {
         console.error('Error fetching product configurations:', error);
       });
-  }, [userId, token]);
+  }, [userId, productName, token]);
 
   const handleToggle = (configId, enabled) => {
     // Logic to handle toggle change
   };
 
-  const handleSave = () => {
-    axios
-      .put(`${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/product-config/${userId}/${productName}`, productConfig, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then(() => {
-        alert('Configuration updated successfully!');
-      })
-      .catch((error) => {
-        console.error('Error updating product configuration:', error);
-      });
+  const handleMarkUpChange = (configId, event) => {
+    // Logic to handle markup price change
   };
 
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-    setProductConfig((prevConfig) => ({
-      ...prevConfig,
-      [name]: value,
-    }));
+  const handleApplyDiscount = (configId) => {
+    // Logic to apply discount
   };
-
+  
   return (
     <Box sx={{ padding: '20px' }}>
       <Paper elevation={3} sx={{ padding: '20px', margin: 'auto', maxWidth: '800px' }}>
@@ -98,13 +77,13 @@ const TopUpConfig = ({ token }) => {
             <TableBody>
               {productConfigs.map((config) => (
                 <TableRow key={config.id}>
-                  <TableCell>{config.productName}</TableCell>
+                  <TableCell>{config.name}</TableCell>
                   <TableCell align="right">{config.defaultPrice}</TableCell>
                   <TableCell align="right">{config.markup}</TableCell>
                   <TableCell align="right">{config.discount}</TableCell>
                   <TableCell align="center">
                     <Switch checked={config.enabled} onChange={() => handleToggle(config.id, !config.enabled)} />
-                  </TableCell>
+                  </TableCell> 
                 </TableRow>
               ))}
             </TableBody>
