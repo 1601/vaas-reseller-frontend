@@ -10,24 +10,14 @@ const SubdomainHandler = () => {
     const hostname = window.location.hostname;
     const pathname = window.location.pathname;
 
-    // Ensure pathname and hostname are not null
-    if (!pathname || !hostname) {
+    // Exclude certain paths from being processed as a subdomain
+    if (excludedPaths.some((path) => pathname.includes(path)) || pathname.includes('reset-password')) {
       setHasSubdomain(false);
       return;
     }
 
-    if (excludedPaths.some((path) => pathname.includes(path))) {
-      setHasSubdomain(false);
-      return;
-    }
-
-    let storeUrl;
-
-    if (pathname.includes('reset-password')) {
-      setHasSubdomain(false);
-      return;
-    }
-
+    // Extract storeUrl based on hostname and pathname
+    let storeUrl = null;
     if (hostname.includes('pldt-vaas-frontend')) {
       const pathParts = pathname.split('/');
       storeUrl = pathParts.length > 1 ? pathParts[1] : null;
@@ -38,6 +28,7 @@ const SubdomainHandler = () => {
       storeUrl = parts.length > 2 ? parts[0] : null;
     }
 
+    // Fetch store data if storeUrl is valid
     if (storeUrl && !storeUrl.includes('pldt-vaas-frontend')) {
       axios
         .get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/url/${storeUrl}`, {
