@@ -7,12 +7,12 @@ import TopUpImage from '../../../components/vortex/TopUpImage';
 
 const TopUpProducts = () => {
   const [topUpToggles, setTopUpToggles] = useState({
-    SMARTPH: true,
-    TNTPH: true,
-    PLDTPH: true,
-    GLOBE: true,
-    MERALCO: true,
-    CIGNAL: true,
+    SMARTPH: { enabled: true, details: null, products: [] },
+    TNTPH: { enabled: true, details: null, products: [] },
+    PLDTPH: { enabled: true, details: null, products: [] },
+    GLOBE: { enabled: true, details: null, products: [] },
+    MERALCO: { enabled: true, details: null, products: [] },
+    CIGNAL: { enabled: true, details: null, products: [] },
   });
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
@@ -43,18 +43,35 @@ const TopUpProducts = () => {
 
   const handleToggleChange = (event) => {
     const { name, checked } = event.target;
+
+    // Update the local state correctly
     setTopUpToggles((prevState) => ({
       ...prevState,
-      [name]: checked,
+      [name]: { ...prevState[name], enabled: checked },
     }));
 
-    axios
-      .put(
-        `${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/${userId}/topup-toggles`,
-        { topupToggles: { ...topUpToggles, [name]: checked } },
-        { headers: { Authorization: `Bearer ${token}` } }
-      )
-      .catch((error) => console.error('Error updating topup toggles:', error));
+    // Delay the PUT request until state is updated
+    setTimeout(() => {
+      // Prepare the updated toggles for the backend
+      const updatedToggles = Object.keys(topUpToggles).reduce((acc, key) => {
+        acc[key] = key === name ? { ...topUpToggles[key], enabled: checked } : { ...topUpToggles[key] };
+        return acc;
+      }, {});
+
+      // Send the updated toggles to the backend
+      axios
+        .put(
+          `${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/${userId}/topup-toggles`,
+          { topupToggles: updatedToggles },
+          { headers: { Authorization: `Bearer ${token}` } }
+        )
+        .then((response) => {
+          console.log('Topup toggles updated successfully:', response.data);
+          // Update the local state with the response from the backend
+          setTopUpToggles(response.data.topupToggles);
+        })
+        .catch((error) => console.error('Error updating topup toggles:', error));
+    }, 0);
   };
 
   if (isLoading) {
@@ -91,7 +108,7 @@ const TopUpProducts = () => {
                 elevation={3}
                 sx={{
                   padding: '10px',
-                  display: 'flex', 
+                  display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -112,7 +129,7 @@ const TopUpProducts = () => {
                     disabled={!topUpToggles[key]}
                     sx={{
                       ...configureButtonStyle,
-                      width: '100%', 
+                      width: '100%',
                       marginBottom: '10px',
                     }}
                     onClick={() => handleConfigure(key)}
@@ -121,8 +138,10 @@ const TopUpProducts = () => {
                   </Button>
                   {/* Toggle Switch */}
                   <FormControlLabel
-                    control={<Switch checked={topUpToggles[key]} onChange={handleToggleChange} name={key} />}
-                    label={topUpToggles[key] ? 'Enabled' : 'Disabled'}
+                    control={
+                      <Switch checked={topUpToggles[key]?.enabled || false} onChange={handleToggleChange} name={key} />
+                    }
+                    label={topUpToggles[key]?.enabled ? 'Enabled' : 'Disabled'}
                   />
                 </Stack>
               </Paper>
