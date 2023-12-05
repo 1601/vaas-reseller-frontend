@@ -302,23 +302,23 @@ const VortexTopUp = () => {
   useEffect(() => {
     if (data && data.length > 0) {
       const collectedBrands = [];
-
+  
       for (let index = 0; index < data.length; index += 1) {
         const product = data[index];
-
-        // Filter products based on the top-up toggles
+  
+        // Update the condition to check the 'enabled' property
         if (
-          topupToggles[product.brand] &&
+          topupToggles[product.brand]?.enabled &&
           (product.category === 'Electronic Load' || product.category === 'Data Bundles')
         ) {
           topUpProducts.push(product);
         }
-
-        if (topupToggles[product.brand] && product.category === 'Electronic Load') {
+  
+        if (topupToggles[product.brand]?.enabled && product.category === 'Electronic Load') {
           if (product.brand === 'ROW') {
             addToInternationalLoad(product);
           }
-
+  
           if (!collectedBrands.some((brand) => brand.name === product.brand)) {
             collectedBrands.push({
               name: product.brand,
@@ -328,7 +328,7 @@ const VortexTopUp = () => {
           }
         }
       }
-
+  
       console.log('Filtered and collected brands:', collectedBrands);
       setbrands(collectedBrands.sort((brand, previous) => previous.rank - brand.rank));
     }
@@ -556,8 +556,36 @@ const VortexTopUp = () => {
       [navigateInternationalLoad, getProductsOfBrand, navigation.previous]
     );
 
+    async function updateProductDetailsForAllDealers(brandName, products) {
+      try {
+        console.log(`Attempting to update product details for brand: ${brandName}`);
+        const response = await axios.put(`${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/topup/products`, {
+          brandName,
+          products
+        });
+        console.log(`Successfully updated product details for brand: ${brandName}`, response.data);
+      } catch (error) {
+        console.error(`Error updating product details for ${brandName}:`, error);
+      }
+    }    
+    
     function navigateInternationalLoad(name, data, previous = {}) {
-      console.log(data);
+      console.log(`navigateInternationalLoad called with name: ${name}, data:`, data);
+    
+      // Extract and format product details for API call
+      if (name === 'brandProducts') {
+        const brandName = data[0]?.brand;
+        const products = data.map((product) => ({
+          name: product.name,
+          price: product.pricing.price,
+        }));
+    
+        console.log(`Preparing to update product details for brand: ${brandName}`, products);
+    
+        // Update product details for all dealers
+        updateProductDetailsForAllDealers(brandName, products);
+      }
+    
       setNavigation({
         name,
         data,
