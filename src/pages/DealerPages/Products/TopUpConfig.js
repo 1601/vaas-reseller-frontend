@@ -69,8 +69,8 @@ const TopUpConfig = ({ token }) => {
               <TableRow>
                 <TableCell>Product</TableCell>
                 <TableCell align="right">Default Price</TableCell>
-                <TableCell align="right">Mark-Up Price</TableCell>
-                <TableCell align="right">Discount</TableCell>
+                <TableCell align="right">Mark-Up</TableCell>
+                <TableCell align="right">Apply</TableCell>
                 <TableCell align="center">Toggle</TableCell>
               </TableRow>
             </TableHead>
@@ -79,11 +79,28 @@ const TopUpConfig = ({ token }) => {
                 <TableRow key={config.id}>
                   <TableCell>{config.name}</TableCell>
                   <TableCell align="right">{config.defaultPrice}</TableCell>
-                  <TableCell align="right">{config.markup}</TableCell>
-                  <TableCell align="right">{config.discount}</TableCell>
+                  <TableCell align="right">
+                    <TextField
+                      variant="outlined"
+                      size="small"
+                      value={config.markup}
+                      onChange={(e) => handleMarkUpChange(config.id, e)}
+                    />
+                  </TableCell>
+                  <TableCell align="right">
+                    <Button
+                      variant="outlined"
+                      onClick={() => handleApplyDiscount(config.id)}
+                    >
+                      Apply
+                    </Button>
+                  </TableCell>
                   <TableCell align="center">
-                    <Switch checked={config.enabled} onChange={() => handleToggle(config.id, !config.enabled)} />
-                  </TableCell> 
+                    <Switch
+                      checked={config.enabled}
+                      onChange={() => handleToggle(config.id, !config.enabled)}
+                    />
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
