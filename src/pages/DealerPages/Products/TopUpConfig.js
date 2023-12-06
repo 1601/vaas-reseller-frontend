@@ -14,7 +14,7 @@ import {
   TableRow,
   Switch,
   TextField,
-  Button
+  Button,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
@@ -32,7 +32,9 @@ const TopUpConfig = ({ token }) => {
         },
       })
       .then((response) => {
-        setProductConfigs(response.data.products);
+        // Sort products by defaultPrice
+        const sortedProducts = response.data.products.sort((a, b) => a.defaultPrice - b.defaultPrice);
+        setProductConfigs(sortedProducts);
       })
       .catch((error) => {
         console.error('Error fetching product configurations:', error);
@@ -88,10 +90,7 @@ const TopUpConfig = ({ token }) => {
                     />
                   </TableCell>
                   <TableCell align="right">
-                    <Button
-                      variant="outlined"
-                      onClick={() => handleApplyDiscount(config.id)}
-                    >
+                    <Button variant="outlined" onClick={() => handleApplyDiscount(config.id)}>
                       Apply
                     </Button>
                   </TableCell>
