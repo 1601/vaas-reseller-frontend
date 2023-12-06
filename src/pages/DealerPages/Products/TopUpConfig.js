@@ -21,6 +21,8 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 const TopUpConfig = () => {
   const { productName } = useParams();
   const [productConfigs, setProductConfigs] = useState([]);
+  const [markupInputValues, setMarkupInputValues] = useState({});
+
   const userId = JSON.parse(localStorage.getItem('user'))._id;
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
@@ -34,14 +36,25 @@ const TopUpConfig = () => {
           },
         })
         .then((response) => {
+          console.log('Response data:', response.data); // Add this line
           const sortedProducts = response.data.products.sort((a, b) => a.defaultPrice - b.defaultPrice);
           setProductConfigs(sortedProducts);
+
+          // Console log to check markup existence
+          sortedProducts.forEach((product) => {
+            console.log(`Markup for product ${product.name}:`, product.markUp);
+          });
         })
         .catch((error) => {
           console.error('Error fetching product configurations:', error);
         });
     }
   }, [userId, productName, token]);
+
+  // Function to calculate current price
+  const calculateCurrentPrice = (defaultPrice, markUp) => {
+    return Number(defaultPrice) + Number(markUp);
+  };
 
   const handleToggle = (configId, enabled) => {
     // Update local state
@@ -80,11 +93,54 @@ const TopUpConfig = () => {
   };
 
   const handleMarkUpChange = (configId, event) => {
-    // Logic to handle markup price change
+    setMarkupInputValues((prevValues) => ({
+      ...prevValues,
+      [configId]: event.target.value,
+    }));
   };
 
   const handleApplyDiscount = (configId) => {
-    // Logic to apply discount
+    const newMarkUp = markupInputValues[configId];
+    // Calculate the current price here based on the new markup and default price
+    const config = productConfigs.find((config) => config._id === configId);
+    const newCurrentPrice = calculateCurrentPrice(config.defaultPrice, newMarkUp);
+  
+    if (newMarkUp !== undefined && !Number.isNaN(newMarkUp) && newMarkUp > 0) {
+      // Prepare data for the API request
+      const updateData = {
+        markUp: newMarkUp,
+        currentPrice: newCurrentPrice, // Include currentPrice in the update
+      };
+  
+      // Send update to backend for a specific product
+      if (token) {
+        axios
+          .put(
+            `${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/product-config/${userId}/${productName}/${configId}`,
+            updateData,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          )
+          .then((response) => {
+            console.log('Markup and current price updated successfully:', response.data);
+            // Update local state after successful backend update
+            setProductConfigs((prevConfigs) =>
+              prevConfigs.map((config) => {
+                if (config._id === configId) {
+                  return { ...config, markUp: newMarkUp, currentPrice: newCurrentPrice };
+                }
+                return config;
+              })
+            );
+          })
+          .catch((error) => {
+            console.error('Error updating markup and current price:', error);
+          });
+      }
+    }
   };
 
   return (
@@ -107,12 +163,13 @@ const TopUpConfig = () => {
                 <TableCell align="right">Default Price</TableCell>
                 <TableCell align="right">Mark-Up</TableCell>
                 <TableCell align="right">Apply</TableCell>
+                <TableCell align="right">Current Price</TableCell>
                 <TableCell align="center">Toggle</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {productConfigs.map((config) => {
-                console.log('Config: ', config);
+                const currentPrice = config.currentPrice || (Number(config.defaultPrice) + Number(config.markUp || 0));
                 return (
                   <TableRow key={config._id}>
                     <TableCell>{config.name}</TableCell>
@@ -121,8 +178,10 @@ const TopUpConfig = () => {
                       <TextField
                         variant="outlined"
                         size="small"
-                        value={config.markup}
+                        value={markupInputValues[config._id] || ''}
                         onChange={(e) => handleMarkUpChange(config._id, e)}
+                        placeholder={config.markUp !== undefined ? config.markUp.toString() : 'Enter markup'}
+                        style={{ opacity: config.markUp !== undefined ? 1 : 0.5 }}
                       />
                     </TableCell>
                     <TableCell align="right">
@@ -130,6 +189,7 @@ const TopUpConfig = () => {
                         Apply
                       </Button>
                     </TableCell>
+                    <TableCell align="right">{config.currentPrice}</TableCell>
                     <TableCell align="center">
                       <Switch checked={config.enabled} onChange={() => handleToggle(config._id, !config.enabled)} />
                     </TableCell>
