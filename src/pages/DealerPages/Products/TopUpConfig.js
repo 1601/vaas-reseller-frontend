@@ -36,11 +36,12 @@ const TopUpConfig = () => {
           },
         })
         .then((response) => {
-          console.log('Response data:', response.data); // Add this line
-          const sortedProducts = response.data.products.sort((a, b) => a.defaultPrice - b.defaultPrice);
+          console.log('Response data:', response.data);
+          const sortedProducts = (response.data.products || [])
+            .map((p) => p._doc) // Map to _doc if your data is nested within it
+            .sort((a, b) => a.defaultPrice - b.defaultPrice); // Ensure the products are sorted
           setProductConfigs(sortedProducts);
 
-          // Console log to check markup existence
           sortedProducts.forEach((product) => {
             console.log(`Markup for product ${product.name}:`, product.markUp);
           });
@@ -101,44 +102,46 @@ const TopUpConfig = () => {
 
   const handleApplyDiscount = (configId) => {
     const newMarkUp = markupInputValues[configId];
-    // Calculate the current price here based on the new markup and default price
-    const config = productConfigs.find((config) => config._id === configId);
-    const newCurrentPrice = calculateCurrentPrice(config.defaultPrice, newMarkUp);
-  
-    if (newMarkUp !== undefined && !Number.isNaN(newMarkUp) && newMarkUp > 0) {
-      // Prepare data for the API request
-      const updateData = {
-        markUp: newMarkUp,
-        currentPrice: newCurrentPrice, // Include currentPrice in the update
-      };
-  
-      // Send update to backend for a specific product
-      if (token) {
-        axios
-          .put(
-            `${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/product-config/${userId}/${productName}/${configId}`,
-            updateData,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          )
-          .then((response) => {
-            console.log('Markup and current price updated successfully:', response.data);
-            // Update local state after successful backend update
-            setProductConfigs((prevConfigs) =>
-              prevConfigs.map((config) => {
-                if (config._id === configId) {
-                  return { ...config, markUp: newMarkUp, currentPrice: newCurrentPrice };
-                }
-                return config;
-              })
-            );
-          })
-          .catch((error) => {
-            console.error('Error updating markup and current price:', error);
-          });
+    const configIndex = productConfigs.findIndex((config) => config._id === configId);
+    if (configIndex !== -1) {
+      const config = productConfigs[configIndex];
+      const newCurrentPrice = calculateCurrentPrice(config.defaultPrice, newMarkUp);
+
+      if (newMarkUp !== undefined && !Number.isNaN(newMarkUp) && newMarkUp > 0) {
+        // Prepare data for the API request
+        const updateData = {
+          markUp: newMarkUp,
+          currentPrice: newCurrentPrice, // Include currentPrice in the update
+        };
+
+        // Send update to backend for a specific product
+        if (token) {
+          axios
+            .put(
+              `${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/product-config/${userId}/${productName}/${configId}`,
+              updateData,
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              }
+            )
+            .then((response) => {
+              console.log('Markup and current price updated successfully:', response.data);
+              // Update local state after successful backend update
+              setProductConfigs((prevConfigs) =>
+                prevConfigs.map((config, index) => {
+                  if (index === configIndex) {
+                    return { ...config, markUp: newMarkUp, currentPrice: newCurrentPrice };
+                  }
+                  return config;
+                })
+              );
+            })
+            .catch((error) => {
+              console.error('Error updating markup and current price:', error);
+            });
+        }
       }
     }
   };
@@ -169,7 +172,12 @@ const TopUpConfig = () => {
             </TableHead>
             <TableBody>
               {productConfigs.map((config) => {
-                const currentPrice = config.currentPrice || (Number(config.defaultPrice) + Number(config.markUp || 0));
+                // Calculate the current price based on default price and markup
+                const calculatedCurrentPrice = calculateCurrentPrice(
+                  config.defaultPrice,
+                  markupInputValues[config._id] || config.markUp
+                );
+
                 return (
                   <TableRow key={config._id}>
                     <TableCell>{config.name}</TableCell>
@@ -178,9 +186,9 @@ const TopUpConfig = () => {
                       <TextField
                         variant="outlined"
                         size="small"
-                        value={markupInputValues[config._id] || ''}
+                        value={markupInputValues[config._id] || config.markUp.toString()}
                         onChange={(e) => handleMarkUpChange(config._id, e)}
-                        placeholder={config.markUp !== undefined ? config.markUp.toString() : 'Enter markup'}
+                        placeholder="Enter markup"
                         style={{ opacity: config.markUp !== undefined ? 1 : 0.5 }}
                       />
                     </TableCell>
@@ -189,7 +197,7 @@ const TopUpConfig = () => {
                         Apply
                       </Button>
                     </TableCell>
-                    <TableCell align="right">{config.currentPrice}</TableCell>
+                    <TableCell align="right">{calculatedCurrentPrice}</TableCell>
                     <TableCell align="center">
                       <Switch checked={config.enabled} onChange={() => handleToggle(config._id, !config.enabled)} />
                     </TableCell>
