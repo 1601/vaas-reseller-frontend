@@ -125,6 +125,8 @@ const BottomNavigator = () => (
 
 const topUpProducts = [];
 
+const ProductContext = React.createContext();
+
 const VortexTopUp = () => {
   // const params = useParams()
 
@@ -224,6 +226,10 @@ const VortexTopUp = () => {
 
   // const [productCategories, setProductCategories] = useState([])
 
+  const [decryptedUserId, setDecryptedUserId] = useState(null);
+
+  const [productInfo, setProductInfo] = useState({});
+
   const [transactionDetails, setTransactionDetails] = useState({
     status: 200,
     message: 'Fulfillment Failed.',
@@ -283,11 +289,12 @@ const VortexTopUp = () => {
     const fetchTopupToggles = async () => {
       try {
         const encryptedUserId = localStorage.getItem('encryptedUserId');
-        const decryptedUserId = ls.get('encryptedUserId');
+        const decryptedUserIdFromLS = ls.get('encryptedUserId');
 
-        if (decryptedUserId) {
+        if (decryptedUserIdFromLS) {
+          setDecryptedUserId(decryptedUserIdFromLS); // Update the state
           const togglesResponse = await axios.get(
-            `${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/${decryptedUserId}/topup-toggles/public`
+            `${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/${decryptedUserIdFromLS}/topup-toggles/public`
           );
           setTopupToggles(togglesResponse.data);
         }
@@ -302,10 +309,10 @@ const VortexTopUp = () => {
   useEffect(() => {
     if (data && data.length > 0) {
       const collectedBrands = [];
-  
+
       for (let index = 0; index < data.length; index += 1) {
         const product = data[index];
-  
+
         // Update the condition to check the 'enabled' property
         if (
           topupToggles[product.brand]?.enabled &&
@@ -313,12 +320,12 @@ const VortexTopUp = () => {
         ) {
           topUpProducts.push(product);
         }
-  
+
         if (topupToggles[product.brand]?.enabled && product.category === 'Electronic Load') {
           if (product.brand === 'ROW') {
             addToInternationalLoad(product);
           }
-  
+
           if (!collectedBrands.some((brand) => brand.name === product.brand)) {
             collectedBrands.push({
               name: product.brand,
@@ -328,7 +335,7 @@ const VortexTopUp = () => {
           }
         }
       }
-  
+
       console.log('Filtered and collected brands:', collectedBrands);
       setbrands(collectedBrands.sort((brand, previous) => previous.rank - brand.rank));
     }
@@ -561,39 +568,89 @@ const VortexTopUp = () => {
         console.log(`Attempting to update product details for brand: ${brandName}`);
         const response = await axios.put(`${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/topup/products`, {
           brandName,
-          products
+          products,
         });
         console.log(`Successfully updated product details for brand: ${brandName}`, response.data);
       } catch (error) {
         console.error(`Error updating product details for ${brandName}:`, error);
       }
-    }    
-    
+    }
+
+    // Fetch Dealer Product Config Function
+    async function fetchDealerProductConfig(dealerId, brandName) {
+      console.log(`fetchDealerProductConfig called with dealerId: ${dealerId}, brandName: ${brandName}`);
+      try {
+        console.log(`Attempting to fetch product configuration for dealer ${dealerId}, brand ${brandName}`);
+        const response = await axios.get(
+          `${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/product-config/${dealerId}/${brandName}/public`
+        );
+
+        if (response.data && response.data.products) {
+          console.log(
+            `Fetched product configuration for dealer ${dealerId}, brand ${brandName}:`,
+            response.data.products
+          );
+          return response.data.products; // Contains the products with enabled status and current price
+        }
+
+        console.log(`No products found for dealer ${dealerId}, brand ${brandName}`);
+        return []; // Return an empty array if the response does not contain products
+      } catch (error) {
+        console.error(`Error fetching product configuration for dealer ${dealerId}, brand ${brandName}:`, error);
+        return []; // Return an empty array in case of an error
+      }
+    }
+
     function navigateInternationalLoad(name, data, previous = {}) {
       console.log(`navigateInternationalLoad called with name: ${name}, data:`, data);
-    
-      // Extract and format product details for API call
+
+      // This block handles the 'brandProducts' scenario
       if (name === 'brandProducts') {
         const brandName = data[0]?.brand;
+        console.log(`Brand name in navigateInternationalLoad: ${brandName}`);
+
+        // Mapping existing product data to prepare for update
         const products = data.map((product) => ({
           name: product.name,
-          price: product.pricing.price,
+          price: product.pricing.price, // Initially setting price from existing data
         }));
-    
+
         console.log(`Preparing to update product details for brand: ${brandName}`, products);
-    
-        // Update product details for all dealers
+
+        // Calling function to update product details for all dealers
         updateProductDetailsForAllDealers(brandName, products);
+
+        if (decryptedUserId) {
+          console.log(`DecryptedUserId available: ${decryptedUserId}`);
+
+          // Fetching dealer product configuration
+          fetchDealerProductConfig(decryptedUserId, brandName).then((dealerProductConfig) => {
+            console.log(`Dealer Product Config:`, dealerProductConfig);
+
+            const updatedProducts = data.map((product) => {
+              const fetchedProduct = dealerProductConfig.find((p) => p.name === product.name);
+              console.log(`fetched Product:`, fetchedProduct);
+              // If fetchedProduct exists, use its currentPrice, otherwise keep the original price
+              const price = fetchedProduct ? fetchedProduct.currentPrice : product.price; // Directly use product.price
+              return {
+                ...product,
+                price, // Update the price at the root level
+                description: product.description, // Keep the original description
+              };
+            });
+
+            // Updating navigation with the new products data after the state has been updated
+            setNavigation({
+              name,
+              data: updatedProducts, // Using updated products with currentPrice
+              previous: {
+                ...navigation.previous,
+                ...previous,
+              },
+            });
+          });
+        }
       }
-    
-      setNavigation({
-        name,
-        data,
-        previous: {
-          ...navigation.previous,
-          ...previous,
-        },
-      });
     }
 
     function filterProductBySelectedBrand(state, brand) {
@@ -1022,7 +1079,7 @@ const VortexTopUp = () => {
     // const { email, name, phone, address } = getUser();
 
     const { convenienceFee, grandTotalFee } = getServiceFee({
-      amount: selectedProduct.pricing.price,
+      amount: selectedProduct.price,
       currency: selectedProduct.pricing.unit,
     });
 
@@ -1054,7 +1111,7 @@ const VortexTopUp = () => {
             <Stack direction={'row'} alignItems="center" marginTop={'2em'} marginLeft={'2em'} marginBottom={'2em'}>
               <Stack sx={{ marginRight: '2em' }} textAlign="center">
                 <Typography fontSize={'3em'} fontWeight={'bold'} color={primaryVortexTheme.secondarytextcolor}>
-                  {selectedProduct.pricing.price}
+                  {selectedProduct.price}
                 </Typography>
                 <Typography fontSize={'1em'} fontWeight={'bold'} color={primaryVortexTheme.secondarytextcolor}>
                   {selectedProduct.pricing.unit}
@@ -1124,7 +1181,7 @@ const VortexTopUp = () => {
                   You are about to pay
                 </Typography>
               </Stack>
-              <Stack style={{ margin: '1em' }}>
+              <Stack style={{ margin: '1em' }}> 
                 <Stack
                   direction={'row'}
                   justifyContent={'space-between'}
@@ -1136,7 +1193,7 @@ const VortexTopUp = () => {
                   <Typography fontWeight={'bold'}>{`Amount Due `}</Typography>
 
                   <Typography fontWeight={'bold'} style={{ marginRight: '2em' }}>{`${parseFloat(
-                    selectedProduct.pricing.price / platformVariables?.topupCurrencyToPeso
+                    selectedProduct.price / platformVariables?.topupCurrencyToPeso
                   ).toFixed(2)} ${platformVariables?.currencySymbol}`}</Typography>
                 </Stack>
 
@@ -1195,7 +1252,7 @@ const VortexTopUp = () => {
                         // Once the payment window is closed, set the transaction data
                         setTransactionData({
                           productName: selectedProduct.name,
-                          price: selectedProduct.pricing.price,
+                          price: selectedProduct.price,
                           convenienceFee,
                           totalPrice: grandTotalFee,
                           currency: platformVariables?.currencySymbol,
