@@ -604,45 +604,69 @@ const VortexTopUp = () => {
     function navigateInternationalLoad(name, data, previous = {}) {
       console.log(`navigateInternationalLoad called with name: ${name}, data:`, data);
 
-      // This block handles the 'brandProducts' scenario
       if (name === 'brandProducts') {
         const brandName = data[0]?.brand;
         console.log(`Brand name in navigateInternationalLoad: ${brandName}`);
 
         // Mapping existing product data to prepare for update
         const products = data.map((product) => ({
-          name: product.name,
-          price: product.pricing.price, // Initially setting price from existing data
+          ...product,
+          name: product.enabled ? product.name : `${product.name} (Not Available)`, // Append (Not Available) for products where enabled is false
+          price: product.pricing.price,
+          isAvailable: !!product.enabled, // Coerce `enabled` to a boolean
         }));
 
         console.log(`Preparing to update product details for brand: ${brandName}`, products);
 
-        // Calling function to update product details for all dealers
         updateProductDetailsForAllDealers(brandName, products);
 
         if (decryptedUserId) {
           console.log(`DecryptedUserId available: ${decryptedUserId}`);
 
-          // Fetching dealer product configuration
           fetchDealerProductConfig(decryptedUserId, brandName).then((dealerProductConfig) => {
             console.log(`Dealer Product Config:`, dealerProductConfig);
 
-            const updatedProducts = data.map((product) => {
-              const fetchedProduct = dealerProductConfig.find((p) => p.name === product.name);
+            const updatedProducts = products.map((product) => {
+              // Find the dealer config for the product without the "(Not Available)" text
+              const fetchedProduct = dealerProductConfig.find(
+                (p) => p.name === product.name.replace(' (Not Available)', '')
+              );
+
               console.log(`fetched Product:`, fetchedProduct);
-              // If fetchedProduct exists, use its currentPrice, otherwise keep the original price
-              const price = fetchedProduct ? fetchedProduct.currentPrice : product.price; // Directly use product.price
+
+              // If the fetchedProduct is null or undefined, it means it wasn't found in the dealer config
+              if (!fetchedProduct) {
+                return {
+                  ...product,
+                  isAvailable: false, // Set availability to false if product not found in dealer config
+                };
+              }
+
+              // If the fetchedProduct is found but the enabled flag is false, keep the name appended
+              const name = fetchedProduct.enabled ? fetchedProduct.name : `${fetchedProduct.name} (Not Available)`;
+
               return {
                 ...product,
-                price, // Update the price at the root level
-                description: product.description, // Keep the original description
+                name,
+                price: fetchedProduct.currentPrice, // Use the current price from the fetched product
+                isAvailable: fetchedProduct.enabled, // Set availability based on the fetched product
               };
             });
 
-            // Updating navigation with the new products data after the state has been updated
+            // Sort the updated products so that unavailable products are at the bottom
+            const sortedProducts = updatedProducts.sort((a, b) => {
+              if (!a.isAvailable && b.isAvailable) {
+                return 1; // Move 'a' towards the end
+              }
+              if (a.isAvailable && !b.isAvailable) {
+                return -1; // Move 'a' towards the beginning
+              }
+              return 0; // Keep the original order
+            });
+
             setNavigation({
               name,
-              data: updatedProducts, // Using updated products with currentPrice
+              data: sortedProducts,
               previous: {
                 ...navigation.previous,
                 ...previous,
@@ -1181,7 +1205,7 @@ const VortexTopUp = () => {
                   You are about to pay
                 </Typography>
               </Stack>
-              <Stack style={{ margin: '1em' }}> 
+              <Stack style={{ margin: '1em' }}>
                 <Stack
                   direction={'row'}
                   justifyContent={'space-between'}

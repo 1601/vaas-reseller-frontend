@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Typography, Box } from '@mui/material';
 import VortexTopupCard from './VortexTopupCard';
 
@@ -13,6 +13,7 @@ const VortexTopUpBrandProducts = ({
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
+    // Set the products directly from brandProducts; sorting will be handled in the render
     setProducts(brandProducts);
   }, [brandProducts]);
 
@@ -23,22 +24,55 @@ const VortexTopUpBrandProducts = ({
       </Typography>
       <div style={{ position: 'fixed', bottom: '-100px' }}>{products.length - products.length}</div>
       {products
-        .sort((brand, anotherbrand) => brand.price - anotherbrand.price) // Change to brand.price
-        .map((v) => {
-          console.log(v);
-          console.log('Price before calculation:', v.price, 'Currency to Peso:', platformVariables?.topupCurrencyToPeso);
+        .sort((a, b) => {
+          // Sort products with 'enabled: false' to the bottom
+          if (!a.enabled && b.enabled) return 1;
+          if (a.enabled && !b.enabled) return -1;
+          return a.price - b.price;
+        })
+        .map((product) => {
+          console.log(product);
+          console.log(
+            'Price before calculation:',
+            product.price,
+            'Currency to Peso:',
+            platformVariables?.topupCurrencyToPeso
+          );
+          // Calculate price only if product is not disabled
+          const calculatedPrice = product.disabled
+            ? 'Not Available'
+            : parseFloat(product.price) / (parseFloat(platformVariables?.topupCurrencyToPeso) || 1);
           return (
             <VortexTopupCard
-              name={v.name}
-              imageUrl={v.catalogImageURL}
-              desc={v.description}
-              price={parseFloat(v.price) / (parseFloat(platformVariables?.topupCurrencyToPeso) || 1)}
+              name={
+                product.name.includes('(Not Available)') ? (
+                  <span style={{ color: 'gray' }}>{product.name}</span>
+                ) : (
+                  product.name
+                )
+              }
+              imageUrl={product.catalogImageURL}
+              desc={
+                product.name.includes('(Not Available)') ? (
+                  <span style={{ color: 'gray' }}>{product.description}</span>
+                ) : (
+                  product.description
+                )
+              }
+              price={calculatedPrice}
               unit={platformVariables?.currencySymbol}
-              key={v.name}
+              key={product.name}
               onClick={() => {
-                setSelectedProduct(v);
-                setSelectedBrand(selectedBrand);
-                stepForward();
+                if (!product.name.includes('(Not Available)') && !product.disabled) {
+                  setSelectedProduct(product);
+                  setSelectedBrand(selectedBrand);
+                  stepForward();
+                }
+              }}
+              style={{
+                color: product.disabled ? 'gray' : 'inherit', // Grey out the text when disabled
+                pointerEvents: product.name.includes('(Not Available)') ? 'none' : 'auto', // Disable click events for (Not Available) products
+                backgroundColor: product.name.includes('(Not Available)') ? 'lightgray' : 'white', // Gray background for (Not Available) products
               }}
             />
           );
