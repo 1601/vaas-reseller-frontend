@@ -50,7 +50,7 @@ const LiveStorePage = () => {
     let subdomain = hostname.split('.')[0];
 
     // Check if the hostname is 'localhost' or another known development environment
-    if (['localhost', 'lvh', 'sevenstarjasem', 'pldt-vaas-frontend'].includes(subdomain)) {
+    if (['localhost', 'lvh', 'sevenstarjasem', 'pldt-vaas-frontend', 'vortex-vaas-frontend'].includes(subdomain)) {
       return storeUrl;
     }
 
@@ -58,7 +58,7 @@ const LiveStorePage = () => {
     if (hostname.endsWith('lvh.me')) {
       // Extract subdomain and check if it's a development environment identifier
       subdomain = hostname.split('.')[0];
-      if (subdomain.startsWith('pldt-vaas-frontend')) {
+      if (subdomain.startsWith('pldt-vaas-frontend') || subdomain.startsWith('vortex-vaas-frontend')) {
         // Extract the actual store URL from the path
         const pathParts = window.location.pathname.split('/');
         if (pathParts.length > 1) {

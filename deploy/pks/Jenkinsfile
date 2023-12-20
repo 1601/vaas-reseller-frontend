@@ -1,0 +1,13 @@
+@Library('jenkins-pipeline-library@master')_
+
+buildPipeline {
+  APP = [
+    NAME: "vortex-vaas-frontend",
+    PROJECT: "vortex",
+    PROJECT_TYPE: "REACT-ONLY",
+    PROJECT_FRAMEWORK: "NODEJS",
+    IS_PERSIST: true,
+    PERSIST_DIR: "/app",
+    AWS_DEPLOY: true
+  ]
+}

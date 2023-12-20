@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import SecureLS from 'secure-ls';
 import { getVortexProducts } from '../../api/public/vortex/product_service';
 import { getVortexTokenBase } from '../../api/public/vortex/token_service';
-import socket from '../services/socketio';
+// import socket from '../services/socketio';
 
 export const IsloadingProducts = React.createContext(false);
 

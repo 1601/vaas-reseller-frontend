@@ -18,7 +18,10 @@ const SubdomainHandler = () => {
 
     // Extract storeUrl based on hostname and pathname
     let storeUrl = null;
-    if (hostname.includes('pldt-vaas-frontend')) {
+    if (hostname.includes('vortex-vaas-frontend')) { // Handling for new URL
+      const pathParts = pathname.split('/');
+      storeUrl = pathParts.length > 1 ? pathParts[1] : null;
+    } else if (hostname.includes('pldt-vaas-frontend')) {
       const pathParts = pathname.split('/');
       storeUrl = pathParts.length > 1 ? pathParts[1] : null;
     } else if (hostname.includes('localhost') && pathname !== '/') {
@@ -29,7 +32,7 @@ const SubdomainHandler = () => {
     }
 
     // Fetch store data if storeUrl is valid
-    if (storeUrl && !storeUrl.includes('pldt-vaas-frontend')) {
+    if (storeUrl && !storeUrl.includes('pldt-vaas-frontend') && !storeUrl.includes('vortex-vaas-frontend')) {
       axios
         .get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/url/${storeUrl}`, {
           headers: {

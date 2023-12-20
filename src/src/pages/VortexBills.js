@@ -334,7 +334,7 @@ const VortexBillsPaymentPage = () => {
     let storeUrl;
   
     // Check if the hostname contains 'pldt-vaas-frontend'
-    if (hostname.includes('pldt-vaas-frontend')) {
+    if (hostname.includes('pldt-vaas-frontend') || hostname.includes('localhost')) {
       // Assuming the storeUrl is the first segment of the pathname
       storeUrl = pathname.split('/')[1];
     } else {
