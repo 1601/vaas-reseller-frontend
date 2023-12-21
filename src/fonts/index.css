@@ -1,0 +1,17 @@
+/* Sample CSS for fonts */
+
+/* Define a custom font-family */
+@font-face {
+    font-family: "CustomFont";
+    src: url('/path/to/your/font.woff2') format('woff2'),
+         url('/path/to/your/font.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* Apply the custom font to an element */
+.custom-text {
+    font-family: "CustomFont", sans-serif;
+    font-size: 16px;
+    color: #333;
+}

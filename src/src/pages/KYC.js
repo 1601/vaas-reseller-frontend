@@ -150,7 +150,7 @@ export default function KYC() {
   // const docsInputRef = useRef(null);
   const [businessType, setBusinessType] = useState('');
   const [linkFieldsData, setLinkFieldsData] = useState([{ externalLinkAccount: '' }]);
-  const [approvalStatus, setApprovalStatus] = useState()
+  const [approvalStatus, setApprovalStatus] = useState(0)
   const [preload, setPreload] = useState(0)
   const [autoComplete, setAutoComplete] = useState()
   const [isActive1, setIsActive1] = useState(false);

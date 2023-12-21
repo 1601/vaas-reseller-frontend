@@ -1,0 +1,13 @@
+src/node_modules
+src/npm-debug.log
+.DS_Store
+.eslintrc.json
+.prettierrc.json
+.nyc_output
+README.md
+.git/
+node_modules
+build
+.git
+.dockerignore
+.gitignore
