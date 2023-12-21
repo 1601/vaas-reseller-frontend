@@ -159,12 +159,13 @@ export default function SignUpPage() {
   });
   const [errorMessage, setErrorMessage] = useState('');
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
-  const [formErrors, setFormErrors] = useState({});
   const [showErrorDialog, setShowErrorDialog] = useState(false);
   const [showIpAddress, setShowIpAddress] = useState(true);
   const [isFormValid, setIsFormValid] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
   const [passwordHelperText, setPasswordHelperText] = useState('');
+  const [confirmPasswordError, setConfirmPasswordError] = useState(false);
+  const [confirmPasswordHelperText, setConfirmPasswordHelperText] = useState('');
   const [isEmailValid, setIsEmailValid] = useState(true);
   const [emailErrorMessage, setEmailErrorMessage] = useState('');
   const [succesSignup, setSuccesSignup] = useState(false);
@@ -238,6 +239,12 @@ export default function SignUpPage() {
       validationMessage += 'One uppercase letter, ';
       allConditionsMet = false;
     }
+
+    // Check for lowercase letter
+    if (!/[a-z]/.test(password)) {
+      validationMessage += 'One lowercase letter, ';
+      allConditionsMet = false;
+    }
   
     // Check for number
     if (!/[0-9]/.test(password)) {
@@ -266,11 +273,22 @@ export default function SignUpPage() {
     const { name, value } = e.target;
     const isNameField = ['firstName', 'middleName', 'lastName'].includes(name);
 
-    // Update the form data immediately
+    // Update the form data
     setFormData((prevFormData) => ({
       ...prevFormData,
       [name]: value,
     }));
+
+    // Additional check for password confirmation when confirmPassword field is being updated
+    if (name === 'confirmPassword') {
+      if (value !== formData.password) {
+        setConfirmPasswordError(true);
+        setConfirmPasswordHelperText('Passwords do not match');
+      } else {
+        setConfirmPasswordError(false);
+        setConfirmPasswordHelperText('');
+      }
+    }
 
     // Update field errors based on new input
     setFieldErrors((prevFieldErrors) => {
@@ -942,58 +960,57 @@ export default function SignUpPage() {
                             }
                           />
                         </Grid>
-                        <Grid item xs={12} sm={12} md={12}>
-                          <TextField
-                            error={fieldErrors.password || passwordError}
-                            fullWidth
-                            label="Password"
-                            variant="outlined"
-                            type={formData.showPassword ? 'text' : 'password'}
-                            name="password"
-                            value={formData.password}
-                            onChange={handleInputChange}
-                            sx={{ mb: 1 }}
-                            helperText={passwordHelperText}
-                            InputProps={{
-                              endAdornment: (
-                                <InputAdornment position="end">
-                                  <IconButton
-                                    onClick={() => setFormData({ ...formData, showPassword: !formData.showPassword })}
-                                    edge="end"
-                                  >
-                                    <Iconify icon={formData.showPassword ? 'eva:eye-fill' : 'eva:eye-off-fill'} style={{ color: '#D8BFD8' }} />
-                                  </IconButton>
-                                </InputAdornment>
-                              ),
-                            }}
-                          />
-                        </Grid>
-                        <Grid item xs={12} sm={12} md={12}>
-                          <TextField
-                            error={fieldErrors.confirmPassword}
-                            fullWidth
-                            label="Confirm Password"
-                            variant="outlined"
-                            type={formData.showPassword ? 'text' : 'password'}
-                            name="confirmPassword"
-                            value={formData.confirmPassword}
-                            onChange={handleInputChange}
-                            sx={{ mb: 1 }}
-                            helperText={fieldErrors.confirmPassword && 'Passwords do not match'}
-                            InputProps={{
-                              endAdornment: (
-                                <InputAdornment position="end">
-                                  <IconButton
-                                    onClick={() => setFormData({ ...formData, showPassword: !formData.showPassword })}
-                                    edge="end"
-                                  >
-                                    <Iconify icon={formData.showPassword ? 'eva:eye-fill' : 'eva:eye-off-fill'} style={{ color: '#D8BFD8' }} />
-                                  </IconButton>
-                                </InputAdornment>
-                              ),
-                            }}
-                          />
-                        </Grid>
+                          <Grid item xs={12} sm={12} md={12}>
+                            <TextField
+                              error={fieldErrors.password || passwordError}
+                              fullWidth
+                              label="Password"
+                              variant="outlined"
+                              type={formData.showPassword ? 'text' : 'password'}
+                              name="password"
+                              value={formData.password}
+                              onChange={handleInputChange}
+                              sx={{ mb: 1 }}
+                              helperText={passwordHelperText}
+                              InputProps={{
+                                endAdornment: (
+                                  <InputAdornment position="end">
+                                    <IconButton
+                                      onClick={() => setFormData({ ...formData, showPassword: !formData.showPassword })}
+                                      edge="end"
+                                    >
+                                      <Iconify icon={formData.showPassword ? 'eva:eye-fill' : 'eva:eye-off-fill'} style={{ color: '#D8BFD8' }} />
+                                    </IconButton>
+                                  </InputAdornment>
+                                ),
+                              }}
+                            />
+                          </Grid>
+                          <Grid item xs={12} sm={12} md={12}>
+                            <TextField
+                              error={fieldErrors.confirmPassword || confirmPasswordError}
+                              fullWidth
+                              label="Confirm Password"
+                              variant="outlined"
+                              type={formData.showPassword ? 'text' : 'password'}
+                              name="confirmPassword"
+                              value={formData.confirmPassword}
+                              onChange={handleInputChange}
+                              helperText={confirmPasswordHelperText}
+                              InputProps={{
+                                endAdornment: (
+                                  <InputAdornment position="end">
+                                    <IconButton
+                                      onClick={() => setFormData({ ...formData, showPassword: !formData.showPassword })}
+                                      edge="end"
+                                    >
+                                      <Iconify icon={formData.showPassword ? 'eva:eye-fill' : 'eva:eye-off-fill'} style={{ color: '#D8BFD8' }} />
+                                    </IconButton>
+                                  </InputAdornment>
+                                ),
+                              }}
+                            />
+                          </Grid>
                       </Grid>
                     </Box>
                   </Box>
