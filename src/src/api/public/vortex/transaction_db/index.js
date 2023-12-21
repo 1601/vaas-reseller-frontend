@@ -223,7 +223,7 @@ export const updateVortexByRefId = async ({ refId, data }) => {
       return response.json()
     })
     .catch((err) => {
-      throw err
+      throw err 
     })
 }
 
@@ -236,7 +236,7 @@ export const getAllByDateRange = async( startDate, endDate ) => {
 
   const userId = "5f73fde5648d74001786007a" // test userId
 
-  return await fetch(`http://localhost:5000/v1/api/vortex/transactions/all/${userId}/data?startDate=${startDate}&endDate=${endDate}`, {
+  return await fetch(`https://vaas-backend-prototype.glitch.me/v1/api/vortex/transactions/all/${userId}/data?startDate=${startDate}&endDate=${endDate}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
