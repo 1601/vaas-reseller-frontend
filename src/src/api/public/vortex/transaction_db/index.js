@@ -234,7 +234,7 @@ export const getAllByDateRange = async( startDate, endDate ) => {
 
   // const reqBody = data
 
-  const userId = "5f73fde5648d74001786007a" // test userId
+  const userId = "651ba5c7c6808a00c3fd614b" // test userId
 
   return await fetch(`https://vaas-backend-prototype.glitch.me/v1/api/vortex/transactions/all/${userId}/data?startDate=${startDate}&endDate=${endDate}`, {
     method: "GET",
