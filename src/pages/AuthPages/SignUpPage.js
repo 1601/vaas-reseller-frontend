@@ -176,6 +176,8 @@ export default function SignUpPage() {
   const [banners, setBanners] = useState();
   const [initialCurrency, setInitialCurrency] = useState('')
 
+  const passwordValidationRegex = /^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*]).{8,12}$/;
+
   const handleScroll = (e) => {
     const bottom = e.target.scrollHeight - e.target.scrollTop === e.target.clientHeight;
     setIsScrolledToEnd(bottom);
@@ -221,6 +223,45 @@ export default function SignUpPage() {
     return nameRegex.test(name);
   };
 
+  const validatePassword = (password) => {
+    let validationMessage = 'Conditions: ';
+    let allConditionsMet = true;
+
+    // Check for password length
+    if (password.length < 8 || password.length > 12) {
+      validationMessage += 'Password must be 8-12 characters long. ';
+      allConditionsMet = false;
+    }
+  
+    // Check for uppercase letter
+    if (!/[A-Z]/.test(password)) {
+      validationMessage += 'One uppercase letter, ';
+      allConditionsMet = false;
+    }
+  
+    // Check for number
+    if (!/[0-9]/.test(password)) {
+      validationMessage += 'One number, ';
+      allConditionsMet = false;
+    }
+  
+    // Check for special character
+    if (!/[!@#$%^&*]/.test(password)) {
+      validationMessage += 'One special character, ';
+      allConditionsMet = false;
+    }
+  
+    // Remove the last comma and space if not all conditions are met
+    if (!allConditionsMet) {
+      validationMessage = validationMessage.trim().replace(/,$/, '');
+    } else {
+      validationMessage = '';
+    }
+
+    setPasswordError(!allConditionsMet);
+    setPasswordHelperText(validationMessage);
+};
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     const isNameField = ['firstName', 'middleName', 'lastName'].includes(name);
@@ -245,6 +286,10 @@ export default function SignUpPage() {
 
       return newErrorState;
     });
+
+    if (name === 'password') {
+      validatePassword(value);
+    }
   };
 
   const validateMobileNumber = (country, number) => {
@@ -908,7 +953,7 @@ export default function SignUpPage() {
                             value={formData.password}
                             onChange={handleInputChange}
                             sx={{ mb: 1 }}
-                            helperText={passwordHelperText || (fieldErrors.password && 'Password is required')}
+                            helperText={passwordHelperText}
                             InputProps={{
                               endAdornment: (
                                 <InputAdornment position="end">
