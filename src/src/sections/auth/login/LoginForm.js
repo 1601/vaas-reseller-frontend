@@ -22,6 +22,8 @@ import {
 import { LoadingButton } from '@mui/lab';
 // components
 import Iconify from '../../../components/iconify';
+import defaultProductConfig from './default_product_config.json';
+
 // ----------------------------------------------------------------------
 
 const ls = new SecureLS({ encodingType: 'aes' });
@@ -121,6 +123,13 @@ export default function LoginForm() {
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(response.data));
 
+      const dealerId = response.data._id; 
+      const products = await fetchDealerProductConfig(dealerId, 'TNTPH'); 
+      if (products.length === 0) {
+        await createDefaultProductConfig(dealerId);
+      }
+
+
       navigate(role === 'admin' ? '/dashboard/admin' : '/dashboard/app', { replace: true });
       setLoggingIn(false);
     } catch (error) {
@@ -133,6 +142,64 @@ export default function LoginForm() {
       setLoggingIn(false);
     }
   };
+
+  // Fetch Dealer Product Config Function
+  async function fetchDealerProductConfig(dealerId, brandName) {
+    console.log(`fetchDealerProductConfig called with dealerId: ${dealerId}, brandName: ${brandName}`);
+    try {
+      console.log(`Attempting to fetch product configuration for dealer ${dealerId}, brand ${brandName}`);
+      const response = await axios.get(
+        `${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/product-config/${dealerId}/${brandName}/public`
+      );
+
+      if (response.data && response.data.products) {
+        console.log(
+          `Fetched product configuration for dealer ${dealerId}, brand ${brandName}:`,
+          response.data.products
+        );
+        return response.data.products; // Contains the products with enabled status and current price
+      }
+
+      console.log(`No products found for dealer ${dealerId}, brand ${brandName}`);
+      return []; // Return an empty array if the response does not contain products
+    } catch (error) {
+      console.error(`Error fetching product configuration for dealer ${dealerId}, brand ${brandName}:`, error);
+      return []; // Return an empty array in case of an error
+    }
+  }
+
+  const createDefaultProductConfig = async (dealerId) => {
+    try {
+        console.log(`Sending request to create default product config for dealerId: ${dealerId}`);
+        console.log(`Config to be sent:`, defaultProductConfig);
+        console.log(`Endpoint: ${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/product-config/create`);
+
+        const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/product-config/create`, {
+            dealerId,
+            config: defaultProductConfig
+        });
+
+        console.log('Response received:', response);
+        console.log('Default product config created successfully');
+    } catch (error) {
+        console.error('Error creating default product config:', error);
+        if (error.response) {
+            // The request was made and the server responded with a status code
+            // that falls out of the range of 2xx
+            console.error('Error Data:', error.response.data);
+            console.error('Error Status:', error.response.status);
+            console.error('Error Headers:', error.response.headers);
+        } else if (error.request) {
+            // The request was made but no response was received
+            console.error('Error Request:', error.request);
+        } else {
+            // Something happened in setting up the request that triggered an Error
+            console.error('Error Message:', error.message);
+        }
+        console.error('Config:', error.config);
+    }
+};
+
 
   const verifyRole = async (token) => {
     try {

@@ -603,67 +603,62 @@ const VortexTopUp = () => {
 
     function navigateInternationalLoad(name, data, previous = {}) {
       console.log(`navigateInternationalLoad called with name: ${name}, data:`, data);
-
+    
       if (name === 'brandProducts') {
         const brandName = data[0]?.brand;
         console.log(`Brand name in navigateInternationalLoad: ${brandName}`);
-
+    
         // Mapping existing product data to prepare for update
         const products = data.map((product) => ({
           ...product,
-          name: product.enabled ? product.name : `${product.name} (Not Available)`, // Append (Not Available) for products where enabled is false
+          name: product.name, // Keep the original name
           price: product.pricing.price,
-          isAvailable: !!product.enabled, // Coerce `enabled` to a boolean
+          isAvailable: product.enabled, // Use the original 'enabled' status
         }));
-
+    
         console.log(`Preparing to update product details for brand: ${brandName}`, products);
-
+    
         updateProductDetailsForAllDealers(brandName, products);
-
+    
         if (decryptedUserId) {
           console.log(`DecryptedUserId available: ${decryptedUserId}`);
-
+    
           fetchDealerProductConfig(decryptedUserId, brandName).then((dealerProductConfig) => {
             console.log(`Dealer Product Config:`, dealerProductConfig);
-
+    
             const updatedProducts = products.map((product) => {
-              // Find the dealer config for the product without the "(Not Available)" text
               const fetchedProduct = dealerProductConfig.find(
-                (p) => p.name === product.name.replace(' (Not Available)', '')
+                (p) => p.name === product.name
               );
-
-              console.log(`fetched Product:`, fetchedProduct);
-
-              // If the fetchedProduct is null or undefined, it means it wasn't found in the dealer config
+    
+              // If no product-config found, default isAvailable to true
               if (!fetchedProduct) {
                 return {
                   ...product,
-                  isAvailable: false, // Set availability to false if product not found in dealer config
+                  isAvailable: true, // Default to true if no specific config is found
                 };
               }
-
-              // If the fetchedProduct is found but the enabled flag is false, keep the name appended
-              const name = fetchedProduct.enabled ? fetchedProduct.name : `${fetchedProduct.name} (Not Available)`;
-
+    
+              // If the fetchedProduct is found, use its enabled status
               return {
                 ...product,
-                name,
-                price: fetchedProduct.currentPrice, // Use the current price from the fetched product
-                isAvailable: fetchedProduct.enabled, // Set availability based on the fetched product
+                name: fetchedProduct.enabled ? product.name : `${product.name} (Not Available)`,
+                price: fetchedProduct.currentPrice,
+                isAvailable: fetchedProduct.enabled,
               };
             });
-
+    
             // Sort the updated products so that unavailable products are at the bottom
             const sortedProducts = updatedProducts.sort((a, b) => {
               if (!a.isAvailable && b.isAvailable) {
-                return 1; // Move 'a' towards the end
+                return 1;
               }
               if (a.isAvailable && !b.isAvailable) {
-                return -1; // Move 'a' towards the beginning
+                return -1;
               }
-              return 0; // Keep the original order
+              return 0;
             });
-
+    
             setNavigation({
               name,
               data: sortedProducts,
@@ -673,9 +668,25 @@ const VortexTopUp = () => {
               },
             });
           });
+        } else {
+          // If decryptedUserId is not available, default all products to available
+          const defaultAvailableProducts = products.map((product) => ({
+            ...product,
+            isAvailable: true,
+          }));
+    
+          setNavigation({
+            name,
+            data: defaultAvailableProducts,
+            previous: {
+              ...navigation.previous,
+              ...previous,
+            },
+          });
         }
       }
     }
+    
 
     function filterProductBySelectedBrand(state, brand) {
       const products = [];

@@ -1,0 +1,2358 @@
+{
+        "topupToggles": {
+          "SMARTPH": {
+            "enabled": true,
+            "details": null,
+            "products": [
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56dbd"
+                },
+                "name": "Smart UCT 30",
+                "defaultPrice": 30,
+                "markUp": 0,
+                "currentPrice": 30
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56dbe"
+                },
+                "name": "NEW TRIPLE DATA VIDEO+ 149",
+                "defaultPrice": 149,
+                "markUp": 0,
+                "currentPrice": 149
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56dbf"
+                },
+                "name": "PROMO LOAD P500 + FREE P55",
+                "defaultPrice": 500,
+                "markUp": 0,
+                "currentPrice": 500
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56dc0"
+                },
+                "name": "GIGA STORIES 299",
+                "defaultPrice": 299,
+                "markUp": 0,
+                "currentPrice": 299
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56dc1"
+                },
+                "name": "GIGA STORIES 99",
+                "defaultPrice": 99,
+                "markUp": 0,
+                "currentPrice": 99
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56dc2"
+                },
+                "name": "MAGIC DATA 399",
+                "defaultPrice": 399,
+                "markUp": 0,
+                "currentPrice": 399
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56dc3"
+                },
+                "name": "MAGIC DATA 599",
+                "defaultPrice": 599,
+                "markUp": 0,
+                "currentPrice": 599
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56dc4"
+                },
+                "name": "PROMO LOAD P200 + FREE P22",
+                "defaultPrice": 200,
+                "markUp": 0,
+                "currentPrice": 200
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56dc5"
+                },
+                "name": "MAGIC DATA 99",
+                "defaultPrice": 99,
+                "markUp": 0,
+                "currentPrice": 99
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56dc6"
+                },
+                "name": "MAGIC DATA+ 149",
+                "defaultPrice": 149,
+                "markUp": 0,
+                "currentPrice": 149
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56dc7"
+                },
+                "name": "POWER ALL 499",
+                "defaultPrice": 499,
+                "markUp": 0,
+                "currentPrice": 499
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56dc8"
+                },
+                "name": "ALL DATA 299",
+                "defaultPrice": 299,
+                "markUp": 0,
+                "currentPrice": 299
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56dc9"
+                },
+                "name": "MAGIC DATA+ 499",
+                "defaultPrice": 499,
+                "markUp": 0,
+                "currentPrice": 499
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56dca"
+                },
+                "name": "MAGIC DATA+ 749",
+                "defaultPrice": 749,
+                "markUp": 0,
+                "currentPrice": 749
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56dcb"
+                },
+                "name": "NEW GIGA STORIES 349 with MORE DATA",
+                "defaultPrice": 349,
+                "markUp": 0,
+                "currentPrice": 349
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56dcc"
+                },
+                "name": "NEW GIGA STORIES 60 with MORE DATA",
+                "defaultPrice": 60,
+                "markUp": 0,
+                "currentPrice": 60
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56dcd"
+                },
+                "name": "NEW GIGA VIDEO 120 with MORE DATA",
+                "defaultPrice": 120,
+                "markUp": 0,
+                "currentPrice": 120
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56dce"
+                },
+                "name": "ALLNET 30",
+                "defaultPrice": 30,
+                "markUp": 0,
+                "currentPrice": 30
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56dcf"
+                },
+                "name": "NEW GIGA VIDEO 60 with MORE DATA",
+                "defaultPrice": 60,
+                "markUp": 0,
+                "currentPrice": 60
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56dd0"
+                },
+                "name": "UNLI FAM 1299",
+                "defaultPrice": 1299,
+                "markUp": 0,
+                "currentPrice": 1299
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56dd1"
+                },
+                "name": "NEW DOUBLE GIGA STORIES+ 65 NOW w/ UNLI ALLNET CALLS & TEXTS",
+                "defaultPrice": 65,
+                "markUp": 0,
+                "currentPrice": 65
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56dd2"
+                },
+                "name": "NEW TRIPLE DATA STORIES+ 149",
+                "defaultPrice": 149,
+                "markUp": 0,
+                "currentPrice": 149
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56dd3"
+                },
+                "name": "NEW POWER ALL 149",
+                "defaultPrice": 149,
+                "markUp": 0,
+                "currentPrice": 149
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56dd4"
+                },
+                "name": "GIGA POWER 149",
+                "defaultPrice": 149,
+                "markUp": 0,
+                "currentPrice": 149
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56dd5"
+                },
+                "name": "GIGA POWER 75",
+                "defaultPrice": 75,
+                "markUp": 0,
+                "currentPrice": 75
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56dd6"
+                },
+                "name": "UNLI FAM 1299",
+                "defaultPrice": 1299,
+                "markUp": 0,
+                "currentPrice": 1299
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56dd7"
+                },
+                "name": "MAGIC DATA 199",
+                "defaultPrice": 199,
+                "markUp": 0,
+                "currentPrice": 199
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56dd8"
+                },
+                "name": "SMART Magic Data 499",
+                "defaultPrice": 499,
+                "markUp": 0,
+                "currentPrice": 499
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56dd9"
+                },
+                "name": "MAGIC DATA+ 299",
+                "defaultPrice": 299,
+                "markUp": 0,
+                "currentPrice": 299
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56dda"
+                },
+                "name": "MAGIC DATA+ 649",
+                "defaultPrice": 649,
+                "markUp": 0,
+                "currentPrice": 649
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56ddb"
+                },
+                "name": "NEW GIGA STORIES 120 with MORE DATA",
+                "defaultPrice": 120,
+                "markUp": 0,
+                "currentPrice": 120
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56ddc"
+                },
+                "name": "NEW GIGA VIDEO 349 with MORE DATA",
+                "defaultPrice": 348,
+                "markUp": 0,
+                "currentPrice": 348
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56ddd"
+                },
+                "name": "NEW POWER ALL 99",
+                "defaultPrice": 99,
+                "markUp": 0,
+                "currentPrice": 99
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56dde"
+                },
+                "name": "REGULAR LOAD 60",
+                "defaultPrice": 60,
+                "markUp": 0,
+                "currentPrice": 60
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56ddf"
+                },
+                "name": "REGULAR LOAD 100",
+                "defaultPrice": 100,
+                "markUp": 0,
+                "currentPrice": 100
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56de0"
+                },
+                "name": "REGULAR LOAD 115",
+                "defaultPrice": 115,
+                "markUp": 0,
+                "currentPrice": 115
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56de1"
+                },
+                "name": "REGULAR LOAD 200",
+                "defaultPrice": 200,
+                "markUp": 0,
+                "currentPrice": 200
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56de2"
+                },
+                "name": "REGULAR LOAD 300",
+                "defaultPrice": 300,
+                "markUp": 0,
+                "currentPrice": 300
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56de3"
+                },
+                "name": "REGULAR LOAD 500",
+                "defaultPrice": 500,
+                "markUp": 0,
+                "currentPrice": 500
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56de4"
+                },
+                "name": "REGULAR LOAD 1000",
+                "defaultPrice": 1000,
+                "markUp": 0,
+                "currentPrice": 1000
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56de5"
+                },
+                "name": "GIGA VIDEO 50",
+                "defaultPrice": 50,
+                "markUp": 0,
+                "currentPrice": 50
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56de6"
+                },
+                "name": "GIGA VIDEO 99",
+                "defaultPrice": 99,
+                "markUp": 0,
+                "currentPrice": 99
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56de7"
+                },
+                "name": "GIGA VIDEO 299",
+                "defaultPrice": 299,
+                "markUp": 0,
+                "currentPrice": 299
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56de8"
+                },
+                "name": "CTC 10",
+                "defaultPrice": 10,
+                "markUp": 0,
+                "currentPrice": 10
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56de9"
+                },
+                "name": "CTC 20",
+                "defaultPrice": 20,
+                "markUp": 0,
+                "currentPrice": 20
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56dea"
+                },
+                "name": "CTC 30",
+                "defaultPrice": 30,
+                "markUp": 0,
+                "currentPrice": 30
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56deb"
+                },
+                "name": "GIGA VIDEO PLUS 75",
+                "defaultPrice": 75,
+                "markUp": 0,
+                "currentPrice": 75
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56dec"
+                },
+                "name": "SSP 20",
+                "defaultPrice": 20,
+                "markUp": 0,
+                "currentPrice": 20
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56ded"
+                },
+                "name": "TU 150",
+                "defaultPrice": 150,
+                "markUp": 0,
+                "currentPrice": 150
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56dee"
+                },
+                "name": "GIGA VIDEO PLUS 149",
+                "defaultPrice": 149,
+                "markUp": 0,
+                "currentPrice": 149
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56def"
+                },
+                "name": "GIGA VIDEO PLUS 449",
+                "defaultPrice": 449,
+                "markUp": 0,
+                "currentPrice": 449
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56df0"
+                },
+                "name": "REGULAR LOAD 75",
+                "defaultPrice": 75,
+                "markUp": 0,
+                "currentPrice": 75
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56df1"
+                },
+                "name": "REGULAR LOAD 150",
+                "defaultPrice": 150,
+                "markUp": 0,
+                "currentPrice": 150
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56df2"
+                },
+                "name": "REGULAR LOAD 5",
+                "defaultPrice": 5,
+                "markUp": 0,
+                "currentPrice": 5
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56df3"
+                },
+                "name": "Smart SULITIDD 50",
+                "defaultPrice": 50,
+                "markUp": 0,
+                "currentPrice": 50
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56df4"
+                },
+                "name": "REGULAR LOAD 10",
+                "defaultPrice": 10,
+                "markUp": 0,
+                "currentPrice": 10
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56df5"
+                },
+                "name": "Sulit IDD 100",
+                "defaultPrice": 100,
+                "markUp": 0,
+                "currentPrice": 100
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56df6"
+                },
+                "name": "REGULAR LOAD 15",
+                "defaultPrice": 15,
+                "markUp": 0,
+                "currentPrice": 15
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56df7"
+                },
+                "name": "Sulit IDD 500",
+                "defaultPrice": 500,
+                "markUp": 0,
+                "currentPrice": 500
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56df8"
+                },
+                "name": "REGULAR LOAD 20",
+                "defaultPrice": 20,
+                "markUp": 0,
+                "currentPrice": 20
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56df9"
+                },
+                "name": "REGULAR LOAD 30",
+                "defaultPrice": 30,
+                "markUp": 0,
+                "currentPrice": 30
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56dfa"
+                },
+                "name": "SSP 99",
+                "defaultPrice": 99,
+                "markUp": 0,
+                "currentPrice": 99
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56dfb"
+                },
+                "name": "CTC 50",
+                "defaultPrice": 50,
+                "markUp": 0,
+                "currentPrice": 50
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56dfc"
+                },
+                "name": "FLEXIBLE LOAD",
+                "defaultPrice": 0,
+                "markUp": 0,
+                "currentPrice": 0
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56dfd"
+                },
+                "name": "TU 50",
+                "defaultPrice": 50,
+                "markUp": 0,
+                "currentPrice": 50
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56dfe"
+                },
+                "name": "TU 200",
+                "defaultPrice": 200,
+                "markUp": 0,
+                "currentPrice": 200
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56dff"
+                },
+                "name": "AOS 20",
+                "defaultPrice": 20,
+                "markUp": 0,
+                "currentPrice": 20
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56e00"
+                },
+                "name": "AOS 30",
+                "defaultPrice": 30,
+                "markUp": 0,
+                "currentPrice": 30
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56e01"
+                },
+                "name": "AOS 50",
+                "defaultPrice": 50,
+                "markUp": 0,
+                "currentPrice": 50
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56e02"
+                },
+                "name": "AOS 99",
+                "defaultPrice": 99,
+                "markUp": 0,
+                "currentPrice": 99
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56e03"
+                },
+                "name": "Smart UCT 50",
+                "defaultPrice": 50,
+                "markUp": 0,
+                "currentPrice": 50
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56e04"
+                },
+                "name": "Smart UCT 100",
+                "defaultPrice": 100,
+                "markUp": 0,
+                "currentPrice": 100
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "65700f0a661e5e2be8b56e05"
+                },
+                "name": "ALLNET 299",
+                "defaultPrice": 299,
+                "markUp": 0,
+                "currentPrice": 299
+              }
+            ]
+          },
+          "TNTPH": {
+            "enabled": true,
+            "details": null,
+            "products": [
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657009b73ad4cd33406e495b"
+                },
+                "name": "UTP PLUS 20",
+                "defaultPrice": 20,
+                "markUp": 0,
+                "currentPrice": 20
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657009b73ad4cd33406e495c"
+                },
+                "name": "UTP PLUS 30",
+                "defaultPrice": 30,
+                "markUp": 0,
+                "currentPrice": 30
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657009b73ad4cd33406e495d"
+                },
+                "name": "PANTAWID 20",
+                "defaultPrice": 20,
+                "markUp": 0,
+                "currentPrice": 20
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657009b73ad4cd33406e495e"
+                },
+                "name": "PANTAWID 15",
+                "defaultPrice": 15,
+                "markUp": 0,
+                "currentPrice": 15
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657009b73ad4cd33406e495f"
+                },
+                "name": "FB+ML 20",
+                "defaultPrice": 20,
+                "markUp": 0,
+                "currentPrice": 20
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657009b73ad4cd33406e4960"
+                },
+                "name": "PANTAWID 10",
+                "defaultPrice": 10,
+                "markUp": 0,
+                "currentPrice": 10
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657009b73ad4cd33406e4961"
+                },
+                "name": "SURFSAYA 199",
+                "defaultPrice": 199,
+                "markUp": 0,
+                "currentPrice": 199
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657009b73ad4cd33406e4962"
+                },
+                "name": "TNT PANALO 150",
+                "defaultPrice": 150,
+                "markUp": 0,
+                "currentPrice": 150
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657009b73ad4cd33406e4963"
+                },
+                "name": "SURFSAYA 20",
+                "defaultPrice": 20,
+                "markUp": 0,
+                "currentPrice": 20
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657009b73ad4cd33406e4964"
+                },
+                "name": "SURFSAYA 30",
+                "defaultPrice": 30,
+                "markUp": 0,
+                "currentPrice": 30
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657009b73ad4cd33406e4965"
+                },
+                "name": "TNT UTP 15",
+                "defaultPrice": 15,
+                "markUp": 3,
+                "currentPrice": 18
+              }
+            ]
+          },
+          "PLDTPH": {
+            "enabled": true,
+            "details": null,
+            "products": [
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b4c211dc2afc06f971"
+                },
+                "name": "FAMLOAD VIDEO 599",
+                "defaultPrice": 599,
+                "markUp": 0,
+                "currentPrice": 599
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b4c211dc2afc06f972"
+                },
+                "name": "FAMLOAD VIDEO 999",
+                "defaultPrice": 999,
+                "markUp": 0,
+                "currentPrice": 999
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b4c211dc2afc06f973"
+                },
+                "name": "FAMLOAD VIDEO 1499",
+                "defaultPrice": 1499,
+                "markUp": 0,
+                "currentPrice": 1499
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b4c211dc2afc06f974"
+                },
+                "name": "FAMLOAD VIDEO PLUS 199",
+                "defaultPrice": 199,
+                "markUp": 0,
+                "currentPrice": 199
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b4c211dc2afc06f975"
+                },
+                "name": "FAMLOAD VIDEO PLUS 599",
+                "defaultPrice": 599,
+                "markUp": 0,
+                "currentPrice": 599
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b4c211dc2afc06f976"
+                },
+                "name": "FAMLOAD VIDEO PLUS 999",
+                "defaultPrice": 999,
+                "markUp": 0,
+                "currentPrice": 999
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b4c211dc2afc06f977"
+                },
+                "name": "FAMLOAD VIDEO PLUS 1499",
+                "defaultPrice": 1499,
+                "markUp": 0,
+                "currentPrice": 1499
+              }
+            ]
+          },
+          "GLOBE": {
+            "enabled": true,
+            "details": null,
+            "products": [
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f97e"
+                },
+                "name": "GoSurf2499",
+                "defaultPrice": 2499,
+                "markUp": 0,
+                "currentPrice": 2499
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f97f"
+                },
+                "name": "Globe 450",
+                "defaultPrice": 450,
+                "markUp": 0,
+                "currentPrice": 450
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f980"
+                },
+                "name": "GOSURF299",
+                "defaultPrice": 299,
+                "markUp": 0,
+                "currentPrice": 299
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f981"
+                },
+                "name": "GOSURF599",
+                "defaultPrice": 599,
+                "markUp": 0,
+                "currentPrice": 599
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f982"
+                },
+                "name": "Globe 500",
+                "defaultPrice": 500,
+                "markUp": 0,
+                "currentPrice": 500
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f983"
+                },
+                "name": "GOSURF999",
+                "defaultPrice": 999,
+                "markUp": 0,
+                "currentPrice": 999
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f984"
+                },
+                "name": "Globe Unli 180",
+                "defaultPrice": 180,
+                "markUp": 0,
+                "currentPrice": 180
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f985"
+                },
+                "name": "Globe 550",
+                "defaultPrice": 550,
+                "markUp": 0,
+                "currentPrice": 550
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f986"
+                },
+                "name": "GOUNLI20",
+                "defaultPrice": 20,
+                "markUp": 0,
+                "currentPrice": 20
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f987"
+                },
+                "name": "Globe 600",
+                "defaultPrice": 600,
+                "markUp": 0,
+                "currentPrice": 600
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f988"
+                },
+                "name": "Globe Unli 350",
+                "defaultPrice": 350,
+                "markUp": 0,
+                "currentPrice": 350
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f989"
+                },
+                "name": "Globe Unli 95",
+                "defaultPrice": 95,
+                "markUp": 0,
+                "currentPrice": 95
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f98a"
+                },
+                "name": "Globe Go Work 299",
+                "defaultPrice": 299,
+                "markUp": 0,
+                "currentPrice": 299
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f98b"
+                },
+                "name": "Globe 700",
+                "defaultPrice": 700,
+                "markUp": 0,
+                "currentPrice": 700
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f98c"
+                },
+                "name": "Globe Go Work 50",
+                "defaultPrice": 50,
+                "markUp": 0,
+                "currentPrice": 50
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f98d"
+                },
+                "name": "Globe Go Work 599",
+                "defaultPrice": 599,
+                "markUp": 0,
+                "currentPrice": 599
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f98e"
+                },
+                "name": "Globe 900",
+                "defaultPrice": 900,
+                "markUp": 0,
+                "currentPrice": 900
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f98f"
+                },
+                "name": "Globe Go Work+ 199",
+                "defaultPrice": 199,
+                "markUp": 0,
+                "currentPrice": 199
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f990"
+                },
+                "name": "Globe Go Work+ 599",
+                "defaultPrice": 599,
+                "markUp": 0,
+                "currentPrice": 599
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f991"
+                },
+                "name": "Globe Go Work+ 799",
+                "defaultPrice": 799,
+                "markUp": 0,
+                "currentPrice": 799
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f992"
+                },
+                "name": "Globe Go Work+ 99",
+                "defaultPrice": 99,
+                "markUp": 0,
+                "currentPrice": 99
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f993"
+                },
+                "name": "Globe HOMESURF1499 (Globe At Home Prepaid WiFi Only)",
+                "defaultPrice": 1499,
+                "markUp": 0,
+                "currentPrice": 1499
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f994"
+                },
+                "name": "Globe HOMESURF15 (Globe At Home Prepaid WiFi Only)",
+                "defaultPrice": 15,
+                "markUp": 0,
+                "currentPrice": 15
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f995"
+                },
+                "name": "Globe HOMESURF199",
+                "defaultPrice": 199,
+                "markUp": 0,
+                "currentPrice": 199
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f996"
+                },
+                "name": "Globe HOMESURF599",
+                "defaultPrice": 599,
+                "markUp": 0,
+                "currentPrice": 599
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f997"
+                },
+                "name": "Globe HOMESURF999",
+                "defaultPrice": 999,
+                "markUp": 0,
+                "currentPrice": 999
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f998"
+                },
+                "name": "Globe MyBiz 1499",
+                "defaultPrice": 1499,
+                "markUp": 0,
+                "currentPrice": 1499
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f999"
+                },
+                "name": "Globe MyBiz 199",
+                "defaultPrice": 199,
+                "markUp": 0,
+                "currentPrice": 199
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f99a"
+                },
+                "name": "Globe My School Surf 1499",
+                "defaultPrice": 1499,
+                "markUp": 0,
+                "currentPrice": 1499
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f99b"
+                },
+                "name": "Globe My School Surf 15",
+                "defaultPrice": 15,
+                "markUp": 0,
+                "currentPrice": 15
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f99c"
+                },
+                "name": "Globe My School Surf 199",
+                "defaultPrice": 199,
+                "markUp": 0,
+                "currentPrice": 199
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f99d"
+                },
+                "name": "Globe My School Surf 599",
+                "defaultPrice": 599,
+                "markUp": 0,
+                "currentPrice": 599
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f99e"
+                },
+                "name": "Globe My School Surf 799",
+                "defaultPrice": 799,
+                "markUp": 0,
+                "currentPrice": 799
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f99f"
+                },
+                "name": "Globe My School Surf 999",
+                "defaultPrice": 999,
+                "markUp": 0,
+                "currentPrice": 999
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f9a0"
+                },
+                "name": "Globe 10",
+                "defaultPrice": 10,
+                "markUp": 0,
+                "currentPrice": 10
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f9a1"
+                },
+                "name": "Globe EasySURF 99 (TM)",
+                "defaultPrice": 99,
+                "markUp": 0,
+                "currentPrice": 99
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f9a2"
+                },
+                "name": "Globe 100",
+                "defaultPrice": 100,
+                "markUp": 0,
+                "currentPrice": 100
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f9a3"
+                },
+                "name": "Globe Go Extra 50",
+                "defaultPrice": 50,
+                "markUp": 0,
+                "currentPrice": 50
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f9a4"
+                },
+                "name": "Globe Go Extra 90",
+                "defaultPrice": 90,
+                "markUp": 0,
+                "currentPrice": 90
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f9a5"
+                },
+                "name": "Globe 1000",
+                "defaultPrice": 1000,
+                "markUp": 0,
+                "currentPrice": 1000
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f9a6"
+                },
+                "name": "Globe Go Call IDD 199",
+                "defaultPrice": 199,
+                "markUp": 0,
+                "currentPrice": 199
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f9a7"
+                },
+                "name": "Globe Go Call IDD 30",
+                "defaultPrice": 30,
+                "markUp": 0,
+                "currentPrice": 30
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f9a8"
+                },
+                "name": "Globe 110",
+                "defaultPrice": 110,
+                "markUp": 0,
+                "currentPrice": 110
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f9a9"
+                },
+                "name": "Globe Go Call IDD 50",
+                "defaultPrice": 50,
+                "markUp": 0,
+                "currentPrice": 50
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f9aa"
+                },
+                "name": "Globe 115",
+                "defaultPrice": 115,
+                "markUp": 0,
+                "currentPrice": 115
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f9ab"
+                },
+                "name": "Globe Go Call IDD 99",
+                "defaultPrice": 99,
+                "markUp": 0,
+                "currentPrice": 99
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f9ac"
+                },
+                "name": "Globe GO 120",
+                "defaultPrice": 120,
+                "markUp": 0,
+                "currentPrice": 120
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f9ad"
+                },
+                "name": "Globe 120",
+                "defaultPrice": 120,
+                "markUp": 0,
+                "currentPrice": 120
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f9ae"
+                },
+                "name": "Globe UnliText with 11GB data",
+                "defaultPrice": 140,
+                "markUp": 0,
+                "currentPrice": 140
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f9af"
+                },
+                "name": "Globe Go250",
+                "defaultPrice": 250,
+                "markUp": 0,
+                "currentPrice": 250
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f9b0"
+                },
+                "name": "Globe 130",
+                "defaultPrice": 130,
+                "markUp": 0,
+                "currentPrice": 130
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f9b1"
+                },
+                "name": "Globe Go400",
+                "defaultPrice": 400,
+                "markUp": 0,
+                "currentPrice": 400
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f9b2"
+                },
+                "name": "Globe Go59",
+                "defaultPrice": 59,
+                "markUp": 0,
+                "currentPrice": 59
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f9b3"
+                },
+                "name": "Globe 140",
+                "defaultPrice": 140,
+                "markUp": 0,
+                "currentPrice": 140
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f9b4"
+                },
+                "name": "Globe Go75",
+                "defaultPrice": 75,
+                "markUp": 0,
+                "currentPrice": 75
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f9b5"
+                },
+                "name": "Globe GO 90",
+                "defaultPrice": 90,
+                "markUp": 0,
+                "currentPrice": 90
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f9b6"
+                },
+                "name": "Globe 150",
+                "defaultPrice": 150,
+                "markUp": 0,
+                "currentPrice": 150
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f9b7"
+                },
+                "name": "Globe Go Plus 129",
+                "defaultPrice": 129,
+                "markUp": 0,
+                "currentPrice": 129
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f9b8"
+                },
+                "name": "Globe Go Plus 149",
+                "defaultPrice": 149,
+                "markUp": 0,
+                "currentPrice": 149
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f9b9"
+                },
+                "name": "Globe 200",
+                "defaultPrice": 200,
+                "markUp": 0,
+                "currentPrice": 200
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f9ba"
+                },
+                "name": "Globe Go Plus 250",
+                "defaultPrice": 250,
+                "markUp": 0,
+                "currentPrice": 250
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f9bb"
+                },
+                "name": "Globe Go Plus 400",
+                "defaultPrice": 400,
+                "markUp": 0,
+                "currentPrice": 400
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f9bc"
+                },
+                "name": "Globe 250",
+                "defaultPrice": 250,
+                "markUp": 0,
+                "currentPrice": 250
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f9bd"
+                },
+                "name": "Globe Go Plus 99",
+                "defaultPrice": 99,
+                "markUp": 0,
+                "currentPrice": 99
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f9be"
+                },
+                "name": "GoSAKTO120",
+                "defaultPrice": 120,
+                "markUp": 0,
+                "currentPrice": 120
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f9bf"
+                },
+                "name": "Globe 300",
+                "defaultPrice": 300,
+                "markUp": 0,
+                "currentPrice": 300
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f9c0"
+                },
+                "name": "GoSAKTO140",
+                "defaultPrice": 140,
+                "markUp": 0,
+                "currentPrice": 140
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f9c1"
+                },
+                "name": "GoSAKTO70",
+                "defaultPrice": 70,
+                "markUp": 0,
+                "currentPrice": 70
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f9c2"
+                },
+                "name": "Globe 350",
+                "defaultPrice": 350,
+                "markUp": 0,
+                "currentPrice": 350
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f9c3"
+                },
+                "name": "GoSAKTO90",
+                "defaultPrice": 90,
+                "markUp": 0,
+                "currentPrice": 90
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f9c4"
+                },
+                "name": "GOSURF1299",
+                "defaultPrice": 1299,
+                "markUp": 0,
+                "currentPrice": 1299
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f9c5"
+                },
+                "name": "Globe 400",
+                "defaultPrice": 400,
+                "markUp": 0,
+                "currentPrice": 400
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050b7c211dc2afc06f9c6"
+                },
+                "name": "GoSurf1999",
+                "defaultPrice": 1999,
+                "markUp": 0,
+                "currentPrice": 1999
+              }
+            ]
+          },
+          "MERALCO": {
+            "enabled": true,
+            "details": null,
+            "products": [
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050bbc211dc2afc06f9cd"
+                },
+                "name": "Meralco Load 110",
+                "defaultPrice": 110,
+                "markUp": 0,
+                "currentPrice": 110
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050bbc211dc2afc06f9ce"
+                },
+                "name": "Meralco Load 220",
+                "defaultPrice": 220,
+                "markUp": 0,
+                "currentPrice": 220
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050bbc211dc2afc06f9cf"
+                },
+                "name": "Meralco Load 330",
+                "defaultPrice": 330,
+                "markUp": 0,
+                "currentPrice": 330
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050bbc211dc2afc06f9d0"
+                },
+                "name": "Meralco Load 550",
+                "defaultPrice": 550,
+                "markUp": 0,
+                "currentPrice": 550
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050bbc211dc2afc06f9d1"
+                },
+                "name": "Meralco Load 1110",
+                "defaultPrice": 1100,
+                "markUp": 0,
+                "currentPrice": 1100
+              }
+            ]
+          },
+          "CIGNAL": {
+            "enabled": true,
+            "details": null,
+            "products": [
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050bdc211dc2afc06f9d8"
+                },
+                "name": "SACHET LOAD 75",
+                "defaultPrice": 75,
+                "markUp": 0,
+                "currentPrice": 75
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050bdc211dc2afc06f9d9"
+                },
+                "name": "Cignal Plan 175",
+                "defaultPrice": 175,
+                "markUp": 0,
+                "currentPrice": 175
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050bdc211dc2afc06f9da"
+                },
+                "name": "Cignal Plan 200",
+                "defaultPrice": 200,
+                "markUp": 0,
+                "currentPrice": 200
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050bdc211dc2afc06f9db"
+                },
+                "name": "Cignal Plan 300",
+                "defaultPrice": 300,
+                "markUp": 0,
+                "currentPrice": 300
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050bdc211dc2afc06f9dc"
+                },
+                "name": "Cignal Plan 450",
+                "defaultPrice": 450,
+                "markUp": 0,
+                "currentPrice": 450
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050bdc211dc2afc06f9dd"
+                },
+                "name": "Cignal Plan 500",
+                "defaultPrice": 500,
+                "markUp": 0,
+                "currentPrice": 500
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050bdc211dc2afc06f9de"
+                },
+                "name": "Cignal Plan 600",
+                "defaultPrice": 600,
+                "markUp": 0,
+                "currentPrice": 600
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050bdc211dc2afc06f9df"
+                },
+                "name": "Cignal Plan 800",
+                "defaultPrice": 800,
+                "markUp": 0,
+                "currentPrice": 800
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050bdc211dc2afc06f9e0"
+                },
+                "name": "Cignal Plan 1000",
+                "defaultPrice": 1000,
+                "markUp": 0,
+                "currentPrice": 1000
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050bdc211dc2afc06f9e1"
+                },
+                "name": "Cignal Cignal PPV 150 Movie 1",
+                "defaultPrice": 150,
+                "markUp": 0,
+                "currentPrice": 150
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050bdc211dc2afc06f9e2"
+                },
+                "name": "Cignal Cignal PPV 150 Sports",
+                "defaultPrice": 150,
+                "markUp": 0,
+                "currentPrice": 150
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050bdc211dc2afc06f9e3"
+                },
+                "name": "SATLITE 99",
+                "defaultPrice": 99,
+                "markUp": 0,
+                "currentPrice": 99
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050bdc211dc2afc06f9e4"
+                },
+                "name": "SATLITE 199",
+                "defaultPrice": 199,
+                "markUp": 0,
+                "currentPrice": 199
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050bdc211dc2afc06f9e5"
+                },
+                "name": "SATLITE 299",
+                "defaultPrice": 299,
+                "markUp": 0,
+                "currentPrice": 299
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050bdc211dc2afc06f9e6"
+                },
+                "name": "SATLITE 499",
+                "defaultPrice": 499,
+                "markUp": 0,
+                "currentPrice": 499
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050bdc211dc2afc06f9e7"
+                },
+                "name": "Cignal PPV 100",
+                "defaultPrice": 100,
+                "markUp": 0,
+                "currentPrice": 100
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050bdc211dc2afc06f9e8"
+                },
+                "name": "SATLITE LOAD 10",
+                "defaultPrice": 10,
+                "markUp": 0,
+                "currentPrice": 10
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050bdc211dc2afc06f9e9"
+                },
+                "name": "SATLITE 49",
+                "defaultPrice": 49,
+                "markUp": 0,
+                "currentPrice": 49
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050bdc211dc2afc06f9ea"
+                },
+                "name": "Cignal PPV30",
+                "defaultPrice": 30,
+                "markUp": 0,
+                "currentPrice": 30
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050bdc211dc2afc06f9eb"
+                },
+                "name": "Cignal PPV 200 Sports",
+                "defaultPrice": 200,
+                "markUp": 0,
+                "currentPrice": 200
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050bdc211dc2afc06f9ec"
+                },
+                "name": "Cignal Pay Per View P750",
+                "defaultPrice": 750,
+                "markUp": 0,
+                "currentPrice": 750
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050bdc211dc2afc06f9ed"
+                },
+                "name": "Cignal PPV950",
+                "defaultPrice": 950,
+                "markUp": 0,
+                "currentPrice": 950
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050bdc211dc2afc06f9ee"
+                },
+                "name": "Cignal Cignal PPV 30 Movie 2",
+                "defaultPrice": 30,
+                "markUp": 0,
+                "currentPrice": 30
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050bdc211dc2afc06f9ef"
+                },
+                "name": "Cignal Cignal PPV 50 Movie 1",
+                "defaultPrice": 50,
+                "markUp": 0,
+                "currentPrice": 50
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050bdc211dc2afc06f9f0"
+                },
+                "name": "Cignal Cignal PPV 50 Movie 2",
+                "defaultPrice": 50,
+                "markUp": 0,
+                "currentPrice": 50
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050bdc211dc2afc06f9f1"
+                },
+                "name": "Cignal Cignal PPV 50 Movie 3",
+                "defaultPrice": 50,
+                "markUp": 0,
+                "currentPrice": 50
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050bdc211dc2afc06f9f2"
+                },
+                "name": "Cignal Cignal PPV 150 Movie 2",
+                "defaultPrice": 150,
+                "markUp": 0,
+                "currentPrice": 150
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050bdc211dc2afc06f9f3"
+                },
+                "name": "Cignal Cignal PPV 150 Movie 3",
+                "defaultPrice": 150,
+                "markUp": 0,
+                "currentPrice": 150
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050bdc211dc2afc06f9f4"
+                },
+                "name": "Cignal Cignal PPV 150 Movie 4",
+                "defaultPrice": 150,
+                "markUp": 0,
+                "currentPrice": 150
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050bdc211dc2afc06f9f5"
+                },
+                "name": "Cignal PPV 200 Movie 1",
+                "defaultPrice": 200,
+                "markUp": 0,
+                "currentPrice": 200
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050bdc211dc2afc06f9f6"
+                },
+                "name": "Cignal PPV 200 Movie 2",
+                "defaultPrice": 200,
+                "markUp": 0,
+                "currentPrice": 200
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050bdc211dc2afc06f9f7"
+                },
+                "name": "Cignal 3 Months PRP Plan 300",
+                "defaultPrice": 900,
+                "markUp": 0,
+                "currentPrice": 900
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050bdc211dc2afc06f9f8"
+                },
+                "name": "Cignal 6 Months PRP Plan 300",
+                "defaultPrice": 1800,
+                "markUp": 0,
+                "currentPrice": 1800
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050bdc211dc2afc06f9f9"
+                },
+                "name": "Cignal 12 Months PRP Plan 300",
+                "defaultPrice": 3600,
+                "markUp": 0,
+                "currentPrice": 3600
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050bdc211dc2afc06f9fa"
+                },
+                "name": "Cignal PRP Plan 120",
+                "defaultPrice": 120,
+                "markUp": 0,
+                "currentPrice": 120
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050bdc211dc2afc06f9fb"
+                },
+                "name": "Cignal PRP Plan 175",
+                "defaultPrice": 175,
+                "markUp": 0,
+                "currentPrice": 175
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050bdc211dc2afc06f9fc"
+                },
+                "name": "Cignal PRP Plan 200",
+                "defaultPrice": 200,
+                "markUp": 0,
+                "currentPrice": 200
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050bdc211dc2afc06f9fd"
+                },
+                "name": "Cignal PRP Plan 300",
+                "defaultPrice": 300,
+                "markUp": 0,
+                "currentPrice": 300
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050bdc211dc2afc06f9fe"
+                },
+                "name": "Cignal PRP Plan 450",
+                "defaultPrice": 450,
+                "markUp": 0,
+                "currentPrice": 450
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050bdc211dc2afc06f9ff"
+                },
+                "name": "Cignal PRP Plan 500",
+                "defaultPrice": 500,
+                "markUp": 0,
+                "currentPrice": 500
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050bdc211dc2afc06fa00"
+                },
+                "name": "Cignal PRP Plan 600",
+                "defaultPrice": 600,
+                "markUp": 0,
+                "currentPrice": 600
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050bdc211dc2afc06fa01"
+                },
+                "name": "Cignal PRP Plan 800",
+                "defaultPrice": 800,
+                "markUp": 0,
+                "currentPrice": 800
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050bdc211dc2afc06fa02"
+                },
+                "name": "Cignal PRP Plan 1000",
+                "defaultPrice": 1000,
+                "markUp": 0,
+                "currentPrice": 1000
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050bdc211dc2afc06fa03"
+                },
+                "name": "SATLITE LOAD 15",
+                "defaultPrice": 15,
+                "markUp": 0,
+                "currentPrice": 15
+              },
+              {
+                "enabled": true,
+                "_id": {
+                  "$oid": "657050bdc211dc2afc06fa04"
+                },
+                "name": "SATLITE LOAD 25",
+                "defaultPrice": 25,
+                "markUp": 0,
+                "currentPrice": 25
+              }
+            ]
+          }
+        },
+        "loanToggles": {
+          "ASTERIA Lending Inc": {
+            "": true
+          },
+          "FUNDKO, INC": {
+            "": true
+          },
+          "Green Money Tree Lending Corp": {
+            "": true
+          },
+          "99HELP LENDING CORPORATION": true,
+          "CASH MART ASIA LENDING INC": true,
+          "CREDITBPO TECH INC": true,
+          "Cropital": true,
+          "Global Mobility Services": true,
+          "Lendeez": true,
+          "MOOLALENDING": true,
+          "ROBOCASH FINANCE PHILIPPINES": true,
+          "Radiowealth Finance": true,
+          "YesCredit Financing Inc": true,
+          "Asialink": true,
+          "CASHALO": true,
+          "Easycash lending Company": true,
+          "Finaswide": true,
+          "Pahiram": true
+        },
+        "phoneinternetToggles": {
+          "ABSMOBILE": true,
+          "Bayantel": true,
+          "Digitel Communications": true,
+          "Globelines": true,
+          "GLOBE": true,
+          "PLDT": true,
+          "SMART": true
+        },
+        "insuranceToggles": {
+          "ETERNAL PLANS, INC": {
+            "": true
+          },
+          "LOYOLA PLANS CONSOLIDATED INC": {
+            "": true
+          },
+          "AFP General Insurance": true,
+          "ALLIEDBANKERS INSURANCE CORPORATION": true,
+          "CIBELES INSURANCE CORPORATION": true,
+          "FWD Life Insurance Corporation": true,
+          "FWD Peace": true,
+          "LEX Services": true,
+          "NEW CANAAN INSURANCE AGENCY, INC": true,
+          "Philippine Life Financial Assurance Corporation": true,
+          "AXA Philippines (Charter Ping An)": true,
+          "FUSE LENDING INC": true,
+          "Gloriosa Finance Corp": true,
+          "Paramount Life & General Insurance Corporation": true,
+          "Philamlife": true,
+          "Prudential Life": true,
+          "Standard Insurance": true,
+          "Sun Life of Canada Phils": true,
+          "United Coconut Planters Life Assurance Corporation (COCOLIFE)": true
+        },
+        "paymentToggles": {
+          "BTCEXCHANGE": {
+            "PH": true
+          },
+          "Bux": {
+            "Com Global Limited": true
+          },
+          "BuyBitcoin": {
+            "ph": true
+          },
+          "ASIAPAY PAYMENT TECHNOLOGY CORPORATION": true,
+          "Alipay PH": true
+        },
+        "consumerToggles": {
+          "Global Pinoy Remittance and Services Inc": {
+            "": true
+          },
+          "Wealth Finance Inc": {
+            "": true
+          },
+          "E-PESO": true,
+          "MetisEtrade": true,
+          "Microbnk": true,
+          "Nexus R Forward Finance, Inc": true,
+          "PROXIMITY FUNDING CREDIT COOPERATIVE": true,
+          "Payoneer": true,
+          "TOUCAN": true,
+          "Tapp Commerce": true,
+          "VMoney": true
+        },
+        "electricityToggles": {
+          "ALBAY POWER AND ENERGY CORP": {
+            "(APEC)": true
+          },
+          "ISELCO I": true,
+          "TARELCO I": true,
+          "Angeles Electric Corporation": true,
+          "BENECO": true,
+          "BATELEC2": true,
+          "CASURECO2": true,
+          "CEBEC02": true,
+          "Cotabato Light": true,
+          "DAVAO LIGHT": true,
+          "ISECO": true,
+          "Lima Enerzone Corporation": true,
+          "MERALCO": true,
+          "OEDC": true,
+          "PELCO1": true,
+          "PRESCO": true,
+          "SORECO II": true,
+          "Subic Enerzone": true
+        },
+        "realestateToggles": {
+          "MAGNIFICAT VENTURES CORP": true
+        },
+        "governmentToggles": {
+          "SSS P": {
+            "E": {
+              "S": {
+                "O Fund": true
+              }
+            }
+          },
+          "MARINA": true,
+          "LTOPF": true,
+          "Pag-IBIG Housing Loan": true,
+          "Pag-IBIG MP2 Savings": true,
+          "SSS Contribution": true,
+          "SSS Miscellaneous": true,
+          "NBI": true,
+          "NHA": true,
+          "PAG-IBIG": true
+        },
+        "healthcareToggles": {
+          "Maxicare": true,
+          "Philcare": true
+        },
+        "cableinternetToggles": {
+          "Royal Cable": true,
+          "CIGNAL": true,
+          "CONVERGE": true,
+          "Cablelink": true
+        },
+        "banksToggles": {
+          "Tanay Rural Bank": true,
+          "Equicom Savings": true,
+          "Union Bank Visa Credit": true
+        },
+        "airlinesToggles": {
+          "AirAsia": true,
+          "Cebu Pacific": true
+        },
+        "waterToggles": {
+          "BP Waterworks Inc": {
+            "": true
+          },
+          "BWA": true,
+          "COWD": true,
+          "CLARK WATER CORPORATION": true,
+          "Happy Well PH": true,
+          "LAGUNA WATER": true,
+          "LAGUNA WATER CORPORATION": true,
+          "LARC": true,
+          "Legazpi Water": true,
+          "MAYNILAD WATER SERVICES": true,
+          "Obando Water District": true,
+          "Pili Water District": true,
+          "Plaridel Water District": true,
+          "Primewater": true,
+          "SMWD": true,
+          "TAWAD": true,
+          "Tagum Water District": true
+        },
+        "transportationToggles": {
+          "EASYTRIP RFID": true
+        },
+        "__v": 1
+    
+}
