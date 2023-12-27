@@ -18,6 +18,7 @@ import {
   InputBase,
   AlertTitle,
   Alert,
+  Grid,
 } from "@mui/material"
 import { Form, Formik } from "formik"
 import { Box } from "@mui/system"
@@ -1199,7 +1200,7 @@ const VortexBillsPaymentPage = () => {
                             currency: platformVariables?.currencySymbol,
                           });
                           // Update the activeStep to 3 to show the transaction completed message
-                          setActiveStep(0);
+                          setActiveStep(3);
                         }
                       }, 500);
                       // setIsLoadingTransaction(true)
@@ -1302,16 +1303,88 @@ const VortexBillsPaymentPage = () => {
     )
   }
 
+  const TransactionCompletedForm = ({ setActiveStep, transactionDetails }) => {
+    const handleConfirmClick = () => {
+      setActiveStep(0); // Reset to the first step
+    };
+
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'flex-start',
+          alignItems: 'center',
+          height: '100vh',
+          p: 3,
+          border: '2px dashed grey',
+          borderRadius: '10px',
+          m: 2,
+          maxWidth: 600,
+          mx: 'auto',
+        }}
+      >
+        <Typography variant="h4" textAlign="center" mt={2} mb={4} fontWeight="bold" color="black">
+          TRANSACTION RECEIPT
+        </Typography>
+        <Divider sx={{ my: 2 }} />
+        <Grid container spacing={2}>
+          <Grid item xs={6}>
+            <Typography color="black">Product Name:</Typography>
+          </Grid>
+          <Grid item xs={6} textAlign="right">
+            <Typography color="black">
+              {transactionDetails.productName.replace('Payment for ', '')}
+            </Typography>
+          </Grid>
+          <Grid item xs={6}>
+            <Typography color="black">Price:</Typography>
+          </Grid>
+          <Grid item xs={6} textAlign="right">
+            <Typography color="black">{transactionDetails.price}</Typography>
+          </Grid>
+
+          <Grid item xs={6}>
+            <Typography color="black">Convenience Fee:</Typography>
+          </Grid>
+          <Grid item xs={6} textAlign="right">
+            <Typography color="black">
+              {Number.isFinite(transactionDetails.convenienceFee) ?
+                `${transactionDetails.convenienceFee}` :
+                `0`}
+            </Typography>
+          </Grid>
+
+          <Grid item xs={6}>
+            <Typography color="black">Total Price:</Typography>
+          </Grid>
+          <Grid item xs={6} textAlign="right">
+            <Typography color="black">
+              {`${Number(transactionDetails.totalPrice).toFixed(2)}`}
+            </Typography>
+          </Grid>
+        </Grid>
+        <Box textAlign="center" mt={10}>
+          <Button variant="outlined" color="primary" onClick={handleConfirmClick}>
+            Confirm Transaction
+          </Button>
+        </Box>
+      </Box>
+    );
+  };
+
   function FormRender(step) {
     switch (step) {
       case 0:
-        return <BillsPaymentCategoriesPage />
+        return <BillsPaymentCategoriesPage />;
       case 1:
-        return <BillerDetails />
+        return <BillerDetails />;
       case 2:
-        return <ReviewConfirmationForm />
+        return <ReviewConfirmationForm setActiveStep={setActiveStep} transactionDetails={setTransactionDetails} />;
+      case 3:
+        return <TransactionCompletedForm setActiveStep={setActiveStep} transactionDetails={transactionDetails} />;
       default:
-        return <BillsPaymentCategoriesPage />
+        return <BillsPaymentCategoriesPage />;
     }
   }
 
