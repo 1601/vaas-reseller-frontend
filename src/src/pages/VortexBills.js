@@ -978,6 +978,48 @@ const VortexBillsPaymentPage = () => {
     )
   }
 
+  const createLink = async (amount, description) => {
+    console.log(`Creating link with amount: ${amount} and description: ${description}`);
+    const url = 'https://api.paymongo.com/v1/links';
+  
+    const myHeaders = new Headers();
+    myHeaders.append('Content-Type', 'application/json');
+    myHeaders.append('Authorization', 'Basic c2tfdGVzdF84VWhHVXBBdVZEWVBKU3BHRWVpV250Qm46');
+    console.log(amount, description)
+    console.log(parseInt(parseInt(amount, 10)*100, 10))
+    const raw = JSON.stringify({
+      data: {
+        attributes: {
+          amount,
+          description,
+          remarks: 'remarks test',
+        },
+      },
+    });
+  
+    const requestOptions = {
+      method: 'POST',
+      headers: myHeaders,
+      body: raw,
+      redirect: 'follow',
+    };
+  
+    try {
+      const response = await fetch(url, requestOptions);
+  
+      if (response.ok) {
+        const responseData = await response.json();
+        return responseData.data.attributes.checkout_url;
+      }
+  
+      const textResult = await response.text();
+      return null;
+    } catch (error) {
+      console.error('Error while making the request:', error);
+      return null;
+    }
+  };
+
   const ReviewConfirmationForm = () => {
     const paymentMethodType = ls.get("paymentMethodType")
     const fields = jsonFieldsToArray(billDetails);
@@ -1137,22 +1179,43 @@ const VortexBillsPaymentPage = () => {
                     disabled={isLoadingPrivate}
                     variant="outlined"
                     onClick={async () => {
-                      const url = 'https://pm.link/123123123123123za23/test/DGSwn7b';
-                      const newWindow = window.open(url, '_blank');
-                      const pollTimer = window.setInterval(() => {
-                        if (newWindow.closed) {
-                          window.clearInterval(pollTimer);
+                      const grandTotalFee = (Number.isNaN(parseFloat(convenienceFee)) || convenienceFee == null ? 0 : parseFloat(convenienceFee)) + parseFloat(billDetails?.billAmount || 0);
+                      const url = await createLink(grandTotalFee * 100, `Payment for ${selectedBiller?.name}`);
+                      const paymentWindow = window.open(url, '_blank');
+                      console.log('Link Created: ', createLink);
+                      console.log('Amount: ', grandTotalFee);
+                      console.log('Description: ', `Payment for ${selectedBiller?.name}`);
+                      // 'https://pm.link/123123123123123za23/test/de4YiYw'
+                      // Polling to check if the payment window has been closed
+                      const paymentWindowClosed = setInterval(() => {
+                        if (paymentWindow.closed) {
+                          clearInterval(paymentWindowClosed);
+                          // Once the payment window is closed, set the transaction data
+                          setTransactionDetails({
+                            productName: `Payment for ${selectedBiller?.name}`,
+                            price: billDetails?.billAmount || billDetails?.AmountPaid || billDetails?.amount,
+                            convenienceFee,
+                            totalPrice: grandTotalFee,
+                            currency: platformVariables?.currencySymbol,
+                          });
+                          // Update the activeStep to 3 to show the transaction completed message
                           setActiveStep(0);
                         }
-                      }, 200);
-                        // setIsLoadingPrivate(true)
-                        // await handleVortexCashRequest({
-                        //   docId: transactionDocId,
-                        //   total: grandTotalFee,
-                        // })
-                      }}
+                      }, 500);
+                      // setIsLoadingTransaction(true)
+  
+                      // const sure = window.confirm(`Are you sure you received: ${grandTotalFee} ${platformVariables?.currencySymbol}?`)
+  
+                      // if (sure)
+                      //   await handleVortexCashRequest({
+                      //     docId: transactionDocId,
+                      //     total: grandTotalFee
+                      //   })
+                      // else
+                      //   setIsLoadingTransaction(false)
+                    }}
                     >
-                      {isLoadingPrivate ? "Please wait..." : "RECEIVE PAYMENT"}
+                      {isLoadingPrivate ? "Please wait..." : "PAY"}
                     </Button>
                   </Stack>
 
