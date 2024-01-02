@@ -126,6 +126,8 @@ const VortexBillsPaymentPage = () => {
 
   const [isLoading, setisLoading] = useState(false)
 
+  const [paymentStatus, setPaymentStatus] = useState(null);
+
   // Getting store env and user status
   // const { getUser } = useLoggedUser()
 
@@ -807,12 +809,20 @@ const VortexBillsPaymentPage = () => {
 
               // console.log("Grand total", platformVariables.billsCurrencyToPeso)
 
-              const collectedBillDetails = trimObjValues(data)
-              console.log("billDetails", collectedBillDetails)
+              const collectedBillDetails = {
+                ...trimObjValues(data),
+                name: `${data.first_name} ${data.last_name}`, // Concatenate first name and last name
+                accountNumber: data.account_number, // Capture the account number
+              };
+          
+              // Log the collected bill details including Name and Account Number
+              console.log("billDetails with Name and Account Number:", collectedBillDetails);
               
-              setBillDetails(collectedBillDetails)
-
-              stepForward()
+              // Update the billDetails state with the collected data
+              setBillDetails(collectedBillDetails);
+          
+              // Proceed to the next step
+              stepForward();
 
               // const reqInputPayload = {
               //   billerId: selectedBiller.id,
@@ -1053,6 +1063,10 @@ const VortexBillsPaymentPage = () => {
       }
     }
 
+    const simulateTransactionFailure = () => {
+      setActiveStep(4);
+    };
+
     return (
       <Box>
         
@@ -1283,7 +1297,18 @@ const VortexBillsPaymentPage = () => {
 
                   {/* </AccordionDetails>
                   </Accordion> */}
+
+                <Box textAlign="center" mt={1.5}>
+                  <Button
+                    variant="outlined"
+                    color="secondary"
+                    onClick={simulateTransactionFailure}
+                    style={{ marginLeft: '10px', marginTop: '10px' }}
+                  >
+                    Test Fail
+                  </Button>
                 </Box>
+              </Box>
               </>
             )}
             <Backdrop
@@ -1303,6 +1328,8 @@ const VortexBillsPaymentPage = () => {
     const handleConfirmClick = () => {
       setActiveStep(0); 
     };
+
+    const fullName = `${billDetails.first_name} ${billDetails.last_name}`;
 
     return (
       <Box
@@ -1325,6 +1352,18 @@ const VortexBillsPaymentPage = () => {
         </Typography>
         <Divider sx={{ my: 2 }} />
         <Grid container spacing={2}>
+          <Grid item xs={6}>
+            <Typography color="black">Name:</Typography>
+          </Grid>
+          <Grid item xs={6} textAlign="right">
+            <Typography color="black">{fullName}</Typography>
+          </Grid>
+          <Grid item xs={6}>
+            <Typography color="black">Account Number:</Typography>
+          </Grid>
+          <Grid item xs={6} textAlign="right">
+            <Typography color="black">{billDetails.account_number}</Typography>
+          </Grid>
           <Grid item xs={6}>
             <Typography color="black">Product Name:</Typography>
           </Grid>
@@ -1369,6 +1408,38 @@ const VortexBillsPaymentPage = () => {
     );
   };
 
+  const TransactionFailedForm = ({ setActiveStep }) => {
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
+          p: 3,
+          border: '2px dashed grey',
+          borderRadius: '10px',
+          m: 2,
+          maxWidth: 600,
+          mx: 'auto',
+        }}
+      >
+        <Typography variant="h5" textAlign="center" mt={2} mb={4} fontWeight="bold" color="black">
+          Transaction was not completed
+        </Typography>
+        <Box textAlign="center" mt={3}>
+          <Button variant="outlined" color="primary" onClick={() => setActiveStep(2)} sx={{ mr: 2 }}>
+            Try Again
+          </Button>
+          <Button variant="outlined" color="secondary" onClick={() => setActiveStep(0)}>
+            Home
+          </Button>
+        </Box>
+      </Box>
+    );
+  };
+  
   function FormRender(step) {
     switch (step) {
       case 0:
@@ -1376,13 +1447,15 @@ const VortexBillsPaymentPage = () => {
       case 1:
         return <BillerDetails />;
       case 2:
-        return <ReviewConfirmationForm setActiveStep={setActiveStep} transactionDetails={setTransactionDetails} />;
+        return <ReviewConfirmationForm setActiveStep={setActiveStep} setBillDetails={setBillDetails} transactionDetails={setTransactionDetails} />;
       case 3:
-        return <TransactionCompletedForm setActiveStep={setActiveStep} transactionDetails={transactionDetails} />;
+        return <TransactionCompletedForm setActiveStep={setActiveStep} transactionDetails={transactionDetails} billDetails={billDetails} />;
+      case 4:
+        return <TransactionFailedForm setActiveStep={setActiveStep} />;
       default:
         return <BillsPaymentCategoriesPage />;
     }
-  }
+  }  
 
   return (
     <>
