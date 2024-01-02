@@ -336,15 +336,12 @@ const VortexBillsPaymentPage = () => {
   
     // Check if the hostname contains 'pldt-vaas-frontend'
     if (hostname.includes('pldt-vaas-frontend') || hostname.includes('localhost')) {
-      // Assuming the storeUrl is the first segment of the pathname
       storeUrl = pathname.split('/')[1];
     } else {
       const parts = hostname.split('.');
       if (parts.length >= 3) {
-        // storeUrl is the subdomain
         storeUrl = parts[0];
       } else {
-        // Assuming the storeUrl is the first segment of the pathname
         storeUrl = pathname.split('/')[1];
       }
     }
@@ -1199,7 +1196,6 @@ const VortexBillsPaymentPage = () => {
                             totalPrice: grandTotalFee,
                             currency: platformVariables?.currencySymbol,
                           });
-                          // Update the activeStep to 3 to show the transaction completed message
                           setActiveStep(3);
                         }
                       }, 500);
@@ -1303,9 +1299,9 @@ const VortexBillsPaymentPage = () => {
     )
   }
 
-  const TransactionCompletedForm = ({ setActiveStep, transactionDetails }) => {
+  const TransactionCompletedForm = ({ setActiveStep, transactionDetails, billDetails }) => {
     const handleConfirmClick = () => {
-      setActiveStep(0); // Reset to the first step
+      setActiveStep(0); 
     };
 
     return (
