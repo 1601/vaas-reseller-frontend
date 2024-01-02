@@ -3,6 +3,10 @@ import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import SecureLS from 'secure-ls';
 import { Box, Button, Divider, Stack, Grid, TextField, Toolbar, Typography, InputBase } from '@mui/material';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
 import PhoneIphoneIcon from '@mui/icons-material/PhoneIphone';
 // import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 // import { navigate } from "gatsby"
@@ -284,6 +288,126 @@ const VortexTopUp = () => {
   // }, [])
 
   const [topupToggles, setTopupToggles] = useState({});
+  const [isDialogOpen, setDialogOpen] = useState(false);
+
+  
+
+  let dialogResolve; // This will hold the resolve function of the promise
+
+ 
+
+  const handleOpenDialog = () => {
+    return new Promise((resolve) => {
+      dialogResolve = resolve; // Store the resolve function
+      setDialogOpen(true);
+      // No need to reassign handleDialogClose
+    });
+  };
+
+  const handleDialogClose = (result, detailsSubmitted) => {
+    setDialogOpen(false);
+    if (dialogResolve) {
+      dialogResolve(result);
+    }
+    // setUserDetailShown(detailsSubmitted); // Update this line
+  };
+
+  const UserDetailsDialog = ({ open, onUserDetailsSubmit }) => {
+    const [userDetails, setUserDetails] = useState({
+      phoneNumber: '',
+      email: '',
+      firstName: '',
+      lastName: '',
+    });
+  
+    const [isValid, setIsValid] = useState(false);
+  
+    useEffect(() => {
+      const { phoneNumber, email } = userDetails;
+      setIsValid(phoneNumber.trim() !== '' || email.trim() !== '');
+    }, [userDetails]);
+  
+    const handleChange = (prop) => (event) => {
+      setUserDetails({ ...userDetails, [prop]: event.target.value });
+    };
+  
+    const handleSubmit = () => {
+      if (isValid) {
+        onUserDetailsSubmit(userDetails);
+        // handleDialogClose({ userDetails, skipped: false }, true); // Pass true to indicate details were submitted
+      }
+    };
+  
+    const handleSkip = () => {
+      onUserDetailsSubmit(userDetails);
+      handleDialogClose({ userDetails: {}, skipped: true }, false); // Pass false to indicate details were skipped
+    };
+  
+    return (
+      <Dialog open={open} onClose={handleSkip} aria-labelledby="form-dialog-title">
+        <DialogTitle id="form-dialog-title">Enter Your Details</DialogTitle>
+        <DialogContent>
+          <Typography variant="body2">
+            To follow up on the transaction, please provide at least one contact detail.
+          </Typography>
+          <TextField
+            autoFocus
+            margin="dense"
+            id="phone"
+            label="Phone Number"
+            type="tel"
+            fullWidth
+            value={userDetails.phoneNumber}
+            onChange={handleChange('phoneNumber')}
+          />
+          <TextField
+            margin="dense"
+            id="email"
+            label="Email Address"
+            type="email"
+            fullWidth
+            value={userDetails.email}
+            onChange={handleChange('email')}
+          />
+          <Grid container spacing={2}>
+            <Grid item xs={6}>
+              <TextField
+                margin="dense"
+                id="firstName"
+                label="First Name"
+                type="text"
+                fullWidth
+                value={userDetails.firstName}
+                onChange={handleChange('firstName')}
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <TextField
+                margin="dense"
+                id="lastName"
+                label="Last Name"
+                type="text"
+                fullWidth
+                value={userDetails.lastName}
+                onChange={handleChange('lastName')}
+              />
+            </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleSkip} color="primary">
+            Skip
+          </Button>
+          <div style={{ flex: '1 0 0' }} /> {/* This will push the Submit button to the right */}
+          <Button onClick={handleSubmit} color="primary" disabled={!isValid}>
+            Submit
+          </Button>
+        </DialogActions>
+      </Dialog>
+    );
+  };
+  
+  
 
   useEffect(() => {
     const fetchTopupToggles = async () => {
@@ -1130,6 +1254,30 @@ const VortexTopUp = () => {
         setExpanded(isExpanded ? 'panel2' : 'panel1');
       }
     };
+    const handleUserDetailsSubmit = async (userDetails) => {
+      console.log('User Details Submitted: ', userDetails);
+      // Logic to open the URL
+      const url = await createLink(grandTotalFee * 100, selectedProduct.name);
+      if (url) {
+        const paymentWindow = window.open(url, '_blank');
+         // Polling to check if the payment window has been closed
+         const paymentWindowClosed = setInterval(() => {
+          if (paymentWindow.closed) {
+            clearInterval(paymentWindowClosed);
+            // Once the payment window is closed, set the transaction data
+            setTransactionData({
+              productName: selectedProduct.name,
+              price: selectedProduct.price,
+              convenienceFee,
+              totalPrice: grandTotalFee,
+              currency: platformVariables?.currencySymbol,
+            });
+            // Update the activeStep to 3 to show the transaction completed message
+            setActiveStep(3);
+          }
+        }, 500);
+      }
+    };
 
     return (
       <Box>
@@ -1270,43 +1418,41 @@ const VortexTopUp = () => {
                   </Typography>
                 </Stack>
                 <Box height={20} />
+                {/* <UserDetailsDialog open={isDialogOpen} handleDialogClose={handleDialogClose} /> */}
+                <UserDetailsDialog open={isDialogOpen} onUserDetailsSubmit={handleUserDetailsSubmit} />
                 <Button
                   disabled={isLoadingTransaction}
                   variant="outlined"
                   onClick={async () => {
-                    const url = await createLink(grandTotalFee * 100, selectedProduct.name);
-                    const paymentWindow = window.open(url, '_blank');
-                    console.log('Link Created: ', createLink);
-                    console.log('Amount: ', grandTotalFee);
-                    console.log('Description: ', selectedProduct.name);
-                    // 'https://pm.link/123123123123123za23/test/de4YiYw'
-                    // Polling to check if the payment window has been closed
-                    const paymentWindowClosed = setInterval(() => {
-                      if (paymentWindow.closed) {
-                        clearInterval(paymentWindowClosed);
-                        // Once the payment window is closed, set the transaction data
-                        setTransactionData({
-                          productName: selectedProduct.name,
-                          price: selectedProduct.price,
-                          convenienceFee,
-                          totalPrice: grandTotalFee,
-                          currency: platformVariables?.currencySymbol,
-                        });
-                        // Update the activeStep to 3 to show the transaction completed message
-                        setActiveStep(3);
-                      }
-                    }, 500);
-                    // setIsLoadingTransaction(true)
-
-                    // const sure = window.confirm(`Are you sure you received: ${grandTotalFee} ${platformVariables?.currencySymbol}?`)
-
-                    // if (sure)
-                    //   await handleVortexCashRequest({
-                    //     docId: transactionDocId,
-                    //     total: grandTotalFee
-                    //   })
-                    // else
-                    //   setIsLoadingTransaction(false)
+                    const userDetailsDialog = await handleOpenDialog();
+                    console.log('User Details Dialog: ', userDetailsDialog);
+                    // if(isUserDetailShown) {
+                    //   console.log('User Details Dialog: ', userDetailsDialog);	
+                    //   const url = await createLink(grandTotalFee * 100, selectedProduct.name);
+                    //   const paymentWindow = window.open(url, '_blank');
+                    //   console.log('Link Created: ', createLink);
+                    //   console.log('Amount: ', grandTotalFee);
+                    //   console.log('Description: ', selectedProduct.name);
+                      
+                    //   // Polling to check if the payment window has been closed
+                    //   const paymentWindowClosed = setInterval(() => {
+                    //     if (paymentWindow.closed) {
+                    //       clearInterval(paymentWindowClosed);
+                    //       // Once the payment window is closed, set the transaction data
+                    //       setTransactionData({
+                    //         productName: selectedProduct.name,
+                    //         price: selectedProduct.price,
+                    //         convenienceFee,
+                    //         totalPrice: grandTotalFee,
+                    //         currency: platformVariables?.currencySymbol,
+                    //       });
+                    //       // Update the activeStep to 3 to show the transaction completed message
+                    //       setActiveStep(3);
+                    //     }
+                    //   }, 500);
+                    // }
+                    
+                   
                   }}
                 >
                   {isLoadingTransaction ? 'PLEASE WAIT . . . TRANSACTION IN PROGRESS . . ' : 'PAY'}
