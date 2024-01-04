@@ -38,8 +38,8 @@ const TopUpConfig = () => {
         .then((response) => {
           console.log('Response data:', response.data);
           const sortedProducts = (response.data.products || [])
-            .map((p) => p._doc) // Map to _doc if your data is nested within it
-            .sort((a, b) => a.defaultPrice - b.defaultPrice); // Ensure the products are sorted
+            .map((p) => p._doc) 
+            .sort((a, b) => a.defaultPrice - b.defaultPrice); 
           setProductConfigs(sortedProducts);
 
           sortedProducts.forEach((product) => {
@@ -58,7 +58,6 @@ const TopUpConfig = () => {
   };
 
   const handleToggle = (configId, enabled) => {
-    // Update local state
     const updatedConfigs = productConfigs.map((config) => {
       if (config._id === configId) {
         return { ...config, enabled };
@@ -67,7 +66,6 @@ const TopUpConfig = () => {
     });
     setProductConfigs(updatedConfigs);
 
-    // Prepare data for the API request
     const updateData = {
       enabled,
     };
@@ -108,13 +106,11 @@ const TopUpConfig = () => {
       const newCurrentPrice = calculateCurrentPrice(config.defaultPrice, newMarkUp);
 
       if (newMarkUp !== undefined && !Number.isNaN(newMarkUp) && newMarkUp > 0) {
-        // Prepare data for the API request
         const updateData = {
           markUp: newMarkUp,
-          currentPrice: newCurrentPrice, // Include currentPrice in the update
+          currentPrice: newCurrentPrice, 
         };
 
-        // Send update to backend for a specific product
         if (token) {
           axios
             .put(
@@ -128,7 +124,6 @@ const TopUpConfig = () => {
             )
             .then((response) => {
               console.log('Markup and current price updated successfully:', response.data);
-              // Update local state after successful backend update
               setProductConfigs((prevConfigs) =>
                 prevConfigs.map((config, index) => {
                   if (index === configIndex) {
@@ -164,7 +159,7 @@ const TopUpConfig = () => {
               <TableRow>
                 <TableCell>Product</TableCell>
                 <TableCell align="right">Default Price</TableCell>
-                <TableCell align="right">Mark-Up</TableCell>
+                <TableCell align="right">Mark-Up | ₱</TableCell>
                 <TableCell align="right">Apply</TableCell>
                 <TableCell align="right">Current Price</TableCell>
                 <TableCell align="center">Toggle</TableCell>
@@ -172,7 +167,6 @@ const TopUpConfig = () => {
             </TableHead>
             <TableBody>
               {productConfigs.map((config) => {
-                // Calculate the current price based on default price and markup
                 const calculatedCurrentPrice = calculateCurrentPrice(
                   config.defaultPrice,
                   markupInputValues[config._id] || config.markUp
@@ -181,7 +175,7 @@ const TopUpConfig = () => {
                 return (
                   <TableRow key={config._id}>
                     <TableCell>{config.name}</TableCell>
-                    <TableCell align="right">{config.defaultPrice}</TableCell>
+                    <TableCell align="right">₱ {config.defaultPrice}</TableCell>
                     <TableCell align="right">
                       <TextField
                         variant="outlined"
@@ -197,7 +191,7 @@ const TopUpConfig = () => {
                         Apply
                       </Button>
                     </TableCell>
-                    <TableCell align="right">{calculatedCurrentPrice}</TableCell>
+                    <TableCell align="right">₱ {calculatedCurrentPrice}</TableCell>
                     <TableCell align="center">
                       <Switch checked={config.enabled} onChange={() => handleToggle(config._id, !config.enabled)} />
                     </TableCell>
