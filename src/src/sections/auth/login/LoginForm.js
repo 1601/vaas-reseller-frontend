@@ -104,12 +104,19 @@ export default function LoginForm() {
         password,
       });
 
-      const { token, username, _id, role, email: userEmail, isActive } = response.data;
+      const { token, role } = response.data;
 
       if (rememberMe) {
         ls.set('rememberMeEmail', email);
         ls.set('rememberMePassword', password);
         ls.set('rememberMe', 'true');
+      }
+
+      if (role === 'admin') {
+        setError('Admins must login to their respective CRM');
+        setDialogOpen(true);
+        setLoggingIn(false);
+        return;
       }
 
       const verifiedRole = await verifyRole(token);
