@@ -8,6 +8,7 @@ import BlogPage from './pages/BlogPage';
 import CustomerPage from './pages/DealerPages/CustomerPage';
 import UserPage from './pages/UserPage';
 import LoginPage from './pages/AuthPages/LoginPage';
+import LoginPageAdmin from './pages/AuthPages/LoginPageAdmin';
 import SignUpPage from './pages/AuthPages/SignUpPage';
 import Page404 from './pages/Page404';
 import ProductsPage from './pages/ProductsPage';
@@ -182,6 +183,10 @@ export default function Router() {
           ],
         },
       ],
+    },
+    {
+      path: 'admin',
+      element: isLoggedIn && role === 'admin' ? <Navigate to="/dashboard/admin" /> : <LoginPageAdmin />,
     },
     {
       path: '/dashboard/admin',
