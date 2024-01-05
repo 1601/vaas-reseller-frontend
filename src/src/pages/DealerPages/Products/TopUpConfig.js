@@ -38,8 +38,8 @@ const TopUpConfig = () => {
         .then((response) => {
           console.log('Response data:', response.data);
           const sortedProducts = (response.data.products || [])
-            .map((p) => p._doc) 
-            .sort((a, b) => a.defaultPrice - b.defaultPrice); 
+            .map((p) => p._doc)
+            .sort((a, b) => a.defaultPrice - b.defaultPrice);
           setProductConfigs(sortedProducts);
 
           sortedProducts.forEach((product) => {
@@ -91,52 +91,53 @@ const TopUpConfig = () => {
     }
   };
 
-  const handleMarkUpChange = (configId, event) => {
+  const handleMarkUpChange = (configId, newValue) => {
+    const valueToSet = newValue === '' ? '0' : newValue;
+
     setMarkupInputValues((prevValues) => ({
       ...prevValues,
-      [configId]: event.target.value,
+      [configId]: valueToSet,
     }));
   };
 
   const handleApplyDiscount = (configId) => {
-    const newMarkUp = markupInputValues[configId];
+    const newMarkUp = markupInputValues[configId] !== undefined ? markupInputValues[configId] : '0';
     const configIndex = productConfigs.findIndex((config) => config._id === configId);
+
     if (configIndex !== -1) {
       const config = productConfigs[configIndex];
       const newCurrentPrice = calculateCurrentPrice(config.defaultPrice, newMarkUp);
 
-      if (newMarkUp !== undefined && !Number.isNaN(newMarkUp) && newMarkUp > 0) {
-        const updateData = {
-          markUp: newMarkUp,
-          currentPrice: newCurrentPrice, 
-        };
+      const updateData = {
+        markUp: newMarkUp,
+        currentPrice: newCurrentPrice,
+      };
 
-        if (token) {
-          axios
-            .put(
-              `${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/product-config/${userId}/${productName}/${configId}`,
-              updateData,
-              {
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                },
-              }
-            )
-            .then((response) => {
-              console.log('Markup and current price updated successfully:', response.data);
-              setProductConfigs((prevConfigs) =>
-                prevConfigs.map((config, index) => {
-                  if (index === configIndex) {
-                    return { ...config, markUp: newMarkUp, currentPrice: newCurrentPrice };
-                  }
-                  return config;
-                })
-              );
-            })
-            .catch((error) => {
-              console.error('Error updating markup and current price:', error);
-            });
-        }
+      if (token) {
+        axios
+          .put(
+            `${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/product-config/${userId}/${productName}/${configId}`,
+            updateData,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          )
+          .then((response) => {
+            console.log('Markup and current price updated successfully:', response.data);
+            setProductConfigs((prevConfigs) =>
+              prevConfigs.map((config, index) => {
+                if (index === configIndex) {
+                  return { ...config, markUp: newMarkUp, currentPrice: newCurrentPrice };
+                }
+                return config;
+              })
+            );
+          })
+          .catch((error) => {
+            console.error('Error updating markup and current price:', error);
+          });
       }
     }
   };
@@ -181,8 +182,19 @@ const TopUpConfig = () => {
                         variant="outlined"
                         size="small"
                         value={markupInputValues[config._id] || config.markUp.toString()}
-                        onChange={(e) => handleMarkUpChange(config._id, e)}
+                        onChange={(e) => {
+                          let inputValue = e.target.value.replace(/[^0-9.]/g, ''); // Remove non-numeric characters
+
+                          if (inputValue.startsWith('0') && inputValue.length > 1) {
+                            inputValue = inputValue.substring(1);
+                          }
+
+                          handleMarkUpChange(config._id, inputValue);
+                        }}
                         placeholder="Enter markup"
+                        InputProps={{
+                          startAdornment: <span style={{ marginRight: '8px' }}>₱</span>,
+                        }}
                         style={{ opacity: config.markUp !== undefined ? 1 : 0.5 }}
                       />
                     </TableCell>
