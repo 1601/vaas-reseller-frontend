@@ -108,6 +108,10 @@ const AdminHome = () => {
     navigate('/dashboard/admin/kycapproval');
   };
 
+  const handleAdminCreation = () => {
+    navigate('/dashboard/admin/create');
+  };
+
   return (
     <div className="flex flex-col mt-4 max-w-screen-lg mx-auto">
       {isLoading ? (
@@ -143,8 +147,11 @@ const AdminHome = () => {
                   >
                     Store Approval
                   </Button>
-                  <Button onClick={handleKYCApproval} variant="outlined" color="primary">
+                  <Button onClick={handleKYCApproval} variant="outlined" color="primary" style={{ marginRight: '8px' }}>
                     KYC Approval
+                  </Button>
+                  <Button onClick={handleAdminCreation} variant="outlined" color="primary">
+                    Admin Creation
                   </Button>
                 </Card>
               </Card>

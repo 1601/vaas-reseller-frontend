@@ -40,6 +40,7 @@ import VortexTopUp from './pages/VortexPages/VortexTopUp';
 import VortexContext from './Vortex/context/VortexContext';
 import AdminDealerAccount from './pages/AdminPages/AdminDealerAccount';
 import AdminBanner from './pages/AdminPages/AdminBanner';
+import AdminCreation from './pages/AdminPages/AdminCreation';
 import TransactionPage from './pages/DealerPages/TransactionPage';
 import { excludedPaths } from './components/subdomain/ExcludedPaths';
 import TopUpProducts from './pages/DealerPages/Products/TopUpProducts';
@@ -199,6 +200,7 @@ export default function Router() {
         { path: 'kycapproval', element: <AdminKYC /> },
         { path: 'kycapprove/:storeId', element: <AdminKYCApproval /> },
         { path: 'banner', element: <AdminBanner /> },
+        { path: 'create', element: <AdminCreation /> },
 
         // Product Config
         // { path: 'products', element: <ProductsPage /> },
