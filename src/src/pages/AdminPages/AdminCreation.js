@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import {
   Dialog,
   DialogTitle,
@@ -9,14 +11,19 @@ import {
   Typography,
   Container,
   Card,
+  IconButton,
+  Snackbar,
 } from '@mui/material';
+import ArrowBack from '@mui/icons-material/ArrowBack';
 
 const AdminCreation = () => {
+  const navigate = useNavigate();
   const [formState, setFormState] = useState({
     email: '',
     phoneNumber: '',
   });
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
 
   const handleInputChange = (e) => {
     setFormState({ ...formState, [e.target.name]: e.target.value });
@@ -26,20 +33,36 @@ const AdminCreation = () => {
     setOpenConfirmDialog(true);
   };
 
-  const handleFinalSubmit = () => {
-    // Implement the logic to add a new admin
-    console.log(formState);
-    // You might want to send this data to your backend server
+  const handleFinalSubmit = async () => {
     setOpenConfirmDialog(false);
+    try {
+      await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/admin/send-invite`, {
+        email: formState.email,
+        phoneNumber: formState.phoneNumber, 
+      });
+      setOpenSnackbar(true); 
+      setTimeout(() => {
+        navigate('/dashboard/admin/home'); 
+      }, 2000);
+    } catch (error) {
+      console.error('Error sending admin invite:', error);
+    }
   };
 
   const handleCloseDialog = () => {
     setOpenConfirmDialog(false);
   };
 
+  const handleBack = () => {
+    navigate('/dashboard/admin/home');
+  };
+
   return (
     <Container maxWidth="sm">
       <Card sx={{ p: 4, mt: 4 }}>
+        <IconButton onClick={handleBack} sx={{ position: 'absolute', top: 8, left: 8 }}>
+          <ArrowBack />
+        </IconButton>
         <Typography variant="h4" gutterBottom sx={{ textAlign: 'center', mb: 4 }}>
           Add New Admin
         </Typography>
@@ -94,6 +117,8 @@ const AdminCreation = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      <Snackbar open={openSnackbar} autoHideDuration={6000} message="Email has been sent." />
     </Container>
   );
 };
