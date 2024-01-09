@@ -18,7 +18,14 @@ const SubdomainHandler = () => {
 
     // Extract storeUrl based on hostname and pathname
     let storeUrl = null;
-    if (hostname.includes('vortex-vaas-frontend')) { // Handling for new URL
+
+    // Check for custom hostname pattern from environment variable
+    const custom1stSubdomain = process.env.REACT_APP_CUSTOM_1ST_SUBDOMAIN;
+    if (custom1stSubdomain && hostname.includes(custom1stSubdomain)) {
+      const pathParts = pathname.split('/');
+      storeUrl = pathParts.length > 1 ? pathParts[1] : null;
+    } else if (hostname.includes('vortex-vaas-frontend')) {
+      // Handling for new URL
       const pathParts = pathname.split('/');
       storeUrl = pathParts.length > 1 ? pathParts[1] : null;
     } else if (hostname.includes('pldt-vaas-frontend')) {
