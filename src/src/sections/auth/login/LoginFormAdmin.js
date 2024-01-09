@@ -15,20 +15,17 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogContentText,
   DialogActions,
+  DialogContentText,
   CircularProgress,
 } from '@mui/material';
-import { LoadingButton } from '@mui/lab';
 // components
 import Iconify from '../../../components/iconify';
 import defaultProductConfig from './default_product_config.json';
 
-// ----------------------------------------------------------------------
-
 const ls = new SecureLS({ encodingType: 'aes' });
 
-export default function LoginForm() {
+export default function LoginFormAdmin() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -41,6 +38,9 @@ export default function LoginForm() {
   const [emailErrorMessage, setEmailErrorMessage] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [loggingIn, setLoggingIn] = useState(false);
+
+  const [otp, setOtp] = useState('');
+  const [openOTPDialog, setOpenOTPDialog] = useState(false);
 
   useEffect(() => {
     try {
@@ -130,7 +130,10 @@ export default function LoginForm() {
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(response.data));
 
-      navigate(role === 'admin' ? '/dashboard/admin' : '/dashboard/app', { replace: true });
+      // Open OTP dialog for further verification
+      setOpenOTPDialog(true);
+      sendOTP(email); // Send OTP to the admin's email
+
       setLoggingIn(false);
     } catch (error) {
       if (error.response && error.response.data) {
@@ -140,6 +143,39 @@ export default function LoginForm() {
       }
       setDialogOpen(true);
       setLoggingIn(false);
+    }
+  };
+
+  const sendOTP = async (email) => {
+    try {
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/admin/otp`, { email });
+      console.log(response.data.message);
+    } catch (error) {
+      console.error('Error sending OTP:', error);
+      // Handle error (e.g., show a message to the user)
+    }
+  };
+
+  const handleOTPSubmit = async (otp) => {
+    console.log('Submitting OTP. Email:', email, 'OTP Code:', otp); // Log the email and OTP
+
+    try {
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/admin/verify-otp`, {
+        email,
+        otpCode: otp,
+      });
+
+      console.log('OTP Verification Response:', response); // Log the response for debugging
+
+      if (response.status === 200) {
+        navigate('/dashboard/admin/home');
+      } else {
+        // Handle incorrect OTP
+        console.error('Incorrect OTP:', response.data.message);
+      }
+    } catch (error) {
+      console.error('Error verifying OTP:', error);
+      console.error('Detailed Error:', JSON.stringify(error, Object.getOwnPropertyNames(error))); // Detailed error logging
     }
   };
 
@@ -250,6 +286,27 @@ export default function LoginForm() {
             </Button>
           </DialogActions>
         )}
+      </Dialog>
+      {/* OTP Dialog */}
+      <Dialog open={openOTPDialog} onClose={() => setOpenOTPDialog(false)}>
+        <DialogTitle>Enter OTP</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            id="otp"
+            label="OTP"
+            type="text"
+            fullWidth
+            variant="outlined"
+            value={otp}
+            onChange={(e) => setOtp(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenOTPDialog(false)}>Cancel</Button>
+          <Button onClick={() => handleOTPSubmit(otp)}>Submit</Button>
+        </DialogActions>
       </Dialog>
     </>
   );
