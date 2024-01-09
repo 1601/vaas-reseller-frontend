@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { v4 as uuidv4 } from 'uuid';
 import {
   Dialog,
   DialogTitle,
@@ -35,10 +36,13 @@ const AdminCreation = () => {
 
   const handleFinalSubmit = async () => {
     setOpenConfirmDialog(false);
+    const uniqueKey = uuidv4();
+
     try {
       await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/admin/send-invite`, {
         email: formState.email,
         phoneNumber: formState.phoneNumber, 
+        uniqueKey,
       });
       setOpenSnackbar(true); 
       setTimeout(() => {

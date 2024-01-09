@@ -12,6 +12,7 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
+  Box,
 } from '@mui/material';
 
 const passwordValidation = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,12}$/;
@@ -32,22 +33,28 @@ const AdminSignUp = () => {
     ipAddress: '',
     country: 'not_applicable',
   });
+  const [isRestricted, setIsRestricted] = useState(false);
 
   useEffect(() => {
     const query = new URLSearchParams(location.search);
     const token = query.get('token');
-    if (token) {
+    if (!token) {
+      setIsRestricted(true);
+      return;
+    }
+    try {
       const decoded = jwtDecode(token);
+      if (!decoded.uniqueKey) {
+        setIsRestricted(true);
+        return;
+      }
       const emailPart = decoded.email.split('@')[0];
-
       setFormState((prevState) => ({
         ...prevState,
         email: decoded.email,
-        mobileNumber: decoded.phoneNumber,
+        mobileNumber: decoded.mobileNumber,
         username: emailPart,
       }));
-
-      // Fetch IP address
       fetch('https://api.ipify.org?format=json')
         .then((res) => res.json())
         .then((data) => {
@@ -57,6 +64,8 @@ const AdminSignUp = () => {
           }));
         })
         .catch((err) => console.error('Error fetching IP:', err));
+    } catch (error) {
+      setIsRestricted(true);
     }
   }, [location.search]);
 
@@ -66,33 +75,42 @@ const AdminSignUp = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    console.log('Form State before submission:', formState);
-
     if (!passwordValidation.test(formState.password)) {
       alert(
         'Password must be 8-12 characters long, contain at least one uppercase letter, one number, and one special character.'
       );
       return;
     }
-
     try {
-      setLoading(true); // Start loading
+      setLoading(true);
       const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/admin/signup`, formState);
       console.log('Response:', response.data);
-      setLoading(false); // Stop loading
-      setShowSuccessDialog(true); // Show success dialog
+      setLoading(false);
+      setShowSuccessDialog(true);
     } catch (error) {
       console.error('Error during admin signup:', error);
-      setLoading(false); // Stop loading in case of error
+      setLoading(false);
     }
   };
 
-  // Function to close the dialog and redirect
   const handleCloseSuccessDialog = () => {
     setShowSuccessDialog(false);
-    navigate('/admin'); // Redirect to admin login
+    navigate('/admin');
   };
+
+  if (isRestricted) {
+    return (
+      <Container maxWidth="sm">
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
+          <Card sx={{ p: 4, mt: 4, textAlign: 'center' }}>
+            <Typography variant="h5" style={{ fontWeight: 'bold', color: 'red', textTransform: 'uppercase' }}>
+              Restricted Access
+            </Typography>
+          </Card>
+        </Box>
+      </Container>
+    );
+  }
 
   return (
     <Container maxWidth="sm">
