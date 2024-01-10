@@ -376,7 +376,7 @@ const VortexTopUp = () => {
           const storeResponse = await axios.get(
             `${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/url/${storeUrl}/user`
           );
-          const dealerId = storeResponse.data._id;
+          const dealerId = storeResponse.data.userId;
           console.log('dealerId: ', dealerId);
 
           // Fetch customerId using email or phone number
@@ -413,7 +413,7 @@ const VortexTopUp = () => {
         const storeResponse = await axios.get(
           `${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/url/${storeUrl}/user`
         );
-        const dealerId = storeResponse.data._id;
+        const dealerId = storeResponse.data.userId;
 
         // Payload with IP address and dealerId
         const payload = {
