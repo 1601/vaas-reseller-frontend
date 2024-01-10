@@ -45,12 +45,28 @@ const LiveStorePage = () => {
   const notFound = queryParams.get('notFound');
   const user = JSON.parse(localStorage.getItem('user'));
 
+  const getSubdomain = () => {
+    const hostname = window.location.hostname;
+    const parts = hostname.split('.');
+    return parts.length >= 3 ? parts[0] : null;
+  };
+
   const getSubdomainOrStoreUrl = () => {
     const hostname = window.location.hostname;
     let subdomain = hostname.split('.')[0];
 
     // Check if the hostname is 'localhost' or another known development environment
     if (['localhost', 'lvh', 'sevenstarjasem', 'pldt-vaas-frontend', 'vortex-vaas-frontend'].includes(subdomain)) {
+      return storeUrl;
+    }
+
+    // Check for specific domain 'sparkledev.online'
+    if (hostname === 'sparkledev.online') {
+      // Check if a subdomain exists
+      if (subdomain) {
+        return `${subdomain}.sparkledev.online`;
+      }
+      // Default to storeUrl if no subdomain is found
       return storeUrl;
     }
 
@@ -86,7 +102,7 @@ const LiveStorePage = () => {
     const subdomainOrStoreUrl = getSubdomainOrStoreUrl();
 
     if (subdomainOrStoreUrl === 'topup' || subdomainOrStoreUrl === 'bills') {
-      const subdomain = getSubdomain(); 
+      const subdomain = getSubdomain();
       setStoreData(subdomain);
     } else if (subdomainOrStoreUrl) {
       const fetchStoreData = async () => {
