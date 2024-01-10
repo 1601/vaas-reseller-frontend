@@ -80,7 +80,7 @@ const createLink = async (amount, description) => {
 
   const myHeaders = new Headers();
   myHeaders.append('Content-Type', 'application/json');
-  myHeaders.append('Authorization', 'Basic c2tfdGVzdF84VWhHVXBBdVZEWVBKU3BHRWVpV250Qm46');
+  myHeaders.append('Authorization', 'Basic c2tfdGVzdF9McEhlRFVzTlJmR3B0WXh3VjZWMmtSTEg6S29yb2tvcm8xNyEhIQ==');
 
   const raw = JSON.stringify({
     data: {
@@ -107,13 +107,17 @@ const createLink = async (amount, description) => {
       return responseData.data.attributes.checkout_url;
     }
 
-    const textResult = await response.text();
+    // Log the error response from the API
+    const errorResponse = await response.json();
+    console.error('API response error:', errorResponse);
     return null;
   } catch (error) {
     console.error('Error while making the request:', error);
     return null;
   }
 };
+
+const initialTransactionDataState = {};
 
 const LoginPage = () => (
   <Box>
@@ -202,7 +206,11 @@ const VortexTopUp = () => {
   const [activeStep, setActiveStep] = useState(0);
   console.log('activeStep:', activeStep);
 
-  const [transactionData, setTransactionData] = useState({});
+  const [transactionData, setTransactionData] = useState(initialTransactionDataState);
+
+  const resetTransactionData = () => {
+    setTransactionData(initialTransactionDataState);
+  };
 
   const [accountOrMobileNumber, setAccountOrMobileNumber] = useState('');
 
@@ -290,11 +298,7 @@ const VortexTopUp = () => {
   const [topupToggles, setTopupToggles] = useState({});
   const [isDialogOpen, setDialogOpen] = useState(false);
 
-  
-
   let dialogResolve; // This will hold the resolve function of the promise
-
- 
 
   const handleOpenDialog = () => {
     return new Promise((resolve) => {
@@ -312,37 +316,120 @@ const VortexTopUp = () => {
     // setUserDetailShown(detailsSubmitted); // Update this line
   };
 
-  const UserDetailsDialog = ({ open, onUserDetailsSubmit }) => {
+  const UserDetailsDialog = ({ open, onUserDetailsSubmit, handleDialogClose }) => {
     const [userDetails, setUserDetails] = useState({
       phoneNumber: '',
       email: '',
       firstName: '',
       lastName: '',
+      ipAddress: '', // New state for IP address
     });
-  
+
     const [isValid, setIsValid] = useState(false);
-  
+
     useEffect(() => {
       const { phoneNumber, email } = userDetails;
       setIsValid(phoneNumber.trim() !== '' || email.trim() !== '');
+      externalIpAddCur(); // Call this function on component mount
     }, [userDetails]);
-  
+
+    // Function to fetch IP address
+    const externalIpAddCur = async () => {
+      try {
+        const ipResult = await axios.get('https://api64.ipify.org?format=text');
+        setUserDetails((prevState) => ({
+          ...prevState,
+          ipAddress: ipResult.data,
+        }));
+      } catch (error) {
+        console.error('Error fetching IP address:', error);
+      }
+    };
+
     const handleChange = (prop) => (event) => {
       setUserDetails({ ...userDetails, [prop]: event.target.value });
     };
-  
-    const handleSubmit = () => {
-      if (isValid) {
-        onUserDetailsSubmit(userDetails);
-        // handleDialogClose({ userDetails, skipped: false }, true); // Pass true to indicate details were submitted
+
+    const handleSubmit = async () => {
+      if (isValid || userDetails.ipAddress) {
+        try {
+          // Extract the storeUrl from the window location
+          const pathnameArray = window.location.pathname.split('/');
+          const storeUrl = pathnameArray[1];
+          console.log('storeUrl: ', storeUrl);
+
+          // Fetch dealerId from the store URL
+          const storeResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/url/${storeUrl}/user`);
+          const dealerId = storeResponse.data._id;
+          console.log('dealerId: ', dealerId);
+
+          // Fetch customerId using email or phone number
+          const customerResponse = await axios.get(
+            `${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/${userDetails.email}`
+          ); // or phoneNumber
+          const customerId = customerResponse.data._id;
+
+          // Update userDetails with dealerId and customerId
+          const updatedUserDetails = { ...userDetails, dealerId, customerId };
+
+          // Append customer details and save the IDs
+          const response = await axios.post(
+            `${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/append`,
+            updatedUserDetails
+          );
+
+          if (response.status === 200 || response.status === 201) {
+            // Update transactionData with dealerId and customerId
+            const updatedTransactionData = { ...transactionData, dealerId, customerId };
+            onUserDetailsSubmit(updatedTransactionData);
+            handleDialogClose({ userDetails, skipped: false }, true);
+          }
+        } catch (error) {
+          console.error('Error fetching IDs or submitting user details:', error);
+          // Handle error cases here
+        }
       }
     };
-  
-    const handleSkip = () => {
-      onUserDetailsSubmit(userDetails);
-      handleDialogClose({ userDetails: {}, skipped: true }, false); // Pass false to indicate details were skipped
+
+    const handleSkip = async () => {
+      try {
+        // Fetch dealerId from the store URL
+        const pathnameArray = window.location.pathname.split('/');
+        const storeUrl = pathnameArray[1];
+        const storeResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/url/${storeUrl}/user`);
+        const dealerId = storeResponse.data._id;
+
+        // Payload with IP address and dealerId
+        const payload = {
+          ipAddress: userDetails.ipAddress,
+          dealerId,
+        };
+
+        // Submitting payload
+        console.log('Submitting payload:', payload);
+        const appendResponse = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/append`, payload);
+
+        if (appendResponse.status === 200 || appendResponse.status === 201) {
+          // Attempt to fetch customerId using the IP address
+          const customerResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/find`, {
+            params: { ipAddress: userDetails.ipAddress },
+          });
+
+          // If customer is found, use its ID
+          const customerId = customerResponse.data ? customerResponse.data._id : null;
+
+          // Update transactionData with dealerId and customerId
+          const updatedTransactionData = { ...transactionData, dealerId, customerId };
+          onUserDetailsSubmit(updatedTransactionData);
+
+          handleDialogClose({ userDetails: {}, skipped: true }, false);
+        }
+      } catch (error) {
+        console.error('Error in handleSkip:', error);
+        // Handle error cases here
+      }
     };
-  
+
     return (
       <Dialog open={open} onClose={handleSkip} aria-labelledby="form-dialog-title">
         <DialogTitle id="form-dialog-title">Enter Your Details</DialogTitle>
@@ -406,8 +493,6 @@ const VortexTopUp = () => {
       </Dialog>
     );
   };
-  
-  
 
   useEffect(() => {
     const fetchTopupToggles = async () => {
@@ -727,11 +812,11 @@ const VortexTopUp = () => {
 
     function navigateInternationalLoad(name, data, previous = {}) {
       console.log(`navigateInternationalLoad called with name: ${name}, data:`, data);
-    
+
       if (name === 'brandProducts') {
         const brandName = data[0]?.brand;
         console.log(`Brand name in navigateInternationalLoad: ${brandName}`);
-    
+
         // Mapping existing product data to prepare for update
         const products = data.map((product) => ({
           ...product,
@@ -739,22 +824,20 @@ const VortexTopUp = () => {
           price: product.pricing.price,
           isAvailable: product.enabled, // Use the original 'enabled' status
         }));
-    
+
         console.log(`Preparing to update product details for brand: ${brandName}`, products);
-    
+
         updateProductDetailsForAllDealers(brandName, products);
-    
+
         if (decryptedUserId) {
           console.log(`DecryptedUserId available: ${decryptedUserId}`);
-    
+
           fetchDealerProductConfig(decryptedUserId, brandName).then((dealerProductConfig) => {
             console.log(`Dealer Product Config:`, dealerProductConfig);
-    
+
             const updatedProducts = products.map((product) => {
-              const fetchedProduct = dealerProductConfig.find(
-                (p) => p.name === product.name
-              );
-    
+              const fetchedProduct = dealerProductConfig.find((p) => p.name === product.name);
+
               // If no product-config found, default isAvailable to true
               if (!fetchedProduct) {
                 return {
@@ -762,7 +845,7 @@ const VortexTopUp = () => {
                   isAvailable: true, // Default to true if no specific config is found
                 };
               }
-    
+
               // If the fetchedProduct is found, use its enabled status
               return {
                 ...product,
@@ -771,7 +854,7 @@ const VortexTopUp = () => {
                 isAvailable: fetchedProduct.enabled,
               };
             });
-    
+
             // Sort the updated products so that unavailable products are at the bottom
             const sortedProducts = updatedProducts.sort((a, b) => {
               if (!a.isAvailable && b.isAvailable) {
@@ -782,7 +865,7 @@ const VortexTopUp = () => {
               }
               return 0;
             });
-    
+
             setNavigation({
               name,
               data: sortedProducts,
@@ -798,7 +881,7 @@ const VortexTopUp = () => {
             ...product,
             isAvailable: true,
           }));
-    
+
           setNavigation({
             name,
             data: defaultAvailableProducts,
@@ -810,7 +893,6 @@ const VortexTopUp = () => {
         }
       }
     }
-    
 
     function filterProductBySelectedBrand(state, brand) {
       const products = [];
@@ -1047,6 +1129,29 @@ const VortexTopUp = () => {
 
     const [error, setError] = useState('');
 
+    const [dealerId, setDealerId] = useState('');
+
+    useEffect(() => {
+      const fetchDealerId = async () => {
+        try {
+          // Extract the storeUrl from the window location
+          const pathnameArray = window.location.pathname.split('/');
+          const storeUrl = pathnameArray[1];
+          console.log('storeUrl in AccountNoInputForm: ', storeUrl);
+
+          // Fetch dealerId from the store URL
+          const storeResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/url/${storeUrl}/user`);
+          if (storeResponse && storeResponse.data && storeResponse.data._id) {
+            setDealerId(storeResponse.data._id);
+          }
+        } catch (error) {
+          console.error('Error fetching dealer ID:', error);
+        }
+      };
+
+      fetchDealerId();
+    }, []);
+
     const validateInput = (value, brand) => {
       let maxLength;
       let errorMessageTooLong;
@@ -1124,6 +1229,50 @@ const VortexTopUp = () => {
       validateInput(accountNumber, selectedBrand?.toUpperCase() || '');
     }, [selectedBrand, accountNumber]);
 
+    const handleContinueClick = async () => {
+      try {
+        if (accountNumber.length <= 0) {
+          return;
+        }
+
+        setIsFormLoading(true);
+
+        const reqInputPayload = {
+          clientRequestId: 'Empty',
+          mobileNumber: accountNumber.trim(),
+          productCode: selectedProduct.code,
+        };
+
+        const result = await saveVortexTopUpTransaction({
+          requestInputPayload: reqInputPayload,
+          totalAmount: grandTotalFee,
+        });
+
+        // Update transactionData with dealerId
+        setTransactionData((prevData) => {
+          const updatedTransactionData = {
+            ...prevData,
+            dealerId,
+          };
+          console.log('Updated Transaction Data:', updatedTransactionData);
+          return updatedTransactionData;
+        });
+
+        setTransactionDocId(result._id);
+        setTransactionReferenceId(result.referenceNumber);
+        setAccountOrMobileNumber(`${accountNumber.trim()}`);
+
+        setIsFormLoading(false);
+        stepForward();
+      } catch (error) {
+        setErrorData({
+          isError: true,
+          message: `${error}`,
+        });
+        throw error;
+      }
+    };
+
     return (
       <Box>
         {/* } {!isLoggin ? (
@@ -1185,41 +1334,7 @@ const VortexTopUp = () => {
                     borderRadius: '10em',
                     background: primaryVortexTheme.button,
                   }}
-                  onClick={async () => {
-                    try {
-                      if (accountNumber.length <= 0) {
-                        return;
-                      }
-
-                      setIsFormLoading(true);
-
-                      const reqInputPayload = {
-                        clientRequestId: 'Empty',
-                        mobileNumber: accountNumber.trim(),
-                        productCode: selectedProduct.code,
-                      };
-
-                      const result = await saveVortexTopUpTransaction({
-                        requestInputPayload: reqInputPayload,
-                        totalAmount: grandTotalFee,
-                      });
-                      setTransactionDocId(result._id);
-
-                      setTransactionReferenceId(result.referenceNumber);
-
-                      setAccountOrMobileNumber(`${accountNumber.trim()}`);
-
-                      setIsFormLoading(false);
-
-                      stepForward();
-                    } catch (error) {
-                      setErrorData({
-                        isError: true,
-                        message: `${error}`,
-                      });
-                      throw error;
-                    }
-                  }}
+                  onClick={handleContinueClick}
                 >
                   {isFormLoading ? 'Please wait...' : 'CONTINUE'}
                 </Button>
@@ -1260,19 +1375,22 @@ const VortexTopUp = () => {
       const url = await createLink(grandTotalFee * 100, selectedProduct.name);
       if (url) {
         const paymentWindow = window.open(url, '_blank');
-         // Polling to check if the payment window has been closed
-         const paymentWindowClosed = setInterval(() => {
+        // Polling to check if the payment window has been closed
+        const paymentWindowClosed = setInterval(() => {
           if (paymentWindow.closed) {
             clearInterval(paymentWindowClosed);
-            // Once the payment window is closed, set the transaction data
-            setTransactionData({
+
+            const newTransactionData = {
               productName: selectedProduct.name,
               price: selectedProduct.price,
               convenienceFee,
               totalPrice: grandTotalFee,
               currency: platformVariables?.currencySymbol,
-            });
-            // Update the activeStep to 3 to show the transaction completed message
+              customerId: userDetails.customerId,
+              dealerId: userDetails.dealerId,
+            };
+            console.log('Setting Transaction Data: ', newTransactionData);
+            setTransactionData(newTransactionData);
             setActiveStep(3);
           }
         }, 500);
@@ -1419,7 +1537,11 @@ const VortexTopUp = () => {
                 </Stack>
                 <Box height={20} />
                 {/* <UserDetailsDialog open={isDialogOpen} handleDialogClose={handleDialogClose} /> */}
-                <UserDetailsDialog open={isDialogOpen} onUserDetailsSubmit={handleUserDetailsSubmit} />
+                <UserDetailsDialog
+                  open={isDialogOpen}
+                  onUserDetailsSubmit={handleUserDetailsSubmit}
+                  handleDialogClose={handleDialogClose}
+                />
                 <Button
                   disabled={isLoadingTransaction}
                   variant="outlined"
@@ -1427,13 +1549,13 @@ const VortexTopUp = () => {
                     const userDetailsDialog = await handleOpenDialog();
                     console.log('User Details Dialog: ', userDetailsDialog);
                     // if(isUserDetailShown) {
-                    //   console.log('User Details Dialog: ', userDetailsDialog);	
+                    //   console.log('User Details Dialog: ', userDetailsDialog);
                     //   const url = await createLink(grandTotalFee * 100, selectedProduct.name);
                     //   const paymentWindow = window.open(url, '_blank');
                     //   console.log('Link Created: ', createLink);
                     //   console.log('Amount: ', grandTotalFee);
                     //   console.log('Description: ', selectedProduct.name);
-                      
+
                     //   // Polling to check if the payment window has been closed
                     //   const paymentWindowClosed = setInterval(() => {
                     //     if (paymentWindow.closed) {
@@ -1451,8 +1573,6 @@ const VortexTopUp = () => {
                     //     }
                     //   }, 500);
                     // }
-                    
-                   
                   }}
                 >
                   {isLoadingTransaction ? 'PLEASE WAIT . . . TRANSACTION IN PROGRESS . . ' : 'PAY'}
@@ -1465,8 +1585,42 @@ const VortexTopUp = () => {
     );
   };
 
-  const TransactionCompletedForm = ({ setActiveStep, transactionData }) => {
-    const handleConfirmClick = () => {
+  const TransactionCompletedForm = ({ setActiveStep, transactionData, resetTransactionData }) => {
+    const handleConfirmClick = async () => {
+      console.log('Transaction Data in handleConfirmClick: ', transactionData);
+      try {
+        const customerId = transactionData.customerId;
+        const dealerId = transactionData.dealerId;
+        console.log('customerId: ', customerId);
+        console.log('dealerId: ', dealerId);
+
+        const purchaseData = {
+          productName: transactionData.productName,
+          amount: transactionData.totalPrice,
+          dealerId, // Include this if your API requires it
+        };
+
+        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/purchase/${customerId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(purchaseData),
+        });
+
+        if (response.ok) {
+          // Handle successful transaction confirmation
+          console.log('Transaction confirmed and saved');
+          resetTransactionData();
+        } else {
+          // Handle errors
+          const errorResponse = await response.json();
+          console.error('Failed to save transaction:', errorResponse.message);
+        }
+      } catch (error) {
+        console.error('Error while confirming the transaction:', error);
+      }
+
       setActiveStep(0);
     };
 
@@ -1560,7 +1714,13 @@ const VortexTopUp = () => {
       case 2:
         return <ReviewConfirmationForm setActiveStep={setActiveStep} setTransactionData={setTransactionData} />;
       case 3:
-        return <TransactionCompletedForm setActiveStep={setActiveStep} transactionData={transactionData} />;
+        return (
+          <TransactionCompletedForm
+            setActiveStep={setActiveStep}
+            transactionData={transactionData}
+            resetTransactionData={resetTransactionData}
+          />
+        );
       default:
         return <AccountNoInputForm selectedBrand={selectedBrand} />;
     }
