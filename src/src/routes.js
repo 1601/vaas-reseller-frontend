@@ -56,7 +56,9 @@ export default function Router() {
   const hostnameParts = window.location.hostname.split('.');
   const subdomain = hostnameParts.length > 2 ? hostnameParts[0] : null;
   const isExcludedSubdomain = subdomain
-    ? excludedSubdomains.includes(subdomain) || subdomain.includes('pldt-vaas-frontend') || subdomain.includes('vortex-vaas-frontend')
+    ? excludedSubdomains.includes(subdomain) ||
+      subdomain.includes('pldt-vaas-frontend') ||
+      subdomain.includes('vortex-vaas-frontend')
     : false;
   const isLoggedIn = localStorage.getItem('token');
   const isSubdomain = subdomain && !isExcludedSubdomain;
@@ -72,14 +74,21 @@ export default function Router() {
     const storeUrlPattern = /^\/([a-zA-Z0-9_-]+)$/;
     const match = currentPath.match(storeUrlPattern);
     const isExcludedSubdomain = subdomain
-      ? excludedSubdomains.includes(subdomain) || subdomain.includes('pldt-vaas-frontend') || subdomain.includes('vortex-vaas-frontend')
+      ? excludedSubdomains.includes(subdomain) ||
+        subdomain.includes('pldt-vaas-frontend') ||
+        subdomain.includes('vortex-vaas-frontend')
       : false;
 
     if ((currentPath && excludedPaths.some((path) => currentPath.includes(path))) || isExcludedSubdomain) {
       return;
     }
 
-    if (match && subdomain && !subdomain.includes('pldt-vaas-frontend') && !subdomain.includes('vortex-vaas-frontend')) {
+    if (
+      match &&
+      subdomain &&
+      !subdomain.includes('pldt-vaas-frontend') &&
+      !subdomain.includes('vortex-vaas-frontend')
+    ) {
       const storeUrl = match[1];
 
       fetch(`${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/url/${storeUrl}`)
@@ -103,10 +112,7 @@ export default function Router() {
       path: '',
       element: isSubdomain ? <LiveStorePage /> : <LandingPage />,
       children: [
-        {
-          path: 'bills',
-          element: <VortexBills />,
-        },
+        { path: 'bills', element: <VortexBills /> },
         {
           path: 'topup',
           element: (
@@ -215,7 +221,7 @@ export default function Router() {
     },
     {
       path: 'admin-signup',
-      element: <AdminSignUp />
+      element: <AdminSignUp />,
     },
     {
       path: 'login',

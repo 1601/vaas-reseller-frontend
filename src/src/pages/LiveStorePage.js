@@ -26,7 +26,7 @@ const LiveStorePage = () => {
   if (window.location.hostname.includes('lvh.me')) {
     baseUrl = `http://${storeUrl}.lvh.me:3000`;
   } else {
-    baseUrl = `https://${storeUrl}.sevenstarjasem.com`;
+    baseUrl = `https://${storeUrl}.sparkledev.online`;
   }
 
   useEffect(() => {
@@ -53,20 +53,24 @@ const LiveStorePage = () => {
 
   const getSubdomainOrStoreUrl = () => {
     const hostname = window.location.hostname;
+    const pathname = window.location.pathname;
     let subdomain = hostname.split('.')[0];
+
+    // Check if the hostname is 'sparkledev.online'
+    if (hostname === 'sparkledev.online' || hostname.endsWith('.sparkledev.online')) {
+      // Check if a subdomain exists
+      if (subdomain && subdomain !== 'www') {
+        return subdomain;
+      }
+      // Extract storeUrl from the pathname and return it
+      const pathParts = pathname.split('/');
+      if (pathParts.length > 1 && pathParts[1]) {
+        return pathParts[1];
+      }
+    }
 
     // Check if the hostname is 'localhost' or another known development environment
     if (['localhost', 'lvh', 'sevenstarjasem', 'pldt-vaas-frontend', 'vortex-vaas-frontend'].includes(subdomain)) {
-      return storeUrl;
-    }
-
-    // Check for specific domain 'sparkledev.online'
-    if (hostname === 'sparkledev.online') {
-      // Check if a subdomain exists
-      if (subdomain) {
-        return `${subdomain}.sparkledev.online`;
-      }
-      // Default to storeUrl if no subdomain is found
       return storeUrl;
     }
 
