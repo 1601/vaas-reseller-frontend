@@ -350,16 +350,34 @@ const VortexTopUp = () => {
       setUserDetails({ ...userDetails, [prop]: event.target.value });
     };
 
+    const getStoreUrl = () => {
+      const hostname = window.location.hostname;
+      const pathname = window.location.pathname;
+      const pathParts = pathname.split('/');
+      let storeUrl = pathParts[1];
+
+      // Special handling for paths like /topup
+      if (storeUrl === 'topup' || storeUrl === 'bills') {
+        // Extract subdomain as the storeUrl
+        const hostnameParts = hostname.split('.');
+        if (hostnameParts.length > 2) {
+          storeUrl = hostnameParts[0]; // subdomain
+        }
+      }
+
+      return storeUrl;
+    };
+
     const handleSubmit = async () => {
       if (isValid || userDetails.ipAddress) {
         try {
-          // Extract the storeUrl from the window location
-          const pathnameArray = window.location.pathname.split('/');
-          const storeUrl = pathnameArray[1];
+          const storeUrl = getStoreUrl();
           console.log('storeUrl: ', storeUrl);
 
           // Fetch dealerId from the store URL
-          const storeResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/url/${storeUrl}/user`);
+          const storeResponse = await axios.get(
+            `${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/url/${storeUrl}/user`
+          );
           const dealerId = storeResponse.data._id;
           console.log('dealerId: ', dealerId);
 
@@ -393,10 +411,10 @@ const VortexTopUp = () => {
 
     const handleSkip = async () => {
       try {
-        // Fetch dealerId from the store URL
-        const pathnameArray = window.location.pathname.split('/');
-        const storeUrl = pathnameArray[1];
-        const storeResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/url/${storeUrl}/user`);
+        const storeUrl = getStoreUrl();
+        const storeResponse = await axios.get(
+          `${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/url/${storeUrl}/user`
+        );
         const dealerId = storeResponse.data._id;
 
         // Payload with IP address and dealerId
@@ -1140,7 +1158,9 @@ const VortexTopUp = () => {
           console.log('storeUrl in AccountNoInputForm: ', storeUrl);
 
           // Fetch dealerId from the store URL
-          const storeResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/url/${storeUrl}/user`);
+          const storeResponse = await axios.get(
+            `${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/url/${storeUrl}/user`
+          );
           if (storeResponse && storeResponse.data && storeResponse.data._id) {
             setDealerId(storeResponse.data._id);
           }

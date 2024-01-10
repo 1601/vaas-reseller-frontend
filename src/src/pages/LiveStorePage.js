@@ -54,19 +54,18 @@ const LiveStorePage = () => {
   const getSubdomainOrStoreUrl = () => {
     const hostname = window.location.hostname;
     const pathname = window.location.pathname;
-    let subdomain = hostname.split('.')[0];
 
-    // Check if the hostname is 'sparkledev.online'
-    if (hostname === 'sparkledev.online' || hostname.endsWith('.sparkledev.online')) {
-      // Check if a subdomain exists
-      if (subdomain && subdomain !== 'www') {
-        return subdomain;
-      }
-      // Extract storeUrl from the pathname and return it
+    if (hostname === 'sparkledev.online') {
       const pathParts = pathname.split('/');
       if (pathParts.length > 1 && pathParts[1]) {
-        return pathParts[1];
+        return pathParts[1]; // Extracts the /storeUrl part
       }
+      return null; // No storeUrl found
+    }
+
+    let subdomain = hostname.split('.')[0];
+    if (subdomain !== 'www' && hostname.endsWith('.sparkledev.online')) {
+      return subdomain; // Extracts subdomain part
     }
 
     // Check if the hostname is 'localhost' or another known development environment
@@ -105,10 +104,7 @@ const LiveStorePage = () => {
   useEffect(() => {
     const subdomainOrStoreUrl = getSubdomainOrStoreUrl();
 
-    if (subdomainOrStoreUrl === 'topup' || subdomainOrStoreUrl === 'bills') {
-      const subdomain = getSubdomain();
-      setStoreData(subdomain);
-    } else if (subdomainOrStoreUrl) {
+    if (subdomainOrStoreUrl && !['topup', 'bills'].includes(subdomainOrStoreUrl)) {
       const fetchStoreData = async () => {
         try {
           const response = await axios.get(
@@ -125,7 +121,7 @@ const LiveStorePage = () => {
       };
       fetchStoreData();
     }
-  }, [storeUrl, setStoreData]);
+  }, []);
 
   useEffect(() => {
     if ((!storeData || storeData === 'domainNotFound') && notFound !== 'true') {
