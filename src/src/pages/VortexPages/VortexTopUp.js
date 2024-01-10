@@ -356,15 +356,13 @@ const VortexTopUp = () => {
       const pathParts = pathname.split('/');
       let storeUrl = pathParts[1];
 
-      // Special handling for paths like /topup
       if (storeUrl === 'topup' || storeUrl === 'bills') {
-        // Extract subdomain as the storeUrl
         const hostnameParts = hostname.split('.');
         if (hostnameParts.length > 2) {
-          storeUrl = hostnameParts[0]; // subdomain
+          storeUrl = hostnameParts[0];
         }
       }
-
+      console.log("storeUrl: ", storeUrl)
       return storeUrl;
     };
 
