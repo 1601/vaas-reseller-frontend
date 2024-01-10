@@ -2,6 +2,7 @@ import { Helmet } from 'react-helmet-async';
 import { filter } from 'lodash';
 import { sentenceCase } from 'change-case';
 import { useEffect, useState } from 'react';
+import axios from 'axios';
 // @mui
 import {
   Card,
@@ -27,16 +28,16 @@ import {
 } from '@mui/material';
 // components
 import PersonSearchOutlinedIcon from '@mui/icons-material/PersonSearchOutlined';
-import DetailsModal from '../../components/customer/detailsModal'
+import DetailsModal from '../../components/customer/detailsModal';
 import Label from '../../components/label';
 import Iconify from '../../components/iconify';
 import Scrollbar from '../../components/scrollbar';
 import UserDataFetch from '../../components/user-account/UserDataFetch';
 import AccountStatusModal from '../../components/user-account/AccountStatusModal';
 import StoreDataFetch from '../../components/user-account/StoreDataFetch';
-import CustomersTabs from '../../components/customer/customerTab'
+import CustomersTabs from '../../components/customer/customerTab';
 // sections
-import CustomerListToolbar  from '../../components/customer/customerListToolbar';
+import CustomerListToolbar from '../../components/customer/customerListToolbar';
 import { allCustomers } from '../../api/public/customer';
 // mock
 import USERLIST from '../../_mock/user';
@@ -82,8 +83,6 @@ function applySortFilter(array, comparator, query) {
   return stabilizedThis.map((el) => el[0]);
 }
 
-
-
 export default function CustomerPage() {
   const [open, setOpen] = useState(null);
   const [page, setPage] = useState(0);
@@ -101,29 +100,28 @@ export default function CustomerPage() {
   const [customers, setCustomers] = useState([]);
   const [activeCount, setActiveCount] = useState(0);
   const [inActiveCount, setInActiveCount] = useState(0);
-  const [userList, setUserList] = useState()
-  const [filterCustomer, setFilterCustomer] = useState([])
+  const [userList, setUserList] = useState();
+  const [filterCustomer, setFilterCustomer] = useState([]);
 
   // const handleOpenMenu = (event) => {
   //   setOpen(event.currentTarget);
   // };
-  const storeAllCustomers = (customers) =>{
-    setUserList(customers)
-  }
+  const storeAllCustomers = (customers) => {
+    setUserList(customers);
+  };
   const handleCloseMenu = () => {
     setOpen(null);
   };
 
   const handleTabChange = async (event, newValue) => {
-    
-    if(newValue === 'Active'){
-      const actives = userList.filter(data => data.status === true)
-      setFilterCustomer(actives)
-    }else if(newValue === 'Deactivated'){
-      const inActives = userList.filter(data => data.status === false)
-      setFilterCustomer(inActives)
-    }else{
-      setFilterCustomer(userList)
+    if (newValue === 'Active') {
+      const actives = userList.filter((data) => data.status === true);
+      setFilterCustomer(actives);
+    } else if (newValue === 'Deactivated') {
+      const inActives = userList.filter((data) => data.status === false);
+      setFilterCustomer(inActives);
+    } else {
+      setFilterCustomer(userList);
     }
     setCurrentTab(newValue);
   };
@@ -175,45 +173,60 @@ export default function CustomerPage() {
     setFilterName(event.target.value);
   };
 
-  const handleOpenModal = (row) => {
-    const purchases = row.purchase
-    const totalAmount = purchases.reduce((accumulator, data) => accumulator + data.amount, 0);
-    const averageAmount = totalAmount / purchases.length
-    const rateAverageAmount = (averageAmount / totalAmount) * 100;
-    const totalNumberOfTrans = purchases.length / 30;
+  const handleOpenModal = async (row) => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/purchase/${row._id}`);
+      const purchases = response.data.body;
 
-    row.averageOfTransaction = totalNumberOfTrans
-    row.averageAmount = averageAmount.toFixed(2)
-    row.rateAverageAmount = rateAverageAmount.toFixed(2)
-    setSelectedRow(row);
-    setOpenModal(true);
+      const totalAmount = purchases.reduce((accumulator, purchase) => accumulator + purchase.amount, 0);
+      const averageAmount = totalAmount / purchases.length;
+      const rateAverageAmount = (averageAmount / totalAmount) * 100;
+      const totalNumberOfTrans = purchases.length / 30;
+
+      const updatedRow = {
+        ...row,
+        purchases,
+        totalAmount: totalAmount.toFixed(2),
+        averageOfTransaction: totalNumberOfTrans.toFixed(2),
+        averageAmount: averageAmount.toFixed(2),
+        rateAverageAmount: rateAverageAmount.toFixed(2),
+      };
+
+      console.log('Updated Row with Purchases: ', updatedRow); 
+      setSelectedRow(updatedRow);
+      setOpenModal(true);
+    } catch (error) {
+      console.error('Error fetching purchase details:', error);
+    }
   };
 
   const handleCloseModal = () => {
     setOpenModal(false);
   };
 
-
   useEffect(() => {
-    const allcustomers = async () => {
-      const customersResult = await allCustomers()
-      const customersDetails = customersResult.data.body
-
-      setCustomers(customersDetails.length)
-      setFilterCustomer(customersDetails)
-      storeAllCustomers(customersDetails)
-      customersDetails.forEach((data) => {
-        if (data.status === true) {
-          setActiveCount((activeCount) => activeCount + 1);
-         
-        } else {
-          setInActiveCount((inActiveCount) => inActiveCount + 1);
-         
+    const fetchCustomers = async () => {
+      try {
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/all/${userId}`);
+        if (response.data.body) {
+          setCustomers(response.data.body.length);
+          setFilterCustomer(response.data.body);
+          storeAllCustomers(response.data.body);
+          response.data.body.forEach((data) => {
+            if (data.status === true) {
+              setActiveCount((activeCount) => activeCount + 1);
+            } else {
+              setInActiveCount((inActiveCount) => inActiveCount + 1);
+            }
+          });
         }
-      });
-    }
-    allcustomers();
-  }, [])
+      } catch (error) {
+        console.error('Error fetching customers:', error);
+      }
+    };
+
+    fetchCustomers();
+  }, [userId]);
 
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - userList.length) : 0;
 
@@ -244,11 +257,15 @@ export default function CustomerPage() {
               inActiveCount={inActiveCount}
             />
           </div>
-          <CustomerListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
+          <CustomerListToolbar
+            numSelected={selected.length}
+            filterName={filterName}
+            onFilterName={handleFilterByName}
+          />
           <Scrollbar>
-            <TableContainer sx={{ minWidth: 800 , padding:'20px'}}>
+            <TableContainer sx={{ minWidth: 800, padding: '20px' }}>
               <Table>
-                <TableHead sx={{ backgroundColor: '#f2f2f2'}}>
+                <TableHead sx={{ backgroundColor: '#f2f2f2' }}>
                   <TableRow>
                     <TableCell>Name</TableCell>
                     <TableCell>Address</TableCell>
@@ -258,72 +275,76 @@ export default function CustomerPage() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {(!isNotFound && filterCustomer) && (filterCustomer.map((row) => {
-                    const { _id, fullName, address, role, status, profilePicture } = row;
-                    let Status
-                    // convert into string to avoid input error
-                    if (status === true) {
-                      Status = 'Active'
-                    } else {
-                      Status = 'Inactive'
-                    }
-                    const selectedUser = selected.indexOf(row.fullName) !== -1;
+                  {!isNotFound &&
+                    filterCustomer &&
+                    filterCustomer.map((row) => {
+                      const { _id, fullName, address, role, status, profilePicture } = row;
+                      let Status;
+                      // convert into string to avoid input error
+                      if (status === true) {
+                        Status = 'Active';
+                      } else {
+                        Status = 'Inactive';
+                      }
+                      const selectedUser = selected.indexOf(row.fullName) !== -1;
 
-                    return (
-                      <TableRow hover key={_id} tabIndex={-1} selected={selectedUser}>
-                        <TableCell component="th" scope="row" padding="none">
-                          <Stack direction="row" alignItems="center" spacing={2}
-                          >
-                            <Avatar alt={fullName} src={profilePicture} />
-                            <Typography variant="subtitle2" noWrap>
-                              {fullName}
-                            </Typography>
-                          </Stack>
-                        </TableCell>
-                        <TableCell align='left'>{address}</TableCell>
-                        <TableCell align='left'>{role}</TableCell>
-                        <TableCell align="left">
-                          <Label color={(Status === 'Inactive' && 'error') || 'success'}>{sentenceCase(Status)}</Label>
-                        </TableCell>
-                        <TableCell>
-                          <Button 
-                            variant='outlined' 
-                            onClick={() => handleOpenModal(row)}
-                            startIcon={<PersonSearchOutlinedIcon/>}
-                          > View More</Button>
-                        </TableCell>
-                      </TableRow>
-                    )
-                  }))}
+                      return (
+                        <TableRow hover key={_id} tabIndex={-1} selected={selectedUser}>
+                          <TableCell component="th" scope="row" padding="none">
+                            <Stack direction="row" alignItems="center" spacing={2}>
+                              <Avatar alt={fullName} src={profilePicture} />
+                              <Typography variant="subtitle2" noWrap>
+                                {fullName}
+                              </Typography>
+                            </Stack>
+                          </TableCell>
+                          <TableCell align="left">{address}</TableCell>
+                          <TableCell align="left">{role}</TableCell>
+                          <TableCell align="left">
+                            <Label color={(Status === 'Inactive' && 'error') || 'success'}>
+                              {sentenceCase(Status)}
+                            </Label>
+                          </TableCell>
+                          <TableCell>
+                            <Button
+                              variant="outlined"
+                              onClick={() => handleOpenModal(row)}
+                              startIcon={<PersonSearchOutlinedIcon />}
+                            >
+                              {' '}
+                              View More
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
                   {emptyRows > 0 && (
                     <TableRow style={{ height: 53 * emptyRows }}>
                       <TableCell colSpan={6} />
                     </TableRow>
                   )}
-                   {isNotFound && (
-                     <TableRow>
-                     <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
-                       <Paper
-                         sx={{
-                           textAlign: 'center',
-                         }}
-                       >
-                         <Typography variant="h6" paragraph>
-                           Not found
-                         </Typography>
+                  {isNotFound && (
+                    <TableRow>
+                      <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
+                        <Paper
+                          sx={{
+                            textAlign: 'center',
+                          }}
+                        >
+                          <Typography variant="h6" paragraph>
+                            Not found
+                          </Typography>
 
-                         <Typography variant="body2">
-                           No results found for &nbsp;
-                           <strong>&quot;{filterName}&quot;</strong>.
-                           <br /> Try checking for typos or using complete words.
-                         </Typography>
-                       </Paper>
-                     </TableCell>
-                   </TableRow>
-                )}
+                          <Typography variant="body2">
+                            No results found for &nbsp;
+                            <strong>&quot;{filterName}&quot;</strong>.
+                            <br /> Try checking for typos or using complete words.
+                          </Typography>
+                        </Paper>
+                      </TableCell>
+                    </TableRow>
+                  )}
                 </TableBody>
-
-               
               </Table>
               <DetailsModal open={openModal} handleClose={handleCloseModal} selectedRow={selectedRow} />
             </TableContainer>
