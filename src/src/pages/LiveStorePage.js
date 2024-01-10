@@ -85,7 +85,10 @@ const LiveStorePage = () => {
   useEffect(() => {
     const subdomainOrStoreUrl = getSubdomainOrStoreUrl();
 
-    if (subdomainOrStoreUrl) {
+    if (subdomainOrStoreUrl === 'topup' || subdomainOrStoreUrl === 'bills') {
+      const subdomain = getSubdomain(); 
+      setStoreData(subdomain);
+    } else if (subdomainOrStoreUrl) {
       const fetchStoreData = async () => {
         try {
           const response = await axios.get(
