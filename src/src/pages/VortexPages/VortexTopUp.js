@@ -362,7 +362,7 @@ const VortexTopUp = () => {
           storeUrl = hostnameParts[0];
         }
       }
-      console.log("storeUrl: ", storeUrl)
+      console.log('storeUrl: ', storeUrl);
       return storeUrl;
     };
 
@@ -379,22 +379,34 @@ const VortexTopUp = () => {
           const dealerId = storeResponse.data.userId;
           console.log('dealerId: ', dealerId);
 
+          // Append customer details first
+          const appendResponse = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/append`, {
+            ...userDetails,
+            dealerId,
+          });
+          console.log('appendResponse: ', appendResponse);
+
+          let customerId;
+
+          if (appendResponse.data && appendResponse.data.body && appendResponse.data.body._id) {
+            customerId = appendResponse.data.body._id;
+          } else {
+            throw new Error('Failed to create or append customer');
+          }
+
           // Fetch customerId using email or phone number
-          const customerResponse = await axios.get(
-            `${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/${userDetails.email}`
-          ); // or phoneNumber
-          const customerId = customerResponse.data._id;
+          try {
+            const customerResponse = await axios.get(
+              `${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/${userDetails.email}`
+            ); // or phoneNumber
+            customerId = customerResponse.data._id;
+          } catch (fetchError) {
+            // Handle the error if customer still not found
+            console.error('Error fetching customer ID:', fetchError);
+            throw fetchError;
+          }
 
-          // Update userDetails with dealerId and customerId
-          const updatedUserDetails = { ...userDetails, dealerId, customerId };
-
-          // Append customer details and save the IDs
-          const response = await axios.post(
-            `${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/append`,
-            updatedUserDetails
-          );
-
-          if (response.status === 200 || response.status === 201) {
+          if (customerId) {
             // Update transactionData with dealerId and customerId
             const updatedTransactionData = { ...transactionData, dealerId, customerId };
             onUserDetailsSubmit(updatedTransactionData);
