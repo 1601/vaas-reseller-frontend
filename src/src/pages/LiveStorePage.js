@@ -1,7 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, useParams, useLocation } from 'react-router-dom';
 import SecureLS from 'secure-ls';
-import { Container, Stack, Link, Button } from '@mui/material';
+import {
+  Container,
+  Stack,
+  Link,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Textfield,
+} from '@mui/material';
 import axios from 'axios';
 import BillsImage from '../images/logos/bills.svg';
 import LoadImage from '../images/logos/load.svg';
@@ -16,11 +27,32 @@ const LiveStorePage = () => {
   const location = useLocation();
   const [previewStoreUrl, setPreviewStoreUrl] = useState(storeUrl);
   const [showNotFoundError, setShowNotFoundError] = useState(false);
+  const [openLoginDialog, setOpenLoginDialog] = useState(false);
+  const [dialogStage, setDialogStage] = useState(1); // 1 for email, 2 for OTP
+  const [email, setEmail] = useState('');
+  const [otp, setOtp] = useState('');
   const [platformVariables, setPlatformVariables] = useState({
     enableBills: true,
     enableLoad: true,
     enableGift: true,
   });
+
+  const handleOpenLoginDialog = () => {
+    setOpenLoginDialog(true);
+  };
+
+  const handleCloseLoginDialog = () => {
+    setOpenLoginDialog(false);
+    setDialogStage(1);
+  };
+
+  const handleEmailSubmit = () => {
+    setDialogStage(2);
+  };
+
+  const handleOtpSubmit = () => {
+    handleCloseLoginDialog();
+  };
 
   let baseUrl;
   if (window.location.hostname.includes('lvh.me')) {
@@ -295,9 +327,54 @@ const LiveStorePage = () => {
             </div>
 
             <Stack m={3} direction={'row'} justifyContent={'center'}>
-              <Link href={storeUrl ? `${previewStoreUrl}/transactions` : './transactions'}>View transactions</Link>
+              <Link onClick={handleOpenLoginDialog}>Login first to view Transactions</Link>
             </Stack>
           </Container>
+
+          <Dialog open={openLoginDialog} onClose={handleCloseLoginDialog}>
+            <DialogTitle>{dialogStage === 1 ? 'Login' : 'OTP Verification'}</DialogTitle>
+            <DialogContent>
+              {dialogStage === 1 ? (
+                <>
+                  <DialogContentText>Please enter your email to receive OTP.</DialogContentText>
+                  <TextField
+                    autoFocus
+                    margin="dense"
+                    id="email"
+                    label="Email Address"
+                    type="email"
+                    fullWidth
+                    variant="standard"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                </>
+              ) : (
+                <>
+                  <DialogContentText>Please enter the OTP sent to your email.</DialogContentText>
+                  <TextField
+                    autoFocus
+                    margin="dense"
+                    id="otp"
+                    label="OTP"
+                    type="text"
+                    fullWidth
+                    variant="standard"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                  />
+                </>
+              )}
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleCloseLoginDialog}>Cancel</Button>
+              {dialogStage === 1 ? (
+                <Button onClick={handleEmailSubmit}>Submit</Button>
+              ) : (
+                <Button onClick={handleOtpSubmit}>Confirm</Button>
+              )}
+            </DialogActions>
+          </Dialog>
         </div>
       </div>
     );
