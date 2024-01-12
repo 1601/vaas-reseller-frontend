@@ -220,17 +220,24 @@ const LiveStorePage = () => {
     const hostname = window.location.hostname;
     const pathname = window.location.pathname;
 
-    if (hostname === 'sparkledev.online') {
-      const pathParts = pathname.split('/');
-      if (pathParts.length > 1 && pathParts[1]) {
-        return pathParts[1]; // Extracts the /storeUrl part
-      }
-      return null; // No storeUrl found
-    }
+    // Extract the first segment of the path
+    const pathParts = pathname.split('/');
+    const firstPathSegment = pathParts.length > 1 ? pathParts[1] : null;
 
+    // Reserved paths that should not be considered as storeUrl
+    const reservedPaths = ['topup', 'bills'];
+
+    // Check for a valid subdomain
     let subdomain = hostname.split('.')[0];
     if (subdomain !== 'www' && hostname.endsWith('.sparkledev.online')) {
-      return subdomain; // Extracts subdomain part
+      if (!reservedPaths.includes(subdomain)) {
+        return subdomain; 
+      }
+    }
+
+    // Check for a valid path segment as storeUrl
+    if (firstPathSegment && !reservedPaths.includes(firstPathSegment)) {
+      return firstPathSegment; 
     }
 
     // Check if the hostname is 'localhost' or another known development environment
@@ -240,25 +247,15 @@ const LiveStorePage = () => {
 
     // Handle 'lvh.me' domain with development environment subdomains
     if (hostname.endsWith('lvh.me')) {
-      // Extract subdomain and check if it's a development environment identifier
       subdomain = hostname.split('.')[0];
       if (subdomain.startsWith('pldt-vaas-frontend') || subdomain.startsWith('vortex-vaas-frontend')) {
-        // Extract the actual store URL from the path
-        const pathParts = window.location.pathname.split('/');
         if (pathParts.length > 1) {
-          return pathParts[1];
+          return pathParts[1]; 
         }
       }
       return subdomain;
     }
 
-    // For production or other environments
-    const pathParts = window.location.pathname.split('/');
-    if (pathParts.length > 1) {
-      return pathParts[1];
-    }
-
-    // Return the subdomain or extracted path part as the store URL
     return subdomain;
   };
 
@@ -530,10 +527,7 @@ const LiveStorePage = () => {
               <DialogActions>
                 <Button onClick={handleCloseLoginDialog}>Cancel</Button>
                 {dialogStage === 1 ? (
-                  <Button
-                    onClick={handleEmailSubmit}
-                    disabled={emailError || email === ''}
-                  >
+                  <Button onClick={handleEmailSubmit} disabled={emailError || email === ''}>
                     Submit
                   </Button>
                 ) : (
