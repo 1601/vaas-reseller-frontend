@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Outlet, useParams, useLocation } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import SecureLS from 'secure-ls';
 import {
   Container,
@@ -30,7 +30,7 @@ const ls = new SecureLS({ encodingType: 'aes' });
 const LiveStorePage = () => {
   const location = useLocation();
   const { storeData, setStoreData } = useStore();
-  const { storeUrl } = useParams();
+  const [storeUrl, setStoreUrl] = useState('');
   const [previewStoreUrl, setPreviewStoreUrl] = useState(storeUrl);
   const [showNotFoundError, setShowNotFoundError] = useState(false);
   const [openLoginDialog, setOpenLoginDialog] = useState(false);
@@ -65,9 +65,22 @@ const LiveStorePage = () => {
       const dealerResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/url/${storeUrl}/user`);
       const dealerId = dealerResponse.data.userId;
 
-      // Fetch customerId
-      const customerResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/${email}`);
-      const customerId = customerResponse.data._id;
+      let customerId;
+
+      // Check if customerDetails exist in secure-ls
+      const customerDetailsFromLS = ls.get('customerDetails');
+
+      if (customerDetailsFromLS) {
+        // If customerDetails exist in secure-ls, use them
+        customerId = customerDetailsFromLS.customerId;
+      } else {
+        // If customerDetails not in secure-ls, fetch it from the backend
+        const customerResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/${email}`);
+        customerId = customerResponse.data._id;
+
+        // Store customerDetails in secure-ls for future use
+        ls.set('customerDetails', customerResponse.data);
+      }
 
       // Fetch transactions
       const transactionsResponse = await axios.get(
@@ -166,13 +179,6 @@ const LiveStorePage = () => {
     validateEmail(newEmail);
   };
 
-  let baseUrl;
-  if (window.location.hostname.includes('lvh.me')) {
-    baseUrl = `http://${storeUrl}.lvh.me:3000`;
-  } else {
-    baseUrl = `https://${storeUrl}.sparkledev.online`;
-  }
-
   useEffect(() => {
     const customerDetails = ls.get('customerDetails');
     if (customerDetails) {
@@ -210,11 +216,36 @@ const LiveStorePage = () => {
   const notFound = queryParams.get('notFound');
   const user = JSON.parse(localStorage.getItem('user'));
 
-  const getSubdomain = () => {
+  // Function to extract the storeUrl from the URL
+  const extractStoreUrl = () => {
     const hostname = window.location.hostname;
+    const pathname = window.location.pathname;
+
+    // Check for subdomain in the hostname
     const parts = hostname.split('.');
-    return parts.length >= 3 ? parts[0] : null;
+    if (parts.length >= 3 && parts[0] !== 'www') {
+      return parts[0];
+    }
+
+    // Fallback to path segment if no subdomain
+    const pathParts = pathname.split('/');
+    if (pathParts.length > 1) {
+      const excludedPaths = ['topup', 'bills'];
+      if (!excludedPaths.includes(pathParts[1])) {
+        return pathParts[1];
+      }
+    }
+
+    return null;
   };
+
+  useEffect(() => {
+    const extractedUrl = extractStoreUrl();
+    if (extractedUrl) {
+      setStoreUrl(extractedUrl);
+      setPreviewStoreUrl(`/${extractedUrl}`);
+    }
+  }, [location]);
 
   const getSubdomainOrStoreUrl = () => {
     const hostname = window.location.hostname;
@@ -237,13 +268,6 @@ const LiveStorePage = () => {
 
   useEffect(() => {
     const subdomainOrStoreUrl = getSubdomainOrStoreUrl();
-    if (subdomainOrStoreUrl) {
-      setPreviewStoreUrl(subdomainOrStoreUrl);
-    }
-  }, [location]);
-
-  useEffect(() => {
-    const subdomainOrStoreUrl = getSubdomainOrStoreUrl();
 
     if (subdomainOrStoreUrl && !['topup', 'bills'].includes(subdomainOrStoreUrl)) {
       const fetchStoreData = async () => {
@@ -263,6 +287,14 @@ const LiveStorePage = () => {
       fetchStoreData();
     }
   }, [location]);
+
+  // Define the base URL
+  let baseUrl;
+  if (window.location.hostname.includes('lvh.me')) {
+    baseUrl = `http://${storeUrl}.lvh.me:3000`;
+  } else {
+    baseUrl = `https://${storeUrl}.sparkledev.online`;
+  }
 
   useEffect(() => {
     setPreviewStoreUrl(`/${storeUrl}`);
@@ -303,14 +335,19 @@ const LiveStorePage = () => {
   }, [storeData]);
 
   useEffect(() => {
+    const pathname = window.location.pathname.split('/')[1];
+    const isSpecialPath = ['topup', 'bills'].includes(pathname);
+
     if (storeData && storeData.storeName) {
       document.title = `${storeData.storeName} | VAAS`;
-    } else if (showNotFoundError) {
+    } else if (!isSpecialPath && (!storeData || storeData === 'domainNotFound') && notFound !== 'true') {
+      setShowNotFoundError(true);
       document.title = 'Domain Not Found | VAAS';
     } else {
+      setShowNotFoundError(false);
       document.title = 'Store Page | VAAS';
     }
-  }, [storeData, showNotFoundError]);
+  }, [storeData, notFound]);
 
   if (showNotFoundError) {
     return (
@@ -400,7 +437,9 @@ const LiveStorePage = () => {
                     justifyContent: 'center',
                   }}
                 >
-                  <Link href={storeUrl ? `${previewStoreUrl}/bills` : './bills'}>
+                  <Link
+                    href={storeUrl === window.location.hostname.split('.')[0] ? '/bills' : `${previewStoreUrl}/bills`}
+                  >
                     <img src={BillsImage} height="100px" alt="Home" />
                     <div className="menu--text">Bills</div>
                   </Link>
@@ -415,13 +454,14 @@ const LiveStorePage = () => {
                     justifyContent: 'center',
                   }}
                 >
-                  <Link href={storeUrl ? `${previewStoreUrl}/topup` : './topup'}>
+                  <Link
+                    href={storeUrl === window.location.hostname.split('.')[0] ? '/topup' : `${previewStoreUrl}/topup`}
+                  >
                     <img src={LoadImage} height="100px" alt="Express" />
                     <div className="menu--text">Load</div>
                   </Link>
                 </div>
               )}
-
               {platformVariables.enableGift && (
                 <div
                   style={{
@@ -431,7 +471,11 @@ const LiveStorePage = () => {
                     justifyContent: 'center',
                   }}
                 >
-                  <Link href={storeUrl ? `${previewStoreUrl}/voucher` : './voucher'}>
+                  <Link
+                    href={
+                      storeUrl === window.location.hostname.split('.')[0] ? '/voucher' : `${previewStoreUrl}/voucher`
+                    }
+                  >
                     <img src={VoucherImage} height="100px" alt="Express" />
                     <div className="menu--text">Vouchers</div>
                   </Link>
