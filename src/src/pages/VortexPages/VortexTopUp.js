@@ -1379,7 +1379,8 @@ const VortexTopUp = () => {
 
   const ReviewConfirmationForm = ({ setActiveStep, setTransactionData }) => {
     const paymentMethodType = ls.get('paymentMethodType');
-
+    const customerDetails = ls.get('customerDetails');
+  
     // const { email, name, phone, address } = getUser();
 
     const { convenienceFee, grandTotalFee } = getServiceFee({
@@ -1424,6 +1425,15 @@ const VortexTopUp = () => {
             setActiveStep(3);
           }
         }, 500);
+      }
+    };
+
+    const handlePayment = async () => {
+      if (customerDetails) {
+        handleUserDetailsSubmit(customerDetails);
+      } else {
+        const userDetailsDialog = await handleOpenDialog();
+        console.log('User Details Dialog: ', userDetailsDialog);
       }
     };
 
@@ -1575,9 +1585,10 @@ const VortexTopUp = () => {
                 <Button
                   disabled={isLoadingTransaction}
                   variant="outlined"
-                  onClick={async () => {
-                    const userDetailsDialog = await handleOpenDialog();
-                    console.log('User Details Dialog: ', userDetailsDialog);
+                  onClick={handlePayment}
+                  // onClick={async () => {
+                    // const userDetailsDialog = await handleOpenDialog();
+                    // console.log('User Details Dialog: ', userDetailsDialog);
                     // if(isUserDetailShown) {
                     //   console.log('User Details Dialog: ', userDetailsDialog);
                     //   const url = await createLink(grandTotalFee * 100, selectedProduct.name);
@@ -1603,7 +1614,7 @@ const VortexTopUp = () => {
                     //     }
                     //   }, 500);
                     // }
-                  }}
+                  // }}
                 >
                   {isLoadingTransaction ? 'PLEASE WAIT . . . TRANSACTION IN PROGRESS . . ' : 'PAY'}
                 </Button>
