@@ -11,7 +11,13 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  Textfield,
+  TextField,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  TableContainer,
 } from '@mui/material';
 import axios from 'axios';
 import BillsImage from '../images/logos/bills.svg';
@@ -22,15 +28,22 @@ import { useStore } from '../StoreContext';
 const ls = new SecureLS({ encodingType: 'aes' });
 
 const LiveStorePage = () => {
+  const location = useLocation();
   const { storeData, setStoreData } = useStore();
   const { storeUrl } = useParams();
-  const location = useLocation();
   const [previewStoreUrl, setPreviewStoreUrl] = useState(storeUrl);
   const [showNotFoundError, setShowNotFoundError] = useState(false);
   const [openLoginDialog, setOpenLoginDialog] = useState(false);
   const [dialogStage, setDialogStage] = useState(1); // 1 for email, 2 for OTP
+  const [dialogWidth, setDialogWidth] = useState('md');
   const [email, setEmail] = useState('');
+  const [emailError, setEmailError] = useState(false);
+  const [emailErrorMessage, setEmailErrorMessage] = useState('');
   const [otp, setOtp] = useState('');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [openTransactionsDialog, setOpenTransactionsDialog] = useState(false);
+  const [transactions, setTransactions] = useState([]);
   const [platformVariables, setPlatformVariables] = useState({
     enableBills: true,
     enableLoad: true,
@@ -46,12 +59,111 @@ const LiveStorePage = () => {
     setDialogStage(1);
   };
 
-  const handleEmailSubmit = () => {
-    setDialogStage(2);
+  const handleOpenTransactionsDialog = async () => {
+    try {
+      setIsLoading(true);
+      const dealerResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/url/${storeUrl}/user`);
+      const dealerId = dealerResponse.data.userId;
+
+      // Fetch customerId
+      const customerResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/${email}`);
+      const customerId = customerResponse.data._id;
+
+      // Fetch transactions
+      const transactionsResponse = await axios.get(
+        `${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/purchase/${customerId}/${dealerId}`
+      );
+      setTransactions(transactionsResponse.data.body);
+
+      setIsLoading(false);
+      setOpenTransactionsDialog(true);
+    } catch (error) {
+      setIsLoading(false);
+      console.error('Error fetching transactions:', error);
+    }
   };
 
-  const handleOtpSubmit = () => {
-    handleCloseLoginDialog();
+  const handleEmailSubmit = async () => {
+    setIsLoading(true);
+    try {
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/customer/otp`, { email });
+      setIsLoading(false);
+      if (response.data.message === 'OTP sent successfully') {
+        setDialogStage(2);
+      } else {
+        console.error('Failed to send OTP');
+      }
+    } catch (error) {
+      setIsLoading(false);
+      console.error('Error sending OTP:', error);
+    }
+  };
+
+  const handleOtpSubmit = async () => {
+    setIsLoading(true);
+    try {
+      // Verify OTP
+      const otpVerificationResponse = await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/customer/verify-otp`,
+        {
+          email,
+          otpCode: otp,
+        }
+      );
+
+      if (otpVerificationResponse.data.message === 'OTP verified successfully') {
+        // Fetch customer details
+        const customerResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/${email}`);
+        const customerData = customerResponse.data;
+
+        // Fetch dealer ID
+        const dealerResponse = await axios.get(
+          `${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/url/${storeUrl}/user`
+        );
+        const dealerId = dealerResponse.data.userId;
+
+        ls.set('customerDetails', {
+          mobileNumber: customerData.mobileNumber,
+          email: customerData.email,
+          dealerId,
+          customerId: customerData._id,
+        });
+
+        setIsLoggedIn(true);
+        setIsLoading(false);
+        handleCloseLoginDialog();
+      } else {
+        console.error('Failed to verify OTP');
+        setIsLoading(false);
+      }
+    } catch (error) {
+      setIsLoading(false);
+      console.error('Error during OTP verification or fetching customer details:', error);
+    }
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    ls.remove('customerDetails');
+  };
+
+  // Function to validate email
+  const validateEmail = (email) => {
+    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+    if (!emailRegex.test(email)) {
+      setEmailError(true);
+      setEmailErrorMessage('Email is Invalid');
+    } else {
+      setEmailError(false);
+      setEmailErrorMessage('');
+    }
+  };
+
+  // Update email state and validate email
+  const handleEmailChange = (e) => {
+    const newEmail = e.target.value;
+    setEmail(newEmail);
+    validateEmail(newEmail);
   };
 
   let baseUrl;
@@ -60,6 +172,27 @@ const LiveStorePage = () => {
   } else {
     baseUrl = `https://${storeUrl}.sparkledev.online`;
   }
+
+  useEffect(() => {
+    const customerDetails = ls.get('customerDetails');
+    if (customerDetails) {
+      setIsLoggedIn(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    const updateDialogWidth = () => {
+      const dialogElement = document.getElementById('loginDialog');
+      if (dialogElement) {
+        setDialogWidth(`${dialogElement.clientWidth}px`);
+      }
+    };
+
+    window.addEventListener('resize', updateDialogWidth);
+    updateDialogWidth();
+
+    return () => window.removeEventListener('resize', updateDialogWidth);
+  }, []);
 
   useEffect(() => {
     const pathParts = location.pathname.split('/');
@@ -326,15 +459,40 @@ const LiveStorePage = () => {
               )}
             </div>
 
-            <Stack m={3} direction={'row'} justifyContent={'center'}>
-              <Link onClick={handleOpenLoginDialog}>Login first to view Transactions</Link>
+            <Stack m={3} direction={'column'} alignItems={'center'} justifyContent={'center'}>
+              {isLoggedIn ? (
+                <>
+                  <Link
+                    onClick={handleOpenTransactionsDialog}
+                    style={{ cursor: 'pointer', textDecoration: 'underline', marginBottom: '10px' }}
+                  >
+                    View Transactions
+                  </Link>
+                  <Link onClick={handleLogout} style={{ cursor: 'pointer', textDecoration: 'underline' }}>
+                    Logout
+                  </Link>
+                </>
+              ) : (
+                <Link onClick={handleOpenLoginDialog} style={{ cursor: 'pointer', textDecoration: 'underline' }}>
+                  Login first to view Transactions
+                </Link>
+              )}
             </Stack>
           </Container>
 
-          <Dialog open={openLoginDialog} onClose={handleCloseLoginDialog}>
+          <Dialog
+            open={openLoginDialog}
+            onClose={handleCloseLoginDialog}
+            id="loginDialog"
+            maxWidth="md"
+            fullWidth
+            PaperProps={{ style: { width: dialogWidth } }} // Ensures dialog retains size
+          >
             <DialogTitle>{dialogStage === 1 ? 'Login' : 'OTP Verification'}</DialogTitle>
             <DialogContent>
-              {dialogStage === 1 ? (
+              {isLoading ? (
+                <DialogContentText>{dialogStage === 1 ? 'Sending OTP...' : 'Verifying OTP...'}</DialogContentText>
+              ) : dialogStage === 1 ? (
                 <>
                   <DialogContentText>Please enter your email to receive OTP.</DialogContentText>
                   <TextField
@@ -346,7 +504,9 @@ const LiveStorePage = () => {
                     fullWidth
                     variant="standard"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={handleEmailChange}
+                    error={emailError}
+                    helperText={emailError ? emailErrorMessage : ''}
                   />
                 </>
               ) : (
@@ -366,13 +526,72 @@ const LiveStorePage = () => {
                 </>
               )}
             </DialogContent>
-            <DialogActions>
-              <Button onClick={handleCloseLoginDialog}>Cancel</Button>
-              {dialogStage === 1 ? (
-                <Button onClick={handleEmailSubmit}>Submit</Button>
+            {!isLoading && (
+              <DialogActions>
+                <Button onClick={handleCloseLoginDialog}>Cancel</Button>
+                {dialogStage === 1 ? (
+                  <Button
+                    onClick={handleEmailSubmit}
+                    disabled={emailError || email === ''}
+                  >
+                    Submit
+                  </Button>
+                ) : (
+                  <Button onClick={handleOtpSubmit}>Confirm</Button>
+                )}
+              </DialogActions>
+            )}
+          </Dialog>
+
+          <Dialog
+            open={openTransactionsDialog}
+            onClose={() => setOpenTransactionsDialog(false)}
+            maxWidth="md"
+            fullWidth
+          >
+            <DialogTitle>Transactions</DialogTitle>
+            <DialogContent>
+              {isLoading ? (
+                <DialogContentText>Loading transactions...</DialogContentText>
+              ) : transactions.length > 0 ? (
+                <TableContainer>
+                  <Table>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Product</TableCell>
+                        <TableCell>Amount</TableCell>
+                        <TableCell>Status</TableCell>
+                        <TableCell>Date</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {transactions.map((transaction, index) => (
+                        <TableRow key={index}>
+                          <TableCell>{transaction.productName}</TableCell>
+                          <TableCell>{transaction.amount}</TableCell>
+                          <TableCell>{transaction.status}</TableCell>
+                          <TableCell>
+                            {`${new Date(transaction.date).toLocaleDateString('en-US', {
+                              month: '2-digit',
+                              day: '2-digit',
+                              year: 'numeric',
+                            })} ${new Date(transaction.date).toLocaleTimeString('en-US', {
+                              hour: '2-digit',
+                              minute: '2-digit',
+                              hour12: false,
+                            })}`}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
               ) : (
-                <Button onClick={handleOtpSubmit}>Confirm</Button>
+                <DialogContentText>No transactions found.</DialogContentText>
               )}
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setOpenTransactionsDialog(false)}>Close</Button>
             </DialogActions>
           </Dialog>
         </div>
