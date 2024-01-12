@@ -220,14 +220,12 @@ const LiveStorePage = () => {
     const hostname = window.location.hostname;
     const pathname = window.location.pathname;
 
-    // Extract the first segment of the path
     const pathParts = pathname.split('/');
     const firstPathSegment = pathParts.length > 1 ? pathParts[1] : null;
 
-    // Reserved paths that should not be considered as storeUrl
+    // Reserved paths
     const reservedPaths = ['topup', 'bills'];
 
-    // Check for a valid subdomain
     let subdomain = hostname.split('.')[0];
     if (subdomain !== 'www' && hostname.endsWith('.sparkledev.online')) {
       if (!reservedPaths.includes(subdomain)) {
@@ -235,17 +233,14 @@ const LiveStorePage = () => {
       }
     }
 
-    // Check for a valid path segment as storeUrl
     if (firstPathSegment && !reservedPaths.includes(firstPathSegment)) {
       return firstPathSegment; 
     }
 
-    // Check if the hostname is 'localhost' or another known development environment
     if (['localhost', 'lvh', 'sevenstarjasem', 'pldt-vaas-frontend', 'vortex-vaas-frontend'].includes(subdomain)) {
       return storeUrl;
     }
 
-    // Handle 'lvh.me' domain with development environment subdomains
     if (hostname.endsWith('lvh.me')) {
       subdomain = hostname.split('.')[0];
       if (subdomain.startsWith('pldt-vaas-frontend') || subdomain.startsWith('vortex-vaas-frontend')) {
