@@ -220,43 +220,27 @@ const LiveStorePage = () => {
     const hostname = window.location.hostname;
     const pathname = window.location.pathname;
 
+    // Check for subdomain in the hostname
+    const parts = hostname.split('.');
+    if (parts.length >= 3 && parts[0] !== 'www') {
+      return parts[0];
+    }
+
+    // Fallback to path segment if no subdomain
     const pathParts = pathname.split('/');
-    const firstPathSegment = pathParts.length > 1 ? pathParts[1] : null;
-
-    // Reserved paths
-    const reservedPaths = ['topup', 'bills'];
-
-    let subdomain = hostname.split('.')[0];
-    if (subdomain !== 'www' && hostname.endsWith('.sparkledev.online')) {
-      if (!reservedPaths.includes(subdomain)) {
-        return subdomain; 
-      }
+    if (pathParts.length > 1 && pathParts[1] !== 'topup' && pathParts[1] !== 'bills') {
+      return pathParts[1];
     }
 
-    if (firstPathSegment && !reservedPaths.includes(firstPathSegment)) {
-      return firstPathSegment; 
-    }
-
-    if (['localhost', 'lvh', 'sevenstarjasem', 'pldt-vaas-frontend', 'vortex-vaas-frontend'].includes(subdomain)) {
-      return storeUrl;
-    }
-
-    if (hostname.endsWith('lvh.me')) {
-      subdomain = hostname.split('.')[0];
-      if (subdomain.startsWith('pldt-vaas-frontend') || subdomain.startsWith('vortex-vaas-frontend')) {
-        if (pathParts.length > 1) {
-          return pathParts[1]; 
-        }
-      }
-      return subdomain;
-    }
-
-    return subdomain;
+    return null;
   };
 
   useEffect(() => {
-    setPreviewStoreUrl(`/${storeUrl}`);
-  }, [storeUrl]);
+    const subdomainOrStoreUrl = getSubdomainOrStoreUrl();
+    if (subdomainOrStoreUrl) {
+      setPreviewStoreUrl(subdomainOrStoreUrl);
+    }
+  }, [location]);
 
   useEffect(() => {
     const subdomainOrStoreUrl = getSubdomainOrStoreUrl();
@@ -278,7 +262,11 @@ const LiveStorePage = () => {
       };
       fetchStoreData();
     }
-  }, []);
+  }, [location]);
+
+  useEffect(() => {
+    setPreviewStoreUrl(`/${storeUrl}`);
+  }, [storeUrl]);
 
   useEffect(() => {
     if ((!storeData || storeData === 'domainNotFound') && notFound !== 'true') {
