@@ -115,6 +115,21 @@ const LiveStorePage = () => {
   const handleOtpSubmit = async () => {
     setIsLoading(true);
     try {
+      // Determine storeUrl
+      let storeUrl = window.location.hostname.split('.')[0];
+
+      if (!storeUrl || storeUrl === 'www') {
+        // If no subdomain or 'www', extract from path
+        const pathParts = window.location.pathname.split('/');
+        if (pathParts.length > 1 && pathParts[1]) {
+          storeUrl = pathParts[1];
+        } else {
+          console.error('Store URL not found');
+          setIsLoading(false);
+          return;
+        }
+      }
+
       // Verify OTP
       const otpVerificationResponse = await axios.post(
         `${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/customer/verify-otp`,
@@ -124,10 +139,14 @@ const LiveStorePage = () => {
         }
       );
 
+      console.log('OTP Verification Response:', otpVerificationResponse.data);
+
       if (otpVerificationResponse.data.message === 'OTP verified successfully') {
         // Fetch customer details
         const customerResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/${email}`);
         const customerData = customerResponse.data;
+
+        console.log('Store URL:', storeUrl);
 
         // Fetch dealer ID
         const dealerResponse = await axios.get(
