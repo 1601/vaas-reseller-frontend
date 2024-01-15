@@ -324,13 +324,15 @@ const VortexTopUp = () => {
       lastName: '',
       ipAddress: '', // New state for IP address
     });
-
+    const [phoneNumberError, setPhoneNumberError] = useState('');
+    const [emailError, setEmailError] = useState('');
     const [isValid, setIsValid] = useState(false);
 
     useEffect(() => {
       const { phoneNumber, email } = userDetails;
-      setIsValid(phoneNumber.trim() !== '' || email.trim() !== '');
-      externalIpAddCur(); // Call this function on component mount
+      const isPhoneNumberValid = phoneNumber.trim() !== '' && /^\d+$/.test(phoneNumber);
+      const isEmailValid = email.trim() !== '' && validateEmail(email);
+      setIsValid(isPhoneNumberValid || isEmailValid);
     }, [userDetails]);
 
     // Function to fetch IP address
@@ -347,8 +349,38 @@ const VortexTopUp = () => {
     };
 
     const handleChange = (prop) => (event) => {
-      setUserDetails({ ...userDetails, [prop]: event.target.value });
+      const value = event.target.value;
+      if (prop === 'phoneNumber') {
+        setUserDetails({ ...userDetails, [prop]: value });
+        const phoneNumberRegex = /^\d+$/;
+        if (value !== '' && !phoneNumberRegex.test(value)) {
+          setPhoneNumberError('Phone number must contain digits only');
+        } else {
+          setPhoneNumberError('');
+        }
+      } else if (prop === 'email') {
+        setUserDetails({ ...userDetails, [prop]: value });
+        if (validateEmail(value)) {
+          setEmailError('');
+        } else {
+          setEmailError('Invalid email address');
+        }
+      } else {
+        setUserDetails({ ...userDetails, [prop]: value });
+      }
     };
+
+    const validateEmail = (email) => {
+      const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+      return regex.test(email);
+    };
+
+    useEffect(() => {
+      const { phoneNumber, email } = userDetails;
+      const isPhoneNumberValid = phoneNumber.trim() !== '' && !Number.isNaN(phoneNumber);
+      const isEmailValid = email.trim() !== '' && validateEmail(email);
+      setIsValid(isPhoneNumberValid || isEmailValid);
+    }, [userDetails]);
 
     const getStoreUrl = () => {
       const hostname = window.location.hostname;
@@ -474,6 +506,8 @@ const VortexTopUp = () => {
             fullWidth
             value={userDetails.phoneNumber}
             onChange={handleChange('phoneNumber')}
+            error={!!phoneNumberError}
+            helperText={phoneNumberError}
           />
           <TextField
             margin="dense"
@@ -483,6 +517,8 @@ const VortexTopUp = () => {
             fullWidth
             value={userDetails.email}
             onChange={handleChange('email')}
+            error={!!emailError}
+            helperText={emailError}
           />
           <Grid container spacing={2}>
             <Grid item xs={6}>
@@ -1380,7 +1416,7 @@ const VortexTopUp = () => {
   const ReviewConfirmationForm = ({ setActiveStep, setTransactionData }) => {
     const paymentMethodType = ls.get('paymentMethodType');
     const customerDetails = ls.get('customerDetails');
-  
+
     // const { email, name, phone, address } = getUser();
 
     const { convenienceFee, grandTotalFee } = getServiceFee({
@@ -1587,33 +1623,33 @@ const VortexTopUp = () => {
                   variant="outlined"
                   onClick={handlePayment}
                   // onClick={async () => {
-                    // const userDetailsDialog = await handleOpenDialog();
-                    // console.log('User Details Dialog: ', userDetailsDialog);
-                    // if(isUserDetailShown) {
-                    //   console.log('User Details Dialog: ', userDetailsDialog);
-                    //   const url = await createLink(grandTotalFee * 100, selectedProduct.name);
-                    //   const paymentWindow = window.open(url, '_blank');
-                    //   console.log('Link Created: ', createLink);
-                    //   console.log('Amount: ', grandTotalFee);
-                    //   console.log('Description: ', selectedProduct.name);
+                  // const userDetailsDialog = await handleOpenDialog();
+                  // console.log('User Details Dialog: ', userDetailsDialog);
+                  // if(isUserDetailShown) {
+                  //   console.log('User Details Dialog: ', userDetailsDialog);
+                  //   const url = await createLink(grandTotalFee * 100, selectedProduct.name);
+                  //   const paymentWindow = window.open(url, '_blank');
+                  //   console.log('Link Created: ', createLink);
+                  //   console.log('Amount: ', grandTotalFee);
+                  //   console.log('Description: ', selectedProduct.name);
 
-                    //   // Polling to check if the payment window has been closed
-                    //   const paymentWindowClosed = setInterval(() => {
-                    //     if (paymentWindow.closed) {
-                    //       clearInterval(paymentWindowClosed);
-                    //       // Once the payment window is closed, set the transaction data
-                    //       setTransactionData({
-                    //         productName: selectedProduct.name,
-                    //         price: selectedProduct.price,
-                    //         convenienceFee,
-                    //         totalPrice: grandTotalFee,
-                    //         currency: platformVariables?.currencySymbol,
-                    //       });
-                    //       // Update the activeStep to 3 to show the transaction completed message
-                    //       setActiveStep(3);
-                    //     }
-                    //   }, 500);
-                    // }
+                  //   // Polling to check if the payment window has been closed
+                  //   const paymentWindowClosed = setInterval(() => {
+                  //     if (paymentWindow.closed) {
+                  //       clearInterval(paymentWindowClosed);
+                  //       // Once the payment window is closed, set the transaction data
+                  //       setTransactionData({
+                  //         productName: selectedProduct.name,
+                  //         price: selectedProduct.price,
+                  //         convenienceFee,
+                  //         totalPrice: grandTotalFee,
+                  //         currency: platformVariables?.currencySymbol,
+                  //       });
+                  //       // Update the activeStep to 3 to show the transaction completed message
+                  //       setActiveStep(3);
+                  //     }
+                  //   }, 500);
+                  // }
                   // }}
                 >
                   {isLoadingTransaction ? 'PLEASE WAIT . . . TRANSACTION IN PROGRESS . . ' : 'PAY'}
