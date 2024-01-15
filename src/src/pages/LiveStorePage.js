@@ -36,6 +36,7 @@ const LiveStorePage = () => {
   const [openLoginDialog, setOpenLoginDialog] = useState(false);
   const [dialogStage, setDialogStage] = useState(1); // 1 for email, 2 for OTP
   const [dialogWidth, setDialogWidth] = useState('md');
+  const [customerFound, setCustomerFound] = useState(true);
   const [email, setEmail] = useState('');
   const [emailError, setEmailError] = useState(false);
   const [emailErrorMessage, setEmailErrorMessage] = useState('');
@@ -44,6 +45,8 @@ const LiveStorePage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [openTransactionsDialog, setOpenTransactionsDialog] = useState(false);
   const [transactions, setTransactions] = useState([]);
+  const [showOtpSuccessDialog, setShowOtpSuccessDialog] = useState(false);
+  const [loginErrorMessage, setLoginErrorMessage] = useState('');
   const [platformVariables, setPlatformVariables] = useState({
     enableBills: true,
     enableLoad: true,
@@ -97,18 +100,31 @@ const LiveStorePage = () => {
   };
 
   const handleEmailSubmit = async () => {
+    setEmailError(false);
+    setEmailErrorMessage('');
+
     setIsLoading(true);
     try {
       const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/customer/otp`, { email });
       setIsLoading(false);
       if (response.data.message === 'OTP sent successfully') {
         setDialogStage(2);
+        setLoginErrorMessage('');
       } else {
         console.error('Failed to send OTP');
+        setEmailError(true);
+        setEmailErrorMessage('Failed to send OTP. Please try again.');
       }
     } catch (error) {
       setIsLoading(false);
-      console.error('Error sending OTP:', error);
+      if (error.response && error.response.status === 404) {
+        setEmailError(true);
+        setEmailErrorMessage('No customer found with this email');
+      } else {
+        console.error('Error sending OTP:', error);
+        setEmailError(true);
+        setEmailErrorMessage('An unexpected error occurred. Please try again.');
+      }
     }
   };
 
@@ -163,7 +179,11 @@ const LiveStorePage = () => {
 
         setIsLoggedIn(true);
         setIsLoading(false);
-        handleCloseLoginDialog();
+        setShowOtpSuccessDialog(true);
+        setTimeout(() => {
+          setShowOtpSuccessDialog(false);
+          handleCloseLoginDialog();
+        }, 3000);
       } else {
         console.error('Failed to verify OTP');
         setIsLoading(false);
@@ -533,7 +553,9 @@ const LiveStorePage = () => {
           >
             <DialogTitle>{dialogStage === 1 ? 'Login' : 'OTP Verification'}</DialogTitle>
             <DialogContent>
-              {isLoading ? (
+              {showOtpSuccessDialog ? (
+                <DialogContentText>OTP Verified Successfully!</DialogContentText>
+              ) : isLoading ? (
                 <DialogContentText>{dialogStage === 1 ? 'Sending OTP...' : 'Verifying OTP...'}</DialogContentText>
               ) : dialogStage === 1 ? (
                 <>
@@ -568,6 +590,7 @@ const LiveStorePage = () => {
                   />
                 </>
               )}
+              {loginErrorMessage && <DialogContentText style={{ color: 'red' }}>{loginErrorMessage}</DialogContentText>}
             </DialogContent>
             {!isLoading && (
               <DialogActions>
