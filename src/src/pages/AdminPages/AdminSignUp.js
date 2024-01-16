@@ -35,6 +35,10 @@ const AdminSignUp = () => {
   });
   const [isRestricted, setIsRestricted] = useState(false);
 
+  const [passwordValid, setPasswordValid] = useState(false);
+  const [passwordError, setPasswordError] = useState('');
+  const [isPasswordTouched, setIsPasswordTouched] = useState(false);
+
   useEffect(() => {
     const query = new URLSearchParams(location.search);
     const token = query.get('token');
@@ -69,16 +73,10 @@ const AdminSignUp = () => {
     }
   }, [location.search]);
 
-  const handleInputChange = (e) => {
-    setFormState({ ...formState, [e.target.name]: e.target.value });
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!passwordValidation.test(formState.password)) {
-      alert(
-        'Password must be 8-12 characters long, contain at least one uppercase letter, one number, and one special character.'
-      );
+    if (!passwordValid) {
+      alert('Please input all required fields.');
       return;
     }
     try {
@@ -96,6 +94,45 @@ const AdminSignUp = () => {
   const handleCloseSuccessDialog = () => {
     setShowSuccessDialog(false);
     navigate('/admin');
+  };
+
+  const validatePassword = (password) => {
+    const errors = [];
+    let generalError = 'Password must contain: ';
+
+    if (!/.{8,12}/.test(password)) {
+      errors.push('8-12 characters long.');
+    }
+    if (!/[A-Z]/.test(password)) {
+      errors.push('one uppercase letter.');
+    }
+    if (!/[a-z]/.test(password)) {
+      errors.push('one lowercase letter.');
+    }
+    if (!/\d/.test(password)) {
+      errors.push('one number.');
+    }
+    if (!/[@$!%*?&]/.test(password)) {
+      errors.push('one special character.');
+    }
+
+    generalError += errors.join(' ');
+
+    setPasswordError(errors.length > 0 ? generalError : '');
+    setPasswordValid(errors.length === 0);
+  };
+
+  const handleInputChange = (e) => {
+    setFormState({ ...formState, [e.target.name]: e.target.value });
+
+    if (e.target.name === 'password') {
+      if (!isPasswordTouched) setIsPasswordTouched(true);
+      validatePassword(e.target.value);
+    }
+  };
+
+  const isFormFilled = () => {
+    return formState.firstName && formState.lastName && formState.password && formState.email && formState.mobileNumber;
   };
 
   if (isRestricted) {
@@ -146,6 +183,8 @@ const AdminSignUp = () => {
             fullWidth
             variant="outlined"
             sx={{ mb: 2 }}
+            error={isPasswordTouched && !passwordValid}
+            helperText={isPasswordTouched && !passwordValid && passwordError}
           />
           <TextField
             label="Email"
@@ -167,7 +206,13 @@ const AdminSignUp = () => {
             disabled
             sx={{ mb: 2 }}
           />
-          <Button type="submit" variant="outlined" color="primary" fullWidth disabled={loading}>
+          <Button
+            type="submit"
+            variant="outlined"
+            color="primary"
+            fullWidth
+            disabled={loading || !passwordValid || !isFormFilled()}
+          >
             {loading ? <CircularProgress size={24} /> : 'Sign Up'}
           </Button>
         </form>
