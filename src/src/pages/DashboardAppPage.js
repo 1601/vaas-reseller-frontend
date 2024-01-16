@@ -46,7 +46,7 @@ export default function DashboardAppPage() {
 
   const { storeData, editedData, platformVariables, error } = StoreDataFetch(userId);
   const userData = UserDataFetch(userId);
-  console.log ("UserData: ", userData)
+  console.log('UserData: ', userData);
 
   useEffect(() => {
     const existingUserData = JSON.parse(localStorage.getItem('user'));
@@ -163,7 +163,7 @@ export default function DashboardAppPage() {
           {trialMessageCard || verificationCard ? (
             <>
               <Typography variant="h4" sx={{ mb: 5 }}>
-                Hi, Welcome back
+                {userData && userData.firstName ? `Hi ${userData.firstName}, welcome back` : 'Hi, Welcome back'}
               </Typography>
               {trialMessageCard}
               {verificationCard}
