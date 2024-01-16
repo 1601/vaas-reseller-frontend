@@ -25,6 +25,7 @@ function HeroHome() {
   return (
     <section className="relative">
       {/* Illustration behind hero content */}
+      {/*
       <div className="absolute left-1/2 transform -translate-x-1/2 bottom-0 pointer-events-none" aria-hidden="true">
         <svg width="1360" height="578" viewBox="0 0 1360 578" xmlns="http://www.w3.org/2000/svg">
           <defs>
@@ -40,6 +41,7 @@ function HeroHome() {
           </g>
         </svg>
       </div>
+      */}
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <Hidden mdDown>
@@ -83,7 +85,7 @@ function HeroHome() {
                                 borderRadius: '12px',
                                 height: '2.5rem',
                                 width: '248.18px',
-                                marginRight: '10px', // Adjust the margin-right as needed
+                                marginRight: '10px',
                               },
                             }}
                           />
@@ -95,7 +97,7 @@ function HeroHome() {
                             style={{
                               fontFamily: 'Shopify Sans, sans-serif',
                               overflow: 'hidden',
-                              width: '129.64px',
+                              width: '189.64px',
                               height: '2.5rem',
                               transition: 'all',
                               backgroundColor: '#7F09E4',
@@ -106,10 +108,11 @@ function HeroHome() {
                               textAlign: 'center',
                               textDecoration: 'none',
                               whiteSpace: 'nowrap',
-                              marginLeft: '-45px',
+                              marginLeft: '-70px',
+                              paddingLeft: '15px',
                             }}
                           >
-                            Start Store
+                            Create my Own Shop
                           </Button>
                         </div>
                       </div>
@@ -173,7 +176,7 @@ function HeroHome() {
                     <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10zm0 2C5.373 24 0 18.627 0 12S5.373 0 12 0s12 5.373 12 12-5.373 12-12 12z" />
                     <path d="M10 17l6-5-6-5z" />
                   </svg>
-                  <span className="ml-3">Watch the full video (2 min)</span>
+                  <span className="ml-3">Watch to Learn More</span>
                 </button>
               </div>
 
@@ -215,11 +218,8 @@ function HeroHome() {
               </div> */}
           </div>
           <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-            <Typography variant="h5">Explore the solutions</Typography>
-            <Typography variant="caption">
-              Looking for an easy and fast way to send prepaid mobile load to your friends and loved ones in the
-              Philippines? Look no further!{' '}
-            </Typography>
+            <Typography variant="h5">Our solutions</Typography>
+            <Typography variant="caption"> </Typography>
           </div>
         </Hidden>
 
@@ -285,7 +285,7 @@ function HeroHome() {
                           style={{
                             fontFamily: 'Shopify Sans, sans-serif',
                             overflow: 'hidden',
-                            width: '129.64px',
+                            width: '239.64px',
                             height: '2.5rem',
                             transition: 'all',
                             backgroundColor: '#7F09E4',
@@ -297,9 +297,10 @@ function HeroHome() {
                             textDecoration: 'none',
                             whiteSpace: 'nowrap',
                             marginLeft: '-4px',
+                            paddingLeft: '15px',
                           }}
                         >
-                          Start Store
+                          Create my Own Shop
                         </Button>
                       </div>
                       <p style={{ fontSize: '.5rem', marginTop: '5px', textAlign: 'center' }}>
@@ -308,11 +309,7 @@ function HeroHome() {
                       </p>
                     </form>
                     <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-                      <Typography variant="h5">Explore the solutions</Typography>
-                      <Typography variant="caption">
-                        Looking for an easy and fast way to send prepaid mobile load to your friends and loved ones in
-                        the Philippines? Look no further!{' '}
-                      </Typography>
+                      <Typography variant="h5">Our solutions</Typography>
                     </div>
                   </div>
                 </div>
