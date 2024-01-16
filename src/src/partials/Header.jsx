@@ -63,15 +63,6 @@ function Header() {
           {/* Site navigation */}
           <nav>
             <ul className="flex items-center space-x-2 md:space-x-4">
-              <Hidden mdDown>
-                <li className='font-medium text-sm md:text-base text-gray-600 hover:text-gray-900 px-2 py-1 md:px-3 md:py-2 flex items-center transition duration-150 ease-in-out"'>
-                    Solutions
-                    <ArrowDropDownIcon/>
-                </li>
-                <li className='font-medium text-sm md:text-base text-gray-600 hover:text-gray-900 px-2 py-1 md:px-3 md:py-2 flex items-center transition duration-150 ease-in-out"'>
-                    Pricing
-                </li>
-              </Hidden>
               <li>
                 <Link to="/login" className="font-medium text-sm md:text-base text-gray-600 hover:text-gray-900 px-2 py-1 md:px-3 md:py-2 flex items-center transition duration-150 ease-in-out">Log in</Link>
               </li>
