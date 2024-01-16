@@ -71,8 +71,12 @@ const AdminCreation = () => {
           setOpenConfirmDialog(true);
         }
       } catch (error) {
-        console.error('Error checking email:', error);
-        setErrorMessage('Error occurred while checking the email.');
+        if (error.response && error.response.status === 400) {
+          setOpenConfirmDialog(true);
+        } else {
+          console.error('Error checking email:', error);
+          setErrorMessage('Error occurred while checking the email.');
+        }
       }
     } else {
       setErrorMessage('Please enter a valid email.');
