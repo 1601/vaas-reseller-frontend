@@ -1,6 +1,10 @@
 import React from 'react';
 
 function FeaturesBlocks() {
+  const textStyle = {
+    minHeight: '5em', // Adjust the height accordingly
+  };
+
   return (
     <section className="relative">
 
@@ -13,15 +17,15 @@ function FeaturesBlocks() {
 
           {/* Section header */}
           <div className="max-w-3xl mx-auto text-center pb-12 md:pb-20">
-            <h2 className="h2 mb-4">With Vortex</h2>
-            <p className="text-xl text-gray-600">You can enjoy, whether you're abroad or just busy with work, our platform makes it easy to stay connected with your friends and family back home.</p>
+            <h2 className="h2 mb-4">Why start with us?</h2>
+            <p className="text-xl text-gray-600">With Vortex, convenience is just a few clicks wherever you are. You can enjoy, whether you're abroad or just busy with work, our platform makes it easy to stay connected with your friends and family back home.</p>
           </div>
 
           {/* Items */}
-          <div className="max-w-sm mx-auto grid gap-6 md:grid-cols-2 lg:grid-cols-3 items-start md:max-w-2xl lg:max-w-none">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 items-start md:max-w-2xl lg:max-w-none mx-auto">
 
             {/* 1st item */}
-            <div className="relative flex flex-col items-center p-6 bg-white rounded shadow-xl">
+            <div className="relative flex flex-col items-center p-6 bg-white rounded shadow-xl mx-auto">
               <svg className="w-16 h-16 p-1 -mt-1 mb-2" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
                 <g fill="none" fillRule="evenodd">
                   <rect className="fill-current text-purple-600" width="64" height="64" rx="32" />
@@ -34,11 +38,11 @@ function FeaturesBlocks() {
                 </g>
               </svg>
               <h4 className="text-xl font-bold leading-snug tracking-tight mb-1">Top ups</h4>
-              <p className="text-gray-600 text-center">Fast and convenient top ups anytime, anywhere.</p>
+              <p className="text-gray-600 text-center" style={textStyle}>Fast and convenient top ups anytime, anywhere.</p>
             </div>
 
             {/* 2nd item */}
-            <div className="relative flex flex-col items-center p-6 bg-white rounded shadow-xl">
+            <div className="relative flex flex-col items-center p-6 bg-white rounded shadow-xl mx-auto">
               <svg className="w-16 h-16 p-1 -mt-1 mb-2" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
                 <g fill="none" fillRule="evenodd">
                   <rect className="fill-current text-purple-600" width="64" height="64" rx="32" />
@@ -50,11 +54,11 @@ function FeaturesBlocks() {
                 </g>
               </svg>
               <h4 className="text-xl font-bold leading-snug tracking-tight mb-1">Multi-network</h4>
-              <p className="text-gray-600 text-center">Support for Smart, Sun, and TNT prepaid mobile numbers</p>
+              <p className="text-gray-600 text-center" style={textStyle}>Support for Smart, Sun, and TNT prepaid mobile numbers</p>
             </div>
 
             {/* 3rd item */}
-            <div className="relative flex flex-col items-center p-6 bg-white rounded shadow-xl">
+            <div className="relative flex flex-col items-center p-6 bg-white rounded shadow-xl mx-auto">
               <svg className="w-16 h-16 p-1 -mt-1 mb-2" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
                 <g fill="none" fillRule="evenodd">
                   <rect className="fill-current text-purple-600" width="64" height="64" rx="32" />
@@ -65,11 +69,11 @@ function FeaturesBlocks() {
                 </g>
               </svg>
               <h4 className="text-xl font-bold leading-snug tracking-tight mb-1">Bills Payment</h4>
-              <p className="text-gray-600 text-center">Payment to top billers in the Philippines.</p>
+              <p className="text-gray-600 text-center" style={textStyle}>Payment to top billers in the Philippines.</p>
             </div>
 
             {/* 4th item */}
-            <div className="relative flex flex-col items-center p-6 bg-white rounded shadow-xl">
+            <div className="relative flex flex-col items-center p-6 bg-white rounded shadow-xl mx-auto">
               <svg className="w-16 h-16 p-1 -mt-1 mb-2" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
                 <g fill="none" fillRule="evenodd">
                   <rect className="fill-current text-purple-600" width="64" height="64" rx="32" />
@@ -82,11 +86,11 @@ function FeaturesBlocks() {
                 </g>
               </svg>              
               <h4 className="text-xl font-bold leading-snug tracking-tight mb-1">Earn</h4>
-              <p className="text-gray-600 text-center">Load up, get discounts, and earn in a click.</p>
+              <p className="text-gray-600 text-center" style={textStyle}>Load up, get discounts, and earn in a click.</p>
             </div>
 
             {/* 5th item */}
-            <div className="relative flex flex-col items-center p-6 bg-white rounded shadow-xl">
+            <div className="relative flex flex-col items-center p-6 bg-white rounded shadow-xl mx-auto">
               <svg className="w-16 h-16 p-1 -mt-1 mb-2" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
                 <g fill="none" fillRule="evenodd">
                   <rect className="fill-current text-purple-600" width="64" height="64" rx="32" />
@@ -97,11 +101,11 @@ function FeaturesBlocks() {
                 </g>
               </svg>
               <h4 className="text-xl font-bold leading-snug tracking-tight mb-1">Security</h4>
-              <p className="text-gray-600 text-center">Secure and reliable payment methods.</p>
+              <p className="text-gray-600 text-center" style={textStyle}>Secure and reliable payment methods.</p>
             </div>
 
             {/* 6th item */}
-            <div className="relative flex flex-col items-center p-6 bg-white rounded shadow-xl">
+            <div className="relative flex flex-col items-center p-6 bg-white rounded shadow-xl mx-auto">
               <svg className="w-16 h-16 p-1 -mt-1 mb-2" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
                 <g fill="none" fillRule="evenodd">
                   <rect className="fill-current text-purple-600" width="64" height="64" rx="32" />
@@ -114,7 +118,7 @@ function FeaturesBlocks() {
                 </g>
               </svg>
               <h4 className="text-xl font-bold leading-snug tracking-tight mb-1">Ease of use</h4>
-              <p className="text-gray-600 text-center">Easy-to-use platform accessible from anywhere.</p>
+              <p className="text-gray-600 text-center" style={textStyle}>Easy-to-use platform accessible from anywhere.</p>
             </div>
 
           </div>
