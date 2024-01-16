@@ -25,13 +25,58 @@ const AdminCreation = () => {
   });
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
   const [openSnackbar, setOpenSnackbar] = useState(false);
+  const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+  const phoneRegex = /^[0-9]+$/;
+  const [errorMessage, setErrorMessage] = useState('');
 
-  const handleInputChange = (e) => {
-    setFormState({ ...formState, [e.target.name]: e.target.value });
+  const [isEmailValid, setIsEmailValid] = useState(false);
+  const [isPhoneNumberValid, setIsPhoneNumberValid] = useState(false);
+
+  const validateEmail = (email) => {
+    return emailRegex.test(email);
   };
 
-  const handleSubmitClick = () => {
-    setOpenConfirmDialog(true);
+  const validatePhoneNumber = (phoneNumber) => {
+    return phoneRegex.test(phoneNumber) && phoneNumber.length >= 10; // Assuming phone number should be at least 10 digits
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormState({ ...formState, [name]: value });
+
+    if (name === 'email') {
+      setIsEmailValid(validateEmail(value));
+    } else if (name === 'phoneNumber') {
+      setIsPhoneNumberValid(validatePhoneNumber(value));
+    }
+  };
+
+  const isFormValid = () => {
+    return isEmailValid && isPhoneNumberValid;
+  };
+
+  const handleSubmitClick = async () => {
+    setErrorMessage('');
+
+    // Check if the email is associated with a dealer account
+    if (isEmailValid) {
+      try {
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/email`, {
+          params: { email: formState.email },
+        });
+
+        if (response.data && response.data.role === 'dealer') {
+          setErrorMessage('Dealer account detected. Use another email that is not a registered dealer.');
+        } else {
+          setOpenConfirmDialog(true);
+        }
+      } catch (error) {
+        console.error('Error checking email:', error);
+        setErrorMessage('Error occurred while checking the email.');
+      }
+    } else {
+      setErrorMessage('Please enter a valid email.');
+    }
   };
 
   const handleFinalSubmit = async () => {
@@ -41,12 +86,12 @@ const AdminCreation = () => {
     try {
       await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/admin/send-invite`, {
         email: formState.email,
-        phoneNumber: formState.phoneNumber, 
+        mobileNumber: formState.phoneNumber,
         uniqueKey,
       });
-      setOpenSnackbar(true); 
+      setOpenSnackbar(true);
       setTimeout(() => {
-        navigate('/dashboard/admin/home'); 
+        navigate('/dashboard/admin/home');
       }, 2000);
     } catch (error) {
       console.error('Error sending admin invite:', error);
@@ -78,6 +123,8 @@ const AdminCreation = () => {
           fullWidth
           variant="outlined"
           sx={{ mt: 2 }}
+          error={formState.email.length > 0 && !isEmailValid}
+          helperText={formState.email.length > 0 && !isEmailValid ? 'Invalid email format' : ''}
         />
         <TextField
           label="Phone Number"
@@ -87,7 +134,14 @@ const AdminCreation = () => {
           fullWidth
           variant="outlined"
           sx={{ mt: 2 }}
+          error={formState.phoneNumber.length > 0 && !isPhoneNumberValid}
+          helperText={formState.phoneNumber.length > 0 && !isPhoneNumberValid ? 'Invalid phone number format' : ''}
         />
+        {errorMessage && (
+          <Typography color="error" sx={{ mt: 2 }}>
+            {errorMessage}
+          </Typography>
+        )}
         <Button
           variant="contained"
           style={{
@@ -95,11 +149,12 @@ const AdminCreation = () => {
             height: '40px',
             borderRadius: '22px',
             fontSize: '14px',
-            backgroundColor: '#7A52F4',
-            color: '#fff',
+            backgroundColor: isFormValid() ? '#7A52F4' : '#CCCCCC',
+            color: isFormValid() ? '#fff' : '#666666',
             marginTop: '16px',
           }}
           onClick={handleSubmitClick}
+          disabled={!isFormValid()}
         >
           Submit
         </Button>
