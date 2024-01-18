@@ -692,7 +692,7 @@ export default function SignUpPage() {
   return (
     <>
       <Helmet>
-        <title> Sign Up | Your App </title>
+        <title> Sign Up | VAAS </title>
       </Helmet>
       <Container maxWidth={false} style={containerStyle}>
         {succesSignup === true ? (<VerifyPage email={formData.email} firstName={formData.firstName} lastName={formData.lastName} />

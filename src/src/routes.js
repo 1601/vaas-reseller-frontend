@@ -47,6 +47,7 @@ import { excludedPaths } from './components/subdomain/ExcludedPaths';
 import TopUpProducts from './pages/DealerPages/Products/TopUpProducts';
 import TopUpConfig from './pages/DealerPages/Products/TopUpConfig';
 import BillerProducts from './pages/DealerPages/Products/BillerProducts';
+import OldLoginPage from './pages/AuthPages/oldLoginPage';
 
 // ----------------------------------------------------------------------
 
@@ -226,6 +227,10 @@ export default function Router() {
     {
       path: 'login',
       element: isLoggedIn ? <Navigate to="/dashboard/app" /> : <LoginPage />,
+    },
+    {
+      path: 'login2',
+      element: isLoggedIn ? <Navigate to="/dashboard/app" /> : <OldLoginPage />,
     },
     {
       path: 'signup',
