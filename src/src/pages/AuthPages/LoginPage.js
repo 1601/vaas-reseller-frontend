@@ -79,6 +79,8 @@ export default function LoginPage() {
     const params = new URLSearchParams(location.search);
     const tokenFromURL = params.get('token');
 
+    document.title = "Login | VAAS";
+
     if (tokenFromURL) {
       localStorage.setItem('token', tokenFromURL);
 
