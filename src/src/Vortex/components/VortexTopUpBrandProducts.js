@@ -31,13 +31,13 @@ const VortexTopUpBrandProducts = ({
           return a.price - b.price;
         })
         .map((product) => {
-          console.log(product);
-          console.log(
-            'Price before calculation:',
-            product.price,
-            'Currency to Peso:',
-            platformVariables?.topupCurrencyToPeso
-          );
+          // console.log(product);
+          // console.log(
+          //   'Price before calculation:',
+          //   product.price,
+          //   'Currency to Peso:',
+          //   platformVariables?.topupCurrencyToPeso
+          // );
           // Calculate price only if product is not disabled
           const calculatedPrice = product.disabled
             ? 'Not Available'

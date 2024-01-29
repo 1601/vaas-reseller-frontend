@@ -37,7 +37,7 @@ const VortexTransactionHistory = () => {
     
     if (response.status === 200) {
       let result = await response.json()
-      console.log(result)
+      // console.log(result)
       setTransactions(result)
       setIsLoading(false)
     } else {

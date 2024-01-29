@@ -66,7 +66,7 @@ const TopUpProducts = () => {
           { headers: { Authorization: `Bearer ${token}` } }
         )
         .then((response) => {
-          console.log('Topup toggles updated successfully:', response.data);
+          // console.log('Topup toggles updated successfully:', response.data);
           // Update the local state with the response from the backend
           setTopUpToggles(response.data.topupToggles);
         })

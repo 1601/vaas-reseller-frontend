@@ -165,7 +165,7 @@ const VortexBillsPaymentPage = () => {
 
   function stepForward() {
     const nextStep = activeStep + 1;
-    console.log("Current step:", activeStep, "Next step:", nextStep);
+    // console.log("Current step:", activeStep, "Next step:", nextStep);
     setActiveStep(nextStep);
   }  
 
@@ -189,8 +189,8 @@ const VortexBillsPaymentPage = () => {
       //   `/vortextransactions/billspayment/${saveTransaction.referenceNumber}`,
       //   { state: saveTransaction }
       // )
-      console.log('saveTransaction', saveTransaction)
-      console.log("go to /vortextransactions/billspayment/$ { saveTransaction.referenceNumber}")
+      // console.log('saveTransaction', saveTransaction)
+      // console.log("go to /vortextransactions/billspayment/$ { saveTransaction.referenceNumber}")
 
       setisLoading(false)
     } catch (error) {
@@ -242,8 +242,8 @@ const VortexBillsPaymentPage = () => {
           // navigate(
           //   `/vortextransactions/billspayment/${vortexBillPaymentTransactionResult.referenceNumber}`
           // )
-          console.log('vortexBillPaymentTransactionResult', vortexBillPaymentTransactionResult)
-          console.log("go to /vortextransactions/billspayment/$ { vortexBillPaymentTransactionResult.referenceNumber}")
+          // console.log('vortexBillPaymentTransactionResult', vortexBillPaymentTransactionResult)
+          // console.log("go to /vortextransactions/billspayment/$ { vortexBillPaymentTransactionResult.referenceNumber}")
         } else {
           setErrorData({
             isError: true,
@@ -309,8 +309,8 @@ const VortexBillsPaymentPage = () => {
           // navigate(
           //   `/vortextransactions/billspayment/${vortexBillPaymentTransactionResult.referenceNumber}`
           // )
-          console.log('vortexBillPaymentTransactionResult', vortexBillPaymentTransactionResult)
-          console.log("go to /vortextransactions/billspayment/$ { vortexBillPaymentTransactionResult.referenceNumber}")
+          // console.log('vortexBillPaymentTransactionResult', vortexBillPaymentTransactionResult)
+          // console.log("go to /vortextransactions/billspayment/$ { vortexBillPaymentTransactionResult.referenceNumber}")
         } else {
           setErrorData({
             isError: true,
@@ -395,47 +395,47 @@ const VortexBillsPaymentPage = () => {
 
   useEffect(() => {
     async function fetchUserDataAndBillers() {
-      console.log("Starting to fetch user data and billers");
+      // console.log("Starting to fetch user data and billers");
       setisLoading(true);
   
       const storeUrl = extractStoreUrl();
-      console.log("Extracted Store URL:", storeUrl);
+      // console.log("Extracted Store URL:", storeUrl);
   
       try {
         const userResponse = await fetch(`${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/url/${storeUrl}/user`);
-        console.log("User Response Status:", userResponse.status);
+        // console.log("User Response Status:", userResponse.status);
   
         if (userResponse.status === 200) {
           const { userId } = await userResponse.json();
-          console.log("User ID:", userId);
+          // console.log("User ID:", userId);
   
           const dealerResponse = await fetch(`${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/${userId}/billertoggles/public`);
-          console.log("Dealer Response Status:", dealerResponse.status);
+          // console.log("Dealer Response Status:", dealerResponse.status);
   
           if (dealerResponse.status === 200) {
             const dealerData = await dealerResponse.json();
-            console.log("Dealer Data:", dealerData);
+            // console.log("Dealer Data:", dealerData);
             setDealerSettings(dealerData);
   
             const vortexTokenResponse = await getVortexTokenBase();
-            console.log("Vortex Token Response Status:", vortexTokenResponse.status);
+            // console.log("Vortex Token Response Status:", vortexTokenResponse.status);
   
             if (vortexTokenResponse.status === 200) {
               const vortexTokenResult = await vortexTokenResponse.json();
               const response = await getBillers(vortexTokenResult.access_token, 1, 1000);
-              console.log("Billers Response Status:", response.status);
+              // console.log("Billers Response Status:", response.status);
   
               if (response.status === 200) {
                 const billers = await response.json();
-                console.log("All Billers:", billers);
+                // console.log("All Billers:", billers);
           
                 const filteredBillers = billers.filter(biller => {
                   const isEnabled = isBillerEnabled(biller.name, dealerData);
-                  console.log(`Biller: ${biller.name}, Enabled: ${isEnabled}`);
+                  // console.log(`Biller: ${biller.name}, Enabled: ${isEnabled}`);
                   return isEnabled;
                 });
           
-                console.log("Filtered Billers:", filteredBillers);
+                // console.log("Filtered Billers:", filteredBillers);
                 setData(filteredBillers);
               }
             }
@@ -515,7 +515,7 @@ const VortexBillsPaymentPage = () => {
           title={"Bills"}
           onClickBack={() => {
             // navigate(-1)
-            console.log(" navigate back")
+            // console.log(" navigate back")
             window.history.back()
           }}
         />
@@ -682,7 +682,7 @@ const VortexBillsPaymentPage = () => {
             
             if (response.status === 200) {
               const result = await response.json();
-              console.log(result);
+              // console.log(result);
               setbillerDetails(result);
               setIsLoadingBiller(false);
             }
@@ -778,7 +778,7 @@ const VortexBillsPaymentPage = () => {
         ),
     })
 
-    console.log(formFields)
+    // console.log(formFields)
 
     return (
       <Box>
@@ -786,7 +786,7 @@ const VortexBillsPaymentPage = () => {
           initialValues={inputFormData}
           onSubmit={async (data) => {
             try {
-              console.log(data)
+              // console.log(data)
               setinputFormData(data)
 
               // setIsFormLoading(true)
@@ -816,7 +816,7 @@ const VortexBillsPaymentPage = () => {
               };
           
               // Log the collected bill details including Name and Account Number
-              console.log("billDetails with Name and Account Number:", collectedBillDetails);
+              // console.log("billDetails with Name and Account Number:", collectedBillDetails);
               
               // Update the billDetails state with the collected data
               setBillDetails(collectedBillDetails);
@@ -987,14 +987,14 @@ const VortexBillsPaymentPage = () => {
   }
 
   const createLink = async (amount, description) => {
-    console.log(`Creating link with amount: ${amount} and description: ${description}`);
+    // console.log(`Creating link with amount: ${amount} and description: ${description}`);
     const url = 'https://api.paymongo.com/v1/links';
   
     const myHeaders = new Headers();
     myHeaders.append('Content-Type', 'application/json');
     myHeaders.append('Authorization', 'Basic c2tfdGVzdF84VWhHVXBBdVZEWVBKU3BHRWVpV250Qm46');
-    console.log(amount, description)
-    console.log(parseInt(parseInt(amount, 10)*100, 10))
+    // console.log(amount, description)
+    // console.log(parseInt(parseInt(amount, 10)*100, 10))
     const raw = JSON.stringify({
       data: {
         attributes: {
@@ -1031,7 +1031,7 @@ const VortexBillsPaymentPage = () => {
   const ReviewConfirmationForm = () => {
     const paymentMethodType = ls.get("paymentMethodType")
     const fields = jsonFieldsToArray(billDetails);
-    console.log("Transformed fields:", fields);
+    // console.log("Transformed fields:", fields);
     
     // let [paymentDetails, setPaymentDetails] = useState({})
 
@@ -1050,7 +1050,7 @@ const VortexBillsPaymentPage = () => {
     const [expanded, setExpanded] = useState("panel1")
 
     const handleAccordionChange = (panel) => (event, isExpanded) => {
-      console.log(panel, isExpanded)
+      // console.log(panel, isExpanded)
       // setExpanded(isExpanded ? panel : false)
       if (panel === "panel1" && isExpanded === false) {
         setExpanded("panel2")
@@ -1194,9 +1194,9 @@ const VortexBillsPaymentPage = () => {
                       const grandTotalFee = (Number.isNaN(parseFloat(convenienceFee)) || convenienceFee == null ? 0 : parseFloat(convenienceFee)) + parseFloat(billDetails?.billAmount || 0);
                       const url = await createLink(grandTotalFee * 100, `Payment for ${selectedBiller?.name}`);
                       const paymentWindow = window.open(url, '_blank');
-                      console.log('Link Created: ', createLink);
-                      console.log('Amount: ', grandTotalFee);
-                      console.log('Description: ', `Payment for ${selectedBiller?.name}`);
+                      // console.log('Link Created: ', createLink);
+                      // console.log('Amount: ', grandTotalFee);
+                      // console.log('Description: ', `Payment for ${selectedBiller?.name}`);
                       // 'https://pm.link/123123123123123za23/test/de4YiYw'
                       // Polling to check if the payment window has been closed
                       const paymentWindowClosed = setInterval(() => {

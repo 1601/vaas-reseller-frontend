@@ -149,7 +149,7 @@ export default function LoginFormAdmin() {
   const sendOTP = async (email) => {
     try {
       const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/admin/otp`, { email });
-      console.log(response.data.message);
+      // console.log(response.data.message);
     } catch (error) {
       console.error('Error sending OTP:', error);
       // Handle error (e.g., show a message to the user)
@@ -157,7 +157,7 @@ export default function LoginFormAdmin() {
   };
 
   const handleOTPSubmit = async (otp) => {
-    console.log('Submitting OTP. Email:', email, 'OTP Code:', otp); // Log the email and OTP
+    // console.log('Submitting OTP. Email:', email, 'OTP Code:', otp); // Log the email and OTP
 
     try {
       const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/admin/verify-otp`, {
@@ -165,7 +165,7 @@ export default function LoginFormAdmin() {
         otpCode: otp,
       });
 
-      console.log('OTP Verification Response:', response); // Log the response for debugging
+      // console.log('OTP Verification Response:', response); // Log the response for debugging
 
       if (response.status === 200) {
         navigate('/dashboard/admin/home');

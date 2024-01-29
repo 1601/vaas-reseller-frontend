@@ -512,7 +512,7 @@ const StorePageEdit = () => {
                               onClick={!storeData.kycApprove ? undefined : handleUnliveClick}
                               disabled={!storeData.kycApprove}
                             >
-                              Un-Live
+                              Disable
                             </Button>
                           )}
                           <Button onClick={handleEditClick} className="bg-blue-600 text-white px-4 py-2 rounded">

@@ -140,11 +140,11 @@ const VortexTransactionHistoryDetails = (props) => {
 
     await setTransaction(transactionJson)
 
-    console.log("transactionJson", transactionJson)
+    // console.log("transactionJson", transactionJson)
 
     let ll = transactionJson;
 
-    console.log("ll", ll)
+    // console.log("ll", ll)
 
     const output = receipt.create([
       {
@@ -242,7 +242,7 @@ const VortexTransactionHistoryDetails = (props) => {
 
   const transactionFormBuilder = (type) => {
 
-    console.log("forReceiptPrinting", forReceiptPrinting)
+    // console.log("forReceiptPrinting", forReceiptPrinting)
 
     switch (type) {
       case "topup":
@@ -276,7 +276,7 @@ const VortexTransactionHistoryDetails = (props) => {
                   cursor: "pointer",
                 }}
                 onClick={async () => {
-                  console.log('print')
+                  // console.log('print')
                   printJS('iAmTheReceipt', 'html')
                 }}>
                 <div style={{ margin: '0px 4vw', height: '24px', position: 'relative', top: '50%', transform: 'translateY(-50%)' }}>
@@ -315,7 +315,7 @@ const VortexTransactionHistoryDetails = (props) => {
                   cursor: "pointer",
                 }}
                 onClick={async () => {
-                  console.log('print')
+                  // console.log('print')
                   printJS('iAmTheReceipt', 'html')
                 }}>
                 <div style={{ margin: '0px 4vw', height: '24px', position: 'relative', top: '50%', transform: 'translateY(-50%)' }}>
@@ -355,7 +355,7 @@ const VortexTransactionHistoryDetails = (props) => {
                     cursor: "pointer",
                   }}
                   onClick={async () => {
-                    console.log('print')
+                    // console.log('print')
                     printJS('iAmTheReceipt', 'html')
                   }}>
                   <div style={{ margin: '0px 4vw', height: '24px', position: 'relative', top: '50%', transform: 'translateY(-50%)' }}>
@@ -395,7 +395,7 @@ const VortexTransactionHistoryDetails = (props) => {
                   cursor: "pointer",
                 }}
                 onClick={async () => {
-                  console.log('print')
+                  // console.log('print')
                   printJS('iAmTheReceipt', 'html')
                 }}>
                 <div style={{ margin: '0px 4vw', height: '24px', position: 'relative', top: '50%', transform: 'translateY(-50%)' }}>

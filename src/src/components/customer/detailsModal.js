@@ -6,17 +6,17 @@ const DetailsModal = ({ open, handleClose, selectedRow }) => {
   const [percentage, setPercentage] = useState(0);
 
   const theme = useTheme();
-  const isXs = useMediaQuery(theme.breakpoints.up('xs')); // You can adjust the breakpoint
-  const isSm = useMediaQuery(theme.breakpoints.up('sm'));
-  const isMd = useMediaQuery(theme.breakpoints.up('md'));
-  console.log('SelectedRow Data in DetailsModal:', selectedRow);
+  const isXs = useMediaQuery(theme.breakpoints.up('xs')); 
+  // const isSm = useMediaQuery(theme.breakpoints.up('sm'));
+  // const isMd = useMediaQuery(theme.breakpoints.up('md'));
+  // console.log('SelectedRow Data in DetailsModal:', selectedRow);
 
-  const modalContainerStyles = {
-    ...(isXs && {
-      marginLeft: '20px',
-      marginRight: '20px',
-    }),
-  };
+  // const modalContainerStyles = {
+  //   ...(isXs && {
+  //     marginLeft: '20px',
+  //     marginRight: '20px',
+  //   }),
+  // };
 
   // Function to format the date
   const formatDate = (dateString) => {

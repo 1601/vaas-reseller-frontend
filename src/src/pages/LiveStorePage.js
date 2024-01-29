@@ -155,14 +155,14 @@ const LiveStorePage = () => {
         }
       );
 
-      console.log('OTP Verification Response:', otpVerificationResponse.data);
+      // console.log('OTP Verification Response:', otpVerificationResponse.data);
 
       if (otpVerificationResponse.data.message === 'OTP verified successfully') {
         // Fetch customer details
         const customerResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/${email}`);
         const customerData = customerResponse.data;
 
-        console.log('Store URL:', storeUrl);
+        // console.log('Store URL:', storeUrl);
 
         // Fetch dealer ID
         const dealerResponse = await axios.get(

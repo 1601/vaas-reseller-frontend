@@ -25,13 +25,13 @@ const AdminBanner = () => {
         const dataDetails = {status,idBanner}
         const statusResult = await bannerStatus(dataDetails)
         if(statusResult){
-            console.log(statusResult)
+            // console.log(statusResult)
         }
     }
     const handleSubmit = async (data) =>{
         const resultBanner = await submitBanner(data)
         if(resultBanner){
-            console.log("Banner Added")
+            // console.log("Banner Added")
         }
     }
 

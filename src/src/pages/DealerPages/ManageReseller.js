@@ -296,7 +296,7 @@ const ManageReseller = () => {
         formState.mobileNumber = prefix + formState.mobileNumber;
 
         const res = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/${userId}/resellers`, formState);
-        console.log('Reseller added successfully:', res.data);
+        // console.log('Reseller added successfully:', res.data);
 
         setFormState(initialFormState);
         setGeneratedPassword(res.data.password);
@@ -351,12 +351,12 @@ const ManageReseller = () => {
   };
 
   const handleMenuAction = (action, resellerId) => {
-    console.log('handleMenuAction triggered with action:', action, 'and resellerId:', resellerId);
+    // console.log('handleMenuAction triggered with action:', action, 'and resellerId:', resellerId);
 
     switch (action) {
       case 'edit': {
         const resellerToEdit = resellers.find((r) => r._id === resellerId);
-        console.log('Found resellerToEdit:', resellerToEdit);
+        // console.log('Found resellerToEdit:', resellerToEdit);
 
         setCurrentReseller(resellerToEdit);
         setEditingResellerId(resellerId);

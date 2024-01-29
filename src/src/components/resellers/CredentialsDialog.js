@@ -26,7 +26,7 @@ const CredentialsDialog = ({ open, onClose, email, password, fetchData }) => {
         <Button
           onClick={() => {
             // Placeholder for change password functionality
-            console.log('Change Password Clicked');
+            // console.log('Change Password Clicked');
             onClose();
           }}
           color="primary"

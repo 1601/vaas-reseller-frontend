@@ -75,7 +75,7 @@ function convertParamToCat(paramCategory) {
 }
 
 const createLink = async (amount, description) => {
-  console.log(`Creating link with amount: ${amount} and description: ${description}`);
+  // console.log(`Creating link with amount: ${amount} and description: ${description}`);
   const url = 'https://api.paymongo.com/v1/links';
 
   const myHeaders = new Headers();
@@ -162,13 +162,13 @@ const VortexTopUp = () => {
 
   useEffect(() => {
     const fetchPlatformVariables = async () => {
-      console.log('Attempting to fetch platform variables...');
+      // console.log('Attempting to fetch platform variables...');
       try {
         const [data] = await getPlatformVariables();
-        console.log('Successfully fetched platform variables:', data);
+        // console.log('Successfully fetched platform variables:', data);
         setPlatformVariables((prevState) => {
           const mergedData = { ...prevState, ...data };
-          console.log('Merged platform variables:', mergedData);
+          // console.log('Merged platform variables:', mergedData);
           return mergedData;
         });
       } catch (error) {
@@ -204,7 +204,7 @@ const VortexTopUp = () => {
   const [transactionReferenceId, setTransactionReferenceId] = useState(null);
 
   const [activeStep, setActiveStep] = useState(0);
-  console.log('activeStep:', activeStep);
+  // console.log('activeStep:', activeStep);
 
   const [transactionData, setTransactionData] = useState(initialTransactionDataState);
 
@@ -394,7 +394,7 @@ const VortexTopUp = () => {
           storeUrl = hostnameParts[0];
         }
       }
-      console.log('storeUrl: ', storeUrl);
+      // console.log('storeUrl: ', storeUrl);
       return storeUrl;
     };
 
@@ -402,21 +402,21 @@ const VortexTopUp = () => {
       if (isValid || userDetails.ipAddress) {
         try {
           const storeUrl = getStoreUrl();
-          console.log('storeUrl: ', storeUrl);
+          // console.log('storeUrl: ', storeUrl);
 
           // Fetch dealerId from the store URL
           const storeResponse = await axios.get(
             `${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/url/${storeUrl}/user`
           );
           const dealerId = storeResponse.data.userId;
-          console.log('dealerId: ', dealerId);
+          // console.log('dealerId: ', dealerId);
 
           // Append customer details first
           const appendResponse = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/append`, {
             ...userDetails,
             dealerId,
           });
-          console.log('appendResponse: ', appendResponse);
+          // console.log('appendResponse: ', appendResponse);
 
           let customerId;
 
@@ -466,7 +466,7 @@ const VortexTopUp = () => {
         };
 
         // Submitting payload
-        console.log('Submitting payload:', payload);
+        // console.log('Submitting payload:', payload);
         const appendResponse = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/append`, payload);
 
         if (appendResponse.status === 200 || appendResponse.status === 201) {
@@ -609,7 +609,7 @@ const VortexTopUp = () => {
         }
       }
 
-      console.log('Filtered and collected brands:', collectedBrands);
+      // console.log('Filtered and collected brands:', collectedBrands);
       setbrands(collectedBrands.sort((brand, previous) => previous.rank - brand.rank));
     }
   }, [data, topupToggles]);
@@ -749,7 +749,7 @@ const VortexTopUp = () => {
         });
 
         const vortexTopupTransactionResult = await vortexTopupTransactionResponse.json();
-        console.log(vortexTopupTransactionResult);
+        // console.log(vortexTopupTransactionResult);
 
         if (vortexTopupTransactionResult.status === 400 || vortexTopupTransactionResult.error) {
           setIsLoadingTransaction(false);
@@ -759,7 +759,7 @@ const VortexTopUp = () => {
           // setTransactionDetails(vortexTopupTransactionResult)
           // get transaction vortex by reference pass it on this navigate state
           const latest = await getVortexTransactionByRefId(vortexTopupTransactionResult.referenceNumber);
-          console.log(latest);
+          // console.log(latest);
           navigate(`/vortextransactions/topup/${vortexTopupTransactionResult.referenceNumber}`); // add a state
         } else {
           setIsLoadingTransaction(false);
@@ -815,8 +815,8 @@ const VortexTopUp = () => {
 
     const getBrandsOfTheCountry = useCallback(
       (country) => {
-        console.log('getting brands');
-        console.log(country, navigation.previous?.continent);
+        // console.log('getting brands');
+        // console.log(country, navigation.previous?.continent);
         navigateInternationalLoad('countryBrands', getBrandsByCountry(navigation.previous?.continent, country), {
           country,
         });
@@ -826,7 +826,7 @@ const VortexTopUp = () => {
 
     const getProductsByBrand = useCallback(
       (country, brand) => {
-        console.log('getting products of brand');
+        // console.log('getting products of brand');
         navigateInternationalLoad(
           'brandProducts',
           getProductsOfBrand(navigation.previous.continent, navigation.previous.country, brand),
@@ -838,12 +838,12 @@ const VortexTopUp = () => {
 
     async function updateProductDetailsForAllDealers(brandName, products) {
       try {
-        console.log(`Attempting to update product details for brand: ${brandName}`);
+        // console.log(`Attempting to update product details for brand: ${brandName}`);
         const response = await axios.put(`${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/topup/products`, {
           brandName,
           products,
         });
-        console.log(`Successfully updated product details for brand: ${brandName}`, response.data);
+        // console.log(`Successfully updated product details for brand: ${brandName}`, response.data);
       } catch (error) {
         console.error(`Error updating product details for ${brandName}:`, error);
       }
@@ -851,22 +851,22 @@ const VortexTopUp = () => {
 
     // Fetch Dealer Product Config Function
     async function fetchDealerProductConfig(dealerId, brandName) {
-      console.log(`fetchDealerProductConfig called with dealerId: ${dealerId}, brandName: ${brandName}`);
+      // console.log(`fetchDealerProductConfig called with dealerId: ${dealerId}, brandName: ${brandName}`);
       try {
-        console.log(`Attempting to fetch product configuration for dealer ${dealerId}, brand ${brandName}`);
+        // console.log(`Attempting to fetch product configuration for dealer ${dealerId}, brand ${brandName}`);
         const response = await axios.get(
           `${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/product-config/${dealerId}/${brandName}/public`
         );
 
         if (response.data && response.data.products) {
-          console.log(
-            `Fetched product configuration for dealer ${dealerId}, brand ${brandName}:`,
-            response.data.products
-          );
+          // console.log(
+          //   `Fetched product configuration for dealer ${dealerId}, brand ${brandName}:`,
+          //   response.data.products
+          // );
           return response.data.products; // Contains the products with enabled status and current price
         }
 
-        console.log(`No products found for dealer ${dealerId}, brand ${brandName}`);
+        // console.log(`No products found for dealer ${dealerId}, brand ${brandName}`);
         return []; // Return an empty array if the response does not contain products
       } catch (error) {
         console.error(`Error fetching product configuration for dealer ${dealerId}, brand ${brandName}:`, error);
@@ -875,11 +875,11 @@ const VortexTopUp = () => {
     }
 
     function navigateInternationalLoad(name, data, previous = {}) {
-      console.log(`navigateInternationalLoad called with name: ${name}, data:`, data);
+      // console.log(`navigateInternationalLoad called with name: ${name}, data:`, data);
 
       if (name === 'brandProducts') {
         const brandName = data[0]?.brand;
-        console.log(`Brand name in navigateInternationalLoad: ${brandName}`);
+        // console.log(`Brand name in navigateInternationalLoad: ${brandName}`);
 
         // Mapping existing product data to prepare for update
         const products = data.map((product) => ({
@@ -889,15 +889,15 @@ const VortexTopUp = () => {
           isAvailable: product.enabled, // Use the original 'enabled' status
         }));
 
-        console.log(`Preparing to update product details for brand: ${brandName}`, products);
+        // console.log(`Preparing to update product details for brand: ${brandName}`, products);
 
         updateProductDetailsForAllDealers(brandName, products);
 
         if (decryptedUserId) {
-          console.log(`DecryptedUserId available: ${decryptedUserId}`);
+          // console.log(`DecryptedUserId available: ${decryptedUserId}`);
 
           fetchDealerProductConfig(decryptedUserId, brandName).then((dealerProductConfig) => {
-            console.log(`Dealer Product Config:`, dealerProductConfig);
+            // console.log(`Dealer Product Config:`, dealerProductConfig);
 
             const updatedProducts = products.map((product) => {
               const fetchedProduct = dealerProductConfig.find((p) => p.name === product.name);
@@ -960,7 +960,7 @@ const VortexTopUp = () => {
 
     function filterProductBySelectedBrand(state, brand) {
       const products = [];
-      console.log('filtering product by selected brand');
+      // console.log('filtering product by selected brand');
 
       if (brand !== 'ROW') {
         for (let index = 0; index < data.length; index += 1) {
@@ -1013,7 +1013,7 @@ const VortexTopUp = () => {
         <VortexFormToolbar
           title={'Load'}
           onClickBack={() => {
-            console.log(' navigate back');
+            // console.log(' navigate back');
             window.history.back();
           }}
         />
@@ -1201,7 +1201,7 @@ const VortexTopUp = () => {
           // Extract the storeUrl from the window location
           const pathnameArray = window.location.pathname.split('/');
           const storeUrl = pathnameArray[1];
-          console.log('storeUrl in AccountNoInputForm: ', storeUrl);
+          // console.log('storeUrl in AccountNoInputForm: ', storeUrl);
 
           // Fetch dealerId from the store URL
           const storeResponse = await axios.get(
@@ -1320,7 +1320,7 @@ const VortexTopUp = () => {
             ...prevData,
             dealerId,
           };
-          console.log('Updated Transaction Data:', updatedTransactionData);
+          // console.log('Updated Transaction Data:', updatedTransactionData);
           return updatedTransactionData;
         });
 
@@ -1366,8 +1366,8 @@ const VortexTopUp = () => {
               </Stack>
 
               {/* Add console.log statements here */}
-              {console.log('selectedBrand:', selectedBrand)}
-              {console.log('inputProps(selectedBrand.toUpperCase()):', inputProps(selectedBrand.toUpperCase()))}
+              {/* {console.log('selectedBrand:', selectedBrand)}
+              {console.log('inputProps(selectedBrand.toUpperCase()):', inputProps(selectedBrand.toUpperCase()))} */}
 
               <Stack direction={'row'} justifyContent={'center'} spacing={0.5}>
                 <TextField
@@ -1428,7 +1428,7 @@ const VortexTopUp = () => {
     const [expanded, setExpanded] = useState('panel1');
 
     const handleAccordionChange = (panel) => (event, isExpanded) => {
-      console.log(panel, isExpanded);
+      // console.log(panel, isExpanded);
 
       if (panel === 'panel1') {
         setExpanded(isExpanded ? 'panel1' : 'panel2');
@@ -1437,7 +1437,7 @@ const VortexTopUp = () => {
       }
     };
     const handleUserDetailsSubmit = async (userDetails) => {
-      console.log('User Details Submitted: ', userDetails);
+      // console.log('User Details Submitted: ', userDetails);
       // Logic to open the URL
       const url = await createLink(grandTotalFee * 100, selectedProduct.name);
       if (url) {
@@ -1456,7 +1456,7 @@ const VortexTopUp = () => {
               customerId: userDetails.customerId,
               dealerId: userDetails.dealerId,
             };
-            console.log('Setting Transaction Data: ', newTransactionData);
+            // console.log('Setting Transaction Data: ', newTransactionData);
             setTransactionData(newTransactionData);
             setActiveStep(3);
           }
@@ -1469,7 +1469,7 @@ const VortexTopUp = () => {
         handleUserDetailsSubmit(customerDetails);
       } else {
         const userDetailsDialog = await handleOpenDialog();
-        console.log('User Details Dialog: ', userDetailsDialog);
+        // console.log('User Details Dialog: ', userDetailsDialog);
       }
     };
 
@@ -1664,12 +1664,12 @@ const VortexTopUp = () => {
 
   const TransactionCompletedForm = ({ setActiveStep, transactionData, resetTransactionData }) => {
     const handleConfirmClick = async () => {
-      console.log('Transaction Data in handleConfirmClick: ', transactionData);
+      // console.log('Transaction Data in handleConfirmClick: ', transactionData);
       try {
         const customerId = transactionData.customerId;
         const dealerId = transactionData.dealerId;
-        console.log('customerId: ', customerId);
-        console.log('dealerId: ', dealerId);
+        // console.log('customerId: ', customerId);
+        // console.log('dealerId: ', dealerId);
 
         const purchaseData = {
           productName: transactionData.productName,
@@ -1687,7 +1687,7 @@ const VortexTopUp = () => {
 
         if (response.ok) {
           // Handle successful transaction confirmation
-          console.log('Transaction confirmed and saved');
+          // console.log('Transaction confirmed and saved');
           resetTransactionData();
         } else {
           // Handle errors
@@ -1780,8 +1780,8 @@ const VortexTopUp = () => {
     setTransactionData,
     transactionData,
   }) => {
-    console.log('Active Step:', activeStep);
-    console.log('Selected Brand in FormRender:', selectedBrand);
+    // console.log('Active Step:', activeStep);
+    // console.log('Selected Brand in FormRender:', selectedBrand);
 
     switch (activeStep) {
       case 0:

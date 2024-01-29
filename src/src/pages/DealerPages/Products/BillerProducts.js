@@ -74,7 +74,7 @@ const BillerProducts = () => {
         },
       })
       .then((response) => {
-        console.log('Fetched biller toggles:', response.data); // Log the response data
+        // console.log('Fetched biller toggles:', response.data); // Log the response data
         setBillerToggles(response.data || initialBillerToggles);
         setIsLoading(false);
       })
