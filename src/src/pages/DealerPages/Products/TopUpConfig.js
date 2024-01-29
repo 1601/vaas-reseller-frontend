@@ -36,14 +36,14 @@ const TopUpConfig = () => {
           },
         })
         .then((response) => {
-          console.log('Response data:', response.data);
+          // console.log('Response data:', response.data);
           const sortedProducts = (response.data.products || [])
             .map((p) => p._doc)
             .sort((a, b) => a.defaultPrice - b.defaultPrice);
           setProductConfigs(sortedProducts);
 
           sortedProducts.forEach((product) => {
-            console.log(`Markup for product ${product.name}:`, product.markUp);
+            // console.log(`Markup for product ${product.name}:`, product.markUp);
           });
         })
         .catch((error) => {
@@ -83,7 +83,7 @@ const TopUpConfig = () => {
           }
         )
         .then((response) => {
-          console.log('Product updated successfully:', response.data);
+          // console.log('Product updated successfully:', response.data);
         })
         .catch((error) => {
           console.error('Error updating product:', error);
@@ -125,7 +125,7 @@ const TopUpConfig = () => {
             }
           )
           .then((response) => {
-            console.log('Markup and current price updated successfully:', response.data);
+            // console.log('Markup and current price updated successfully:', response.data);
             setProductConfigs((prevConfigs) =>
               prevConfigs.map((config, index) => {
                 if (index === configIndex) {

@@ -438,13 +438,6 @@ export default function SignUpPage() {
     setPasswordError(false);
     setPasswordHelperText('');
 
-
-    if (!validateForm()) {
-      console.log(validateForm())
-      // Stop here and do not proceed with signup if form is invalid
-      return;
-    }
-
     await validateEmailAndCheckExistence(email);
 
     const isFormFullyValid = validateForm() && formData.password === formData.confirmPassword;
@@ -602,8 +595,6 @@ export default function SignUpPage() {
     externalIpAddCur();
     fetchAllBanner();
   }, []);
-
-  useEffect(() =>{ console.log(formData)},[formData])
 
   const settings = {
     dots: true,

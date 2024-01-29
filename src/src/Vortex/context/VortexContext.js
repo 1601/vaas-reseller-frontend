@@ -30,24 +30,24 @@ const VortexContext = ({ children }) => {
     setIsLoading(true);
     const vortexTokenResponse = await getVortexTokenBase();
 
-    console.log('Vortex Token Response:', vortexTokenResponse);
+    // console.log('Vortex Token Response:', vortexTokenResponse);
 
     if (vortexTokenResponse.status === 200) {
       const vortexTokenResult = await vortexTokenResponse.json();
-      console.log('Vortex Token Result:', vortexTokenResult);
+      // console.log('Vortex Token Result:', vortexTokenResult);
 
       const response = await getVortexProducts(vortexTokenResult.access_token);
-      console.log('Vortex Products Response:', response);
+      // console.log('Vortex Products Response:', response);
 
       setIsLoading(false);
       if (response.status === 200) {
         const result = await response.json();
-        console.log('Vortex Products Data:', result);
+        // console.log('Vortex Products Data:', result);
 
         setVortexProductData(result);
       } else {
         const result = await response.json();
-        console.log('Error in Vortex Products Response:', result);
+        // console.log('Error in Vortex Products Response:', result);
 
         setIsLoading(false);
         setErrorData({
@@ -57,7 +57,7 @@ const VortexContext = ({ children }) => {
       }
     } else {
       const vortexTokenResult = await vortexTokenResponse.json();
-      console.log('Error in Vortex Token Response:', vortexTokenResult);
+      // console.log('Error in Vortex Token Response:', vortexTokenResult);
 
       setIsLoading(false);
       setErrorData({

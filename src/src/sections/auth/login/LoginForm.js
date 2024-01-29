@@ -152,22 +152,22 @@ export default function LoginForm() {
 
   // Fetch Dealer Product Config Function
   async function fetchDealerProductConfig(dealerId, brandName) {
-    console.log(`fetchDealerProductConfig called with dealerId: ${dealerId}, brandName: ${brandName}`);
+    // console.log(`fetchDealerProductConfig called with dealerId: ${dealerId}, brandName: ${brandName}`);
     try {
-      console.log(`Attempting to fetch product configuration for dealer ${dealerId}, brand ${brandName}`);
+      // console.log(`Attempting to fetch product configuration for dealer ${dealerId}, brand ${brandName}`);
       const response = await axios.get(
         `${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/product-config/${dealerId}/${brandName}/public`
       );
 
       if (response.data && response.data.products) {
-        console.log(
-          `Fetched product configuration for dealer ${dealerId}, brand ${brandName}:`,
-          response.data.products
-        );
+        // console.log(
+        //   `Fetched product configuration for dealer ${dealerId}, brand ${brandName}:`,
+        //   response.data.products
+        // );
         return response.data.products; // Contains the products with enabled status and current price
       }
 
-      console.log(`No products found for dealer ${dealerId}, brand ${brandName}`);
+      // console.log(`No products found for dealer ${dealerId}, brand ${brandName}`);
       return []; // Return an empty array if the response does not contain products
     } catch (error) {
       console.error(`Error fetching product configuration for dealer ${dealerId}, brand ${brandName}:`, error);
@@ -177,17 +177,17 @@ export default function LoginForm() {
 
   const createDefaultProductConfig = async (dealerId) => {
     try {
-        console.log(`Sending request to create default product config for dealerId: ${dealerId}`);
-        console.log(`Config to be sent:`, defaultProductConfig);
-        console.log(`Endpoint: ${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/product-config/create`);
+        // console.log(`Sending request to create default product config for dealerId: ${dealerId}`);
+        // console.log(`Config to be sent:`, defaultProductConfig);
+        // console.log(`Endpoint: ${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/product-config/create`);
 
         const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/product-config/create`, {
             dealerId,
             config: defaultProductConfig
         });
 
-        console.log('Response received:', response);
-        console.log('Default product config created successfully');
+        // console.log('Response received:', response);
+        // console.log('Default product config created successfully');
     } catch (error) {
         console.error('Error creating default product config:', error);
         if (error.response) {

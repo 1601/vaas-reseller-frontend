@@ -26,7 +26,7 @@ const VortexBillerAccordionList = ({
     setExpanded(isExpanded ? panel : false)
   }
 
-  console.log(billers)
+  // console.log(billers)
 
   return (
     <div
@@ -66,7 +66,7 @@ const VortexBillerAccordionList = ({
                 }}
               >
                 {billers.map(biller => {
-                  console.log(biller.name, localTelecomRankProvider(biller.name))
+                  // console.log(biller.name, localTelecomRankProvider(biller.name))
                   return {
                     ...biller, 
                     rank: localTelecomRankProvider(biller.name)

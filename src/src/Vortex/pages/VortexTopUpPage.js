@@ -181,7 +181,7 @@ const VortexTopUpPage = () => {
 
     let x = await getStoreEnvById({ storeEnvId: storeEnvId })
 
-    console.log("platform variables", x)
+    // console.log("platform variables", x)
 
     setPlatformVariables(x)
 
@@ -217,8 +217,8 @@ const VortexTopUpPage = () => {
         }
       }
 
-      console.log("the collected brands are")
-      console.log(collectedBrands)
+      // console.log("the collected brands are")
+      // console.log(collectedBrands)
 
       setbrands(
         collectedBrands.sort((brand, previous) => previous.rank - brand.rank)
@@ -374,7 +374,7 @@ const VortexTopUpPage = () => {
 
         let vortexTopupTransactionResult =
           await vortexTopupTransactionResponse.json()
-        console.log(vortexTopupTransactionResult)
+        // console.log(vortexTopupTransactionResult)
 
         if (vortexTopupTransactionResult.status === 400 || vortexTopupTransactionResult.error) {
           setIsLoadingTransaction(false)
@@ -384,7 +384,7 @@ const VortexTopUpPage = () => {
           // setTransactionDetails(vortexTopupTransactionResult)
           // get transaction vortex by reference pass it on this navigate state
           let latest = await getVortexTransactionByRefId(vortexTopupTransactionResult.referenceNumber);
-          console.log(latest);
+          // console.log(latest);
           navigate(
             `/vortextransactions/topup/${vortexTopupTransactionResult.referenceNumber}`
           ) // add a state
@@ -442,8 +442,8 @@ const VortexTopUpPage = () => {
     }
 
     function getBrandsOfTheCountry(country) {
-      console.log("getting brands")
-      console.log(country, navigation.previous?.continent)
+      // console.log("getting brands")
+      // console.log(country, navigation.previous?.continent)
       navigateInternationalLoad(
         "countryBrands",
         getBrandsByCountry(navigation.previous?.continent, country),
@@ -452,7 +452,7 @@ const VortexTopUpPage = () => {
     }
 
     function getProductsByBrand(country, brand) {
-      console.log("getting products of brand")
+      // console.log("getting products of brand")
       navigateInternationalLoad(
         "brandProducts",
         getProductsOfBrand(
@@ -465,7 +465,7 @@ const VortexTopUpPage = () => {
     }
 
     function navigateInternationalLoad(name, data, previous = {}) {
-      console.log(data)
+      // console.log(data)
       setNavigation({
         name: name,
         data: data,
@@ -478,7 +478,7 @@ const VortexTopUpPage = () => {
 
     function filterProductBySelectedBrand(state, brand) {
       let products = []
-      console.log("filtering product by selected brand")
+      // console.log("filtering product by selected brand")
 
       if (brand !== "ROW") {
         for (let index = 0; index < data.length; index++) {
@@ -792,7 +792,7 @@ const VortexTopUpPage = () => {
     const [expanded, setExpanded] = useState("panel1")
 
     const handleAccordionChange = (panel) => (event, isExpanded) => {
-      console.log(panel, isExpanded)
+      // console.log(panel, isExpanded)
       // setExpanded(isExpanded ? panel : false)
       if (panel === "panel1" && isExpanded == false) {
         setExpanded("panel2")

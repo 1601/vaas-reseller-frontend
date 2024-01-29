@@ -535,7 +535,7 @@ function identifyTheCountry(voucherName) {
   const result = intersection(countryList, voucherNameAsSet);
 
   if (result.size === 0) {
-    console.log(voucherName);
+    // console.log(voucherName);
     return '';
   }
 
@@ -569,7 +569,7 @@ export function getCountriesOnTopUp(continent) {
 }
 
 export function getContinents() {
-  console.log('getting continents');
+  // console.log('getting continents');
   return Object.keys(objResult);
 }
 
@@ -578,10 +578,10 @@ export function getBrandsByCountry(continent, country) {
 }
 
 export function getProductsOfBrand(continent, country, brand) {
-  console.log('get products of brand');
-  console.log(continent, country, brand);
-  console.log(objResult);
-  console.log(objResult[`${continent}`]?.[`${country}`]?.brands?.[`${brand.replaceAll('-', ' ')}`]);
+  // console.log('get products of brand');
+  // console.log(continent, country, brand);
+  // console.log(objResult);
+  // console.log(objResult[`${continent}`]?.[`${country}`]?.brands?.[`${brand.replaceAll('-', ' ')}`]);
 
   const brands = objResult[`${continent}`]?.[`${country}`]?.brands?.[`${brand.replaceAll('-', ' ')}`];
 
@@ -593,7 +593,7 @@ export function getProductsOfBrand(continent, country, brand) {
     result.push(brands[key]);
   }
 
-  console.log(result);
+  // console.log(result);
 
   return result;
 }

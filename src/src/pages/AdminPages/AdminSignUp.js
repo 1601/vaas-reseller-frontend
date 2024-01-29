@@ -82,7 +82,7 @@ const AdminSignUp = () => {
     try {
       setLoading(true);
       const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/admin/signup`, formState);
-      console.log('Response:', response.data);
+      // console.log('Response:', response.data);
       setLoading(false);
       setShowSuccessDialog(true);
     } catch (error) {

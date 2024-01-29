@@ -192,7 +192,7 @@ export default function CustomerPage() {
         rateAverageAmount: rateAverageAmount.toFixed(2),
       };
 
-      console.log('Updated Row with Purchases: ', updatedRow); 
+      // console.log('Updated Row with Purchases: ', updatedRow); 
       setSelectedRow(updatedRow);
       setOpenModal(true);
     } catch (error) {

@@ -13,7 +13,7 @@ import {primaryVortexTheme} from '../config/theme'
 
 
 const VortexTopUpCountriesList = ({countries, onClick = () => {}}) => {
-	console.log(countries)
+	// console.log(countries)
 	return (
 	    <>
 	      <Box>

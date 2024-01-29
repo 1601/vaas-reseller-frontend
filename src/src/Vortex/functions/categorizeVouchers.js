@@ -27,7 +27,7 @@ export function categorizeVouchers(vouchers) {
 }
 
 export function getAllVouchers(data) {
-  console.log("getting all vouchers here")
+  // console.log("getting all vouchers here")
   if (allVouchers.length === 0) {
     let result = []
     for (let i = 0; i < data.length; i++) {
@@ -42,7 +42,7 @@ export function getAllVouchers(data) {
 
 export function searchVouchersByKeyword(keyword) {
   let searchKey = keyword.toLowerCase()
-  console.log("searching vouchers by keyword", keyword)
+  // console.log("searching vouchers by keyword", keyword)
   let result = []
 
   for (let a = 0; a < allVouchers.length; a++) {
@@ -76,7 +76,7 @@ export function categorizeSearchResult(vouchers) {
       result = searchingSaveBrandToCategory(result, voucher, category)
     }
 
-    console.log(resultList)
+    // console.log(resultList)
     resultList = searchingSaveBrandAndCategoryToList(resultList, voucher, category)
   })
 

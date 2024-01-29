@@ -78,6 +78,6 @@ export default function getBillerAbbreviation(biller) {
       break
   }
 
-  console.log(biller)
+  // console.log(biller)
   return {...biller, name: abbreviation} 
 }
