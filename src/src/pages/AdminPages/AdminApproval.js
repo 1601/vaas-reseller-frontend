@@ -136,7 +136,7 @@ const AdminApproval = () => {
                         onClick={() => handleLiveStatusChange(false)}
                         style={{ marginRight: '8px' }}
                       >
-                        Un-Live
+                        Disable
                       </Button>
                     ) : (
                       <Button
