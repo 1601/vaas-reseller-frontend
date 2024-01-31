@@ -61,7 +61,24 @@ const getNavConfig = (role) => {
         title: 'Banner Configuration',
         path: '/dashboard/admin/banner',
         icon: icon('ic_product')
-      }
+      },
+      {
+        title: 'Wallet',
+        path: '/dashboard/admin/wallet',
+        icon: icon('ic_wallet'),
+        children: [
+          // {
+          //   title: 'Manage Wallet Portal',
+          //   path: '/dashboard/admin/wallet/manage-portal',
+          //   icon: icon('ic_circle'),
+          // },
+          {
+            title: 'Manage Wallet CA',
+            path: '/dashboard/admin/wallet/manage-ca',
+            icon: icon('ic_circle'),
+          },
+        ],
+      },
     ];
     
   } return [

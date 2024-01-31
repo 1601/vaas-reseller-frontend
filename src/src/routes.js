@@ -48,6 +48,7 @@ import TopUpProducts from './pages/DealerPages/Products/TopUpProducts';
 import TopUpConfig from './pages/DealerPages/Products/TopUpConfig';
 import BillerProducts from './pages/DealerPages/Products/BillerProducts';
 import OldLoginPage from './pages/AuthPages/oldLoginPage';
+import AdminWallet from './pages/AdminPages/AdminWallet';
 
 // ----------------------------------------------------------------------
 
@@ -218,6 +219,8 @@ export default function Router() {
 
         // Dealer Accounts
         { path: 'accounts', element: <AdminDealerAccount /> },
+        { path: 'wallet/manage-ca', element: <AdminWallet /> },
+        
       ],
     },
     {
