@@ -28,23 +28,24 @@ import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import WalletData from './WalletData.json';
 import AdminWalletApproval from './AdminWalletApproval';
 
-// const fetchWallets = async (endpoint, token) => {
-//   const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/${endpoint}`, {
-//     headers: {
-//       Authorization: `Bearer ${token}`,
-//     },
-//   });
 
-//   if (response.data && Array.isArray(response.data.wallets)) {
-//     return response.data.wallets;
-//   }
-
-//   console.error('Unexpected API response format', response);
-//   return [];
-// };
+const fetchWallets = async () => {
+  try {
+    const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/wallet-requests`, {
+      headers: {
+        // Assuming your API requires an Authorization header
+        // Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data.body; // Adjust according to your actual response structure
+  } catch (error) {
+    console.error('Unexpected API response', error);
+    return [];
+  }
+};
 
 const AdminWallet = () => {
-  const [wallets, setWallets] = useState(WalletData);
+  const [wallets, setWallets] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [sortField, setSortField] = useState('dateCreated');
   const [sortDirection, setSortDirection] = useState('desc');
@@ -54,20 +55,17 @@ const AdminWallet = () => {
   const [selectedWallet, setSelectedWallet] = useState(null);
   const token = localStorage.getItem('token');
 
-  //   useEffect(() => {
-  //     const fetchData = async () => {
-  //       try {
-  //         const walletsData = await fetchWallets('wallets/admin', token);
-  //         setWallets(walletsData);
-  //         setIsLoading(false);
-  //       } catch (error) {
-  //         console.error('Error fetching wallets', error);
-  //         setIsLoading(false);
-  //       }
-  //     };
+  useEffect(() => {
+    setIsLoading(true);
+    const fetchData = async () => {
+      const walletsData = await fetchWallets();
+      setWallets(walletsData);
+      setIsLoading(false);
+    };
 
-  //     fetchData();
-  //   }, [token]);
+    fetchData();
+  }, [selectedWallet]); // Empty dependency array means this effect runs once on mount
+
 
   // Sorting Function
   const sortData = (data) => {
@@ -323,13 +321,13 @@ const AdminWallet = () => {
                   {startIndex + index + 1}
                 </TableCell>
                 <TableCell>{wallet.referenceNo}</TableCell>
-                <TableCell>{wallet.account}</TableCell>
+                <TableCell>{wallet.accountEmail}</TableCell>
                 <TableCell>{wallet.walletType}</TableCell>
                 <TableCell>{wallet.amount}</TableCell>
                 <TableCell>{wallet.currency}</TableCell>
                 <TableCell>{formatAmount(wallet.computedAmount)}</TableCell>
                 <TableCell>{formatAmount(wallet.bonusAmount)}</TableCell>
-                <TableCell>{wallet.status}</TableCell>
+                <TableCell>{wallet.paymentStatus}</TableCell>
                 <TableCell>{wallet.paymentMethod}</TableCell>
                 <TableCell>{wallet.dateCreated}</TableCell>
                 <TableCell>{wallet.dateUpdated}</TableCell>

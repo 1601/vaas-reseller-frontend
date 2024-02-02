@@ -2,15 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { 
   Card,
   CardContent,
-  FormControl,
-  Select,
-  MenuItem,
-  InputLabel,
   Container, Tab, Tabs, Box, Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Button ,
   Stepper,
   Step,
   StepLabel,
-  Chip, Grid
+  Chip, Grid, Tooltip 
 } from '@mui/material';
 import axios from 'axios';
 import EditIcon from '@mui/icons-material/Edit';
@@ -55,13 +51,16 @@ const WalletPayouts = () => {
   const userData = UserDataFetch(userId);
   const { storeData, editedData, platformVariables, error } = StoreDataFetch(userId);
   const [activeStep, setActiveStep] = useState(0);
-  const [amount, setAmount] = useState('');
+  const [amount,  setAmount] = useState('');
   const [selectedMethod, setSelectedMethod] = useState(null)
   const [isBankDeposit, setIsBankDeposit] = useState(false)
   // State hooks for various functionalities
   // const [selectedMethod, setSelectedMethod] = useState(null);
   const [selectedCountry, setSelectedCountry] = useState('USA');
   const [file, setFile] = useState(null);
+  const [walletRequests, setWalletRequests] = useState([]);
+
+
   const [bankDetails] = useState({
     'USA': {
       bankName: 'Philippine National Bank',
@@ -159,8 +158,70 @@ const WalletPayouts = () => {
     });
   };
 
+  // Function to create a new wallet request
+const createWalletRequest = () => {
+
+  const date = new Date();
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+  const dateTimeCode = `${year}${month}${day}${hours}${minutes}${seconds}`;
+  const code = `VAAS${dateTimeCode}`;
+
+  const walletRequestData = {
+    userId, // This should be dynamic based on logged-in user
+    referenceNo: code, // Generate this or get it from user input
+    accountEmail: user.email, // Assuming 'user' contains the email; adjust as necessary
+    walletType: "SW", // Get this from user input if needed
+    amount: parseFloat(amount),
+    tradeDiscount: 0, // Get this from user input if needed
+    amountToPay: 0, // Calculate this based on amount and discount
+    bonusAmount: 0, // Get this from user input if needed
+    currency: "PHP", // Get this from user input if needed	
+    paymentStatus: "PENDING",
+    paymentMethod: "bank",
+    image: ""
+  };
+
+  axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/wallet-requests`, walletRequestData)
+    .then((response) => {
+      // Use the response ID in the next request
+      const walletRequestId = response.data.body._id;
+      console.log('Wallet request created successfully: ', response.data);
+      uploadBankSlipImage(walletRequestId);
+    })
+    .catch((error) => {
+      alert('Error creating wallet request. Please try again.')
+      console.error('Error creating wallet request: ', error);
+    });
+};
+
+// Function to upload the bank slip image for a wallet request
+const uploadBankSlipImage = (walletRequestId) => {
+  const formData = new FormData();
+  formData.append('file', file); // 'file' is the state containing the uploaded file
+
+  axios.put(`${process.env.REACT_APP_BACKEND_URL}/v1/api/wallet-requests/walletRequest/${walletRequestId}`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  })
+  .then((response) => {
+    console.log('Bank slip image uploaded successfully: ', response);
+    handleNext();
+  })
+  .catch((error) => {
+    alert('Error uploading bank slip image. Please try again.')
+    console.error('Error uploading bank slip image: ', error);
+  });
+};
+
   const handleReplenishSubmit = () => {
     // Submit replenishment logic here
+    createWalletRequest();
   };
 
   useEffect(() => {
@@ -183,6 +244,18 @@ const WalletPayouts = () => {
     }
   }, []);
 
+  useEffect(() => {
+    // Only fetch data when the tabValue is 1
+    if (tabValue === 1) {
+      axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/wallet-requests/user/${userId}`)
+        .then(response => {
+          setWalletRequests(response.data.data);
+        })
+        .catch(error => console.error("Error fetching wallet requests: ", error));
+    }
+  }, [tabValue, userId]); // React will run the effect when tabValue changes to 1 or userId changes
+  
+
   if (!userData || !storeData) { 
     return <CircularLoading />; 
   }
@@ -199,7 +272,7 @@ const WalletPayouts = () => {
               onClick={() => selectMethod('PLDT')}
               sx={{ padding: 2, cursor: 'pointer', bgcolor: selectedMethod === 'PLDT' ? '#d32f2f' : '#f44336' }}
             >
-              <Typography variant="button" display="block" gutterBottom>
+              <Typography variant="button" display="block" gutterBottom sx={{color:"white"}}>
                 PLDT GLOBAL PAYMENTS
               </Typography>
             </Paper>
@@ -210,12 +283,32 @@ const WalletPayouts = () => {
               onClick={() => selectMethod('Bank')}
               sx={{ padding: 2, cursor: 'pointer', bgcolor: selectedMethod === 'Bank' ? '#303f9f' : '#3f51b5' }}
             >
-              <Typography variant="button" display="block" gutterBottom>
+              <Typography variant="button" display="block" gutterBottom sx={{color:"white"}}>
                 Bank Deposit
               </Typography>
             </Paper>
           </Grid>
         </Grid>
+        <Typography
+        sx={{
+          bgcolor: 'background.paper',
+          border: 1,
+          borderColor: 'divider',
+          p: 2,
+          mt: 2,
+          borderRadius: 1,
+          textAlign: 'center',
+          color: 'text.secondary'
+        }}
+      >
+        Wallet replenishment approval for payments via Bank Deposit may take 24-72 business hours 
+        (Philippine Standard Time) since payments need to be checked and verified before approval.
+      </Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', mt: 2 }}>
+          <Button variant="outlined" onClick={handleBack}>
+            Back
+          </Button>
+      </Box>
     </>
   );
 
@@ -250,11 +343,12 @@ const WalletPayouts = () => {
       </>
     );
   };
+  const formattedAmount = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'PHP', minimumFractionDigits: 2 }).format(amount);
 
   const renderBankPayment = () => (
     <>
       <Typography variant="h6" sx={{ mt: 2, mb: 1 }}>
-        Please upload your bank slip upon deposit of PHP 1000.00 to:
+        Please upload your bank slip upon deposit of {formattedAmount} to:
       </Typography>
       <Tabs value={selectedCountry} onChange={handleCountryChange} variant="scrollable" scrollButtons="auto">
         {Object.keys(bankDetails).map((country) => (
@@ -264,22 +358,41 @@ const WalletPayouts = () => {
       <Box sx={{ mt: 2 }}>
         {renderBankDetails(selectedCountry)}
       </Box>
-      <Box sx={{ mt: 2 }}>
-        <Button variant="contained" component="label">
-          Choose file
-          <input type="file" hidden onChange={handleFileChange} />
+      <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', width: '100%' }}>
+        <TextField
+          fullWidth
+          variant="outlined"
+          value={file ? file.name : ''}
+          placeholder="No file chosen"
+          InputProps={{
+            readOnly: true,
+          }}
+          sx={{ flexGrow: 1, mr: 2 }} // Adjust marginRight to give space for the button
+        />
+        <Button
+          variant="contained"
+          component="label"
+          sx={{ whiteSpace: 'nowrap' }}
+        >
+          Browse
+          <input
+            type="file"
+            hidden
+            onChange={handleFileChange}
+          />
         </Button>
       </Box>
-      <Typography variant="caption" sx={{ mt: 2, display: 'block' }}>
-        - Only JPG, JPEG and PNG image formats will be accepted.
-        - File size must not exceed 6MB.
-        - Image height and width must not exceed 2048 pixels.
+      <Typography variant="caption" sx={{ mt: 2 }}>
+        <span style={{ display: 'block' }}>- Only JPG, JPEG and PNG image formats will be accepted.</span>
+        <span style={{ display: 'block' }}>- File size must not exceed 6MB.</span>
+        <span style={{ display: 'block' }}>- Image height and width must not exceed 2048 pixels.</span>
       </Typography>
+
       <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', mt: 2 }}>
         <Button variant="outlined" onClick={() => setSelectedMethod(null)}>
           Back
         </Button>
-        <Button variant="contained" onClick={handleSubmit}>
+        <Button variant="outlined" onClick={handleReplenishSubmit}>
           Submit
         </Button>
       </Box>
@@ -370,29 +483,41 @@ const WalletPayouts = () => {
               </Stepper>
               {activeStep === 0 && (
                 <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', mb: 2 }}>
-                  <TextField
-                    label="Amount to be credited in your Wallet"
-                    variant="outlined"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                    sx={{ mb: 2, width: '100%' }}
-                  />
+                 <TextField
+                  label="Amount to be credited in your Wallet"
+                  variant="outlined"
+                  value={amount}
+                  onChange={(e) => {
+                    // Allow only numbers and decimal points
+                    const value = e.target.value;
+                    if (!value || value.match(/^\d*\.?\d*$/)) {
+                      setAmount(value);
+                    }
+                  }}
+                  type="number"
+                  // Disabling browser autofill
+                  autoComplete="off"
+                  // Customizing the input to accept numbers including decimal points
+                  inputProps={{
+                    step: "0.01", // Allow decimal values to be input by user
+                    min: "0", // Optional: if you want to allow only positive values
+                  }}
+                  sx={{ mb: 2, width: '100%' }}
+                />
+
                   <Typography variant="body2" sx={{ mb: 2 }}>
                     Your wallet currency is PHP
                   </Typography>
                   <Button
-                    variant="contained"
+                    variant="outlined"
                     onClick={handleNext}
                     sx={{
-                      bgcolor: 'pink',
-                      '&:hover': {
-                        bgcolor: 'darkpink',
-                      },
+                      marginLeft: 'auto',
                       width: 'fit-content',
                     }}
                   >
                     Next
-                  </Button>
+                  </Button> 
                 </Box>
               )}
               {activeStep === 1 && (
@@ -400,28 +525,46 @@ const WalletPayouts = () => {
                 {selectedMethod === null && renderPaymentOptions()}
                 {selectedMethod === 'PLDT' && renderPLDTPayment()}
                 {selectedMethod === 'Bank' && renderBankPayment()}
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', mt: 2 }}>
-                  <Button variant="outlined" onClick={handleBack}>
-                    Back
-                  </Button>
-                  <Button variant="contained" disabled={!selectedMethod} onClick={handleNext}>
-                    Next
-                  </Button>
-                </Box>
               </Box>
               )}
               {activeStep === 2 && (
               <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', mb: 2 }}>
-                <Typography sx={{ mb: 3 }}>
-                  Confirmation
+                 <Typography
+                  sx={{
+                    bgcolor: 'background.paper',
+                    border: 1,
+                    borderColor: 'divider',
+                    p: 2,
+                    mt: 2,
+                    borderRadius: 1,
+                    textAlign: 'center',
+                    color: 'text.secondary',
+                    margin: 'auto',
+                  }}
+                >
+                   <span style={{ display: 'block' }}>
+                    Please wait for your replenishment request to be processed.
+                  </span>
+                  <span style={{ display: 'block' }}>
+                    You will receive an email notification once request has been approved.
+                  </span>
+
                 </Typography>
                
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', mt: 2 }}>
-                  <Button variant="outlined" onClick={handleBack}>
-                    Back
-                  </Button>
-                  <Button variant="contained" disabled={!selectedMethod} onClick={handleNext}>
-                    Next
+                  <Button variant="outlined" disabled={!selectedMethod} 
+                    onClick={() => {
+                      setTabValue(1);
+                      setActiveStep(0);
+                      setAmount('');
+                      setFile(null);
+                    }}
+                    sx={{
+                      marginLeft: 'auto',
+                      width: 'fit-content',
+                    }}
+                  >
+                    Done
                   </Button>
                 </Box>
               </Box>
@@ -431,21 +574,48 @@ const WalletPayouts = () => {
       </Box>
         )}
         {tabValue === 1 && (
-           <TableContainer component={Paper}>
-           <Table aria-label="transaction history">
-             <TableHead>
-               <TableRow>
-                 <TableCell>Date</TableCell>
-                 <TableCell>Transaction</TableCell>
-                 <TableCell align="right">Amount</TableCell>
-               </TableRow>
-             </TableHead>
-             <TableBody>
-               {/* Map through history data here */}
-             </TableBody>
-           </Table>
-         </TableContainer>
-        )}
+  <TableContainer component={Paper} sx={{ maxWidth: '100%', overflowX: 'auto' }}>
+    <Table stickyHeader aria-label="transaction history">
+      <TableHead>
+        <TableRow>
+          <TableCell>Date</TableCell>
+          <TableCell>Transaction</TableCell>
+          <TableCell align="right">Amount</TableCell>
+          <TableCell>Payment Status</TableCell>
+          <TableCell>Payment Method</TableCell>
+        </TableRow>
+      </TableHead>
+      <TableBody>
+        {walletRequests.map((request) => (
+          <TableRow
+            key={request._id}
+            sx={{ '&:hover': { cursor: 'pointer', backgroundColor: 'rgba(0, 0, 0, 0.04)' } }}
+            onClick={() => window.open(request.image, '_blank')}
+            hover
+          >
+            <Tooltip title={`Created: ${new Date(request.dateCreated).toLocaleString()}, Updated: ${new Date(request.dateUpdated).toLocaleString()}`}>
+              <TableCell component="th" scope="row">
+                {new Date(request.dateCreated).toLocaleDateString()}
+              </TableCell>
+            </Tooltip>
+            <Tooltip title={`Wallet Type: ${request.walletType}`}>
+              <TableCell>{request.referenceNo}</TableCell>
+            </Tooltip>
+            <Tooltip title={`Trade Discount: ${request.tradeDiscount}, Bonus Amount: ${request.bonusAmount}`}>
+              <TableCell align="right">{`${request.currency} ${request.amount}`}</TableCell>
+            </Tooltip>
+            <Tooltip title={`Account Email: ${request.accountEmail}`}>
+              <TableCell>{request.paymentStatus}</TableCell>
+            </Tooltip>
+            <Tooltip title={`Image: Click row to view`}>
+              <TableCell>{request.paymentMethod}</TableCell>
+            </Tooltip>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  </TableContainer>
+)}
       </Container>
       <AccountStatusModal open userData={userData} storeData={storeData} />
     </>
