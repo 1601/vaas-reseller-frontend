@@ -3,7 +3,6 @@ import SecureLS from 'secure-ls';
 const ls = new SecureLS({ encodingType: 'aes' });
 
 export const handleLogout = (closePopover, navigateTo) => {
-  // Retrieve rememberMe status and credentials before clearing SecureLS
   const rememberMeStatus = ls.get('rememberMe');
   const rememberMeEmail = ls.get('rememberMeEmail');
   const rememberMePassword = ls.get('rememberMePassword');
@@ -12,11 +11,11 @@ export const handleLogout = (closePopover, navigateTo) => {
   localStorage.clear();
   ls.removeAll();
 
-  // Conditionally retain the email, password, and rememberMe status based on 'rememberMe' status
-  if (rememberMeStatus === 'true') {
+  // Retains if rememberMe is toggled
+  if (rememberMeStatus) { 
     ls.set('rememberMeEmail', rememberMeEmail);
     ls.set('rememberMePassword', rememberMePassword);
-    ls.set('rememberMe', 'true');
+    ls.set('rememberMe', rememberMeStatus);
   }
 
   closePopover();

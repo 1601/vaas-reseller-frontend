@@ -23,7 +23,7 @@ const ChangePasswordDialog = ({ open, onClose, userId, currentReseller }) => {
           newPassword,
         }
       );
-      console.log('Password changed successfully for reseller:', currentReseller);
+      // console.log('Password changed successfully for reseller:', currentReseller);
       setNewPassword('');
       setPasswordError('');
       onClose();

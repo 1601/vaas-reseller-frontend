@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import SecureLS from 'secure-ls';
 import { Stack, Box, Button, Switch, FormControlLabel, Grid, Paper, Typography, TextField } from '@mui/material';
 import CircularLoading from '../../../components/preLoader';
 import TopUpImage from '../../../components/vortex/TopUpImage';
+
+const ls = new SecureLS({ encodingType: 'aes' });
 
 const TopUpProducts = () => {
   const [topUpToggles, setTopUpToggles] = useState({
@@ -17,8 +20,8 @@ const TopUpProducts = () => {
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
-  const token = localStorage.getItem('token');
-  const userId = JSON.parse(localStorage.getItem('user'))._id;
+  const token = ls.get('token');
+  const userId = ls.get('user') ? ls.get('user')._id : null;
 
   useEffect(() => {
     axios

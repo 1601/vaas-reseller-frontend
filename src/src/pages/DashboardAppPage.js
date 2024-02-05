@@ -3,6 +3,7 @@ import { faker } from '@faker-js/faker';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
+import SecureLS from 'secure-ls';
 // @mui
 import { useTheme } from '@mui/material/styles';
 import { Grid, Container, Typography, Card, CardContent, Button } from '@mui/material';
@@ -34,14 +35,16 @@ export default function DashboardAppPage() {
   const [daysLeft, setDaysLeft] = useState(null);
   const [displayMessage, setDisplayMessage] = useState('');
 
+  const ls = new SecureLS({ encodingType: 'aes' });
+
   let userId;
   try {
-    const storedUser = localStorage.getItem('user');
+    const storedUser = ls.get('user');
     if (storedUser) {
-      userId = JSON.parse(storedUser)._id;
+      userId = storedUser._id;
     }
   } catch (error) {
-    console.error('Error parsing user data from localStorage:', error);
+    console.error('Error parsing user data from secureLS:', error);
   }
 
   const { storeData, editedData, platformVariables, error } = StoreDataFetch(userId);
@@ -49,21 +52,21 @@ export default function DashboardAppPage() {
   // console.log('UserData: ', userData);
 
   useEffect(() => {
-    const existingUserData = JSON.parse(localStorage.getItem('user'));
+    const existingUserData = ls.get('user');
 
     if ((userId && userData && userData._id) || (existingUserData && (existingUserData.id || existingUserData._id))) {
       const mergedData = { ...existingUserData, ...userData };
 
-      localStorage.setItem('user', JSON.stringify(mergedData));
+      ls.set('user', mergedData);
     } else {
-      const rememberMe = localStorage.getItem('rememberMe') === 'true';
-      const rememberMeEmail = localStorage.getItem('rememberMeEmail');
+      const rememberMe = ls.get('rememberMe') === 'true';
+      const rememberMeEmail = ls.get('rememberMeEmail');
 
-      localStorage.clear();
+      ls.removeAll();
 
       if (rememberMe) {
-        localStorage.setItem('rememberMeEmail', rememberMeEmail);
-        localStorage.setItem('rememberMe', 'true');
+        ls.set('rememberMeEmail', rememberMeEmail);
+        ls.set('rememberMe', 'true');
       }
 
       navigate('/login', { replace: true });
@@ -93,7 +96,7 @@ export default function DashboardAppPage() {
     const userToken = Cookies.get('userToken');
     if (userToken) {
       // Save the token to local storage
-      localStorage.setItem('token', userToken);
+      ls.set('token', userToken);
 
       // Remove the userToken cookie
       Cookies.remove('userToken');

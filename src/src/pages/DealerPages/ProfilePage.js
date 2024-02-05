@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import SecureLS from 'secure-ls';
 import {
   Box,
   Typography,
@@ -11,8 +12,10 @@ import UserDataFetch from '../../components/user-account/UserDataFetch';
 import StoreDataFetch from '../../components/user-account/StoreDataFetch';
 import CircularLoading from '../../components/preLoader';
 
+const ls = new SecureLS({ encodingType: 'aes' });
+
 const ProfilePage = () => {
-  const user = JSON.parse(localStorage.getItem('user'));
+  const user = ls.get('user');
   const userId = user?._id || (user && user.id);
   const userData = UserDataFetch(userId);
   const { storeData, error } = StoreDataFetch(userId);

@@ -1,4 +1,7 @@
 import { useState, useEffect } from 'react';
+import SecureLS from 'secure-ls';
+
+const ls = new SecureLS({ encodingType: 'aes' });
 
 function capitalizeFirstLetter(string) {
   if (!string) return string;
@@ -13,8 +16,8 @@ function useAccount() {
   });
 
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem('user'));
-    const role = localStorage.getItem('role');
+    const user = ls.get('user');
+    const role = user ? user.role : null;
 
     if (user) {
       const updatedAccount = {

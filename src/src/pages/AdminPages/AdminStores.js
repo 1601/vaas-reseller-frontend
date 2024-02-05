@@ -1,8 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
+import SecureLS from 'secure-ls';
 import { Card, Typography, CircularProgress } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import CircularLoading from '../../components/preLoader';
+
+const ls = new SecureLS({ encodingType: 'aes' });
 
 const fetchStores = async (endpoint, token) => {
   const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/${endpoint}`, {
@@ -30,7 +33,7 @@ const AdminStores = () => {
   const [liveStores, setLiveStores] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const token = localStorage.getItem('token');
+  const token = ls.get('token');
 
   const fetchData = useCallback(async () => {
     try {
@@ -44,7 +47,7 @@ const AdminStores = () => {
       setLiveStores(liveStores);
       setIsLoading(false);
     } catch (error) {
-      console.error('Error fetching stores', error); 
+      console.error('Error fetching stores', error);
     }
   }, [token]);
 

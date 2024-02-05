@@ -1,6 +1,7 @@
 import { Helmet } from 'react-helmet-async';
 import { filter } from 'lodash';
 import { useEffect, useState } from 'react';
+import SecureLS from 'secure-ls';
 import CsvDownloader from 'react-csv-downloader';
 
 import { DateRangePicker } from 'react-date-range';
@@ -33,6 +34,7 @@ import StoreDataFetch from '../../components/user-account/StoreDataFetch';
 
 import { getAllVortexTransactions, getAllByDateRange } from '../../api/public/vortex/transaction_db';
 
+const ls = new SecureLS({ encodingType: 'aes' });
 
 const columns = [{
   id: 'cell1',
@@ -61,7 +63,7 @@ const columns = [{
 }];
 export default function CustomerPage() {
   const [open, setOpen] = useState(null);
-  const userId = JSON.parse(localStorage.getItem('user'))._id;
+  const userId = ls.get('user') ? ls.get('user')._id : null;
   const userData = UserDataFetch(userId);
   const { storeData } = StoreDataFetch(userId);
   const [transactionList, setTransactionList] = useState()

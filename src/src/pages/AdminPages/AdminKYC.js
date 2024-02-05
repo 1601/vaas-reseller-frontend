@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import SecureLS from 'secure-ls';
 import { Card, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import CircularLoading from '../../components/preLoader';
+
+const ls = new SecureLS({ encodingType: 'aes' });
 
 const KYCCard = ({ title, items, onStoreClick }) => (
   <div className="mb-4 w-full">
@@ -35,9 +38,10 @@ const AdminKYC = () => {
   const [error, setError] = useState('');
 
   const fetchKYCStatus = async (status) => {
+    const token = ls.get('token');
     const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/kyc-business/${status}`, {
       headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
+        Authorization: `Bearer ${token}`,
       },
     });
     if (Array.isArray(response.data)) {

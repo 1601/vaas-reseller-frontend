@@ -79,10 +79,10 @@ export default function LoginPage() {
     const params = new URLSearchParams(location.search);
     const tokenFromURL = params.get('token');
 
-    document.title = "Login | VAAS";
+    document.title = 'Login | VAAS';
 
     if (tokenFromURL) {
-      localStorage.setItem('token', tokenFromURL);
+      ls.set('token', tokenFromURL);
 
       // Extract email from the token
       const decodedToken = jwtDecode(tokenFromURL);
@@ -94,19 +94,8 @@ export default function LoginPage() {
         .then((response) => {
           const { firstName, lastName, testBalance, accountBalance, accountStatus, _id } = response.data;
 
-          // Save user details in localStorage as 'user'
-          localStorage.setItem(
-            'user',
-            JSON.stringify({
-              _id,
-              firstName,
-              lastName,
-              email,
-              testBalance,
-              accountBalance,
-              accountStatus,
-            })
-          );
+          // Save user details in secureLS as 'user'
+          ls.set('user', response.data);
 
           // Navigate to the desired page (e.g., dashboard)
           navigate('/dashboard/app');
@@ -198,7 +187,11 @@ export default function LoginPage() {
       if (rememberMe) {
         ls.set('rememberMeEmail', email);
         ls.set('rememberMePassword', password);
-        ls.set('rememberMe', 'true');
+        ls.set('rememberMe', true);
+      } else {
+        ls.remove('rememberMe');
+        ls.remove('rememberMeEmail');
+        ls.remove('rememberMePassword');
       }
 
       if (role === 'admin') {
@@ -211,13 +204,13 @@ export default function LoginPage() {
       const verifiedRole = await verifyRole(token);
 
       if (verifiedRole) {
-        localStorage.setItem('role', verifiedRole);
+        ls.set('role', verifiedRole);
       } else {
         console.error('No role received from verifyRole API');
       }
 
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(response.data));
+      ls.set('token', token);
+      ls.set('user', response.data);
 
       const dealerId = response.data._id;
       const products = await fetchDealerProductConfig(dealerId, 'TNTPH');

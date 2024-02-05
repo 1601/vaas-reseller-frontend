@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import SecureLS from 'secure-ls';
 // @mui
 import { styled, alpha } from '@mui/material/styles';
 import { Box, Link, Button, Drawer, Typography, Avatar, Stack } from '@mui/material';
@@ -18,6 +19,7 @@ import SvgColor from '../../../components/svg-color';
 
 // ----------------------------------------------------------------------
 
+const ls = new SecureLS({ encodingType: 'aes' });
 const NAV_WIDTH = 280;
 const icon = (name) => <SvgColor src={`/assets/icons/navbar/${name}.svg`} sx={{ width: 1, height: 1 }} />;
 
@@ -74,7 +76,10 @@ export default function Nav({ openNav, onCloseNav }) {
   const location = useLocation();
   const account = useAccount();
   const isDesktop = useResponsive('up', 'lg');
-  const [role, setRole] = useState(localStorage.getItem('role'));
+  const [role, setRole] = useState(() => {
+    const user = ls.get('user');
+    return user ? user.role : null;
+  });
   const [currentNavConfig, setCurrentNavConfig] = useState(getNavConfig(role));
 
   useEffect(() => {
@@ -86,28 +91,28 @@ export default function Nav({ openNav, onCloseNav }) {
 
   useEffect(() => {
     if (pathsToRefetch.includes(location.pathname)) {
-      const newRole = localStorage.getItem('role');
+      const user = ls.get('user');
+      const newRole = user ? user.role : null;
       setRole(newRole);
       setCurrentNavConfig(getNavConfig(newRole));
     }
   }, [location.pathname]);
 
   useEffect(() => {
-  // Whenever the role changes, update the nav config
-  setCurrentNavConfig(getNavConfig(role));
-}, [role]);
+    setCurrentNavConfig(getNavConfig(role));
+  }, [role]);
 
-const filteredNavConfigBottom = navConfigBottom
-  .filter((item) => !(role === 'admin' && item.title === 'upload document')) 
-  .map((item) => {
-    if (role === 'admin' && item.title === 'settings') {
-      return {
-        ...item,
-        children: item.children.filter((child) => child.title !== 'My Profile'),
-      };
-    }
-    return item;
-  });
+  const filteredNavConfigBottom = navConfigBottom
+    .filter((item) => !(role === 'admin' && item.title === 'upload document'))
+    .map((item) => {
+      if (role === 'admin' && item.title === 'settings') {
+        return {
+          ...item,
+          children: item.children.filter((child) => child.title !== 'My Profile'),
+        };
+      }
+      return item;
+    });
 
   const renderContent = (
     <Scrollbar

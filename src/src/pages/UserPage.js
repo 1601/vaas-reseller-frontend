@@ -2,6 +2,7 @@ import { Helmet } from 'react-helmet-async';
 import { filter } from 'lodash';
 import { sentenceCase } from 'change-case';
 import { useState } from 'react';
+import SecureLS from 'secure-ls';
 // @mui
 import {
   Card,
@@ -44,6 +45,8 @@ const TABLE_HEAD = [
   { id: 'status', label: 'Status', alignRight: false },
   { id: '' },
 ];
+
+const ls = new SecureLS({ encodingType: 'aes' });
 
 // ----------------------------------------------------------------------
 
@@ -91,7 +94,7 @@ export default function UserPage() {
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  const userId = JSON.parse(localStorage.getItem('user'))._id;
+  const userId = ls.get('user') ? ls.get('user')._id : null;
 
   const userData = UserDataFetch(userId);
 

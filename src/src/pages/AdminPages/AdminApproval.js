@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import SecureLS from 'secure-ls';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, Typography, Button, Grid, Box, CircularProgress } from '@mui/material';
+
+const ls = new SecureLS({ encodingType: 'aes' });
 
 const AdminApproval = () => {
   const { storeId } = useParams();
@@ -16,9 +19,10 @@ const AdminApproval = () => {
   useEffect(() => {
     const fetchStoreDetails = async () => {
       try {
+        const token = ls.get('token');
         const response = await axios.get(`${BACKEND_URL}/v1/api/stores/${storeId}`, {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            Authorization: `Bearer ${token}`,
           },
         });
         if (response.data) {
@@ -38,12 +42,13 @@ const AdminApproval = () => {
 
   const handleApprovalChange = async (isApproved) => {
     try {
+      const token = ls.get('token');
       const response = await axios.put(
         `${BACKEND_URL}/v1/api/stores/${isApproved ? 'approve' : 'unapprove'}/${storeId}`,
         {},
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -61,12 +66,13 @@ const AdminApproval = () => {
 
   const handleLiveStatusChange = async (isLive) => {
     try {
+      const token = ls.get('token');
       const response = await axios.put(
         `${BACKEND_URL}/v1/api/stores/owner/${ownerId}`,
         { isLive },
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            Authorization: `Bearer ${token}`,
           },
         }
       );

@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import SecureLS from 'secure-ls';
 import { Card, Typography, Button } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import NotificationsCard from '../../components/admin/NotificationsCard';
 import CircularLoading from '../../components/preLoader';
+
+const ls = new SecureLS({ encodingType: 'aes' });
 
 const AdminHome = () => {
   const navigate = useNavigate();
@@ -22,15 +25,8 @@ const AdminHome = () => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const user = JSON.parse(localStorage.getItem('user'));
-        let token;
-
-        // Check for token in different locations
-        if (user && user.token) {
-          token = user.token; // Token inside the user object
-        } else {
-          token = localStorage.getItem('token'); // Token directly in local storage
-        }
+        const user = ls.get('user');
+        const token = user && user.token ? user.token : ls.get('token');
 
         if (!token) {
           console.error('No token found');
@@ -87,14 +83,14 @@ const AdminHome = () => {
   }, [BACKEND_URL]);
 
   const logoutUser = () => {
-    const rememberMe = localStorage.getItem('rememberMe') === 'true';
-    const rememberMeEmail = localStorage.getItem('rememberMeEmail');
+    const rememberMe = ls.get('rememberMe') === 'true';
+    const rememberMeEmail = ls.get('rememberMeEmail');
 
-    localStorage.clear();
+    ls.removeAll();
 
     if (rememberMe) {
-      localStorage.setItem('rememberMeEmail', rememberMeEmail);
-      localStorage.setItem('rememberMe', 'true');
+      ls.set('rememberMeEmail', rememberMeEmail);
+      ls.set('rememberMe', 'true');
     }
 
     navigate('/login', { replace: true });

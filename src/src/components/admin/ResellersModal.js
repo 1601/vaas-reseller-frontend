@@ -1,6 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Dialog, DialogTitle, DialogContent, Typography, List, ListItem, DialogActions, Button, Card, CardContent, Box } from '@mui/material';
+import SecureLS from 'secure-ls';
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  Typography,
+  List,
+  ListItem,
+  DialogActions,
+  Button,
+  Card,
+  CardContent,
+  Box,
+} from '@mui/material';
+
+const ls = new SecureLS({ encodingType: 'aes' });
 
 const ResellersModal = ({ open, onClose, userId }) => {
   const [resellers, setResellers] = useState([]);
@@ -12,7 +27,7 @@ const ResellersModal = ({ open, onClose, userId }) => {
       axios
         .get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/admin/${userId}/resellers`, {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            Authorization: `Bearer ${ls.get('token')}`,
           },
         })
         .then((response) => {
@@ -20,7 +35,7 @@ const ResellersModal = ({ open, onClose, userId }) => {
           setLoading(false);
         })
         .catch((error) => {
-          console.error("Error fetching resellers:", error);
+          console.error('Error fetching resellers:', error);
           setLoading(false);
         });
     }
@@ -42,21 +57,11 @@ const ResellersModal = ({ open, onClose, userId }) => {
                   <Typography variant="h6">
                     {reseller.firstName} {reseller.lastName}
                   </Typography>
-                  <Typography variant="body2">
-                    Email: {reseller.email}
-                  </Typography>
-                  <Typography variant="body2">
-                    Country: {reseller.country}
-                  </Typography>
-                  <Typography variant="body2">
-                    Mobile: {reseller.mobileNumber}
-                  </Typography>
-                  <Typography variant="body2">
-                    Company: {reseller.companyName}
-                  </Typography>
-                  <Typography variant="body2">
-                    Status: {reseller.status}
-                  </Typography>
+                  <Typography variant="body2">Email: {reseller.email}</Typography>
+                  <Typography variant="body2">Country: {reseller.country}</Typography>
+                  <Typography variant="body2">Mobile: {reseller.mobileNumber}</Typography>
+                  <Typography variant="body2">Company: {reseller.companyName}</Typography>
+                  <Typography variant="body2">Status: {reseller.status}</Typography>
                 </CardContent>
               </Card>
             ))}

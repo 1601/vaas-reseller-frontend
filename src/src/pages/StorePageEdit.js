@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import SecureLS from 'secure-ls';
 import { ChromePicker } from 'react-color';
 import {
   Card,
@@ -20,6 +21,8 @@ import CircularLoading from '../components/preLoader';
 import AccountStatusModal from '../components/user-account/AccountStatusModal';
 import UserDataFetch from '../components/user-account/UserDataFetch';
 
+const ls = new SecureLS({ encodingType: 'aes' });
+
 const StorePageEdit = () => {
   const navigate = useNavigate();
   const [storeData, setStoreData] = useState(null);
@@ -28,7 +31,7 @@ const StorePageEdit = () => {
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [progressText, setProgressText] = useState('Uploading...');
-  const userId = JSON.parse(localStorage.getItem('user'))._id;
+  const userId = ls.get('user') ? ls.get('user')._id : null;
   const userData = UserDataFetch(userId);
   const [isStoreUrlValid, setIsStoreUrlValid] = useState(true);
   const [isStoreNameValid, setIsStoreNameValid] = useState(true);
@@ -42,7 +45,7 @@ const StorePageEdit = () => {
   useEffect(() => {}, [storeData]);
 
   useEffect(() => {
-    const storedUserId = JSON.parse(localStorage.getItem('user'))._id;
+    const storedUserId = ls.get('user') ? ls.get('user')._id : null;
 
     const fetchStoreData = async () => {
       try {
@@ -90,7 +93,7 @@ const StorePageEdit = () => {
 
   const handleSaveClick = async () => {
     try {
-      const storedUserId = JSON.parse(localStorage.getItem('user'))._id;
+      const storedUserId = ls.get('user') ? ls.get('user')._id : null;
 
       if (!isValidSubdomain(editedData.storeUrl)) {
         setErrorMessage('Please ensure only lowercase alphanumerical with no special symbols');
@@ -250,13 +253,13 @@ const StorePageEdit = () => {
       }, 500);
 
       const formData = new FormData();
-      const storedUserId = JSON.parse(localStorage.getItem('user'))._id;
+      const storedUserId = ls.get('user') ? ls.get('user')._id : null;
 
       formData.append('file', editedData.storeLogo);
       formData.append('logoFileName', editedData.logoFileName);
       formData.append('storeName', editedData.storeName);
 
-      const token = localStorage.getItem('token');
+      const token = ls.get('token');
       const config = {
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -297,7 +300,7 @@ const StorePageEdit = () => {
 
   const handleGoLiveClick = async () => {
     try {
-      const storedUserId = JSON.parse(localStorage.getItem('user'))._id;
+      const storedUserId = ls.get('user') ? ls.get('user')._id : null;
       const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/owner/${storedUserId}`);
       const updatedStoreData = response.data;
 
@@ -328,7 +331,7 @@ const StorePageEdit = () => {
 
   const handleUnliveClick = async () => {
     try {
-      const storedUserId = JSON.parse(localStorage.getItem('user'))._id;
+      const storedUserId = ls.get('user') ? ls.get('user')._id : null;
       const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/owner/${storedUserId}`);
       const updatedStoreData = response.data;
 
@@ -372,15 +375,19 @@ const StorePageEdit = () => {
         secondaryColor: color.secondary.hex,
       };
 
-      const token = localStorage.getItem('token');
-      const userId = JSON.parse(localStorage.getItem('user'))._id;
+      const token = ls.get('token');
+      const userId = ls.get('user') ? ls.get('user')._id : null;
 
-      const response = await axios.put(`${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/colors/${userId}`, dataToSend, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axios.put(
+        `${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/colors/${userId}`,
+        dataToSend,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (response.status !== 200) {
         throw new Error(response.data.message);
@@ -400,7 +407,7 @@ const StorePageEdit = () => {
   const previewLogoUrl = `${process.env.REACT_APP_BACKEND_URL}/public/img/${editedData.storeLogo}`;
 
   const formData = new FormData();
-  const storedUserId = JSON.parse(localStorage.getItem('user'))._id;
+  const storedUserId = ls.get('user') ? ls.get('user')._id : null;
   formData.append('ownerId', storedUserId);
   formData.append('storeName', editedData.storeName);
   formData.append('storeLogo', editedData.storeLogo);

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import SecureLS from 'secure-ls';
 import {
   FormControl,
   InputLabel,
@@ -31,9 +32,11 @@ import ValidatedTextField from '../../components/validation/ValidatedTextField';
 import { validateName, validateEmail, validateMobileNumber } from '../../components/validation/validationUtils';
 import CircularLoading from '../../components/preLoader';
 
+const ls = new SecureLS({ encodingType: 'aes' });
+
 const ProfileSettings = () => {
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem('user'));
+  const user = ls.get('user');
   const userId = user?._id || (user && user.id);
   const userData = UserDataFetch(userId);
   const { storeData, error } = StoreDataFetch(userId);

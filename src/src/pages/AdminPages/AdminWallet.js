@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import SecureLS from 'secure-ls';
 import {
   Card,
   Typography,
@@ -28,6 +29,7 @@ import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import WalletData from './WalletData.json';
 import AdminWalletApproval from './AdminWalletApproval';
 
+const ls = new SecureLS({ encodingType: 'aes' });
 
 const fetchWallets = async () => {
   try {
@@ -37,7 +39,7 @@ const fetchWallets = async () => {
         // Authorization: `Bearer ${token}`,
       },
     });
-    return response.data.body; // Adjust according to your actual response structure
+    return response.data.body; 
   } catch (error) {
     console.error('Unexpected API response', error);
     return [];
@@ -53,7 +55,7 @@ const AdminWallet = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [selectedWallet, setSelectedWallet] = useState(null);
-  const token = localStorage.getItem('token');
+  const token = ls.get('token');
 
   useEffect(() => {
     setIsLoading(true);

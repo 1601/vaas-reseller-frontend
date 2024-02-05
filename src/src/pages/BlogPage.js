@@ -1,5 +1,6 @@
 import { Helmet } from 'react-helmet-async';
 import React, { useEffect, useState } from 'react';
+import SecureLS from 'secure-ls';
 // @mui
 import { Grid, Button, Container, Stack, Typography } from '@mui/material';
 // components
@@ -19,13 +20,15 @@ const SORT_OPTIONS = [
   { value: 'oldest', label: 'Oldest' },
 ];
 
+const ls = new SecureLS({ encodingType: 'aes' });
+
 // ----------------------------------------------------------------------
 
 export default function BlogPage() {
-  const userId = JSON.parse(localStorage.getItem('user'))._id;
+  const userId = ls.get('user') ? ls.get('user')._id : null;
 
-const userData = UserDataFetch(userId);
-const { storeData, editedData, platformVariables, error } = StoreDataFetch(userId);
+  const userData = UserDataFetch(userId);
+  const { storeData, editedData, platformVariables, error } = StoreDataFetch(userId);
   return (
     <>
       <Helmet>

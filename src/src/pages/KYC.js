@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import axios from 'axios';
+import SecureLS from 'secure-ls';
 import Box from '@mui/material/Box';
 import Stepper from '@mui/material/Stepper';
 import Step from '@mui/material/Step';
@@ -38,7 +39,7 @@ import Approved from '../images/approved.png'
 import { postDataKyc, putFileKyc, autoCompleteAddress, kycSubmittedstatus } from '../api/public/kyc'
 
 
-
+const ls = new SecureLS({ encodingType: 'aes' });
 
 const Responsive = styled('Typography')(({ theme }) => ({
   [theme.breakpoints.down('sm')]: {
@@ -273,7 +274,7 @@ export default function KYC() {
 
         const fileResult = await putFileKyc(mergeFileData)
         if (fileResult.status === 200) {
-          const userData = JSON.parse(localStorage.getItem('user'));
+          const userData = ls.get('user');
           const userId = userData._id;
           const submitted = await axios.put(`${process.env.REACT_APP_BACKEND_URL}/v1/api/kyc/submit`, {}, {
             headers: {

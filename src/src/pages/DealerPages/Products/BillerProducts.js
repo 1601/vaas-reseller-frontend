@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import SecureLS from 'secure-ls';
 import {
   Card,
   Table,
@@ -18,6 +19,8 @@ import {
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import CircularLoading from '../../../components/preLoader';
+
+const ls = new SecureLS({ encodingType: 'aes' });
 
 const categoryNames = {
   loanToggles: 'Loans',
@@ -59,8 +62,8 @@ const BillerProducts = () => {
   const [billerToggles, setBillerToggles] = useState(initialBillerToggles);
   const [isLoading, setIsLoading] = useState(true);
 
-  const token = localStorage.getItem('token');
-  const userId = JSON.parse(localStorage.getItem('user'))._id;
+  const token = ls.get('token');
+  const userId = ls.get('user') ? ls.get('user')._id : null;
 
   const getCategoryName = (categoryKey) => {
     return categoryNames[categoryKey] || categoryKey;

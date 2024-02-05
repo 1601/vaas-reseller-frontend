@@ -1,5 +1,6 @@
 import { Helmet } from 'react-helmet-async';
 import React, { useState } from 'react';
+import SecureLS from 'secure-ls';
 // @mui
 import { Container, Stack, Typography } from '@mui/material';
 // components
@@ -12,9 +13,12 @@ import PRODUCTS from '../_mock/products';
 
 // ----------------------------------------------------------------------
 
+const ls = new SecureLS({ encodingType: 'aes' });
+
 export default function ProductsPage() {
   const [openFilter, setOpenFilter] = useState(false);
-  const userId = JSON.parse(localStorage.getItem('user'))._id;
+  const user = ls.get('user'); 
+  const userId = user ? user._id : null;
 
   const userData = UserDataFetch(userId);
   const { storeData, editedData, platformVariables, error } = StoreDataFetch(userId);

@@ -1,141 +1,142 @@
 import axios from 'axios';
+import SecureLS from 'secure-ls';
+
+const ls = new SecureLS({ encodingType: 'aes' });
 
 const getNewToken = () => {
-   return localStorage.getItem('token')
+  return ls.get('token');
 };
 
-const getOnwerId = () =>{
-    const userData = localStorage.getItem('user')
-    const ownerId = JSON.parse(userData)
-    return ownerId._id
-}
-
+const getOwnerId = () => {
+  const userData = ls.get('user'); 
+  return userData ? userData._id : null; 
+};
 
 // Create an Axios instance with default headers including the token
 const axiosInstance = axios.create({
   baseURL: `${process.env.REACT_APP_BACKEND_URL}/v1/api/`,
   headers: {
-    'Authorization': `Bearer ${getNewToken()}`
-  }
+    Authorization: `Bearer ${getNewToken()}`,
+  },
 });
 
 const submitDataKyc = async (data) => {
-  let response
+  let response;
   try {
-    response = await axiosInstance.post(`kyc-business/${getOnwerId()}`, data);
+    response = await axiosInstance.post(`kyc-business/${getOwnerId()}`, data);
   } catch (error) {
     console.error(error);
   }
-  return response
+  return response;
 };
 
-const submitFileKyc = async (datas) =>{
-    let response
-    try{
-        const formData = new FormData();
+const submitFileKyc = async (datas) => {
+  let response;
+  try {
+    const formData = new FormData();
 
-        datas.map((data) =>{
-          return formData.append('file', data);
-        }); 
-        response = await axiosInstance.put(`kyc-business/kyc/${getOnwerId()}`, formData);
-    }catch(error){
-        console.log(error)
-    }
-    return response
-}
+    datas.map((data) => {
+      return formData.append('file', data);
+    });
+    response = await axiosInstance.put(`kyc-business/kyc/${getOwnerId()}`, formData);
+  } catch (error) {
+    console.log(error);
+  }
+  return response;
+};
 
-const autocompleteAddress = async(data) =>{
+const autocompleteAddress = async (data) => {
   const config = {
     method: 'get',
     url: `https://api.geoapify.com/v1/geocode/autocomplete?text=${data}&apiKey=db811e8a257b4256a5965eb22e43f936`,
-    headers: { }
+    headers: {},
   };
 
-  const addressData =  await axios(config)
-  if(addressData){
+  const addressData = await axios(config);
+  if (addressData) {
     return addressData;
   }
   return null;
-}
+};
 
-const kycSubmittedStatus = async() =>{
-  let response
-  try{
-    response = await axiosInstance.get(`kyc-business/store/${getOnwerId()}`)
-  }catch(error){
-    console.log(error)
+const kycSubmittedStatus = async () => {
+  let response;
+  try {
+    response = await axiosInstance.get(`kyc-business/store/${getOwnerId()}`);
+  } catch (error) {
+    console.log(error);
   }
-  return response
-}
+  return response;
+};
 
-const addBanner = async(data) =>{
-  let response
-  try{
+const addBanner = async (data) => {
+  let response;
+  try {
     const bannerDetails = {
-      title:data.title,
-      description: data.description
-    }
-      response = await axiosInstance.post('banner', bannerDetails)
-    if(response){
+      title: data.title,
+      description: data.description,
+    };
+    response = await axiosInstance.post('banner', bannerDetails);
+    if (response) {
       const formData = new FormData();
-      formData.append('file', data.image)
+      formData.append('file', data.image);
 
       const imageResult = await axiosInstance.put(`banner/banner/${response.data.body._id}`, formData);
-      if(imageResult){
-        console.log(imageResult)
-      }else{
-        console.log(imageResult)
+      if (imageResult) {
+        console.log(imageResult);
+      } else {
+        console.log(imageResult);
       }
     }
-  }catch(error){
-    console.log(error)
+  } catch (error) {
+    console.log(error);
   }
-  return response
-}
+  return response;
+};
 
-const updateBannerStatus = async(data) =>{
-  let response
-  try{
-    const {idBanner, status} = data
-    response = await axiosInstance.put(`banner/status/${idBanner}/${status}`)
-    if(response){
-      return response
+const updateBannerStatus = async (data) => {
+  let response;
+  try {
+    const { idBanner, status } = data;
+    response = await axiosInstance.put(`banner/status/${idBanner}/${status}`);
+    if (response) {
+      return response;
     }
-  }catch(error){
-    console.log(error)
+  } catch (error) {
+    console.log(error);
   }
-  return response
-}
+  return response;
+};
 
-const getAllBanner = async() =>{
-  let response
-  try{
-    response = await axiosInstance.get(`banner/all-active`)
-  }catch(error){
-    console.log(error)
+const getAllBanner = async () => {
+  let response;
+  try {
+    response = await axiosInstance.get(`banner/all-active`);
+  } catch (error) {
+    console.log(error);
   }
-  return response
-}
+  return response;
+};
 
-const getAllBannersAdmin = async() =>{
-  let response
-  try{
-    response = await axiosInstance.get(`banners/admin`)
-  }catch(error){
-    console.log(error)
+const getAllBannersAdmin = async () => {
+  let response;
+  try {
+    response = await axiosInstance.get(`banners/admin`);
+  } catch (error) {
+    console.log(error);
   }
-  return response
-}
+  return response;
+};
 
-const getAllCustomers = async() =>{
-  let response
-  try{
-    response = await axiosInstance.get(`customer/${getOnwerId()}`)
-  }catch(error){
-    console.log(error)
+const getAllCustomers = async () => {
+  let response;
+  try {
+    response = await axiosInstance.get(`customer/${getOwnerId()}`);
+  } catch (error) {
+    console.log(error);
   }
-  return response
-}
+  return response;
+};
 
 export {
   submitDataKyc,
@@ -146,5 +147,5 @@ export {
   getAllBannersAdmin,
   getAllCustomers,
   addBanner,
-  updateBannerStatus
+  updateBannerStatus,
 };

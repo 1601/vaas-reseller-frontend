@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
+import SecureLS from 'secure-ls';
 import {
   Box,
   Paper,
@@ -18,14 +19,16 @@ import {
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
+const ls = new SecureLS({ encodingType: 'aes' });
+
 const TopUpConfig = () => {
   const { productName } = useParams();
   const [productConfigs, setProductConfigs] = useState([]);
   const [markupInputValues, setMarkupInputValues] = useState({});
 
-  const userId = JSON.parse(localStorage.getItem('user'))._id;
+  const userId = ls.get('user') ? ls.get('user')._id : null;
   const navigate = useNavigate();
-  const token = localStorage.getItem('token');
+  const token = ls.get('token');
 
   useEffect(() => {
     if (token) {

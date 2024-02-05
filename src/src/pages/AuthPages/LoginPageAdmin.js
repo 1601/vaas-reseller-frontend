@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import jwtDecode from 'jwt-decode';
 import axios from 'axios';
+import SecureLS from 'secure-ls';
 // @mui
 import { styled } from '@mui/material/styles';
 import { Link, Container, Typography, Divider, Stack, Button } from '@mui/material';
@@ -15,6 +16,8 @@ import Iconify from '../../components/iconify';
 import LoginFormAdmin from '../../sections/auth/login/LoginFormAdmin'
 
 // ----------------------------------------------------------------------
+
+const ls = new SecureLS({ encodingType: 'aes' });
 
 const StyledRoot = styled('div')(({ theme }) => ({
   [theme.breakpoints.up('md')]: {
@@ -62,7 +65,7 @@ export default function LoginPage() {
     const tokenFromURL = params.get('token');
 
     if (tokenFromURL) {
-      localStorage.setItem('token', tokenFromURL);
+      ls.set('token', tokenFromURL);
 
       // Extract email from the token
       const decodedToken = jwtDecode(tokenFromURL);
@@ -74,19 +77,8 @@ export default function LoginPage() {
         .then((response) => {
           const { firstName, lastName, testBalance, accountBalance, accountStatus, _id } = response.data;
 
-          // Save user details in localStorage as 'user'
-          localStorage.setItem(
-            'user',
-            JSON.stringify({
-              _id,
-              firstName,
-              lastName,
-              email,
-              testBalance,
-              accountBalance,
-              accountStatus,
-            })
-          );
+          // Save user details in secureLS as 'user'
+          ls.set('user', response.data);
 
           // Navigate to the desired page (e.g., dashboard)
           navigate('/dashboard/app');

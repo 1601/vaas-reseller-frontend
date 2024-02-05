@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react';
+import SecureLS from 'secure-ls';
 import { Modal, Typography, Button } from '@mui/material';
 
-const AccountStatusModal = ({ open, onClose, userData, storeData}) => {
+const ls = new SecureLS({ encodingType: 'aes' });
+
+const AccountStatusModal = ({ open, onClose, userData, storeData }) => {
   const modalBodyStyle = {
     position: 'absolute',
     top: '50%',
@@ -35,16 +38,16 @@ const AccountStatusModal = ({ open, onClose, userData, storeData}) => {
   }, [storeData, userData]);
 
   const handleDeactivationLogout = () => {
-    const rememberMe = localStorage.getItem('rememberMe') === 'true';
-    const rememberMeEmail = localStorage.getItem('rememberMeEmail');
+    const rememberMe = ls.get('rememberMe') === 'true';
+    const rememberMeEmail = ls.get('rememberMeEmail');
 
-    // Clear all items from localStorage
-    localStorage.clear();
-    
+    // Clear all items from secureLS
+    ls.removeAll();
+
     // Conditionally retain the email and rememberMe status based on 'rememberMe' status
     if (rememberMe) {
-      localStorage.setItem('rememberMeEmail', rememberMeEmail);
-      localStorage.setItem('rememberMe', 'true');
+      ls.set('rememberMeEmail', rememberMeEmail);
+      ls.set('rememberMe', 'true');
     }
 
     // Navigate to login page
@@ -54,11 +57,22 @@ const AccountStatusModal = ({ open, onClose, userData, storeData}) => {
   return (
     <>
       {(isSuspended || isDeactivated) && (
-        <Modal open={open} onClose={onClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
+        <Modal
+          open={open}
+          onClose={onClose}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+        >
           <div style={modalBodyStyle}>
             {isSuspended ? (
               <>
-                <Typography id="modal-modal-title" variant="h6" component="h2" color="error.dark" sx={{ fontWeight: 'bold' }}>
+                <Typography
+                  id="modal-modal-title"
+                  variant="h6"
+                  component="h2"
+                  color="error.dark"
+                  sx={{ fontWeight: 'bold' }}
+                >
                   Account Suspended
                 </Typography>
                 <Typography id="modal-modal-description" sx={{ mt: 2, mb: 2 }}>
@@ -77,11 +91,18 @@ const AccountStatusModal = ({ open, onClose, userData, storeData}) => {
               </>
             ) : isDeactivated ? (
               <>
-                <Typography id="modal-modal-title" variant="h6" component="h2" color="error.dark" sx={{ fontWeight: 'bold' }}>
+                <Typography
+                  id="modal-modal-title"
+                  variant="h6"
+                  component="h2"
+                  color="error.dark"
+                  sx={{ fontWeight: 'bold' }}
+                >
                   Account Deactivated
                 </Typography>
                 <Typography id="modal-modal-description" sx={{ mt: 2, mb: 2 }}>
-                  Account has been Deactivated due to insufficient documents. Please create a new account if you wish to continue using our services.
+                  Account has been Deactivated due to insufficient documents. Please create a new account if you wish to
+                  continue using our services.
                 </Typography>
                 <Button
                   variant="outlined"

@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { Navigate, useRoutes } from 'react-router-dom';
+import SecureLS from 'secure-ls';
 // layouts
 import DashboardLayout from './layouts/dashboard';
 import SimpleLayout from './layouts/simple';
@@ -53,6 +54,7 @@ import AdminWallet from './pages/AdminPages/AdminWallet';
 // ----------------------------------------------------------------------
 
 const excludedSubdomains = ['www', 'lvh', 'localhost'];
+const ls = new SecureLS({ encodingType: 'aes' });
 
 export default function Router() {
   const hostnameParts = window.location.hostname.split('.');
@@ -62,9 +64,10 @@ export default function Router() {
       subdomain.includes('pldt-vaas-frontend') ||
       subdomain.includes('vortex-vaas-frontend')
     : false;
-  const isLoggedIn = localStorage.getItem('token');
+  const isLoggedIn = ls.get('token');
   const isSubdomain = subdomain && !isExcludedSubdomain;
-  const role = localStorage.getItem('role');
+  const user = ls.get('user');
+  const role = user ? user.role : null;
 
   useEffect(() => {
     const currentHostname = window.location.hostname;
@@ -220,7 +223,6 @@ export default function Router() {
         // Dealer Accounts
         { path: 'accounts', element: <AdminDealerAccount /> },
         { path: 'wallet/manage-ca', element: <AdminWallet /> },
-        
       ],
     },
     {

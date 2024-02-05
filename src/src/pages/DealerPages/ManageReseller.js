@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import SecureLS from 'secure-ls';
 import {
   Button,
   Table,
@@ -48,6 +49,8 @@ import SearchBar from '../../components/resellers/SearchBar';
 import ResellerActionsMenu from '../../components/resellers/ResellerActionsMenu';
 import CircularLoading from '../../components/preLoader';
 
+const ls = new SecureLS({ encodingType: 'aes' });
+
 const StatusLabel = ({ status }) => {
   const colorMap = {
     Active: {
@@ -82,7 +85,7 @@ const StatusLabel = ({ status }) => {
 };
 
 const ManageReseller = () => {
-  const userId = JSON.parse(localStorage.getItem('user'))._id;
+  const userId = ls.get('user') ? ls.get('user')._id : null;
   const userData = UserDataFetch(userId);
   const [open, setOpen] = useState(false);
   const initialFormState = {

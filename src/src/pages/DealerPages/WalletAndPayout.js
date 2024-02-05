@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import SecureLS from 'secure-ls';
 import { 
   Card,
   CardContent,
@@ -15,6 +16,8 @@ import UserDataFetch from '../../components/user-account/UserDataFetch';
 import AccountStatusModal from '../../components/user-account/AccountStatusModal';
 import StoreDataFetch from '../../components/user-account/StoreDataFetch';
 import CircularLoading from '../../components/preLoader';
+
+const ls = new SecureLS({ encodingType: 'aes' });
 
 const currencies = [
   'USD',
@@ -46,7 +49,7 @@ const WalletPayouts = () => {
   const [user, setUser] = useState(null);
   const [currency, setCurrency] = useState();
   const [edit, setEdit] = useState(false);
-  const userId = JSON.parse(localStorage.getItem('user'))._id;
+  const userId = ls.get('user') ? ls.get('user')._id : null;
 
   const userData = UserDataFetch(userId);
   const { storeData, editedData, platformVariables, error } = StoreDataFetch(userId);
@@ -225,7 +228,7 @@ const uploadBankSlipImage = (walletRequestId) => {
   };
 
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem('user'));
+    const storedUser = ls.get('user');
     setUser(storedUser);
 
     if (storedUser && storedUser._id) {

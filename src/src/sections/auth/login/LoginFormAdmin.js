@@ -46,10 +46,11 @@ export default function LoginFormAdmin() {
     try {
       const savedEmail = ls.get('rememberMeEmail');
       const savedPassword = ls.get('rememberMePassword');
-      if (savedEmail && savedPassword) {
-        setEmail(savedEmail);
-        setPassword(savedPassword);
-        setRememberMe(true);
+      const remembered = ls.get('rememberMe');
+      if (remembered) {
+        setEmail(savedEmail || '');
+        setPassword(savedPassword || '');
+        setRememberMe(remembered);
       }
     } catch (error) {
       console.error('Error reading from SecureLS:', error);
@@ -109,7 +110,11 @@ export default function LoginFormAdmin() {
       if (rememberMe) {
         ls.set('rememberMeEmail', email);
         ls.set('rememberMePassword', password);
-        ls.set('rememberMe', 'true');
+        ls.set('rememberMe', true);
+      } else {
+        ls.remove('rememberMe');
+        ls.remove('rememberMeEmail');
+        ls.remove('rememberMePassword');
       }
 
       if (role !== 'admin') {
@@ -122,13 +127,13 @@ export default function LoginFormAdmin() {
       const verifiedRole = await verifyRole(token);
 
       if (verifiedRole) {
-        localStorage.setItem('role', verifiedRole);
+        ls.set('role', verifiedRole);
       } else {
         console.error('No role received from verifyRole API');
       }
 
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(response.data));
+      ls.set('token', token);
+      ls.set('user', response.data);
 
       // Open OTP dialog for further verification
       setOpenOTPDialog(true);

@@ -561,7 +561,6 @@ const VortexTopUp = () => {
   useEffect(() => {
     const fetchTopupToggles = async () => {
       try {
-        const encryptedUserId = localStorage.getItem('encryptedUserId');
         const decryptedUserIdFromLS = ls.get('encryptedUserId');
 
         if (decryptedUserIdFromLS) {

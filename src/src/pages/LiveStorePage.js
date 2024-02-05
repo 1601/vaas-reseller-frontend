@@ -253,7 +253,7 @@ const LiveStorePage = () => {
 
   const queryParams = new URLSearchParams(location.search);
   const notFound = queryParams.get('notFound');
-  const user = JSON.parse(localStorage.getItem('user'));
+  const user = ls.get('user');
 
   // Function to extract the storeUrl from the URL
   const extractStoreUrl = () => {

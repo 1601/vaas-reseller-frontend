@@ -19,6 +19,8 @@ import { DeleteUserModal } from '../../components/admin/DeleteUserModal';
 import ResellersModal from '../../components/admin/ResellersModal';
 import CircularLoading from '../../components/preLoader';
 
+const ls = new SecureLS({ encodingType: 'aes' });
+
 const AdminDealerAccount = () => {
   const [users, setUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -45,15 +47,16 @@ const AdminDealerAccount = () => {
 
   const confirmDelete = async () => {
     try {
+      const token = ls.get('token');
       await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/v1/api/admin/users/${userToDelete}`, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
       await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/${userToDelete}`, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
@@ -77,8 +80,8 @@ const AdminDealerAccount = () => {
       setIsLoading(true);
 
       try {
-        const rawToken = localStorage.getItem('token');
-        const isValidToken = rawToken && rawToken.split('.').length === 3;
+        const token = ls.get('token');
+        const isValidToken = token && token.split('.').length === 3;
 
         if (!isValidToken) {
           throw new Error('Invalid token format');
@@ -86,7 +89,7 @@ const AdminDealerAccount = () => {
 
         const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/admin/users`, {
           headers: {
-            Authorization: `Bearer ${rawToken}`,
+            Authorization: `Bearer ${token}`,
           },
         });
 
@@ -95,7 +98,7 @@ const AdminDealerAccount = () => {
             try {
               const storeResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/${user._id}`, {
                 headers: {
-                  Authorization: `Bearer ${localStorage.getItem('token')}`,
+                  Authorization: `Bearer ${token}`,
                 },
               });
               user.storeDetails = storeResponse.data;

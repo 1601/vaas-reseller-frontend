@@ -3,6 +3,7 @@ import { filter } from 'lodash';
 import { sentenceCase } from 'change-case';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import SecureLS from 'secure-ls';
 // @mui
 import {
   Card,
@@ -52,6 +53,8 @@ const TABLE_HEAD = [
   { id: '' },
 ];
 
+const ls = new SecureLS({ encodingType: 'aes' });
+
 // ----------------------------------------------------------------------
 
 function descendingComparator(a, b, orderBy) {
@@ -91,7 +94,7 @@ export default function CustomerPage() {
   const [orderBy, setOrderBy] = useState('name');
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  const userId = JSON.parse(localStorage.getItem('user'))._id;
+  const userId = ls.get('user') ? ls.get('user')._id : null;
   const userData = UserDataFetch(userId);
   const { storeData, editedData, platformVariables, error } = StoreDataFetch(userId);
   const [openModal, setOpenModal] = useState(false);

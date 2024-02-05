@@ -122,20 +122,19 @@ export default function LoginForm() {
       const verifiedRole = await verifyRole(token);
 
       if (verifiedRole) {
-        localStorage.setItem('role', verifiedRole);
+        ls.set('role', verifiedRole); 
       } else {
         console.error('No role received from verifyRole API');
       }
 
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(response.data));
+      ls.set('token', token);
+      ls.set('user', response.data);
 
-      const dealerId = response.data._id; 
-      const products = await fetchDealerProductConfig(dealerId, 'TNTPH'); 
+      const dealerId = response.data._id;
+      const products = await fetchDealerProductConfig(dealerId, 'TNTPH');
       if (products.length === 0) {
         await createDefaultProductConfig(dealerId);
       }
-
 
       navigate(role === 'admin' ? '/dashboard/admin' : '/dashboard/app', { replace: true });
       setLoggingIn(false);
@@ -177,36 +176,35 @@ export default function LoginForm() {
 
   const createDefaultProductConfig = async (dealerId) => {
     try {
-        // console.log(`Sending request to create default product config for dealerId: ${dealerId}`);
-        // console.log(`Config to be sent:`, defaultProductConfig);
-        // console.log(`Endpoint: ${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/product-config/create`);
+      // console.log(`Sending request to create default product config for dealerId: ${dealerId}`);
+      // console.log(`Config to be sent:`, defaultProductConfig);
+      // console.log(`Endpoint: ${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/product-config/create`);
 
-        const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/product-config/create`, {
-            dealerId,
-            config: defaultProductConfig
-        });
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/product-config/create`, {
+        dealerId,
+        config: defaultProductConfig,
+      });
 
-        // console.log('Response received:', response);
-        // console.log('Default product config created successfully');
+      // console.log('Response received:', response);
+      // console.log('Default product config created successfully');
     } catch (error) {
-        console.error('Error creating default product config:', error);
-        if (error.response) {
-            // The request was made and the server responded with a status code
-            // that falls out of the range of 2xx
-            console.error('Error Data:', error.response.data);
-            console.error('Error Status:', error.response.status);
-            console.error('Error Headers:', error.response.headers);
-        } else if (error.request) {
-            // The request was made but no response was received
-            console.error('Error Request:', error.request);
-        } else {
-            // Something happened in setting up the request that triggered an Error
-            console.error('Error Message:', error.message);
-        }
-        console.error('Config:', error.config);
+      console.error('Error creating default product config:', error);
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        console.error('Error Data:', error.response.data);
+        console.error('Error Status:', error.response.status);
+        console.error('Error Headers:', error.response.headers);
+      } else if (error.request) {
+        // The request was made but no response was received
+        console.error('Error Request:', error.request);
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.error('Error Message:', error.message);
+      }
+      console.error('Config:', error.config);
     }
-};
-
+  };
 
   const verifyRole = async (token) => {
     try {

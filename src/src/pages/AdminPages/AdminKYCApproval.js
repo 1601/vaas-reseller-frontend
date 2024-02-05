@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import SecureLS from 'secure-ls';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, Typography, Button, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
+
+const ls = new SecureLS({ encodingType: 'aes' });
 
 const AdminKYCApproval = () => {
   const { storeId } = useParams();
@@ -12,11 +15,12 @@ const AdminKYCApproval = () => {
   useEffect(() => {
     const fetchKYCDetails = async () => {
       try {
+        const token = ls.get('token');
         const response = await axios.get(
           `${process.env.REACT_APP_BACKEND_URL}/v1/api/kyc-business/store/${storeId}`,
           {
             headers: {
-              Authorization: `Bearer ${localStorage.getItem('token')}`,
+              Authorization: `Bearer ${token}`,
             },
           }
         );
@@ -41,12 +45,13 @@ const AdminKYCApproval = () => {
 
   const handleApprove = async () => {
     try {
+      const token = ls.get('token');
       await axios.put(
         `${process.env.REACT_APP_BACKEND_URL}/v1/api/kyc/approve/${storeId}`,
         {},
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -58,12 +63,13 @@ const AdminKYCApproval = () => {
 
   const handleReject = async () => {
     try {
+      const token = ls.get('token');
       await axios.put(
         `${process.env.REACT_APP_BACKEND_URL}/v1/api/kyc/reject/${storeId}`,
         {},
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            Authorization: `Bearer ${token}`,
           },
         }
       );
