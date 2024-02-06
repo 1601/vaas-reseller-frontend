@@ -131,11 +131,9 @@ const LiveStorePage = () => {
   const handleOtpSubmit = async () => {
     setIsLoading(true);
     try {
-      // Determine storeUrl
       let storeUrl = window.location.hostname.split('.')[0];
 
-      if (!storeUrl || storeUrl === 'www') {
-        // If no subdomain or 'www', extract from path
+      if (window.location.hostname === 'localhost' || 'sparkledev' || !storeUrl || storeUrl === 'www') {
         const pathParts = window.location.pathname.split('/');
         if (pathParts.length > 1 && pathParts[1]) {
           storeUrl = pathParts[1];
@@ -155,7 +153,7 @@ const LiveStorePage = () => {
         }
       );
 
-      // console.log('OTP Verification Response:', otpVerificationResponse.data);
+      console.log('OTP Verification Response:', otpVerificationResponse.data);
 
       if (otpVerificationResponse.data.message === 'OTP verified successfully') {
         // Fetch customer details
@@ -549,7 +547,7 @@ const LiveStorePage = () => {
             id="loginDialog"
             maxWidth="md"
             fullWidth
-            PaperProps={{ style: { width: dialogWidth } }} // Ensures dialog retains size
+            PaperProps={{ style: { width: dialogWidth } }}
           >
             <DialogTitle>{dialogStage === 1 ? 'Login' : 'OTP Verification'}</DialogTitle>
             <DialogContent>
@@ -592,18 +590,19 @@ const LiveStorePage = () => {
               )}
               {loginErrorMessage && <DialogContentText style={{ color: 'red' }}>{loginErrorMessage}</DialogContentText>}
             </DialogContent>
-            {!isLoading && (
-              <DialogActions>
-                <Button onClick={handleCloseLoginDialog}>Cancel</Button>
-                {dialogStage === 1 ? (
-                  <Button onClick={handleEmailSubmit} disabled={emailError || email === ''}>
-                    Submit
-                  </Button>
-                ) : (
-                  <Button onClick={handleOtpSubmit}>Confirm</Button>
-                )}
-              </DialogActions>
-            )}
+            {!isLoading &&
+              !showOtpSuccessDialog && ( 
+                <DialogActions>
+                  <Button onClick={handleCloseLoginDialog}>Cancel</Button>
+                  {dialogStage === 1 ? (
+                    <Button onClick={handleEmailSubmit} disabled={emailError || email === ''}>
+                      Submit
+                    </Button>
+                  ) : (
+                    <Button onClick={handleOtpSubmit}>Confirm</Button>
+                  )}
+                </DialogActions>
+              )}
           </Dialog>
 
           <Dialog
