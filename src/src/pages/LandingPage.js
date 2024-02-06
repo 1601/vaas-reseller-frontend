@@ -46,7 +46,7 @@ export default function LandingPage() {
           <HeroHome />
           <FeaturesHome />
           <FeaturesBlocks />
-          <Testimonials />
+          {/* <Testimonials /> */}
           <Newsletter />
         </main>
 
