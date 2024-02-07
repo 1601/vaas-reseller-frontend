@@ -120,8 +120,7 @@ export default function DashboardAppPage() {
 
   const verificationCard =
     userData &&
-    (!userData.mobileNumberVerified ||
-      !userData.isActive ||
+    (!userData.isActive ||
       !userData.designation ||
       !userData.country ||
       !userData.mobileNumber ||
@@ -130,8 +129,8 @@ export default function DashboardAppPage() {
       <Card sx={{ mb: 5, p: 3, textAlign: 'center', backgroundColor: 'rgba(173, 216, 230, 0.5)' }}>
         <CardContent>
           <Typography variant="h5" color="primary.dark" sx={{ mb: 2 }}>
-            {!userData.mobileNumberVerified || !userData.isActive
-              ? 'Please complete the verification process for your email/mobile number'
+            {!userData.isActive
+              ? 'Please complete the verification process for your email'
               : !userData.designation ||
                 !userData.country ||
                 !userData.mobileNumber ||
@@ -154,7 +153,7 @@ export default function DashboardAppPage() {
       </Helmet>
 
       {!trialMessageCard && !verificationCard ? (
-        userData && userData.mobileNumberVerified && userData.isActive && userData.accountStatus === 'Active' ? (
+        userData && userData.isActive && userData.accountStatus === 'Active' ? (
           <Typography variant="h2" textAlign="center">
             All Verifications Complete!
           </Typography>
