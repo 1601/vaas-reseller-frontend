@@ -780,7 +780,7 @@ export default function KYC() {
                           <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
                             <CheckCircleOutlineIcon style={{ color: 'green', marginRight: '10px' }} />
                             <Typography variant="body1">
-                              Do not submit expried IDs.
+                              Do not submit expired IDs.
                             </Typography>
                           </div>
                           <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
@@ -855,7 +855,7 @@ export default function KYC() {
                         <hr />
                         <div style={{ marginTop: '20px' }}>
                           <Typography> Upload Documents </Typography>
-                          <Typography variant="caption" color='text.secondary'> Guidlines for uploading documents</Typography>
+                          <Typography variant="caption" color='text.secondary'> Guidelines for uploading documents</Typography>
                           <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
                             <CheckCircleOutlineIcon style={{ color: 'green', marginRight: '10px' }} />
                             <Typography variant="body1">
