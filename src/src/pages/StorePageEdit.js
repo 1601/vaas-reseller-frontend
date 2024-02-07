@@ -636,9 +636,16 @@ const StorePageEdit = () => {
                         style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}
                       >
                         <img
-                          src={storeData ? storeData.storeLogo : '/vortex_logo_black.png'}
+                          src={
+                            storeData && storeData.storeLogo ? storeData.storeLogo : '/assets/logo.svg'
+                          }
                           alt="Your Store Logo"
-                          style={{ maxWidth: '230px', maxHeight: '230px' }}
+                          style={{
+                            maxWidth: '230px',
+                            maxHeight: '230px',
+                            width: 'auto', 
+                            height: 'auto', 
+                          }}
                         />
                       </Card>
                     </Grid>
