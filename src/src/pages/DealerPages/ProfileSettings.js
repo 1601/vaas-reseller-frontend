@@ -660,11 +660,11 @@ const ProfileSettings = () => {
                           InputProps={{
                             endAdornment: (
                               <InputAdornment position="end">
-                                {userData.mobileNumberVerified ? (
+                                {/* {userData.mobileNumberVerified ? (
                                   <span style={{ color: 'green' }}>(Verified)</span>
                                 ) : (
                                   <span style={{ color: 'red' }}>(Unverified)</span>
-                                )}
+                                )} */}
                               </InputAdornment>
                             ),
                           }}
@@ -681,11 +681,11 @@ const ProfileSettings = () => {
                       {userData.hasPassword ? 'Change Password' : 'Add Password'}
                     </Button>
                   )}
-                  {!editMode && !userData.mobileNumberVerified && (
+                  {/* {!editMode && !userData.mobileNumberVerified && (
                     <Button variant="outlined" className="mt-2 mr-2" onClick={openOtpDialog}>
                       Verify Mobile Number
                     </Button>
-                  )}
+                  )} */}
                   {!editMode && !userData.isActive && (
                     <Button variant="outlined" className="mt-2" onClick={sendVerificationEmailAndNavigate}>
                       Verify Email

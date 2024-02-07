@@ -154,11 +154,11 @@ const ProfilePage = () => {
                       </span>
                       <div style={{ display: 'flex', alignItems: 'center' }}>
                         {userData.mobileNumber}
-                        {userData.mobileNumberVerified ? (
+                        {/* {userData.mobileNumberVerified ? (
                           <span style={{ color: 'green', marginLeft: '8px' }}>(Verified)</span>
                         ) : (
                           <span style={{ color: 'red', marginLeft: '8px' }}>(Unverified)</span>
-                        )}
+                        )} */}
                       </div>
                     </div>
                   </Card>
