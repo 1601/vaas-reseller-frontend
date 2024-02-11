@@ -8,6 +8,8 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import PhoneIphoneIcon from '@mui/icons-material/PhoneIphone';
+import Autocomplete from '@mui/material/Autocomplete';
+import InputAdornment from '@mui/material/InputAdornment';
 // import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 // import { navigate } from "gatsby"
 import VortexTopupCard from '../../Vortex/components/VortexTopupCard';
@@ -37,6 +39,11 @@ import VortexProductBrandCard from '../../Vortex/components/VortexProductBrandCa
 // import { LoginState, PlatformVariables, StoreStatus, UserStatus } from '../../Vortex/globalstates';
 import { primaryVortexTheme } from '../../Vortex/config/theme';
 import VortexBottomGradient from '../../Vortex/components/VortexBottomGradient';
+import { countryCodes } from '../../components/country/countryNumCodes';
+import { countries } from '../../components/country/CountriesList';
+
+import { validateMobileNumber } from '../../components/validation/validationUtils';
+import { mobileNumberLengths } from '../../components/country/countryNumLength';
 // import BottomNavigator from '../../Homemade/BottomNavigator';
 // import useLoggedUser from "../../../custom-hooks/useLoggedUser"
 // import VortexVoucherSearchBar from '../../Vortex/components/VortexVoucherSearchBar';
@@ -317,12 +324,14 @@ const VortexTopUp = () => {
   };
 
   const UserDetailsDialog = ({ open, onUserDetailsSubmit, handleDialogClose }) => {
+    const [selectedCountry, setSelectedCountry] = useState('');
     const [userDetails, setUserDetails] = useState({
       phoneNumber: '',
       email: '',
       firstName: '',
       lastName: '',
-      ipAddress: '', // New state for IP address
+      ipAddress: '',
+      country: '',
     });
     const [phoneNumberError, setPhoneNumberError] = useState('');
     const [emailError, setEmailError] = useState('');
@@ -348,27 +357,53 @@ const VortexTopUp = () => {
       }
     };
 
-    const handleChange = (prop) => (event) => {
-      const value = event.target.value;
-      if (prop === 'phoneNumber') {
-        setUserDetails({ ...userDetails, [prop]: value });
-        const phoneNumberRegex = /^\d+$/;
-        if (value !== '' && !phoneNumberRegex.test(value)) {
-          setPhoneNumberError('Phone number must contain digits only');
-        } else {
-          setPhoneNumberError('');
-        }
-      } else if (prop === 'email') {
-        setUserDetails({ ...userDetails, [prop]: value });
-        if (validateEmail(value)) {
-          setEmailError('');
-        } else {
-          setEmailError('Invalid email address');
-        }
+    const handleChange = (prop) => (event, newValue) => {
+      // newValue is only for the Autocomplete component, use event.target.value for TextField
+      const value = prop === 'country' ? newValue : event.target.value;
+
+      if (prop === 'country') {
+        // If the country is changed, update only the country state and reset the phone number
+        setUserDetails((prevState) => ({
+          ...prevState,
+          country: value,
+          phoneNumber: '', // Reset phone number when country changes
+        }));
+        setSelectedCountry(value);
+      } else if (prop === 'phoneNumber') {
+        const cleanNumber = event.target.value.replace(/[^\d]/g, ''); // Remove non-digit characters
+        // Set the clean number to state
+        setUserDetails((prevState) => ({
+          ...prevState,
+          [prop]: cleanNumber,
+        }));
+
+        // Validate phone number length based on the selected country
+        const validationMessage = validateMobileNumber(selectedCountry, cleanNumber, countryCodes, mobileNumberLengths);
+        setPhoneNumberError(validationMessage); // This will be an empty string if the number is valid
       } else {
-        setUserDetails({ ...userDetails, [prop]: value });
+        // Handle changes for other fields like email, firstName, lastName
+        setUserDetails((prevState) => ({
+          ...prevState,
+          [prop]: value,
+        }));
+        if (prop === 'email') {
+          // Additional validation for email if needed
+          setEmailError(validateEmail(value) ? '' : 'Invalid email address');
+        }
       }
     };
+
+    useEffect(() => {
+      if (selectedCountry && userDetails.phoneNumber) {
+        const validationMessage = validateMobileNumber(
+          selectedCountry,
+          userDetails.phoneNumber,
+          countryCodes,
+          mobileNumberLengths
+        );
+        setPhoneNumberError(validationMessage);
+      }
+    }, [selectedCountry, userDetails.phoneNumber, countryCodes, mobileNumberLengths]);
 
     const validateEmail = (email) => {
       const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
@@ -404,6 +439,10 @@ const VortexTopUp = () => {
           const storeUrl = getStoreUrl();
           // console.log('storeUrl: ', storeUrl);
 
+          const fullPhoneNumber = userDetails.country
+            ? countryCodes[userDetails.country] + userDetails.phoneNumber
+            : userDetails.phoneNumber;
+
           // Fetch dealerId from the store URL
           const storeResponse = await axios.get(
             `${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/url/${storeUrl}/user`
@@ -414,6 +453,7 @@ const VortexTopUp = () => {
           // Append customer details first
           const appendResponse = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/append`, {
             ...userDetails,
+            phoneNumber: fullPhoneNumber, // Use fullPhoneNumber which includes the country code
             dealerId,
           });
           // console.log('appendResponse: ', appendResponse);
@@ -421,28 +461,15 @@ const VortexTopUp = () => {
           let customerId;
 
           if (appendResponse.data && appendResponse.data.body && appendResponse.data.body._id) {
+            // Use the ID from the append response directly
             customerId = appendResponse.data.body._id;
-          } else {
-            throw new Error('Failed to create or append customer');
-          }
 
-          // Fetch customerId using email or phone number
-          try {
-            const customerResponse = await axios.get(
-              `${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/${userDetails.email}`
-            ); // or phoneNumber
-            customerId = customerResponse.data._id;
-          } catch (fetchError) {
-            // Handle the error if customer still not found
-            console.error('Error fetching customer ID:', fetchError);
-            throw fetchError;
-          }
-
-          if (customerId) {
             // Update transactionData with dealerId and customerId
             const updatedTransactionData = { ...transactionData, dealerId, customerId };
             onUserDetailsSubmit(updatedTransactionData);
             handleDialogClose({ userDetails, skipped: false }, true);
+          } else {
+            throw new Error('Failed to create or append customer');
           }
         } catch (error) {
           console.error('Error fetching IDs or submitting user details:', error);
@@ -459,20 +486,26 @@ const VortexTopUp = () => {
         );
         const dealerId = storeResponse.data.userId;
 
+        // Check if userDetails.ipAddress is available, otherwise fetch from the server
+        let ipAddress = userDetails.ipAddress;
+        if (!ipAddress) {
+          const ipResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/get-ip`);
+          ipAddress = ipResponse.data.ipAddress;
+        }
+
         // Payload with IP address and dealerId
         const payload = {
-          ipAddress: userDetails.ipAddress,
+          ipAddress,
           dealerId,
         };
 
         // Submitting payload
-        // console.log('Submitting payload:', payload);
         const appendResponse = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/append`, payload);
 
         if (appendResponse.status === 200 || appendResponse.status === 201) {
           // Attempt to fetch customerId using the IP address
           const customerResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/find`, {
-            params: { ipAddress: userDetails.ipAddress },
+            params: { ipAddress },
           });
 
           // If customer is found, use its ID
@@ -497,6 +530,15 @@ const VortexTopUp = () => {
           <Typography variant="body2">
             To follow up on the transaction, please provide at least one contact detail.
           </Typography>
+          <Autocomplete
+            id="country-select"
+            options={countries}
+            getOptionLabel={(option) => option}
+            value={selectedCountry}
+            onChange={handleChange('country')}
+            fullWidth
+            renderInput={(params) => <TextField {...params} label="Country" />}
+          />
           <TextField
             autoFocus
             margin="dense"
@@ -508,6 +550,12 @@ const VortexTopUp = () => {
             onChange={handleChange('phoneNumber')}
             error={!!phoneNumberError}
             helperText={phoneNumberError}
+            disabled={!selectedCountry}
+            InputProps={{
+              startAdornment: userDetails.country ? (
+                <InputAdornment position="start">{countryCodes[userDetails.country]}</InputAdornment>
+              ) : null,
+            }}
           />
           <TextField
             margin="dense"
