@@ -1,4 +1,5 @@
 import { Helmet } from 'react-helmet-async';
+import axios from 'axios';
 import { filter } from 'lodash';
 import { useEffect, useState } from 'react';
 import SecureLS from 'secure-ls';
@@ -36,43 +37,53 @@ import { getAllVortexTransactions, getAllByDateRange } from '../../api/public/vo
 
 const ls = new SecureLS({ encodingType: 'aes' });
 
-const columns = [{
-  id: 'cell1',
-  displayName: 'Created At'
-}, {
-  id: 'cell2',
-  displayName: 'Type'
-}, {
-  id: 'cell3',
-  displayName: 'ID'
-},{
-  id: 'cell4',
-  displayName:'Ref no'
-},{
-  id: 'cell5',
-  displayName:'User'
-},{
-  id: 'cell6',
-  displayName:'Status',
-},{
-  id: 'cell7',
-  displayName:'Payment ID'
-},{
-  id: 'cell8',
-  displayName:'Method'
-}];
+const columns = [
+  {
+    id: 'cell1',
+    displayName: 'Created At',
+  },
+  {
+    id: 'cell2',
+    displayName: 'Type',
+  },
+  {
+    id: 'cell3',
+    displayName: 'ID',
+  },
+  {
+    id: 'cell4',
+    displayName: 'Ref no',
+  },
+  {
+    id: 'cell5',
+    displayName: 'User',
+  },
+  {
+    id: 'cell6',
+    displayName: 'Status',
+  },
+  {
+    id: 'cell7',
+    displayName: 'Payment ID',
+  },
+  {
+    id: 'cell8',
+    displayName: 'Method',
+  },
+];
 export default function CustomerPage() {
   const [open, setOpen] = useState(null);
   const userId = ls.get('user') ? ls.get('user')._id : null;
   const userData = UserDataFetch(userId);
   const { storeData } = StoreDataFetch(userId);
-  const [transactionList, setTransactionList] = useState()
-  const [isNotFound, setIsNotFound] = useState(false)
-  const [toDownload, setToDownload] = useState([])
+  const [transactionList, setTransactionList] = useState();
+  const [isNotFound, setIsNotFound] = useState(false);
+  const [toDownload, setToDownload] = useState([]);
+  const [transactions, setTransactions] = useState([]);
   const [dateRange, setDateRange] = useState({
     startDate: '',
-    endDate: ''
-  })
+    endDate: '',
+  });
   const [selectedRange, setSelectedRange] = useState([
     {
       startDate: new Date(),
@@ -89,49 +100,115 @@ export default function CustomerPage() {
     setOpen(null);
   };
 
-  const handleGetData = async () => {
-    const { startDate, endDate } = selectedRange[0]
-    const rangeResult = await getAllByDateRange(startDate, endDate);
-    if (rangeResult.body.length > 0) {
-      setTransactionList(rangeResult.body)
-     handleToDownloadData(rangeResult.body)
-      setIsNotFound(false)
-    } else {
-      setIsNotFound(true)
-      setDateRange({
-        ...dateRange,
-        startDate: new Date(startDate),
-        endDate: new Date(endDate)
-      })
-    }
-  }
+  // Adjusted function to fetch customer purchases and include user information
+  const fetchCustomerPurchases = async () => {
+    try {
+      const customerResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/all/${userId}`);
+      const customers = customerResponse.data.body;
 
-  const handleToDownloadData = async (datas) =>{
-    setToDownload([])
-    datas.forEach(elements => {
+      const transactionsWithUser = await Promise.all(
+        customers.map(async (customer) => {
+          const purchaseResponse = await axios.get(
+            `${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/purchase/${customer._id}`
+          );
+          return purchaseResponse.data.body.map((purchase) => ({
+            ...purchase,
+            userName: customer.fullName,
+            type: 'Topup',
+            refNo: purchase.productName,
+            ID: purchase.customerId,
+            paymentId: `vaas_${purchase._id}`, // Prefixing the Payment ID
+          }));
+        })
+      );
+
+      const flattenedTransactions = transactionsWithUser.flat();
+      setTransactions(
+        flattenedTransactions.filter((transaction) => {
+          const transactionDate = new Date(transaction.createdAt);
+          const startDate = new Date(selectedRange[0].startDate);
+          const endDate = new Date(selectedRange[0].endDate);
+          return transactionDate >= startDate && transactionDate <= endDate;
+        })
+      );
+    } catch (error) {
+      console.error('Error fetching customer purchases:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchCustomerPurchases();
+  }, [selectedRange, userId]);
+
+  const handleGetData = async () => {
+    const { startDate, endDate } = selectedRange[0];
+    const formattedStartDate = startDate.toISOString().split('T')[0];
+    const formattedEndDate = endDate.toISOString().split('T')[0];
+
+    setIsNotFound(false); // Reset the not found flag before fetching new data
+
+    try {
+      // Fetch transactions within the specified date range
+      const rangeResult = await getAllByDateRange(formattedStartDate, formattedEndDate);
+      let dateRangeTransactions = [];
+      if (rangeResult && rangeResult.body && rangeResult.body.length > 0) {
+        dateRangeTransactions = rangeResult.body.map((transaction) => ({
+          ...transaction,
+          userName: transaction.userName || 'Unknown', // Placeholder if userName is missing
+          type: 'Transaction', // Specific type for these transactions
+        }));
+      }
+
+      // Fetch customer purchase transactions separately
+      await fetchCustomerPurchases(); // This updates the `transactions` state with customer purchases
+
+      // Combine transactions from both sources
+      const combinedTransactions = [
+        ...transactions.filter((transaction) => {
+          const transactionDate = new Date(transaction.createdAt);
+          return transactionDate >= startDate && transactionDate <= endDate;
+        }),
+        ...dateRangeTransactions,
+      ];
+
+      setTransactionList(combinedTransactions);
+      handleToDownloadData(combinedTransactions); // Prepare data for download
+
+      if (combinedTransactions.length === 0) {
+        setIsNotFound(true);
+      }
+    } catch (error) {
+      console.error('Error fetching combined transactions data:', error);
+      setIsNotFound(true);
+    }
+  };
+
+  const handleToDownloadData = async (datas) => {
+    setToDownload([]);
+    datas.forEach((elements) => {
       const newElements = {
         cell1: elements.createdAt,
         cell2: elements.type,
         cell3: elements._id,
         cell4: elements.referenceNumber,
-        cell5: 'Gemar',
+        cell5: elements.userName,
         cell6: elements.status,
         cell7: elements.paymentId,
-        cell8: elements.paymentMethod
-      }
-      setToDownload(prevtoDownload => [...prevtoDownload, newElements])
+        cell8: elements.paymentMethod,
+      };
+      setToDownload((prevtoDownload) => [...prevtoDownload, newElements]);
     });
-  }
+  };
 
   useEffect(() => {
     const getTrans = async () => {
-      const result = await getAllVortexTransactions()
+      const result = await getAllVortexTransactions();
       const jsonResult = await result.json();
-      setTransactionList(jsonResult.body)
-      handleToDownloadData(jsonResult.body)
-    }
+      setTransactionList(jsonResult.body);
+      handleToDownloadData(jsonResult.body);
+    };
     getTrans();
-  }, [])
+  }, []);
 
   return (
     <>
@@ -146,23 +223,20 @@ export default function CustomerPage() {
           </Typography>
         </Stack>
 
-        <Card
-          style={{ marginBottom: '.5rem' }}
-        >
+        <Card style={{ marginBottom: '.5rem' }}>
           <Box style={{ padding: '1rem' }}>
             <Box>
-              <DateRangePicker
-                ranges={selectedRange}
-                onChange={handleSelect}
-              />
+              <DateRangePicker ranges={selectedRange} onChange={handleSelect} />
             </Box>
             <Box>
               <Button
-                variant='contained'
+                variant="contained"
                 color="secondary"
                 style={{ backgroundColor: 'violet' }}
                 onClick={handleGetData}
-              >Get Data</Button>
+              >
+                Get Data
+              </Button>
             </Box>
           </Box>
         </Card>
@@ -173,60 +247,58 @@ export default function CustomerPage() {
               <Table>
                 <TableHead sx={{ backgroundColor: '#f2f2f2' }}>
                   <TableRow>
-                    {columns.map((data, index) =>(
+                    {columns.map((data, index) => (
                       <TableCell>{data.displayName}</TableCell>
                     ))}
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {(!isNotFound && transactionList) && (transactionList.map((row) => {
-                    const { _id, createdAt, type, referenceNumber, userId, status, paymentId, paymentMethod, } = row;
+                  {!isNotFound &&
+                    transactionList &&
+                    transactionList.map((row) => {
+                      const {
+                        _id,
+                        createdAt,
+                        type,
+                        referenceNumber,
+                        userId,
+                        status,
+                        paymentId,
+                        userName,
+                        paymentMethod,
+                      } = row;
 
-                    return (
-                      <TableRow hover key={_id} tabIndex={-1}>
-                        <TableCell component="th" scope="row" padding="none">
-                          <Typography variant="caption" noWrap>
-                            {new Date(createdAt).toDateString()}
-                          </Typography>
-                        </TableCell>
-                        <TableCell align='left'>
-                          <Typography variant="caption">
-                            {type}
-                          </Typography>
-                        </TableCell>
-                        <TableCell align='left'>
-                          <Typography variant='caption'>
-                            {_id}
-                          </Typography>
-                        </TableCell>
-                        <TableCell align='left'>
-                          <Typography variant='caption'>
-                            {referenceNumber}
-                          </Typography>
-                        </TableCell>
-                        <TableCell align='left'>
-                          <Typography variant='caption'>
-                            Gemar
-                          </Typography>
-                        </TableCell>
-                        <TableCell align='left'>
-                          <Typography variant='caption'>
-                            {status}
-                          </Typography>
-                        </TableCell>
-                        <TableCell align='left'>
-                          <Typography variant='caption'>
-                            {paymentId}
-                          </Typography>
-                        </TableCell>
-                        <TableCell align='left'>
-                          <Typography variant='caption'>
-                            {paymentMethod}
-                          </Typography>
-                        </TableCell>
-                      </TableRow>
-                    )
-                  }))}
+                      return (
+                        <TableRow hover key={_id} tabIndex={-1}>
+                          <TableCell component="th" scope="row" padding="none">
+                            <Typography variant="caption" noWrap>
+                              {new Date(createdAt).toDateString()}
+                            </Typography>
+                          </TableCell>
+                          <TableCell align="left">
+                            <Typography variant="caption">{type}</Typography>
+                          </TableCell>
+                          <TableCell align="left">
+                            <Typography variant="caption">{_id}</Typography>
+                          </TableCell>
+                          <TableCell align="left">
+                            <Typography variant="caption">{referenceNumber}</Typography>
+                          </TableCell>
+                          <TableCell align="left">
+                            <Typography variant="caption">{userName}</Typography>
+                          </TableCell>
+                          <TableCell align="left">
+                            <Typography variant="caption">{status}</Typography>
+                          </TableCell>
+                          <TableCell align="left">
+                            <Typography variant="caption">{paymentId}</Typography>
+                          </TableCell>
+                          <TableCell align="left">
+                            <Typography variant="caption">{paymentMethod}</Typography>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
                   {isNotFound && (
                     <TableRow>
                       <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
@@ -241,8 +313,7 @@ export default function CustomerPage() {
 
                           <Typography variant="body2">
                             No results found from &nbsp;
-                            <strong>&quot;{dateRange.startDate.toLocaleDateString()}&quot;</strong>.
-                            to
+                            <strong>&quot;{dateRange.startDate.toLocaleDateString()}&quot;</strong>. to
                             <strong> &quot;{dateRange.endDate.toLocaleDateString()}&quot;</strong>.
                           </Typography>
                         </Paper>
@@ -260,15 +331,13 @@ export default function CustomerPage() {
               separator=";"
               columns={columns}
               datas={toDownload}
-              text="DOWNLOAD" >
-              <Button
-                variant='contained'
-                color="primary"
-                style={{ backgroundColor: 'violet' }}
-              > Download CSV </Button>
-
+              text="DOWNLOAD"
+            >
+              <Button variant="contained" color="primary" style={{ backgroundColor: 'violet' }}>
+                {' '}
+                Download CSV{' '}
+              </Button>
             </CsvDownloader>
-
           </Box>
         </Card>
       </Container>
