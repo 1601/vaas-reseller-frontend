@@ -1,5 +1,14 @@
 import React from 'react';
-import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, Autocomplete, InputAdornment } from '@mui/material';
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Button,
+  Autocomplete,
+  InputAdornment,
+} from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 
 const AddResellerDialog = ({
@@ -11,7 +20,7 @@ const AddResellerDialog = ({
   validationErrors,
   handleAddReseller,
   countries,
-  countryCodes
+  countryCodes,
 }) => {
   return (
     <Dialog open={open} onClose={onClose} aria-labelledby="form-dialog-title">
@@ -36,8 +45,8 @@ const AddResellerDialog = ({
           onChange={handleInputChange}
           onBlur={handleBlur}
           fullWidth
-          error={!!validationErrors.email}
-          helperText={validationErrors.email}
+          error={!!validationErrors.email} 
+          helperText={validationErrors.email || ''} 
           variant="outlined"
           sx={{ mt: 2 }}
         />
@@ -102,12 +111,13 @@ const AddResellerDialog = ({
           onChange={handleInputChange}
           onBlur={handleBlur}
           InputProps={{
-            startAdornment: (
+            startAdornment: formState.country && (
               <InputAdornment position="start">
-                {formState.country && countryCodes[formState.country] ? `${countryCodes[formState.country]} |` : ''}
+                {countryCodes[formState.country] ? `${countryCodes[formState.country]} |` : ''}
               </InputAdornment>
             ),
           }}
+          disabled={!formState.country} 
           error={!!validationErrors.mobileNumber}
           helperText={validationErrors.mobileNumber}
           sx={{ mt: 2 }}
