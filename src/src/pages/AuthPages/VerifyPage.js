@@ -182,7 +182,7 @@ export default function VerifyPage({ email, firstName, lastName }) {
             </Button>
 
             {/* Skip for Now Button */}
-            <Button
+            {/* <Button
               fullWidth
               size="large"
               variant="outlined"
@@ -193,19 +193,19 @@ export default function VerifyPage({ email, firstName, lastName }) {
               style={{ opacity: 1, borderColor: '#3f51b5', color: '#3f51b5', marginTop: '10px' }}
             >
               Skip for Now
-            </Button>
+            </Button> */}
 
             <Divider sx={{ my: 3 }} />
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <div>
+              {/* <div>
                 <Typography variant="body2">Already verified?</Typography>
                 <Stack direction="row" spacing={2}>
                   <Typography variant="subtitle2" onClick={() => navigate('/login')} sx={{ cursor: 'pointer' }}>
                     Login
                   </Typography>
                 </Stack>
-              </div>
+              </div> */}
               <div style={{ textAlign: 'right' }}>
                 {allowResend ? (
                   <Typography variant="body2" style={{ fontWeight: 'bold', cursor: 'pointer' }} onClick={resendCode}>
