@@ -294,21 +294,35 @@ const ManageReseller = () => {
 
     if (Object.keys(tempValidationErrors).length === 0) {
       try {
-        const prefix = countryCodes[formState.country];
+        const dataToSend = {
+          ...formState,
+          mobileNumber:
+            formState.country && countryCodes[formState.country]
+              ? countryCodes[formState.country] + formState.mobileNumber
+              : formState.mobileNumber,
+        };
 
-        formState.mobileNumber = prefix + formState.mobileNumber;
-
-        const res = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/${userId}/resellers`, formState);
+        const res = await axios.post(
+          `${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/${userId}/resellers`,
+          dataToSend
+        );
         // console.log('Reseller added successfully:', res.data);
 
-        setFormState(initialFormState);
+        setFormState(initialFormState); 
         setGeneratedPassword(res.data.password);
-        setShowCredentialsPopup(true);
-        setOpen(false);
+        setShowCredentialsPopup(true); 
+        setOpen(false); 
 
-        fetchResellersForUser(userId);
+        fetchResellersForUser(userId); 
       } catch (error) {
-        console.error('Error adding reseller:', error);
+        if (error.response && error.response.status === 409) {
+          setValidationErrors((prevErrors) => ({
+            ...prevErrors,
+            email: 'Email is already in use',
+          }));
+        } else {
+          console.error('Error adding reseller:', error);
+        }
       }
     }
   };
