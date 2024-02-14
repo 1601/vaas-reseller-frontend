@@ -50,6 +50,7 @@ import TopUpConfig from './pages/DealerPages/Products/TopUpConfig';
 import BillerProducts from './pages/DealerPages/Products/BillerProducts';
 import OldLoginPage from './pages/AuthPages/oldLoginPage';
 import AdminWallet from './pages/AdminPages/AdminWallet';
+import AdminAccounts from './pages/AdminPages/AdminAccounts';
 
 // ----------------------------------------------------------------------
 
@@ -221,7 +222,8 @@ export default function Router() {
         // { path: 'products/egift', element: <ProductsPage /> },
 
         // Dealer Accounts
-        { path: 'accounts', element: <AdminDealerAccount /> },
+        { path: 'dealers', element: <AdminDealerAccount /> },
+        { path: 'accounts', element: <AdminAccounts /> },
         { path: 'wallet/manage-ca', element: <AdminWallet /> },
       ],
     },

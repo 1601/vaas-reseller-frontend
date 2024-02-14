@@ -54,6 +54,11 @@ const getNavConfig = (role) => {
       // },
       {
         title: 'Dealer Accounts',
+        path: '/dashboard/admin/dealers',
+        icon: icon('ic_customer'),
+      },
+      {
+        title: 'Admin Accounts',
         path: '/dashboard/admin/accounts',
         icon: icon('ic_customer'),
       },
