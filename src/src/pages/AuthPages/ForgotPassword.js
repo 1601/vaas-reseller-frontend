@@ -52,11 +52,11 @@ export default function ForgotPasswordPage() {
 
     // Check for missing email
     if (!email.trim()) {
-        setFieldError('Please fill up the required field.');
-        setEmailError(true); 
-        setDialogOpen(true);
-        return;
-      }
+      setFieldError('Please fill up the required field.');
+      setEmailError(true);
+      setDialogOpen(true);
+      return;
+    }
     try {
       const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/password/email`, {
         email,
@@ -72,8 +72,14 @@ export default function ForgotPasswordPage() {
       }
     } catch (error) {
       setDialogOpen(true);
-      if (error.response && error.response.data && error.response.data.message.includes('unregistered')) {
-        setErrorMessage('Email is either unregistered or not activated');
+      if (error.response) {
+        if (error.response.status === 403) {
+          setErrorMessage('Only admins and resellers can change their password here.');
+        } else if (error.response.data && error.response.data.message.includes('unregistered')) {
+          setErrorMessage('Email is either unregistered or not activated');
+        } else {
+          setErrorMessage('Error sending password change request.');
+        }
       } else {
         setErrorMessage('Error sending password change request.');
       }
@@ -87,7 +93,7 @@ export default function ForgotPasswordPage() {
 
   const handleEmailChange = (e) => {
     setEmail(e.target.value);
-    setEmailError(false); 
+    setEmailError(false);
     setFieldError('');
   };
 

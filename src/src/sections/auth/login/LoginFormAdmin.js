@@ -233,14 +233,14 @@ export default function LoginFormAdmin() {
           <Checkbox name="remember" checked={rememberMe} onChange={handleRememberMeChange} />
           <Typography variant="body2">Remember Me</Typography>
         </div>
-        <Link
+        {/* <Link
           variant="subtitle2"
           underline="hover"
           onClick={() => navigate('/forgotpassword')}
           sx={{ cursor: 'pointer' }}
         >
           Forgot password?
-        </Link>
+        </Link> */}
       </Stack>
       <Button
         fullWidth
