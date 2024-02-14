@@ -11,4 +11,5 @@ export const excludedPaths = [
     '/topup',
     '/transactions',
     '/404',
+    '/admin',
   ];
