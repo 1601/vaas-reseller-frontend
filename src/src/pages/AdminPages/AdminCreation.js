@@ -107,7 +107,7 @@ const AdminCreation = () => {
   };
 
   const handleBack = () => {
-    navigate('/dashboard/admin/home');
+    navigate('/dashboard/admin/accounts');
   };
 
   return (

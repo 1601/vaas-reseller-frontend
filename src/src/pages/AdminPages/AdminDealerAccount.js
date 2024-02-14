@@ -12,6 +12,10 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  Select,
+  FormControl,
+  InputLabel,
+  Box,
 } from '@mui/material';
 import { MoreVert as MoreVertIcon } from '@mui/icons-material';
 import { ViewUserModal } from '../../components/admin/ViewUserModal';
@@ -78,55 +82,20 @@ const AdminDealerAccount = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       setIsLoading(true);
-
+      const token = ls.get('token');
       try {
-        const token = ls.get('token');
-        const isValidToken = token && token.split('.').length === 3;
-
-        if (!isValidToken) {
-          throw new Error('Invalid token format');
-        }
-
-        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/admin/users`, {
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/admin/users/stores`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
 
-        if (Array.isArray(response.data)) {
-          const fetchStoreDetailsPromises = response.data.map(async (user) => {
-            try {
-              const storeResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/${user._id}`, {
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                },
-              });
-              user.storeDetails = storeResponse.data;
-            } catch (err) {
-              console.error('Could not fetch store details for user', err);
-            }
-            return user;
-          });
-
-          const usersWithDetails = await Promise.all(fetchStoreDetailsPromises);
-
-          const sortedUsers = usersWithDetails
-            .filter((user) => user.role !== 'admin')
-            .sort((a, b) => {
-              const nameA = a.firstName || '';
-              const nameB = b.firstName || '';
-              return nameA.localeCompare(nameB);
-            });
-
-          setUsers(sortedUsers);
-
-          setUsers(sortedUsers);
-        } else {
-          console.error('Unexpected API response format for users');
+        if (response.data) {
+          setUsers([...response.data.withStoreDetails, ...response.data.withoutStoreDetails]);
         }
-        setIsLoading(false);
       } catch (error) {
-        console.error('Could not fetch users', error);
+        console.error('Could not fetch users:', error);
+      } finally {
         setIsLoading(false);
       }
     };
