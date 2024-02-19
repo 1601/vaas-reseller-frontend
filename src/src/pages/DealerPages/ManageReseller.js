@@ -306,14 +306,20 @@ const ManageReseller = () => {
           `${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/${userId}/resellers`,
           dataToSend
         );
-        // console.log('Reseller added successfully:', res.data);
 
-        setFormState(initialFormState); 
-        setGeneratedPassword(res.data.password);
-        setShowCredentialsPopup(true); 
-        setOpen(false); 
+        if (res.status === 200 && res.data) {
+          // Send the account creation details to the reseller's email
+          await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/resellers/create`, {
+            email: formState.email, // Use the email from the form state
+            password: res.data.password, // This password is auto-generated in the backend
+          });
 
-        fetchResellersForUser(userId); 
+          // Clear the form and show a notification instead of the password
+          setFormState(initialFormState);
+          alert('Email with account details successfully sent'); // Replace with a proper notification
+          setOpen(false);
+          fetchResellersForUser(userId);
+        }
       } catch (error) {
         if (error.response && error.response.status === 409) {
           setValidationErrors((prevErrors) => ({
