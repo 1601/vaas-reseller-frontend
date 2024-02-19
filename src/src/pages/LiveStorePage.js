@@ -410,6 +410,7 @@ const LiveStorePage = () => {
           ...gradientStyle,
           display: 'flex',
           justifyContent: 'center',
+          alignItems: 'center',
           height: '100vh',
         }}
       >
@@ -443,13 +444,27 @@ const LiveStorePage = () => {
         </div>
         <Outlet />
         <div style={{ textAlign: 'center' }}>
-          <img
-            src={storeData ? storeData.storeLogo : '/vortex_logo_black.png'}
-            alt={`${storeData ? storeData.storeName : 'Your Store'}'s Logo`}
-            style={{ maxWidth: '400px', maxHeight: '400px' }}
-          />
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center', 
+              height: '100%', 
+              width: '100%', 
+            }}
+          >
+            <img
+              src={storeData ? storeData.storeLogo : '/vortex_logo_black.png'}
+              alt={`${storeData ? storeData.storeName : 'Your Store'}'s Logo`}
+              style={{
+                maxWidth: '400px',
+                maxHeight: '400px',
+                margin: '0',
+              }}
+            />
+          </div>
           <h1>{storeData.storeName}</h1>
-          <h1>{`${location.pathname}`}</h1>
+          {/* <h1>{`${location.pathname}`}</h1> */}
 
           <Container>
             {/* Using Flexbox to Center the Items */}
@@ -590,19 +605,18 @@ const LiveStorePage = () => {
               )}
               {loginErrorMessage && <DialogContentText style={{ color: 'red' }}>{loginErrorMessage}</DialogContentText>}
             </DialogContent>
-            {!isLoading &&
-              !showOtpSuccessDialog && ( 
-                <DialogActions>
-                  <Button onClick={handleCloseLoginDialog}>Cancel</Button>
-                  {dialogStage === 1 ? (
-                    <Button onClick={handleEmailSubmit} disabled={emailError || email === ''}>
-                      Submit
-                    </Button>
-                  ) : (
-                    <Button onClick={handleOtpSubmit}>Confirm</Button>
-                  )}
-                </DialogActions>
-              )}
+            {!isLoading && !showOtpSuccessDialog && (
+              <DialogActions>
+                <Button onClick={handleCloseLoginDialog}>Cancel</Button>
+                {dialogStage === 1 ? (
+                  <Button onClick={handleEmailSubmit} disabled={emailError || email === ''}>
+                    Submit
+                  </Button>
+                ) : (
+                  <Button onClick={handleOtpSubmit}>Confirm</Button>
+                )}
+              </DialogActions>
+            )}
           </Dialog>
 
           <Dialog
