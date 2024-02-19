@@ -3,7 +3,8 @@ import axios from 'axios';
 import { debounce } from 'lodash';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { styled } from '@mui/material/styles';
+import styled from '@emotion/styled';
+import { keyframes } from '@emotion/react';
 import {
   Button,
   Box,
@@ -173,6 +174,55 @@ const currencies = [
   'DKK',
 ];
 
+const fadeInDown = keyframes`
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+`;
+
+const AnimatedPasswordRequirements = styled.div`
+  animation: ${({ isVisible }) => (isVisible ? `${fadeInDown} 0.5s ease forwards` : 'none')};
+`;
+
+function PasswordRequirements({ password }) {
+  const requirements = [
+    { label: '8-12 characters long', test: (pw) => pw.length >= 8 && pw.length <= 12 },
+    { label: 'One uppercase letter', test: (pw) => /[A-Z]/.test(pw) },
+    { label: 'One lowercase letter', test: (pw) => /[a-z]/.test(pw) },
+    { label: 'One number', test: (pw) => /[0-9]/.test(pw) },
+    { label: 'One special character (!@#$%^&*)', test: (pw) => /[!@#$%^&*]/.test(pw) },
+  ];
+
+  return (
+    <Box
+      sx={{
+        mb: 2,
+        p: 2,
+        border: '1px solid #ccc',
+        borderRadius: '4px',
+        backgroundColor: '#fff',
+        zIndex: 1,
+      }}
+    >
+      <Typography variant="body2" color="textSecondary" gutterBottom>
+        Password must contain:
+      </Typography>
+      <ul style={{ margin: 0, padding: 0, listStyleType: 'disc', marginLeft: '20px' }}>
+        {requirements.map((req, index) => (
+          <li key={index} style={{ color: req.test(password) ? 'green' : 'red' }}>
+            {req.label}
+          </li>
+        ))}
+      </ul>
+    </Box>
+  );
+}
+
 export default function SignUpPage() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -210,6 +260,7 @@ export default function SignUpPage() {
   const [mobileError, setMobileError] = useState(false);
   const [banners, setBanners] = useState();
   const [initialCurrency, setInitialCurrency] = useState('');
+  const [passwordFocus, setPasswordFocus] = useState(false);
 
   const passwordValidationRegex = /^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*]).{8,12}$/;
 
@@ -1004,8 +1055,8 @@ export default function SignUpPage() {
                             name="password"
                             value={formData.password}
                             onChange={handleInputChange}
-                            sx={{ mb: 1 }}
-                            helperText={passwordHelperText}
+                            onFocus={() => setPasswordFocus(true)}
+                            onBlur={() => setPasswordFocus(false)}
                             InputProps={{
                               endAdornment: (
                                 <InputAdornment position="end">
@@ -1022,6 +1073,11 @@ export default function SignUpPage() {
                               ),
                             }}
                           />
+                          {passwordFocus && (
+                            <AnimatedPasswordRequirements isVisible={passwordFocus}>
+                              <PasswordRequirements password={formData.password} />
+                            </AnimatedPasswordRequirements>
+                          )}
                         </Grid>
                         <Grid item xs={12} sm={12} md={12}>
                           <TextField
