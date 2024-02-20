@@ -21,6 +21,7 @@ import { MoreVert as MoreVertIcon } from '@mui/icons-material';
 import { ViewUserModal } from '../../components/admin/ViewUserModal';
 import { DeleteUserModal } from '../../components/admin/DeleteUserModal';
 import ResellersModal from '../../components/admin/ResellersModal';
+import { ChangeDealerEmailModal } from '../../components/admin/ChangeDealerEmailModal';
 import CircularLoading from '../../components/preLoader';
 
 const ls = new SecureLS({ encodingType: 'aes' });
@@ -29,11 +30,14 @@ const AdminDealerAccount = () => {
   const [users, setUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [anchorEl, setAnchorEl] = useState(null);
+  const [userToEdit, setUserToEdit] = useState(null);
+  const [changeEmailModalOpen, setChangeEmailModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [userToView, setUserToView] = useState(null);
   const [resellersModalOpen, setResellersModalOpen] = useState(false);
+  const [emailChangeError, setEmailChangeError] = useState('');
 
   const handleMenuClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -102,6 +106,35 @@ const AdminDealerAccount = () => {
 
     fetchUsers();
   }, []);
+
+  // Handler for submitting the email change
+  const handleSubmitEmailChange = async (currentEmail, newEmail) => {
+    try {
+      const token = ls.get('token');
+      const response = await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/v1/api/admin/users/update-email`,
+        { currentEmail, newEmail },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (response.status === 200) {
+        alert('Email updated successfully. A confirmation email has been sent to the new address.');
+        setChangeEmailModalOpen(false);
+        window.location.reload();
+      }
+    } catch (error) {
+      let errorMessage = 'Failed to update email.';
+      if (error.response && error.response.status === 400) {
+        errorMessage = 'Email is currently used.';
+      }
+      setEmailChangeError(errorMessage);
+      console.error('Error updating email:', error);
+    }
+  };
+
+  const handleEmailEdit = () => {
+    setEmailChangeError('');
+  };
 
   if (isLoading) {
     return (
@@ -183,9 +216,31 @@ const AdminDealerAccount = () => {
           View Info
         </MenuItem>
         <MenuItem onClick={() => handleResellers(userToDelete)}>Resellers</MenuItem>
+        <MenuItem
+          onClick={() => {
+            const user = users.find((u) => u._id === userToDelete);
+            if (user) {
+              setUserToEdit(user);
+              setChangeEmailModalOpen(true);
+            }
+            setAnchorEl(null);
+          }}
+        >
+          Change Email
+        </MenuItem>
         <MenuItem onClick={() => handleDelete(userToDelete)}>Delete</MenuItem>
       </Menu>
       <ViewUserModal open={viewModalOpen} onClose={() => setViewModalOpen(false)} user={userToView} />
+      <ChangeDealerEmailModal
+        open={changeEmailModalOpen}
+        onClose={() => {
+          setChangeEmailModalOpen(false);
+        }}
+        user={userToEdit}
+        onSubmit={handleSubmitEmailChange}
+        errorMessage={emailChangeError}
+        onEmailEdit={handleEmailEdit} 
+      />
       <ResellersModal open={resellersModalOpen} onClose={() => setResellersModalOpen(false)} userId={userToDelete} />
       <DeleteUserModal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)} onConfirm={confirmDelete} />
     </Card>
