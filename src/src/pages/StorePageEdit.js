@@ -35,6 +35,7 @@ const StorePageEdit = () => {
   const userData = UserDataFetch(userId);
   const [isStoreUrlValid, setIsStoreUrlValid] = useState(true);
   const [isStoreNameValid, setIsStoreNameValid] = useState(true);
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
 
   const [platformVariables, setPlatformVariables] = useState({
     enableBills: true,
@@ -91,7 +92,11 @@ const StorePageEdit = () => {
     return regex.test(subdomain);
   };
 
-  const handleSaveClick = async () => {
+  const handleSaveClick = () => {
+    setConfirmDialogOpen(true);
+  };
+
+  const handleConfirmSave = async () => {
     try {
       const storedUserId = ls.get('user') ? ls.get('user')._id : null;
 
@@ -636,15 +641,13 @@ const StorePageEdit = () => {
                         style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}
                       >
                         <img
-                          src={
-                            storeData && storeData.storeLogo ? storeData.storeLogo : '/assets/logo.svg'
-                          }
+                          src={storeData && storeData.storeLogo ? storeData.storeLogo : '/assets/logo.svg'}
                           alt="Your Store Logo"
                           style={{
                             maxWidth: '230px',
                             maxHeight: '230px',
-                            width: 'auto', 
-                            height: 'auto', 
+                            width: 'auto',
+                            height: 'auto',
                           }}
                         />
                       </Card>
@@ -906,6 +909,36 @@ const StorePageEdit = () => {
             <DialogActions>
               <Button onClick={() => setErrorDialogOpen(false)} color="primary">
                 Close
+              </Button>
+            </DialogActions>
+          </Dialog>
+
+          <Dialog
+            open={confirmDialogOpen}
+            onClose={() => setConfirmDialogOpen(false)}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+          >
+            <DialogTitle id="alert-dialog-title">{'Confirm Changes'}</DialogTitle>
+            <DialogContent>
+              <DialogContentText id="alert-dialog-description">
+                Do you wish to save new changes? If you proceed, your store details will be sent to admins for approval
+                and your store's live status will automatically go offline until the new details are approved.
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setConfirmDialogOpen(false)} color="primary">
+                Cancel
+              </Button>
+              <Button
+                onClick={() => {
+                  handleConfirmSave();
+                  setConfirmDialogOpen(false);
+                }}
+                color="primary"
+                autoFocus
+              >
+                Proceed
               </Button>
             </DialogActions>
           </Dialog>
