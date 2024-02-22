@@ -92,6 +92,7 @@ const AdminWalletApproval = ({ selectedWallet, onBack }) => {
       paymentStatus: status,
       ...(status === 'VERIFIED' && { computedAmount: adjustedAmount }),
       remarks, // Using shorthand here
+      action: confirmationAction,
     };
     
   
