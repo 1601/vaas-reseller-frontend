@@ -21,7 +21,6 @@ import {
 } from '@mui/material';
 // components
 import Iconify from '../../../components/iconify';
-import defaultProductConfig from './default_product_config.json';
 
 const ls = new SecureLS({ encodingType: 'aes' });
 
@@ -38,9 +37,13 @@ export default function LoginFormAdmin() {
   const [emailErrorMessage, setEmailErrorMessage] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [loggingIn, setLoggingIn] = useState(false);
+  const [isGeneratingOTP, setIsGeneratingOTP] = useState(false);
 
   const [otp, setOtp] = useState('');
   const [openOTPDialog, setOpenOTPDialog] = useState(false);
+  const [incorrectOTPDialog, setIncorrectOTPDialog] = useState(false);
+  const [otpError, setOtpError] = useState('');
+  const [tempLoginData, setTempLoginData] = useState(null);
 
   useEffect(() => {
     try {
@@ -83,13 +86,14 @@ export default function LoginFormAdmin() {
   };
 
   const handleLogin = async () => {
-    setLoggingIn(true);
+    // setLoggingIn(true);
     setError('');
     if (!email.trim() || !password.trim()) {
       setError('Please supply all required fields');
       setEmailError(!email.trim());
       setPasswordError(!password.trim());
       setDialogOpen(true);
+      setLoggingIn(false);
       return;
     }
 
@@ -97,8 +101,10 @@ export default function LoginFormAdmin() {
       setEmailError(true);
       setVerificationMessage('Invalid email format');
       setDialogOpen(true);
+      setLoggingIn(false);
       return;
     }
+
     try {
       const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/login`, {
         email,
@@ -107,15 +113,7 @@ export default function LoginFormAdmin() {
 
       const { token, role } = response.data;
 
-      if (rememberMe) {
-        ls.set('rememberMeEmail', email);
-        ls.set('rememberMePassword', password);
-        ls.set('rememberMe', true);
-      } else {
-        ls.remove('rememberMe');
-        ls.remove('rememberMeEmail');
-        ls.remove('rememberMePassword');
-      }
+      setTempLoginData(response.data);
 
       if (role !== 'admin') {
         setError('Dealers must login through the dealer portal');
@@ -123,21 +121,8 @@ export default function LoginFormAdmin() {
         setLoggingIn(false);
         return;
       }
-
-      const verifiedRole = await verifyRole(token);
-
-      if (verifiedRole) {
-        ls.set('role', verifiedRole);
-      } else {
-        console.error('No role received from verifyRole API');
-      }
-
-      ls.set('token', token);
-      ls.set('user', response.data);
-
       // Open OTP dialog for further verification
-      setOpenOTPDialog(true);
-      sendOTP(email); // Send OTP to the admin's email
+      sendOTP(email);
 
       setLoggingIn(false);
     } catch (error) {
@@ -152,12 +137,15 @@ export default function LoginFormAdmin() {
   };
 
   const sendOTP = async (email) => {
+    setIsGeneratingOTP(true);
     try {
       const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/admin/otp`, { email });
+      setOpenOTPDialog(true);
+      setIsGeneratingOTP(false);
       // console.log(response.data.message);
     } catch (error) {
       console.error('Error sending OTP:', error);
-      // Handle error (e.g., show a message to the user)
+      setIsGeneratingOTP(false);
     }
   };
 
@@ -173,14 +161,45 @@ export default function LoginFormAdmin() {
       // console.log('OTP Verification Response:', response); // Log the response for debugging
 
       if (response.status === 200) {
+        if (tempLoginData) {
+          const { token, role } = tempLoginData;
+
+          const verifiedRole = await verifyRole(token);
+
+          if (verifiedRole) {
+            ls.set('role', verifiedRole);
+          } else {
+            console.error('No role received from verifyRole API');
+          }
+
+          if (rememberMe) {
+            ls.set('rememberMeEmail', email);
+            ls.set('rememberMePassword', password);
+            ls.set('rememberMe', true);
+          } else {
+            ls.remove('rememberMe');
+            ls.remove('rememberMeEmail');
+            ls.remove('rememberMePassword');
+          }
+
+          ls.set('token', token);
+          ls.set('role', role);
+          ls.set('user', tempLoginData);
+
+          navigate('/dashboard/admin/home');
+        }
         navigate('/dashboard/admin/home');
       } else {
         // Handle incorrect OTP
         console.error('Incorrect OTP:', response.data.message);
       }
     } catch (error) {
-      console.error('Error verifying OTP:', error);
-      console.error('Detailed Error:', JSON.stringify(error, Object.getOwnPropertyNames(error))); // Detailed error logging
+      if (error.response && error.response.status === 400) {
+        setOtpError(error.response.data.message);
+        setIncorrectOTPDialog(true);
+      } else {
+        console.error('Error verifying OTP:', error);
+      }
     }
   };
 
@@ -292,6 +311,29 @@ export default function LoginFormAdmin() {
           </DialogActions>
         )}
       </Dialog>
+
+      {/* OTP Generation Status Dialog */}
+      <Dialog open={isGeneratingOTP} onClose={() => setIsGeneratingOTP(false)}>
+        <DialogTitle>Generating OTP...</DialogTitle>
+        <DialogContent>
+          <CircularProgress />
+          <DialogContentText>Please wait while your OTP is being generated.</DialogContentText>
+        </DialogContent>
+      </Dialog>
+
+      {/* OTP Error Dialog */}
+      <Dialog open={incorrectOTPDialog} onClose={() => setIncorrectOTPDialog(false)}>
+        <DialogTitle>Error</DialogTitle>
+        <DialogContent>
+          <DialogContentText>{otpError}</DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setIncorrectOTPDialog(false)} color="primary">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
+
       {/* OTP Dialog */}
       <Dialog open={openOTPDialog} onClose={() => setOpenOTPDialog(false)}>
         <DialogTitle>Enter OTP</DialogTitle>
