@@ -8,8 +8,9 @@ import {
   Button,
   Autocomplete,
   InputAdornment,
+  CircularProgress,
+  Typography,
 } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
 
 const AddResellerDialog = ({
   open,
@@ -21,6 +22,9 @@ const AddResellerDialog = ({
   handleAddReseller,
   countries,
   countryCodes,
+  isCreating,
+  createSuccessMessage,
+  createErrorMessage,
 }) => {
   return (
     <Dialog open={open} onClose={onClose} aria-labelledby="form-dialog-title">
@@ -36,130 +40,181 @@ const AddResellerDialog = ({
       >
         Add Reseller
       </DialogTitle>
+
       <DialogContent>
-        {/* Email Field */}
-        <TextField
-          label="Email"
-          name="email"
-          value={formState.email}
-          onChange={handleInputChange}
-          onBlur={handleBlur}
-          fullWidth
-          error={!!validationErrors.email} 
-          helperText={validationErrors.email || ''} 
-          variant="outlined"
-          sx={{ mt: 2 }}
-        />
-
-        {/* First Name Field */}
-        <TextField
-          label="First Name"
-          name="firstName"
-          value={formState.firstName}
-          onChange={handleInputChange}
-          onBlur={handleBlur}
-          fullWidth
-          error={!!validationErrors.firstName}
-          helperText={validationErrors.firstName}
-          variant="outlined"
-          sx={{ mt: 2 }}
-        />
-
-        {/* Last Name Field */}
-        <TextField
-          label="Last Name"
-          name="lastName"
-          value={formState.lastName}
-          onChange={handleInputChange}
-          onBlur={handleBlur}
-          fullWidth
-          error={!!validationErrors.lastName}
-          helperText={validationErrors.lastName}
-          variant="outlined"
-          sx={{ mt: 2 }}
-        />
-
-        {/* Country Field */}
-        <Autocomplete
-          fullWidth
-          options={countries}
-          getOptionLabel={(option) => option}
-          value={formState.country}
-          onChange={(event, newValue) => {
-            handleInputChange({ target: { name: 'country', value: newValue } });
-          }}
-          onBlur={handleBlur}
-          renderInput={(params) => (
+        {isCreating ? (
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px' }}>
+            <CircularProgress />
+            <Typography variant="h6" style={{ marginTop: '20px' }}>
+              Creating Reseller...
+            </Typography>
+          </div>
+        ) : createSuccessMessage ? (
+          <Typography variant="h5" style={{ textAlign: 'center', padding: '20px' }}>
+            {createSuccessMessage}
+          </Typography>
+        ) : (
+          <>
+            {/* Email Field */}
             <TextField
-              {...params}
-              label="Country"
+              label="Email"
+              name="email"
+              value={formState.email}
+              onChange={handleInputChange}
+              onBlur={handleBlur}
+              fullWidth
+              error={!!validationErrors.email}
+              helperText={validationErrors.email || ''}
               variant="outlined"
-              error={!!validationErrors.country}
-              helperText={validationErrors.country}
               sx={{ mt: 2 }}
             />
-          )}
-        />
 
-        {/* Mobile Number Field */}
-        <TextField
-          fullWidth
-          label="Mobile Number"
-          variant="outlined"
-          name="mobileNumber"
-          value={formState.mobileNumber}
-          onChange={handleInputChange}
-          onBlur={handleBlur}
-          InputProps={{
-            startAdornment: formState.country && (
-              <InputAdornment position="start">
-                {countryCodes[formState.country] ? `${countryCodes[formState.country]} |` : ''}
-              </InputAdornment>
-            ),
-          }}
-          disabled={!formState.country} 
-          error={!!validationErrors.mobileNumber}
-          helperText={validationErrors.mobileNumber}
-          sx={{ mt: 2 }}
-        />
+            {/* First Name Field */}
+            <TextField
+              label="First Name"
+              name="firstName"
+              value={formState.firstName}
+              onChange={handleInputChange}
+              onBlur={handleBlur}
+              fullWidth
+              error={!!validationErrors.firstName}
+              helperText={validationErrors.firstName}
+              variant="outlined"
+              sx={{ mt: 2 }}
+            />
 
-        {/* Company Name Field */}
-        <TextField
-          fullWidth
-          variant="outlined"
-          label="Company Name (Optional)"
-          name="companyName"
-          value={formState.companyName}
-          onChange={handleInputChange}
-          onBlur={handleBlur}
-          sx={{ mt: 2 }}
-        />
+            {/* Last Name Field */}
+            <TextField
+              label="Last Name"
+              name="lastName"
+              value={formState.lastName}
+              onChange={handleInputChange}
+              onBlur={handleBlur}
+              fullWidth
+              error={!!validationErrors.lastName}
+              helperText={validationErrors.lastName}
+              variant="outlined"
+              sx={{ mt: 2 }}
+            />
+
+            {/* Country Field */}
+            <Autocomplete
+              fullWidth
+              options={countries}
+              getOptionLabel={(option) => option}
+              value={formState.country}
+              onChange={(event, newValue) => {
+                handleInputChange({ target: { name: 'country', value: newValue } });
+              }}
+              onBlur={handleBlur}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Country"
+                  variant="outlined"
+                  error={!!validationErrors.country}
+                  helperText={validationErrors.country}
+                  sx={{ mt: 2 }}
+                />
+              )}
+            />
+
+            {/* Mobile Number Field */}
+            <TextField
+              fullWidth
+              label="Mobile Number"
+              variant="outlined"
+              name="mobileNumber"
+              value={formState.mobileNumber}
+              onChange={handleInputChange}
+              onBlur={handleBlur}
+              InputProps={{
+                startAdornment: formState.country && (
+                  <InputAdornment position="start">
+                    {countryCodes[formState.country] ? `${countryCodes[formState.country]} |` : ''}
+                  </InputAdornment>
+                ),
+              }}
+              disabled={!formState.country}
+              error={!!validationErrors.mobileNumber}
+              helperText={validationErrors.mobileNumber}
+              sx={{ mt: 2 }}
+            />
+
+            {/* Company Name Field */}
+            <TextField
+              fullWidth
+              variant="outlined"
+              label="Company Name (Optional)"
+              name="companyName"
+              value={formState.companyName}
+              onChange={handleInputChange}
+              onBlur={handleBlur}
+              sx={{ mt: 2 }}
+            />
+          </>
+        )}
       </DialogContent>
-      <DialogActions
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-        }}
-      >
-        <Button
-          variant="contained"
-          style={{
-            width: '140px',
-            height: '40px',
-            borderRadius: '22px',
-            fontSize: '14px',
-            backgroundColor: '#7A52F4',
-            color: '#fff',
+      {createSuccessMessage ? (
+        <DialogActions
+          sx={{
+            justifyContent: 'center',
+            padding: '20px',
           }}
-          onClick={handleAddReseller}
         >
-          Submit
-        </Button>
-        <Button onClick={onClose} color="primary" sx={{ mt: 2 }}>
-          Cancel
-        </Button>
-      </DialogActions>
+          <Button
+            variant="contained"
+            onClick={onClose}
+            style={{
+              backgroundColor: '#7A52F4',
+              color: '#fff',
+            }}
+          >
+            Done
+          </Button>
+        </DialogActions>
+      ) : (
+        !isCreating && (
+          <DialogActions
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              width: '100%',
+            }}
+          >
+            {/* Display error or success messages if any */}
+            {createSuccessMessage && (
+              <div style={{ width: '100%', textAlign: 'center', color: 'green', padding: '10px' }}>
+                {createSuccessMessage}
+              </div>
+            )}
+            {createErrorMessage && (
+              <div style={{ width: '100%', textAlign: 'center', color: 'red', padding: '10px' }}>
+                {createErrorMessage}
+              </div>
+            )}
+            <Button
+              variant="contained"
+              style={{
+                width: '140px',
+                height: '40px',
+                borderRadius: '22px',
+                fontSize: '14px',
+                backgroundColor: '#7A52F4',
+                color: '#fff',
+                marginTop: createSuccessMessage || createErrorMessage ? '10px' : '0',
+              }}
+              onClick={handleAddReseller}
+            >
+              Submit
+            </Button>
+            <Button onClick={onClose} color="primary" sx={{ mt: 2 }}>
+              Cancel
+            </Button>
+          </DialogActions>
+        )
+      )}
     </Dialog>
   );
 };

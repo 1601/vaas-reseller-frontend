@@ -121,6 +121,9 @@ const ManageReseller = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [isLoading, setIsLoading] = useState(true);
+  const [isCreating, setIsCreating] = useState(false);
+  const [createSuccessMessage, setCreateSuccessMessage] = useState('');
+  const [createErrorMessage, setCreateErrorMessage] = useState('');
 
   const handleCloseDeleteDialog = () => {
     setDeletingResellerId(null);
@@ -293,6 +296,10 @@ const ManageReseller = () => {
     setValidationErrors(tempValidationErrors);
 
     if (Object.keys(tempValidationErrors).length === 0) {
+      setIsCreating(true);
+      setCreateSuccessMessage('');
+      setCreateErrorMessage('');
+
       try {
         const dataToSend = {
           ...formState,
@@ -316,18 +323,23 @@ const ManageReseller = () => {
 
           // Clear the form and show a notification instead of the password
           setFormState(initialFormState);
-          alert('Email with account details successfully sent'); // Replace with a proper notification
-          setOpen(false);
+          setCreateSuccessMessage('Email with account details successfully sent');
           fetchResellersForUser(userId);
+          setIsCreating(false);
+          setCreateSuccessMessage('Reseller Successfully Created');
+          // setOpen(false);
         }
       } catch (error) {
+        setIsCreating(false);
         if (error.response && error.response.status === 409) {
           setValidationErrors((prevErrors) => ({
             ...prevErrors,
             email: 'Email is already in use',
           }));
+          setCreateErrorMessage('Email is already in use');
         } else {
           console.error('Error adding reseller:', error);
+          setCreateErrorMessage('An error occurred while creating the reseller.');
         }
       }
     }
@@ -421,6 +433,10 @@ const ManageReseller = () => {
   const handleClose = () => {
     setOpen(false);
     setShowCredentialsPopup(false);
+
+    setTimeout(() => {
+      window.location.reload();
+    }, 500);
   };
 
   const fetchData = async () => {
@@ -649,6 +665,9 @@ const ManageReseller = () => {
             handleAddReseller={handleAddReseller}
             countries={countries}
             countryCodes={countryCodes}
+            isCreating={isCreating}
+            createSuccessMessage={createSuccessMessage}
+            createErrorMessage={createErrorMessage}
           />
           <CredentialsDialog
             open={showCredentialsPopup}
