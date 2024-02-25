@@ -61,31 +61,42 @@ const excludedCategories = ['topupToggles', '_id', 'userId', '__v'];
 const BillerProducts = () => {
   const [billerToggles, setBillerToggles] = useState(initialBillerToggles);
   const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
 
+  const user = ls.get('user');
   const token = ls.get('token');
-  const userId = ls.get('user') ? ls.get('user')._id : null;
+  const userId = user ? user._id : null;
+  const isReseller = user && user.role === 'reseller';
 
   const getCategoryName = (categoryKey) => {
     return categoryNames[categoryKey] || categoryKey;
   };
 
   useEffect(() => {
+    if (!userId || !token) {
+      navigate('/login');
+      return;
+    }
+
     axios
       .get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/${userId}/billertoggles`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       })
       .then((response) => {
-        // console.log('Fetched biller toggles:', response.data); // Log the response data
-        setBillerToggles(response.data || initialBillerToggles);
+        if (isReseller && response.data.resellerToggles) {
+          // For resellers, use the resellerToggles from the response
+          setBillerToggles(response.data.resellerToggles);
+        } else {
+          // For dealers, use the response data directly
+          setBillerToggles(response.data);
+        }
         setIsLoading(false);
       })
       .catch((error) => {
         console.error('Error fetching biller toggles:', error);
         setIsLoading(false);
       });
-  }, [token, userId]);
+  }, [token, userId, navigate, isReseller]);
 
   const handleToggleChange = (category, name, checked) => {
     setBillerToggles((prevState) => {
