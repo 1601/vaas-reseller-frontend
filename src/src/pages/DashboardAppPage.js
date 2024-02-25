@@ -6,7 +6,7 @@ import Cookies from 'js-cookie';
 import SecureLS from 'secure-ls';
 // @mui
 import { useTheme } from '@mui/material/styles';
-import { Grid, Container, Typography, Card, CardContent, Button } from '@mui/material';
+import { Box, Grid, Container, Typography, Card, CardContent, Button } from '@mui/material';
 // components
 import Iconify from '../components/iconify';
 import AccountStatusModal from '../components/user-account/AccountStatusModal';
@@ -145,6 +145,44 @@ export default function DashboardAppPage() {
         </CardContent>
       </Card>
     ) : null;
+
+  const userRole = ls.get('user') ? ls.get('user').role : null;
+
+  if (userRole === 'reseller') {
+    return (
+      <>
+        <Helmet>
+          <title>Reseller Dashboard | VAAS</title>
+        </Helmet>
+        <Container maxWidth="sm" sx={{ mt: 4, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <Typography variant="h4" gutterBottom>
+            Reseller Dashboard
+          </Typography>
+          <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+            <Button
+              variant="outlined"
+              color="primary"
+              onClick={() => navigate('/dashboard/reseller/products/bills-payment')}
+            >
+              Product Config
+            </Button>
+            <Button
+              variant="outlined"
+              color="secondary"
+              onClick={() => navigate('/dashboard/reseller/sales/transactions')}
+            >
+              Transactions
+            </Button>
+          </Box>
+        </Container>
+      </>
+    );
+  }
+
+  // Fallback or loading screen if userRole is not yet determined
+  if (!userRole) {
+    return <CircularLoading />;
+  }
 
   return (
     <>
