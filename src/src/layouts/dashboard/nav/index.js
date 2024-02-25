@@ -103,16 +103,16 @@ export default function Nav({ openNav, onCloseNav }) {
   }, [role]);
 
   const filteredNavConfigBottom = navConfigBottom
-    .filter((item) => !(role === 'admin' && item.title === 'upload document'))
-    .map((item) => {
-      if (role === 'admin' && item.title === 'settings') {
-        return {
-          ...item,
-          children: item.children.filter((child) => child.title !== 'My Profile'),
-        };
-      }
-      return item;
-    });
+  .filter((item) => !((role === 'admin' || role === 'reseller') && item.title === 'upload document'))
+  .map((item) => {
+    if (role === 'admin' && item.title === 'settings') {
+      return {
+        ...item,
+        children: item.children.filter((child) => child.title !== 'My Profile'),
+      };
+    }
+    return item;
+  });
 
   const renderContent = (
     <Scrollbar
