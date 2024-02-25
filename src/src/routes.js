@@ -199,6 +199,38 @@ export default function Router() {
       ],
     },
     {
+      path: '/dashboard/reseller',
+      element: isLoggedIn && role === 'reseller' ? <DashboardLayout /> : <Navigate to="/login" />,
+      children: [
+        { path: '', element: <Navigate to="app" replace />, index: true },
+        { path: 'app', element: <DashboardAppPage /> }, 
+        {
+          path: 'products',
+          children: [
+            { path: '', element: <ProductsPage />, index: true },
+            { path: 'bills-payment', element: <BillerProducts /> },
+            { path: 'top-up', element: <TopUpProducts /> },
+          ],
+        },
+        {
+          path: 'sales',
+          children: [
+            { path: '', element: <TransactionPage />, index: true },
+            { path: 'transactions', element: <TransactionPage /> },
+          ],
+        },
+        { path: 'profile', element: <ProfilePage /> }, 
+        {
+          path: 'settings',
+          children: [
+            { path: '', element: <ProfileSettings />, index: true },
+            { path: 'profile', element: <ProfileSettings /> },
+            { path: 'faq', element: <FAQs /> },
+          ],
+        },
+      ],
+    },
+    {
       path: 'admin',
       element: isLoggedIn && role === 'admin' ? <Navigate to="/dashboard/admin" /> : <LoginPageAdmin />,
     },
