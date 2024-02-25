@@ -65,7 +65,7 @@ const getNavConfig = (role) => {
       {
         title: 'Banner Configuration',
         path: '/dashboard/admin/banner',
-        icon: icon('ic_product')
+        icon: icon('ic_product'),
       },
       {
         title: 'Wallet',
@@ -85,114 +85,155 @@ const getNavConfig = (role) => {
         ],
       },
     ];
-    
-  } return [
+  }
+
+  if (role === 'reseller') {
+    // Reseller-specific navigation config
+    return [
       {
-        title: 'Home',
-        path: '/dashboard/app',
+        title: 'Dashboard',
+        path: '/dashboard/reseller/app',
         icon: icon('ic_home'),
       },
       {
-        title: 'Store',
-        path: '/dashboard/store',
-        icon: icon('ic_store'),
-        children: [
-          {
-            title: 'Storefront',
-            // icon: icon('ic_store2'),
-            path: '/dashboard/store/storefront',
-          },
-          {
-            title: 'Manage Resellers',
-            // icon: icon('ic_topup'),
-            path: '/dashboard/store/resellers',
-          },
-        ],
-      },
-      {
         title: 'Products',
-        path: '/dashboard/products/bills-payment',
+        path: '/dashboard/reseller/products',
         icon: icon('ic_product'),
         children: [
           {
             title: 'Bills Payment',
+            path: '/dashboard/reseller/products/bills-payment',
             icon: icon('ic_bills'),
-            path: '/dashboard/products/bills-payment',
           },
           {
             title: 'Top-up',
+            path: '/dashboard/reseller/products/top-up',
             icon: icon('ic_topup'),
-            path: '/dashboard/products/top-up',
-          },
-          {
-            title: 'E-gifts',
-            icon: icon('ic_egift'),
-            path: '/dashboard/products/e-gifts',
           },
         ],
       },
       {
-        title: 'Customers',
-        path: '/dashboard/customer',
-        icon: icon('ic_customer'),
-      },
-      {
-        title: 'Sales Channel',
-        path: '/dashboard/sales/transactions',
+        title: 'Sales',
+        path: '/dashboard/reseller/sales/transactions',
         icon: icon('ic_sales'),
         children: [
           {
             title: 'Transactions',
+            path: '/dashboard/reseller/sales/transactions',
             icon: icon('ic_transact'),
-            path: '/dashboard/sales/transactions',
-          },
-          // {
-          //   title: 'My Wallet',
-          //   icon: icon('ic_wallet'),
-          //   path: '/dashboard/sales/my-wallet',
-          // },
-          // {
-          //   title: 'Reports',
-          //   icon: icon('ic_report'),
-          //   path: '/dashboard/sales/reports',
-          // },
-          {
-            title: 'Point of Sale',
-            icon: icon('ic_pos'),
-            path: '/dashboard/sales/point-of-sale',
           },
         ],
       },
-      {
-        title: 'Wallets & Payouts',
-        path: '/dashboard/wallet',
-        icon: icon('ic_wallet'),
-      },
-      {
-        title: 'Reports',
-        path: '/dashboard/reports',
-        icon: icon('ic_report'),
-      },
-      {
-        title: 'Developers',
-        path: '/dashboard/developer',
-        icon: icon('ic_dev'),
-      },
-      {
-        title: 'View Live Data',
-        icon: icon('ic_toggle'),
-        isToggle: true,
-      },
-      // {
-      //   title: 'login',
-      //   path: '/login',
-      //   icon: icon('ic_lock'),
-      // },
-      // {
-      //   title: 'Not found',
-      //   path: '/404',
-      //   icon: icon('ic_disabled'),
-      // },
     ];
-  };
+  }
+
+  return [
+    {
+      title: 'Home',
+      path: '/dashboard/app',
+      icon: icon('ic_home'),
+    },
+    {
+      title: 'Store',
+      path: '/dashboard/store',
+      icon: icon('ic_store'),
+      children: [
+        {
+          title: 'Storefront',
+          // icon: icon('ic_store2'),
+          path: '/dashboard/store/storefront',
+        },
+        {
+          title: 'Manage Resellers',
+          // icon: icon('ic_topup'),
+          path: '/dashboard/store/resellers',
+        },
+      ],
+    },
+    {
+      title: 'Products',
+      path: '/dashboard/products/bills-payment',
+      icon: icon('ic_product'),
+      children: [
+        {
+          title: 'Bills Payment',
+          icon: icon('ic_bills'),
+          path: '/dashboard/products/bills-payment',
+        },
+        {
+          title: 'Top-up',
+          icon: icon('ic_topup'),
+          path: '/dashboard/products/top-up',
+        },
+        {
+          title: 'E-gifts',
+          icon: icon('ic_egift'),
+          path: '/dashboard/products/e-gifts',
+        },
+      ],
+    },
+    {
+      title: 'Customers',
+      path: '/dashboard/customer',
+      icon: icon('ic_customer'),
+    },
+    {
+      title: 'Sales Channel',
+      path: '/dashboard/sales/transactions',
+      icon: icon('ic_sales'),
+      children: [
+        {
+          title: 'Transactions',
+          icon: icon('ic_transact'),
+          path: '/dashboard/sales/transactions',
+        },
+        // {
+        //   title: 'My Wallet',
+        //   icon: icon('ic_wallet'),
+        //   path: '/dashboard/sales/my-wallet',
+        // },
+        // {
+        //   title: 'Reports',
+        //   icon: icon('ic_report'),
+        //   path: '/dashboard/sales/reports',
+        // },
+        {
+          title: 'Point of Sale',
+          icon: icon('ic_pos'),
+          path: '/dashboard/sales/point-of-sale',
+        },
+      ],
+    },
+    {
+      title: 'Wallets & Payouts',
+      path: '/dashboard/wallet',
+      icon: icon('ic_wallet'),
+    },
+    {
+      title: 'Reports',
+      path: '/dashboard/reports',
+      icon: icon('ic_report'),
+    },
+    {
+      title: 'Developers',
+      path: '/dashboard/developer',
+      icon: icon('ic_dev'),
+    },
+    {
+      title: 'View Live Data',
+      icon: icon('ic_toggle'),
+      isToggle: true,
+    },
+    // {
+    //   title: 'login',
+    //   path: '/login',
+    //   icon: icon('ic_lock'),
+    // },
+    // {
+    //   title: 'Not found',
+    //   path: '/404',
+    //   icon: icon('ic_disabled'),
+    // },
+  ];
+};
 export default getNavConfig;
