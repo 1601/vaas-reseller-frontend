@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { debounce } from 'lodash';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styled from '@emotion/styled';
@@ -9,8 +8,6 @@ import {
   Button,
   Box,
   Card,
-  CardContent,
-  CardHeader,
   CardMedia,
   Checkbox,
   Container,
@@ -27,12 +24,12 @@ import {
   InputLabel,
   Link,
   MenuItem,
-  Paper,
   Select,
   TextField,
   Typography,
   useMediaQuery,
   useTheme,
+  CircularProgress,
 } from '@mui/material';
 import InputAdornment from '@mui/material/InputAdornment';
 import IconButton from '@mui/material/IconButton';
@@ -59,17 +56,6 @@ const StyledCard = styled(Card)(({ theme }) => ({
 const StyledCardMedia = styled(CardMedia)({
   height: 150,
 });
-
-const StyledPaper = styled(Paper)({
-  width: '80%',
-  margin: '0 auto',
-});
-
-const StyledRoot = styled('div')(({ theme }) => ({
-  [theme.breakpoints.up('md')]: {
-    display: 'flex',
-  },
-}));
 
 const StyledContent = styled('div')(({ theme }) => ({
   // Margins for responsiveness
@@ -142,14 +128,6 @@ function TermsDialog({ open, onClose, onAgree }) {
     </Dialog>
   );
 }
-
-const Slide = ({ image, alt }) => {
-  return (
-    <StyledCard>
-      <StyledCardMedia component="img" alt={alt} image={image} />
-    </StyledCard>
-  );
-};
 
 const currencies = [
   'USD',
@@ -261,6 +239,7 @@ export default function SignUpPage() {
   const [banners, setBanners] = useState();
   const [initialCurrency, setInitialCurrency] = useState('');
   const [passwordFocus, setPasswordFocus] = useState(false);
+  const [signUpDialogOpen, setSignUpDialogOpen] = React.useState(false);
 
   const passwordValidationRegex = /^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*]).{8,12}$/;
 
@@ -301,6 +280,14 @@ export default function SignUpPage() {
   const agreeToTerms = () => {
     setIsTermsDialogOpen(false);
     setIsTermsAccepted(true);
+  };
+
+  const handleSignUpStart = () => {
+    setSignUpDialogOpen(true);
+  };
+
+  const handleSignUpEnd = () => {
+    setSignUpDialogOpen(false);
   };
 
   const validateName = (name) => {
@@ -520,6 +507,7 @@ export default function SignUpPage() {
   };
 
   const handleSignup = async () => {
+    handleSignUpStart();
     setPasswordError(false);
     setPasswordHelperText('');
 
@@ -577,6 +565,8 @@ export default function SignUpPage() {
           setErrorMessage('An error occurred during signup.');
         }
         setErrorDialogOpen(true);
+      } finally {
+        handleSignUpEnd();
       }
     } else if (formData.password !== formData.confirmPassword) {
       setPasswordError(true);
@@ -1235,6 +1225,14 @@ export default function SignUpPage() {
                       </Button>
                     </DialogActions>
                   </Dialog>
+
+                  <Dialog open={signUpDialogOpen} onClose={handleSignUpEnd}>
+                    <Box sx={{ padding: 3, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+                      <CircularProgress />
+                      <Typography>Signing up...</Typography>
+                    </Box>
+                  </Dialog>
+
                   <Typography variant="body2" sx={{ mt: 3 }}>
                     Already have an account?
                     <Link variant="subtitle2" onClick={() => navigate('/login')} sx={{ cursor: 'pointer', ml: 1 }}>
