@@ -10,54 +10,47 @@ const SubdomainHandler = () => {
     const hostname = window.location.hostname;
     const pathname = window.location.pathname;
 
-    // Exclude certain paths from being processed as a subdomain
     if (excludedPaths.some((path) => pathname.includes(path)) || pathname.includes('reset-password')) {
       setHasSubdomain(false);
       return;
     }
 
-    // Extract storeUrl based on hostname and pathname
     let storeUrl = null;
+    const pathParts = pathname.split('/').filter(Boolean); // Filter out empty strings
 
-    // Check for custom hostname pattern from environment variable
-    const custom1stSubdomain = process.env.REACT_APP_CUSTOM_1ST_SUBDOMAIN;
-    if (custom1stSubdomain && hostname.includes(custom1stSubdomain)) {
-      const pathParts = pathname.split('/');
-      storeUrl = pathParts.length > 1 ? pathParts[1] : null;
-    } else if (hostname.includes('vortex-vaas-frontend')) {
-      // Handling for new URL
-      const pathParts = pathname.split('/');
-      storeUrl = pathParts.length > 1 ? pathParts[1] : null;
-    } else if (hostname.includes('pldt-vaas-frontend')) {
-      const pathParts = pathname.split('/');
-      storeUrl = pathParts.length > 1 ? pathParts[1] : null;
-    } else if (hostname.includes('localhost') && pathname !== '/') {
-      storeUrl = pathname.slice(1);
+    // Adjust logic for extracting storeUrl from pathname
+    if (hostname.includes('localhost') && pathParts.length) {
+      if (pathParts.length) {
+        console.log(pathParts);
+        storeUrl = pathParts[0]; // Also assumes the first part is the dealer for custom hostnames
+      }
+    } else if (hostname.includes('vortex-vaas-frontend') || hostname.includes('pldt-vaas-frontend')) {
+      if (pathParts.length) {
+        storeUrl = pathParts[0]; // Also assumes the first part is the dealer for custom hostnames
+      }
     } else {
       const parts = hostname.split('.');
-      storeUrl = parts.length > 2 ? parts[0] : null;
+      storeUrl = parts.length > 2 ? parts[0] : null; // For handling subdomains in a live environment
     }
 
-    // Fetch store data if storeUrl is valid
-    if (storeUrl && !storeUrl.includes('pldt-vaas-frontend') && !storeUrl.includes('vortex-vaas-frontend')) {
-      axios
-        .get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/url/${storeUrl}`, {
-          headers: {
-            'x-subdomain': storeUrl,
-          },
-        })
-        .then((response) => {
-          if (response.data) {
-            setStoreData({ subdomain: storeUrl, ...response.data });
-            setHasSubdomain(true);
-          } else {
-            setHasSubdomain(false);
-          }
-        })
-        .catch((error) => {
-          console.error('Could not fetch live store', error);
+    if (storeUrl) {
+      axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/url/${storeUrl}`, {
+        headers: {
+          'x-subdomain': storeUrl,
+        },
+      })
+      .then((response) => {
+        if (response.data) {
+          setStoreData({ subdomain: storeUrl, ...response.data });
+          setHasSubdomain(true);
+        } else {
           setHasSubdomain(false);
-        });
+        }
+      })
+      .catch((error) => {
+        console.error('Could not fetch live store', error);
+        setHasSubdomain(false);
+      });
     } else {
       setHasSubdomain(false);
     }
