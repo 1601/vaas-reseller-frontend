@@ -10,6 +10,7 @@ import CustomerPage from './pages/DealerPages/CustomerPage';
 import UserPage from './pages/UserPage';
 import LoginPage from './pages/AuthPages/LoginPage';
 import LoginPageAdmin from './pages/AuthPages/LoginPageAdmin';
+import LoginPageReseller from './pages/AuthPages/LoginPageReseller';
 import SignUpPage from './pages/AuthPages/SignUpPage';
 import Page404 from './pages/Page404';
 import ProductsPage from './pages/ProductsPage';
@@ -307,6 +308,23 @@ export default function Router() {
       path: 'survey-privacy-policy',
       element: <SurveyPrivacyPolicy />,
     },
+    {
+      path: ':storeUrl/reseller',
+      element: <LoginPageReseller />,
+      loader: async ({ params }) => {
+        const { storeUrl } = params;
+        if (!storeUrl.includes('pldt-vaas-frontend') && !storeUrl.includes('vortex-vaas-frontend')) {
+          const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/url/${storeUrl}`);
+          const storeData = await response.json();
+          if (storeData.isLive === false) {
+            console.log('Store is not live.');
+            return null;
+          }
+          return { storeData };
+        }
+        return null;
+      },
+    },
     ...(!isSubdomain
       ? [
           {
@@ -327,6 +345,7 @@ export default function Router() {
               },
               { path: 'voucher', element: <div> Voucher </div> },
               { path: 'transactions', element: <div> Transactions </div> },
+              // { path: 'reseller', element: <div> reseller </div> },
             ],
 
             loader: async ({ params }) => {
