@@ -7,6 +7,7 @@ import {
   Link,
   Container,
   Typography,
+  Box,
   Button,
   TextField,
   Dialog,
@@ -14,6 +15,7 @@ import {
   DialogContent,
   DialogContentText,
   DialogActions,
+  CircularProgress,
 } from '@mui/material';
 import Logo from '../../components/logo';
 
@@ -40,6 +42,7 @@ export default function ForgotPasswordPage() {
   const [fieldError, setFieldError] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [emailError, setEmailError] = useState(false);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleRequestPasswordChange = async () => {
@@ -57,6 +60,8 @@ export default function ForgotPasswordPage() {
       setDialogOpen(true);
       return;
     }
+
+    setLoading(true);
     try {
       const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/password/email`, {
         email,
@@ -83,7 +88,10 @@ export default function ForgotPasswordPage() {
       } else {
         setErrorMessage('Error sending password change request.');
       }
+
       console.error('Error sending password change request:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -183,6 +191,17 @@ export default function ForgotPasswordPage() {
             Close
           </Button>
         </DialogActions>
+      </Dialog>
+
+      {/* Loading state dialog */}
+      <Dialog open={loading} disableBackdropClick>
+        <DialogTitle>Password Request processing...</DialogTitle>
+        <DialogContent>
+          <Box display="flex" alignItems="center" justifyContent="center">
+            <CircularProgress color="primary" />
+          </Box>
+          <DialogContentText>Please wait while we process your password request.</DialogContentText>
+        </DialogContent>
       </Dialog>
     </>
   );

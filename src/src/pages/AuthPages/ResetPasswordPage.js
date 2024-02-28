@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import axios from 'axios';
 import { styled } from '@mui/material/styles';
 import {
+  Box,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -46,10 +47,45 @@ export default function ResetPasswordPage() {
   const [errorMessage, setErrorMessage] = useState('');
   const [fieldError, setFieldError] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [isPasswordFocused, setIsPasswordFocused] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
   const token = new URLSearchParams(location.search).get('token');
+
+  function PasswordRequirements({ password }) {
+    const requirements = [
+      { label: '8-12 characters long', test: (pw) => pw.length >= 8 && pw.length <= 12 },
+      { label: 'One uppercase letter', test: (pw) => /[A-Z]/.test(pw) },
+      { label: 'One lowercase letter', test: (pw) => /[a-z]/.test(pw) },
+      { label: 'One number', test: (pw) => /[0-9]/.test(pw) },
+      { label: 'One special character (!@#$%^&*)', test: (pw) => /[!@#$%^&*]/.test(pw) },
+    ];
+
+    return (
+      <Box
+        sx={{
+          mb: 2,
+          p: 2,
+          border: '1px solid #ccc',
+          borderRadius: '4px',
+          backgroundColor: '#fff',
+          zIndex: 1,
+        }}
+      >
+        <Typography variant="body2" color="textSecondary" gutterBottom>
+          Password must contain:
+        </Typography>
+        <ul style={{ margin: 0, padding: 0, listStyleType: 'disc', marginLeft: '20px' }}>
+          {requirements.map((req, index) => (
+            <li key={index} style={{ color: req.test(password) ? 'green' : 'red' }}>
+              {req.label}
+            </li>
+          ))}
+        </ul>
+      </Box>
+    );
+  }
 
   const handleChangePassword = async () => {
     let isValid = true;
@@ -108,6 +144,14 @@ export default function ResetPasswordPage() {
     }
   };
 
+  const handlePasswordFocus = () => {
+    setIsPasswordFocused(true);
+  };
+
+  const handlePasswordBlur = () => {
+    setIsPasswordFocused(false);
+  };
+
   const handleCloseDialog = () => {
     setDialogOpen(false);
   };
@@ -138,6 +182,8 @@ export default function ResetPasswordPage() {
               sx={{ mb: 3 }}
               error={Boolean(newPasswordError)}
               helperText={newPasswordError}
+              onFocus={handlePasswordFocus}
+              onBlur={handlePasswordBlur}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
@@ -148,6 +194,9 @@ export default function ResetPasswordPage() {
                 ),
               }}
             />
+
+            {isPasswordFocused && <PasswordRequirements password={newPassword} />}
+
             <TextField
               fullWidth
               label="Confirm Password"
@@ -159,7 +208,7 @@ export default function ResetPasswordPage() {
                 setConfirmPasswordError(e.target.value.trim() ? '' : 'Confirmation password is required');
               }}
               sx={{ mb: 3 }}
-              error={Boolean(confirmPasswordError)} 
+              error={Boolean(confirmPasswordError)}
               helperText={confirmPasswordError}
               InputProps={{
                 endAdornment: (
@@ -192,7 +241,9 @@ export default function ResetPasswordPage() {
       <Dialog open={dialogOpen} onClose={handleCloseDialog}>
         <DialogTitle>Error</DialogTitle>
         <DialogContent>
-          <DialogContentText>{ newPasswordError || confirmPasswordError || errorMessage || successMessage || fieldError}</DialogContentText>
+          <DialogContentText>
+            {newPasswordError || confirmPasswordError || errorMessage || successMessage || fieldError}
+          </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDialog} color="primary">
