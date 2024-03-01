@@ -61,6 +61,7 @@ const excludedCategories = ['topupToggles', '_id', 'userId', '__v'];
 const BillerProducts = () => {
   const [billerToggles, setBillerToggles] = useState(initialBillerToggles);
   const [isLoading, setIsLoading] = useState(true);
+  const [dealerConfig, setDealerConfig] = useState({});
   const navigate = useNavigate();
 
   const user = ls.get('user');
@@ -84,10 +85,9 @@ const BillerProducts = () => {
       })
       .then((response) => {
         if (isReseller && response.data.resellerToggles) {
-          // For resellers, use the resellerToggles from the response
           setBillerToggles(response.data.resellerToggles);
+          setDealerConfig(response.data.dealerConfig);
         } else {
-          // For dealers, use the response data directly
           setBillerToggles(response.data);
         }
         setIsLoading(false);
@@ -153,22 +153,32 @@ const BillerProducts = () => {
                 <TableContainer component={Paper}>
                   <Table aria-label={`${category} biller toggles`}>
                     <TableBody>
-                      {Object.entries(billers).map(([name, enabled]) => (
-                        <TableRow key={`${category}-${name}`}>
-                          <TableCell>{name}</TableCell>
-                          <TableCell align="right">
-                            <FormControlLabel
-                              control={
-                                <Switch
-                                  checked={enabled}
-                                  onChange={(e) => handleToggleChange(category, name, e.target.checked)}
+                      {Object.entries(billers).map(([name, enabled]) => {
+                        const isDisabledByDealer = dealerConfig[category] && dealerConfig[category][name] === false;
+
+                        return (
+                          <TableRow key={`${category}-${name}`}>
+                            <TableCell>{name}</TableCell>
+                            <TableCell align="right">
+                              {isDisabledByDealer ? (
+                                <Typography variant="body2" color="textSecondary">
+                                  Disabled by Dealer
+                                </Typography>
+                              ) : (
+                                <FormControlLabel
+                                  control={
+                                    <Switch
+                                      checked={enabled}
+                                      onChange={(e) => handleToggleChange(category, name, e.target.checked)}
+                                    />
+                                  }
+                                  label={enabled ? 'Enabled' : 'Disabled'}
                                 />
-                              }
-                              label={enabled ? 'Enabled' : 'Disabled'}
-                            />
-                          </TableCell>
-                        </TableRow>
-                      ))}
+                              )}
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
                     </TableBody>
                   </Table>
                 </TableContainer>
