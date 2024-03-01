@@ -24,9 +24,12 @@ const ls = new SecureLS({ encodingType: 'aes' });
 const TopUpConfig = () => {
   const { productName } = useParams();
   const [productConfigs, setProductConfigs] = useState([]);
+  const [dealerConfig, setDealerConfig] = useState({});
   const [markupInputValues, setMarkupInputValues] = useState({});
 
-  const userId = ls.get('user') ? ls.get('user')._id : null;
+  const user = ls.get('user');
+  const userId = user ? user._id : null;
+  const userRole = user ? user.role : null;
   const navigate = useNavigate();
   const token = ls.get('token');
 
@@ -39,21 +42,24 @@ const TopUpConfig = () => {
           },
         })
         .then((response) => {
-          // console.log('Response data:', response.data);
-          const sortedProducts = (response.data.products || [])
-            .map((p) => p._doc)
-            .sort((a, b) => a.defaultPrice - b.defaultPrice);
+          console.log(response.data);
+          let products = [];
+          let dealerConfig = [];
+          if (userRole === 'dealer') {
+            products = (response.data.products || []).map((p) => p._doc);
+          } else if (userRole === 'reseller') {
+            products = response.data.products || [];
+            dealerConfig = response.data.dealer || [];
+            setDealerConfig(dealerConfig);
+          }
+          const sortedProducts = products.sort((a, b) => a.defaultPrice - b.defaultPrice);
           setProductConfigs(sortedProducts);
-
-          sortedProducts.forEach((product) => {
-            // console.log(`Markup for product ${product.name}:`, product.markUp);
-          });
         })
         .catch((error) => {
           console.error('Error fetching product configurations:', error);
         });
     }
-  }, [userId, productName, token]);
+  }, [userId, productName, token, userRole]);
 
   // Function to calculate current price
   const calculateCurrentPrice = (defaultPrice, markUp) => {
@@ -147,7 +153,7 @@ const TopUpConfig = () => {
 
   return (
     <Box sx={{ padding: '20px' }}>
-      <Paper elevation={3} sx={{ padding: '20px', margin: 'auto', maxWidth: '800px' }}>
+      <Paper elevation={3} sx={{ padding: '20px', margin: 'auto', maxWidth: '100%', width: 'auto' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
           <IconButton onClick={() => navigate(-1)} aria-label="back">
             <ArrowBackIcon />
@@ -158,7 +164,7 @@ const TopUpConfig = () => {
         </Box>
 
         <TableContainer>
-          <Table>
+          <Table sx={{ tableLayout: 'auto', width: '100%' }}>
             <TableHead>
               <TableRow>
                 <TableCell>Product</TableCell>
@@ -171,44 +177,72 @@ const TopUpConfig = () => {
             </TableHead>
             <TableBody>
               {productConfigs.map((config) => {
+                const isDisabledByDealer =
+                  userRole === 'reseller' &&
+                  !dealerConfig[productName]?.products.find((product) => product._id === config._id)?.enabled;
                 const calculatedCurrentPrice = calculateCurrentPrice(
                   config.defaultPrice,
                   markupInputValues[config._id] || config.markUp
                 );
 
                 return (
-                  <TableRow key={config._id}>
-                    <TableCell>{config.name}</TableCell>
-                    <TableCell align="right">₱ {config.defaultPrice}</TableCell>
-                    <TableCell align="right">
-                      <TextField
-                        variant="outlined"
-                        size="small"
-                        value={markupInputValues[config._id] || config.markUp.toString()}
-                        onChange={(e) => {
-                          let inputValue = e.target.value.replace(/[^0-9.]/g, ''); // Remove non-numeric characters
-
-                          if (inputValue.startsWith('0') && inputValue.length > 1) {
-                            inputValue = inputValue.substring(1);
-                          }
-
-                          handleMarkUpChange(config._id, inputValue);
-                        }}
-                        placeholder="Enter markup"
-                        InputProps={{
-                          startAdornment: <span style={{ marginRight: '8px' }}>₱</span>,
-                        }}
-                        style={{ opacity: config.markUp !== undefined ? 1 : 0.5 }}
-                      />
+                  <TableRow
+                    key={config._id}
+                    sx={{
+                      opacity: isDisabledByDealer ? 0.5 : 1,
+                      position: 'relative',
+                    }}
+                  >
+                    <TableCell sx={{ zIndex: isDisabledByDealer ? 0 : 1 }}>{config.name}</TableCell>
+                    <TableCell align="right" sx={{ zIndex: isDisabledByDealer ? 0 : 1 }}>
+                      ₱ {config.defaultPrice}
                     </TableCell>
-                    <TableCell align="right">
-                      <Button variant="outlined" onClick={() => handleApplyDiscount(config._id)}>
+                    <TableCell align="right" sx={{ zIndex: isDisabledByDealer ? 0 : 1 }}>
+                      {isDisabledByDealer ? (
+                        <Typography variant="subtitle1" sx={{ opacity: 0.5 }}>
+                          Disabled by Dealer
+                        </Typography>
+                      ) : (
+                        <TextField
+                          variant="outlined"
+                          size="small"
+                          value={markupInputValues[config._id] || config.markUp.toString()}
+                          onChange={(e) => {
+                            let inputValue = e.target.value.replace(/[^0-9.]/g, '');
+
+                            if (inputValue.startsWith('0') && inputValue.length > 1) {
+                              inputValue = inputValue.substring(1);
+                            }
+
+                            handleMarkUpChange(config._id, inputValue);
+                          }}
+                          placeholder="Enter markup"
+                          InputProps={{
+                            startAdornment: <span style={{ marginRight: '8px' }}>₱</span>,
+                          }}
+                          style={{ opacity: config.markUp !== undefined ? 1 : 0.5 }}
+                          disabled={isDisabledByDealer}
+                        />
+                      )}
+                    </TableCell>
+                    <TableCell align="right" sx={{ zIndex: isDisabledByDealer ? 0 : 1 }}>
+                      <Button
+                        variant="outlined"
+                        onClick={() => handleApplyDiscount(config._id)}
+                        disabled={isDisabledByDealer} // Disable button if row is disabled
+                      >
                         Apply
                       </Button>
                     </TableCell>
-                    <TableCell align="right">₱ {calculatedCurrentPrice}</TableCell>
-                    <TableCell align="center">
-                      <Switch checked={config.enabled} onChange={() => handleToggle(config._id, !config.enabled)} />
+                    <TableCell align="right" sx={{ zIndex: isDisabledByDealer ? 0 : 1 }}>
+                      ₱ {calculatedCurrentPrice}
+                    </TableCell>
+                    <TableCell align="center" sx={{ zIndex: isDisabledByDealer ? 0 : 1 }}>
+                      <Switch
+                        checked={config.enabled}
+                        onChange={() => handleToggle(config._id, !config.enabled)}
+                        disabled={isDisabledByDealer}
+                      />
                     </TableCell>
                   </TableRow>
                 );

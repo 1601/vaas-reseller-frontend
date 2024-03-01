@@ -22,6 +22,8 @@ const TopUpProducts = () => {
 
   const token = ls.get('token');
   const userId = ls.get('user') ? ls.get('user')._id : null;
+  const user = ls.get('user') ? ls.get('user') : null;
+  const role = user ? user.role : null;
 
   useEffect(() => {
     axios
@@ -31,11 +33,17 @@ const TopUpProducts = () => {
         },
       })
       .then((response) => {
-        const fetchedToggles = response.data;
-        setTopUpToggles((prevState) => ({
-          ...prevState,
-          ...fetchedToggles,
-        }));
+        const fetchedData = response.data;
+        const filteredToggles = {
+          SMARTPH: fetchedData.SMARTPH,
+          TNTPH: fetchedData.TNTPH,
+          PLDTPH: fetchedData.PLDTPH,
+          GLOBE: fetchedData.GLOBE,
+          MERALCO: fetchedData.MERALCO,
+          CIGNAL: fetchedData.CIGNAL,
+        };
+        console.log('Filtered Toggles: ', filteredToggles);
+        setTopUpToggles(filteredToggles);
         setIsLoading(false);
       })
       .catch((error) => {
@@ -55,13 +63,11 @@ const TopUpProducts = () => {
 
     // Delay the PUT request until state is updated
     setTimeout(() => {
-      // Prepare the updated toggles for the backend
       const updatedToggles = Object.keys(topUpToggles).reduce((acc, key) => {
         acc[key] = key === name ? { ...topUpToggles[key], enabled: checked } : { ...topUpToggles[key] };
         return acc;
       }, {});
 
-      // Send the updated toggles to the backend
       axios
         .put(
           `${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/${userId}/topup-toggles`,
@@ -69,9 +75,7 @@ const TopUpProducts = () => {
           { headers: { Authorization: `Bearer ${token}` } }
         )
         .then((response) => {
-          // console.log('Topup toggles updated successfully:', response.data);
-          // Update the local state with the response from the backend
-          setTopUpToggles(response.data.topupToggles);
+          // setTopUpToggles(response.data.topupToggles);
         })
         .catch((error) => console.error('Error updating topup toggles:', error));
     }, 0);
@@ -91,7 +95,8 @@ const TopUpProducts = () => {
   };
 
   const handleConfigure = (productName) => {
-    navigate(`/dashboard/products/top-up/${productName}`);
+    const basePath = role === 'reseller' ? '/dashboard/reseller/products/top-up/' : '/dashboard/products/top-up/';
+    navigate(`${basePath}${productName}`);
   };
 
   if (isLoading) {
@@ -105,7 +110,7 @@ const TopUpProducts = () => {
           Top-Up Products
         </Typography>
         <Grid container spacing={2}>
-          {Object.keys(topUpToggles).map((key) => (
+          {Object.entries(topUpToggles).map(([key, { enabled, dealerConfig }]) => (
             <Grid item xs={12} sm={6} md={4} key={key}>
               <Paper
                 elevation={3}
@@ -116,8 +121,8 @@ const TopUpProducts = () => {
                   alignItems: 'center',
                   justifyContent: 'center',
                   textAlign: 'center',
-                  backgroundColor: topUpToggles[key] ? 'transparent' : 'lightgrey',
-                  opacity: topUpToggles[key] ? '1' : '0.5',
+                  backgroundColor: role === 'reseller' && dealerConfig?.enabled === false ? 'lightgrey' : 'transparent',
+                  opacity: role === 'reseller' && dealerConfig?.enabled === false ? '0.5' : '1',
                 }}
               >
                 <Typography variant="h6">{key}</Typography>
@@ -125,26 +130,40 @@ const TopUpProducts = () => {
                   title={key}
                   style={{ filter: topUpToggles[key] ? 'none' : 'grayscale(100%)', marginBottom: '10px' }}
                 />
-                <Stack direction="column" spacing={1} alignItems="center">
+                <Stack direction="column" spacing={1} alignItems="center" sx={{ width: '100%' }}>
                   {/* Configure Button */}
-                  <Button
-                    variant="contained"
-                    disabled={!topUpToggles[key]}
-                    sx={{
-                      ...configureButtonStyle,
-                      width: '100%',
-                      marginBottom: '10px',
-                    }}
-                    onClick={() => handleConfigure(key)}
-                  >
-                    Configure
-                  </Button>
+                  <Box width="100%" sx={{ maxWidth: '150px' }}>
+                    <Button
+                      variant="contained"
+                      disabled={!enabled || (role === 'reseller' && dealerConfig?.enabled === false)}
+                      sx={{
+                        ...configureButtonStyle,
+                        width: '100%',
+                      }}
+                      onClick={() => handleConfigure(key)}
+                    >
+                      Configure
+                    </Button>
+                  </Box>
                   {/* Toggle Switch */}
                   <FormControlLabel
                     control={
-                      <Switch checked={topUpToggles[key]?.enabled || false} onChange={handleToggleChange} name={key} />
+                      <Switch
+                        checked={topUpToggles[key]?.enabled || false}
+                        onChange={handleToggleChange}
+                        name={key}
+                        disabled={role === 'reseller' && dealerConfig?.enabled === false}
+                      />
                     }
-                    label={topUpToggles[key]?.enabled ? 'Enabled' : 'Disabled'}
+                    label={
+                      <Typography color={role === 'reseller' && !dealerConfig?.enabled ? 'error' : 'inherit'}>
+                        {role === 'reseller' && !dealerConfig?.enabled
+                          ? 'Disabled by Dealer'
+                          : enabled
+                          ? 'Enabled'
+                          : 'Disabled'}
+                      </Typography>
+                    }
                   />
                 </Stack>
               </Paper>
