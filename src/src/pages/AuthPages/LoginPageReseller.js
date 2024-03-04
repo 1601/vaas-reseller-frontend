@@ -232,6 +232,13 @@ export default function LoginPage() {
         return;
       }
 
+      if (role === 'dealer') {
+        setError('Dealers must login to their respective CRM');
+        setDialogOpen(true);
+        setLoggingIn(false);
+        return;
+      }
+
       const verifiedRole = await verifyRole(token);
 
       if (verifiedRole) {
