@@ -48,12 +48,10 @@ export default function ForgotPasswordPage() {
   const handleRequestPasswordChange = async () => {
     const state = encodeURIComponent(window.location.origin);
 
-    // Clear previous messages
     setFieldError('');
     setErrorMessage('');
     setSuccessMessage('');
 
-    // Check for missing email
     if (!email.trim()) {
       setFieldError('Please fill up the required field.');
       setEmailError(true);

@@ -201,6 +201,13 @@ export default function LoginPage() {
         return;
       }
 
+      if (role === 'reseller') {
+        setError('Resellers must login to their dealer login CRM');
+        setDialogOpen(true);
+        setLoggingIn(false);
+        return;
+      }
+
       const verifiedRole = await verifyRole(token);
 
       if (verifiedRole) {

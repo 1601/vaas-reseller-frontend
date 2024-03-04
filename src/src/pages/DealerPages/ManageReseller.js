@@ -317,11 +317,10 @@ const ManageReseller = () => {
         if (res.status === 200 && res.data) {
           // Send the account creation details to the reseller's email
           await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/resellers/create`, {
-            email: formState.email, // Use the email from the form state
-            password: res.data.password, // This password is auto-generated in the backend
+            email: formState.email, 
+            password: res.data.password, 
           });
 
-          // Clear the form and show a notification instead of the password
           setFormState(initialFormState);
           setCreateSuccessMessage('Email with account details successfully sent');
           fetchResellersForUser(userId);
