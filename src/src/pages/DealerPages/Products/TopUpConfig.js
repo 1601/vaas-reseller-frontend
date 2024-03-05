@@ -79,7 +79,6 @@ const TopUpConfig = () => {
       enabled,
     };
 
-    // Send update to backend for a specific product
     if (token) {
       axios
         .put(

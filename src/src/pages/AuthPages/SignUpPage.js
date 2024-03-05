@@ -58,7 +58,6 @@ const StyledCardMedia = styled(CardMedia)({
 });
 
 const StyledContent = styled('div')(({ theme }) => ({
-  // Margins for responsiveness
   marginLeft: theme.spacing(12.5),
   marginRight: theme.spacing(12.5),
 
@@ -241,13 +240,6 @@ export default function SignUpPage() {
   const [passwordFocus, setPasswordFocus] = useState(false);
   const [signUpDialogOpen, setSignUpDialogOpen] = React.useState(false);
 
-  const passwordValidationRegex = /^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*]).{8,12}$/;
-
-  const handleScroll = (e) => {
-    const bottom = e.target.scrollHeight - e.target.scrollTop === e.target.clientHeight;
-    setIsScrolledToEnd(bottom);
-  };
-
   const [fieldErrors, setFieldErrors] = useState({
     firstName: false,
     middleName: false,
@@ -366,11 +358,9 @@ export default function SignUpPage() {
     setFieldErrors((prevFieldErrors) => {
       const newErrorState = { ...prevFieldErrors };
 
-      // If it's a name field, validate against the name regex
       if (isNameField) {
         newErrorState[name] = !value.trim() || !validateName(value);
       } else {
-        // For other fields, you might want to validate differently or not at all
         newErrorState[name] = !value.trim();
       }
 
@@ -440,7 +430,6 @@ export default function SignUpPage() {
       }
     }
 
-    // If client-side validation passes, check with the server
     if (valid) {
       try {
         await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/email`, {
@@ -456,7 +445,6 @@ export default function SignUpPage() {
       }
     }
 
-    // Update the state once, based on both checks
     setIsEmailValid(valid);
     setEmailErrorMessage(message);
     setFieldErrors((prev) => ({ ...prev, email: !valid }));
@@ -481,7 +469,7 @@ export default function SignUpPage() {
   const handleFacebookSignUp = () => {
     const clientId = process.env.REACT_APP_FACEBOOK_CLIENT_ID;
     const redirectUri = encodeURIComponent(process.env.REACT_APP_FACEBOOK_REDIRECT_URI);
-    const scope = encodeURIComponent('email'); // request access to the user's email
+    const scope = encodeURIComponent('email');
 
     const facebookLoginUrl = `https://www.facebook.com/v18.0/dialog/oauth?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&response_type=code`;
 
@@ -515,7 +503,6 @@ export default function SignUpPage() {
 
     const isFormFullyValid = validateForm() && formData.password === formData.confirmPassword;
 
-    // If the password is empty, also set an error for confirm password
     if (!formData.password.trim()) {
       setFieldErrors((prev) => ({ ...prev, confirmPassword: true }));
     }
@@ -533,7 +520,6 @@ export default function SignUpPage() {
         );
 
         if (signupResponse.status === 200) {
-          // If signup is successful, send the verification email
           try {
             const verificationResponse = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/email`, {
               email: formData.email,

@@ -55,7 +55,6 @@ const TopUpProducts = () => {
   const handleToggleChange = (event) => {
     const { name, checked } = event.target;
 
-    // Update the local state correctly
     setTopUpToggles((prevState) => ({
       ...prevState,
       [name]: { ...prevState[name], enabled: checked },

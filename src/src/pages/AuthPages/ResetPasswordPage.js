@@ -102,7 +102,6 @@ export default function ResetPasswordPage() {
       isValid = false;
     }
 
-    // Check for matching passwords
     if (newPassword !== confirmPassword) {
       setConfirmPasswordError('Passwords do not match');
       isValid = false;

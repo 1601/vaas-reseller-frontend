@@ -316,7 +316,7 @@ const ManageReseller = () => {
 
         if (res.status === 200 && res.data) {
           // Send the account creation details to the reseller's email
-          await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/resellers/create`, {
+          await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/resellers`, {
             email: formState.email, 
             password: res.data.password, 
           });
@@ -408,16 +408,16 @@ const ManageReseller = () => {
         }
         break;
       }
-      case 'changePassword': {
-        const resellerToChangePassword = resellers.find((r) => r._id === resellerId);
-        if (resellerToChangePassword && resellerToChangePassword._id) {
-          setCurrentReseller(resellerToChangePassword._id);
-          setChangePasswordDialogOpen(true);
-        } else {
-          console.error('Could not find reseller to change password with ID:', resellerId);
-        }
-        break;
-      }
+      // case 'changePassword': {
+      //   const resellerToChangePassword = resellers.find((r) => r._id === resellerId);
+      //   if (resellerToChangePassword && resellerToChangePassword._id) {
+      //     setCurrentReseller(resellerToChangePassword._id);
+      //     setChangePasswordDialogOpen(true);
+      //   } else {
+      //     console.error('Could not find reseller to change password with ID:', resellerId);
+      //   }
+      //   break;
+      // }
       default:
         console.log('Default case triggered for action:', action);
         break;
@@ -686,12 +686,12 @@ const ManageReseller = () => {
             userId={userId}
             editingResellerId={editingResellerId}
           />
-          <ChangePasswordDialog
+          {/* <ChangePasswordDialog
             open={changePasswordDialogOpen}
             onClose={() => setChangePasswordDialogOpen(false)}
             userId={userId}
             currentReseller={currentReseller}
-          />
+          /> */}
           <DeleteResellerDialog
             open={deleteDialogOpen}
             handleCloseDeleteDialog={handleCloseDeleteDialog}
