@@ -42,6 +42,7 @@ export default function VerifyPage({ email, firstName, lastName }) {
   const [fieldError, setFieldError] = useState('');
   const [countdown, setCountdown] = useState(180);
   const [allowResend, setAllowResend] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
   const [emailError, setEmailError] = useState(false);
   const [codeError, setCodeError] = useState(false);
   const [emailErrorMsg, setEmailErrorMsg] = useState('');
@@ -49,11 +50,9 @@ export default function VerifyPage({ email, firstName, lastName }) {
 
   useEffect(() => {
     const timer = countdown > 0 && setInterval(() => setCountdown(countdown - 1), 1000);
-
     if (countdown === 0) {
       setAllowResend(true);
     }
-
     return () => clearInterval(timer);
   }, [countdown]);
 
@@ -77,7 +76,8 @@ export default function VerifyPage({ email, firstName, lastName }) {
     setEmailError(false);
     setCodeError(false);
     setFieldError('');
-    // Check for missing fields
+    setIsVerifying(true); // Disable the verify button and show loading indicator
+
     if (!email.trim()) {
       setEmailErrorMsg('Email is required');
       isValid = false;
@@ -89,6 +89,7 @@ export default function VerifyPage({ email, firstName, lastName }) {
 
     if (!isValid) {
       setFieldError('Please fill out all fields.');
+      setIsVerifying(false); // Re-enable the verify button if the form is invalid
       return;
     }
     try {
@@ -118,6 +119,8 @@ export default function VerifyPage({ email, firstName, lastName }) {
       } else {
         setErrorMessage('An error occurred during verification.');
       }
+    } finally {
+      setIsVerifying(false); // Re-enable the verify button after the request
     }
   };
 
@@ -176,9 +179,10 @@ export default function VerifyPage({ email, firstName, lastName }) {
               variant="contained"
               color="primary"
               onClick={verifyEmail}
-              style={{ opacity: 1, backgroundColor: '#3f51b5', color: 'white' }}
+              disabled={isVerifying || code.trim() === ''} // Disable button when verifying or no code
+              style={{ opacity: isVerifying ? 0.5 : 1, backgroundColor: '#3f51b5', color: 'white' }}
             >
-              Verify
+              {isVerifying ? 'Verifying...' : 'Verify'}
             </Button>
 
             {/* Skip for Now Button */}
