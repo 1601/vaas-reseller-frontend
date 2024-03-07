@@ -75,21 +75,19 @@ export default function LoginPage() {
   const [emailErrorMessage, setEmailErrorMessage] = useState('');
   const [loggingIn, setLoggingIn] = useState(false);
 
-  const [storeLogo, setStoreLogo] = useState(''); // State to hold the store logo URL
+  const [storeLogo, setStoreLogo] = useState(''); 
 
   useEffect(() => {
     const fetchStoreData = async () => {
       const location = window.location;
-      let storeUrl = ''; // Variable to hold the extracted store URL
+      let storeUrl = ''; 
 
-      // Example logic to extract the store URL from the current location
-      // This needs to be adjusted based on how your URLs are structured
-      if(location.hostname.includes('subdomain.example.com')) {
+      if (location.hostname.includes('subdomain.example.com')) {
         storeUrl = location.hostname.split('.')[0];
       } else {
         const pathnameParts = location.pathname.split('/');
-        if(pathnameParts.length > 1) {
-          storeUrl = pathnameParts[1]; // Assuming the store URL is the first part of the pathname
+        if (pathnameParts.length > 1) {
+          storeUrl = pathnameParts[1]; 
         }
       }
 
@@ -190,6 +188,12 @@ export default function LoginPage() {
     setRememberMe(e.target.checked);
   };
 
+  const getStoreUrlFromPath = () => {
+    const pathSegments = location.pathname.split('/');
+    const storeUrl = pathSegments[1];
+    return storeUrl;
+  };
+
   const handleLogin = async () => {
     setLoggingIn(true);
     setError('');
@@ -207,7 +211,28 @@ export default function LoginPage() {
       setDialogOpen(true);
       return;
     }
+
+    const storeUrl = getStoreUrlFromPath();
+
     try {
+      const storeResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/url/${storeUrl}/user`);
+      const ownerId = storeResponse.data.userId;
+
+      const validateResellerResponse = await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/reseller/login`,
+        {
+          email,
+          ownerId,
+        }
+      );
+
+      if (!validateResellerResponse.data.isValid) {
+        setError('This reseller does not belong to the specified dealer.');
+        setDialogOpen(true);
+        setLoggingIn(false);
+        return;
+      }
+
       const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/login`, {
         email,
         password,
@@ -439,30 +464,33 @@ export default function LoginPage() {
       <title> Login | VAAS </title>
       <Container maxWidth={false} style={containerStyle}>
         <Box sx={containerStyles}>
-          {isXs === true && isMd === false && (
-            storeLogo ? (
+          {isXs === true &&
+            isMd === false &&
+            (storeLogo ? (
               <Box
-              component="div"
-              sx={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                width: '100%', // Ensure outer Box takes full width of its parent
-                height: '15em', // Height of the logo container
-              }}
-            >
-              <img src={storeLogo} alt="Store Logo" style={{ 
-                width: '15em', // Set logo width
-                height: 'auto', // Maintain aspect ratio
-                maxWidth: '100%', // Ensure it doesn't exceed its container
-                maxHeight: '100%' // Ensure it doesn't exceed the container's height
-              }} />
-            </Box>
-            
+                component="div"
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  width: '100%', // Ensure outer Box takes full width of its parent
+                  height: '15em', // Height of the logo container
+                }}
+              >
+                <img
+                  src={storeLogo}
+                  alt="Store Logo"
+                  style={{
+                    width: '15em', // Set logo width
+                    height: 'auto', // Maintain aspect ratio
+                    maxWidth: '100%', // Ensure it doesn't exceed its container
+                    maxHeight: '100%', // Ensure it doesn't exceed the container's height
+                  }}
+                />
+              </Box>
             ) : (
               <Logo sx={{ alignSelf: 'center', width: ['80%', '80%', '100%'], mx: 'auto', display: 'block', mb: 4 }} />
-            )
-          )}
+            ))}
           <Grid container alignItems="start">
             <Grid item xs={12} sm={12} md={6}>
               <div style={imageStyles}>
@@ -484,13 +512,18 @@ export default function LoginPage() {
             </Grid>
             <Grid item xs={12} sm={12} md={6}>
               <StyledContent>
-                {isMd === true && (
-                   storeLogo ? (
-                    <img src={storeLogo} alt="Store Logo" style={{ width: '15em', height: '15em', alignSelf: 'center' }} />
+                {isMd === true &&
+                  (storeLogo ? (
+                    <img
+                      src={storeLogo}
+                      alt="Store Logo"
+                      style={{ width: '15em', height: '15em', alignSelf: 'center' }}
+                    />
                   ) : (
-                    <Logo sx={{ alignSelf: 'center', width: ['80%', '80%', '100%'], mx: 'auto', display: 'block', mb: 4 }} />
-                  )
-                )}
+                    <Logo
+                      sx={{ alignSelf: 'center', width: ['80%', '80%', '100%'], mx: 'auto', display: 'block', mb: 4 }}
+                    />
+                  ))}
                 <Typography variant="h6" gutterBottom style={signUpText}>
                   Login
                 </Typography>
