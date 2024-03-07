@@ -346,14 +346,11 @@ const ManageReseller = () => {
   };
 
   const fetchUpdatedResellers = async () => {
-    setIsLoading(true); 
     try {
       const updatedResellersList = await fetchResellersForUser(userId);
       setResellers(updatedResellersList); 
     } catch (error) {
-      // Handle error
-    } finally {
-      setIsLoading(false); 
+      console.error(error);
     }
   };
 
@@ -446,6 +443,17 @@ const ManageReseller = () => {
   const handleClose = () => {
     setOpen(false);
     setShowCredentialsPopup(false);
+  
+    setFormState(initialFormState);
+  
+    setValidationErrors({});
+  
+    setIsCreating(false);
+    setCreateSuccessMessage('');
+    setCreateErrorMessage('');
+  
+    setSelectedRows([]);
+    setIsAllSelected(false);
   };
 
   const fetchData = async () => {
