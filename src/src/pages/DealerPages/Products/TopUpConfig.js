@@ -45,7 +45,7 @@ const TopUpConfig = () => {
           console.log(response.data);
           let products = [];
           let dealerConfig = [];
-          if (userRole === 'dealer') {
+          if (userRole.toLowerCase() === 'dealer') {
             products = (response.data.products || []).map((p) => p._doc);
           } else if (userRole === 'reseller') {
             products = response.data.products || [];
