@@ -297,7 +297,7 @@ export default function LoginPage() {
   const settings = {
     dots: true,
     infinite: true,
-    slidesToShow: 1, // Adjust the number of slides shown
+    slidesToShow: 1,
     nextArrow: <ChevronRight />,
     prevArrow: <ChevronLeft />,
     autoplay: true,
@@ -305,7 +305,7 @@ export default function LoginPage() {
     speed: 5000,
   };
 
-  const isXs = useMediaQuery(theme.breakpoints.up('xs')); // You can adjust the breakpoint
+  const isXs = useMediaQuery(theme.breakpoints.up('xs')); 
   const isSm = useMediaQuery(theme.breakpoints.up('sm'));
   const isMd = useMediaQuery(theme.breakpoints.up('md'));
 
