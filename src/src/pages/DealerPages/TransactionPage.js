@@ -71,7 +71,7 @@ const columns = [
     displayName: 'Method',
   },
 ];
-export default function CustomerPage() {
+export default function TransactionPage() {
   const [open, setOpen] = useState(null);
   const userId = ls.get('user') ? ls.get('user')._id : null;
   const userData = UserDataFetch(userId);
@@ -94,6 +94,10 @@ export default function CustomerPage() {
 
   const handleSelect = (ranges) => {
     setSelectedRange([ranges.selection]);
+    setDateRange({
+      startDate: ranges.selection.startDate,
+      endDate: ranges.selection.endDate,
+    });
   };
 
   const handleCloseMenu = () => {
@@ -102,35 +106,57 @@ export default function CustomerPage() {
 
   // Adjusted function to fetch customer purchases and include user information
   const fetchCustomerPurchases = async () => {
-    try {
-      const customerResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/all/${userId}`);
-      const customers = customerResponse.data.body;
+    let userId;
+    let role;
 
-      const transactionsWithUser = await Promise.all(
+    try {
+      const storedUser = ls.get('user');
+      if (storedUser) {
+        userId = storedUser._id;
+        role = storedUser.role;
+      }
+    } catch (error) {
+      console.error('Error parsing user data from secureLS:', error);
+      return;
+    }
+
+    try {
+      const endpoint = `${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/all/${userId}`;
+      const customerResponse = await axios.get(endpoint);
+      const customers = customerResponse.data.body;
+      console.log('customers: ', customers);
+
+      const transactions = await Promise.all(
         customers.map(async (customer) => {
           const purchaseResponse = await axios.get(
             `${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/purchase/${customer._id}`
           );
-          return purchaseResponse.data.body.map((purchase) => ({
-            ...purchase,
-            userName: customer.fullName,
-            type: 'Topup',
-            refNo: purchase.productName,
-            ID: purchase.customerId,
-            paymentId: `vaas_${purchase._id}`, // Prefixing the Payment ID
-          }));
+          return purchaseResponse.data.body
+            .filter((purchase) => role !== 'reseller' || (role === 'reseller' && purchase.resellerId === userId))
+            .map((purchase) => ({
+              ...purchase,
+              userName: customer.fullName,
+              type: 'Topup',
+              refNo: purchase.productName,
+              ID: purchase.customerId,
+              paymentId: `vaas_${purchase._id}`,
+            }));
         })
-      );
+      ).then((result) => result.flat());
 
-      const flattenedTransactions = transactionsWithUser.flat();
-      setTransactions(
-        flattenedTransactions.filter((transaction) => {
-          const transactionDate = new Date(transaction.createdAt);
-          const startDate = new Date(selectedRange[0].startDate);
-          const endDate = new Date(selectedRange[0].endDate);
-          return transactionDate >= startDate && transactionDate <= endDate;
-        })
-      );
+      console.log('selectedRange: ', selectedRange);
+
+      // Filter transactions by selected date range
+      const filteredTransactions = transactions.filter((transaction) => {
+        const transactionDate = new Date(transaction.createdAt);
+        const startDate = new Date(selectedRange[0].startDate);
+        const endDate = new Date(selectedRange[0].endDate);
+        endDate.setHours(23, 59, 59, 999); 
+      
+        return transactionDate >= startDate && transactionDate <= endDate;
+      });
+
+      setTransactions(filteredTransactions);
     } catch (error) {
       console.error('Error fetching customer purchases:', error);
     }
@@ -313,8 +339,22 @@ export default function CustomerPage() {
 
                           <Typography variant="body2">
                             No results found from &nbsp;
-                            <strong>&quot;{dateRange.startDate.toLocaleDateString()}&quot;</strong>. to
-                            <strong> &quot;{dateRange.endDate.toLocaleDateString()}&quot;</strong>.
+                            <strong>
+                              &quot;
+                              {dateRange.startDate instanceof Date
+                                ? dateRange.startDate.toLocaleDateString()
+                                : dateRange.startDate}
+                              &quot;
+                            </strong>
+                            . to
+                            <strong>
+                              &quot;
+                              {dateRange.endDate instanceof Date
+                                ? dateRange.endDate.toLocaleDateString()
+                                : dateRange.endDate}
+                              &quot;
+                            </strong>
+                            .
                           </Typography>
                         </Paper>
                       </TableCell>
