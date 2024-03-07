@@ -417,7 +417,7 @@ export default function SignUpPage() {
   const validateEmailAndCheckExistence = async (email) => {
     let valid = true;
     let message = '';
-
+  
     // Client-side validation first
     if (!email) {
       valid = false;
@@ -429,26 +429,34 @@ export default function SignUpPage() {
         message = 'Invalid email format';
       }
     }
-
+  
     if (valid) {
       try {
         await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/email`, {
           params: { email },
+          timeout: 10000, // Set a timeout (e.g., 10 seconds)
         });
       } catch (error) {
-        if (error.response && error.response.status === 400) {
+        if (error.response) {
           valid = false;
-          message = error.response.data.message;
+          message = error.response.data.message ? error.response.data.message : 'Error checking email';
+        } else if (error.code === 'ECONNABORTED') {
+          console.error('Error checking email: Request timed out', error);
+          valid = false;
+          message = 'Request timed out, please try again';
         } else {
           console.error('Error checking email: ', error);
+          valid = false;
+          message = 'An unexpected error occurred';
         }
       }
     }
-
+  
     setIsEmailValid(valid);
     setEmailErrorMessage(message);
     setFieldErrors((prev) => ({ ...prev, email: !valid }));
   };
+  
 
   const handleEmailChange = (e) => {
     setEmail(e.target.value);
@@ -498,27 +506,35 @@ export default function SignUpPage() {
     handleSignUpStart();
     setPasswordError(false);
     setPasswordHelperText('');
-
-    await validateEmailAndCheckExistence(email);
-
+  
+    try {
+      await validateEmailAndCheckExistence(email);
+    } catch (error) {
+      console.error('Error validating email existence:', error);
+      setErrorMessage('Failed to validate email or email already exists.');
+      setErrorDialogOpen(true);
+      handleSignUpEnd(); // Ensure this is called here to handle errors properly
+      return; // Stop execution if email validation fails
+    }
+  
     const isFormFullyValid = validateForm() && formData.password === formData.confirmPassword;
-
+  
     if (!formData.password.trim()) {
       setFieldErrors((prev) => ({ ...prev, confirmPassword: true }));
     }
-
-    if (isEmailValid && validateForm()) {
+  
+    if (isEmailValid && validateForm() && isFormFullyValid) {
       try {
         const submissionData = {
           ...formData,
           mobileNumber: countryCodes[formData.country] + formData.mobileNumber,
         };
-
+  
         const signupResponse = await axios.post(
           `${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/signup`,
           submissionData
         );
-
+  
         if (signupResponse.status === 200) {
           try {
             const verificationResponse = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/email`, {
@@ -526,7 +542,7 @@ export default function SignUpPage() {
               firstName: formData.firstName,
               lastName: formData.lastName,
             });
-
+  
             if (verificationResponse.status === 200) {
               setErrorMessage('');
               setShowSuccessMessage(true);
@@ -557,8 +573,10 @@ export default function SignUpPage() {
     } else if (formData.password !== formData.confirmPassword) {
       setPasswordError(true);
       setFieldErrors((prev) => ({ ...prev, confirmPassword: true }));
+      handleSignUpEnd(); // Ensure this is called even when password validation fails
     }
   };
+  
 
   // const handleCloseModal = () => {
   //   setShowSuccessMessage(false);
@@ -1135,7 +1153,7 @@ export default function SignUpPage() {
                     size="large"
                     variant="outlined"
                     onClick={handleSignup}
-                    disabled={!isFormValid || !isTermsAccepted}
+                    disabled={!isFormValid || !isTermsAccepted || !isEmailValid || mobileError || passwordError}
                     sx={{
                       py: [1.5, 1],
                       backgroundColor: '#873EC0 !important', // Set the background color
