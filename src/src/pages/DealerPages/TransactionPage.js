@@ -25,6 +25,9 @@ import {
   Typography,
   TableContainer,
   TableHead,
+  CircularProgress,
+  Dialog,
+  DialogContent,
 } from '@mui/material';
 // components
 import Iconify from '../../components/iconify';
@@ -78,6 +81,7 @@ export default function TransactionPage() {
   const { storeData } = StoreDataFetch(userId);
   const [transactionList, setTransactionList] = useState();
   const [isNotFound, setIsNotFound] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [toDownload, setToDownload] = useState([]);
   const [transactions, setTransactions] = useState([]);
   const [dateRange, setDateRange] = useState({
@@ -124,7 +128,6 @@ export default function TransactionPage() {
       const endpoint = `${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/all/${userId}`;
       const customerResponse = await axios.get(endpoint);
       const customers = customerResponse.data.body;
-      console.log('customers: ', customers);
 
       const transactions = await Promise.all(
         customers.map(async (customer) => {
@@ -144,15 +147,13 @@ export default function TransactionPage() {
         })
       ).then((result) => result.flat());
 
-      console.log('selectedRange: ', selectedRange);
-
       // Filter transactions by selected date range
       const filteredTransactions = transactions.filter((transaction) => {
         const transactionDate = new Date(transaction.createdAt);
         const startDate = new Date(selectedRange[0].startDate);
         const endDate = new Date(selectedRange[0].endDate);
-        endDate.setHours(23, 59, 59, 999); 
-      
+        endDate.setHours(23, 59, 59, 999);
+
         return transactionDate >= startDate && transactionDate <= endDate;
       });
 
@@ -167,11 +168,13 @@ export default function TransactionPage() {
   }, [selectedRange, userId]);
 
   const handleGetData = async () => {
+    setIsLoading(true);
+
     const { startDate, endDate } = selectedRange[0];
     const formattedStartDate = startDate.toISOString().split('T')[0];
     const formattedEndDate = endDate.toISOString().split('T')[0];
 
-    setIsNotFound(false); // Reset the not found flag before fetching new data
+    setIsNotFound(false);
 
     try {
       // Fetch transactions within the specified date range
@@ -180,13 +183,13 @@ export default function TransactionPage() {
       if (rangeResult && rangeResult.body && rangeResult.body.length > 0) {
         dateRangeTransactions = rangeResult.body.map((transaction) => ({
           ...transaction,
-          userName: transaction.userName || 'Unknown', // Placeholder if userName is missing
-          type: 'Transaction', // Specific type for these transactions
+          userName: transaction.userName || 'Unknown',
+          type: 'Transaction',
         }));
       }
 
       // Fetch customer purchase transactions separately
-      await fetchCustomerPurchases(); // This updates the `transactions` state with customer purchases
+      await fetchCustomerPurchases();
 
       // Combine transactions from both sources
       const combinedTransactions = [
@@ -198,14 +201,17 @@ export default function TransactionPage() {
       ];
 
       setTransactionList(combinedTransactions);
-      handleToDownloadData(combinedTransactions); // Prepare data for download
+      handleToDownloadData(combinedTransactions);
 
       if (combinedTransactions.length === 0) {
         setIsNotFound(true);
       }
+
+      setIsLoading(false);
     } catch (error) {
       console.error('Error fetching combined transactions data:', error);
       setIsNotFound(true);
+      setIsLoading(false);
     }
   };
 
@@ -411,6 +417,15 @@ export default function TransactionPage() {
         </MenuItem>
       </Popover>
       <AccountStatusModal open userData={userData} storeData={storeData} />
+
+      <Dialog open={isLoading} onClose={() => setIsLoading(false)}>
+        <DialogContent>
+          <Stack spacing={2} alignItems="center">
+            <CircularProgress />
+            <Typography>Fetching transactions for specified date...</Typography>
+          </Stack>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
