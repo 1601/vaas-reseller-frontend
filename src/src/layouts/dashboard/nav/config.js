@@ -165,11 +165,11 @@ const getNavConfig = (role) => {
           icon: icon('ic_topup'),
           path: '/dashboard/products/top-up',
         },
-        {
-          title: 'E-gifts',
-          icon: icon('ic_egift'),
-          path: '/dashboard/products/e-gifts',
-        },
+        // {
+        //   title: 'E-gifts',
+        //   icon: icon('ic_egift'),
+        //   path: '/dashboard/products/e-gifts',
+        // },
       ],
     },
     {

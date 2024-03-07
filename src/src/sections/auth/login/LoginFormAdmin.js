@@ -60,6 +60,18 @@ export default function LoginFormAdmin() {
     }
   }, []);
 
+  const handleCloseOtpDialog = () => {
+    setOtp('');
+    setOtpError('');
+    setOpenOTPDialog(false);
+  }
+
+  const handleIncorrectOTPDialog = () => {
+    setOtp('');
+    setOtpError('');
+    setIncorrectOTPDialog(false)
+  }
+
   const validateEmail = (email) => {
     const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i;
     return emailRegex.test(email);
@@ -70,6 +82,8 @@ export default function LoginFormAdmin() {
   };
 
   const handleCloseDialog = () => {
+    setOtp('');
+    setOtpError('');
     setDialogOpen(false);
   };
 
@@ -322,13 +336,13 @@ export default function LoginFormAdmin() {
       </Dialog>
 
       {/* OTP Error Dialog */}
-      <Dialog open={incorrectOTPDialog} onClose={() => setIncorrectOTPDialog(false)}>
+      <Dialog open={incorrectOTPDialog} onClose={handleIncorrectOTPDialog}>
         <DialogTitle>Error</DialogTitle>
         <DialogContent>
           <DialogContentText>{otpError}</DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setIncorrectOTPDialog(false)} color="primary">
+          <Button onClick={handleIncorrectOTPDialog} color="primary">
             Close
           </Button>
         </DialogActions>
@@ -351,7 +365,7 @@ export default function LoginFormAdmin() {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenOTPDialog(false)}>Cancel</Button>
+          <Button onClick={handleCloseOtpDialog}>Cancel</Button>
           <Button onClick={() => handleOTPSubmit(otp)}>Submit</Button>
         </DialogActions>
       </Dialog>
