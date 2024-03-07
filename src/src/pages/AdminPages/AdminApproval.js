@@ -155,6 +155,14 @@ const AdminApproval = () => {
                         Go Live
                       </Button>
                     ))}
+                  <Button
+                    variant="outlined"
+                    color="primary"
+                    onClick={() => navigate(`/dashboard/admin/kycapprove/${storeId}`)}
+                    style={{ marginRight: '8px' }}
+                  >
+                    Dealer KYC
+                  </Button>
                   <Button onClick={handleGoBack} variant="outlined" color="primary">
                     Go Back
                   </Button>

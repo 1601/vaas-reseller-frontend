@@ -16,14 +16,11 @@ const AdminKYCApproval = () => {
     const fetchKYCDetails = async () => {
       try {
         const token = ls.get('token');
-        const response = await axios.get(
-          `${process.env.REACT_APP_BACKEND_URL}/v1/api/kyc-business/store/${storeId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/kyc-business/store/${storeId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         if (response.data) {
           setKYCDetails(response.data);
           setKYCApproved(response.data.store.kycApprove);
@@ -107,6 +104,14 @@ const AdminKYCApproval = () => {
                       </Button>
                     </>
                   )}
+                  <Button
+                    variant="outlined"
+                    color="primary"
+                    onClick={() => navigate(`/dashboard/admin/storeapproval/${storeId}`)}
+                    style={{ marginRight: '5px' }}
+                  >
+                    Dealer Store
+                  </Button>
                   <Button onClick={handleGoBack} variant="outlined" color="primary">
                     Go Back
                   </Button>
