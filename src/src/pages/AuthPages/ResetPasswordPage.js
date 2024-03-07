@@ -19,6 +19,7 @@ import {
 } from '@mui/material';
 import { Icon as Iconify } from '@iconify/react';
 import Logo from '../../components/logo';
+import PasswordRequestDialog from '../../components/loading/PasswordRequestDialog';
 
 const StyledRoot = styled('div')(({ theme }) => ({
   [theme.breakpoints.up('md')]: {
@@ -47,6 +48,7 @@ export default function ResetPasswordPage() {
   const [errorMessage, setErrorMessage] = useState('');
   const [fieldError, setFieldError] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
 
   const navigate = useNavigate();
@@ -112,6 +114,7 @@ export default function ResetPasswordPage() {
       return;
     }
 
+    setIsLoading(true);
     try {
       const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/password`, {
         token,
@@ -140,6 +143,8 @@ export default function ResetPasswordPage() {
         setDialogOpen(true);
       }
       console.error('Error updating password:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -238,7 +243,7 @@ export default function ResetPasswordPage() {
         </Container>
       </StyledRoot>
       <Dialog open={dialogOpen} onClose={handleCloseDialog}>
-        <DialogTitle>Error</DialogTitle>
+        <DialogTitle>Password Change</DialogTitle>
         <DialogContent>
           <DialogContentText>
             {newPasswordError || confirmPasswordError || errorMessage || successMessage || fieldError}
@@ -250,6 +255,9 @@ export default function ResetPasswordPage() {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Loading Dialog */}
+      <PasswordRequestDialog open={isLoading} />
     </>
   );
 }
