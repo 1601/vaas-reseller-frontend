@@ -328,6 +328,7 @@ const ManageReseller = () => {
           setCreateSuccessMessage('Reseller Successfully Created');
           // setOpen(false);
         }
+        await fetchUpdatedResellers();
       } catch (error) {
         setIsCreating(false);
         if (error.response && error.response.status === 409) {
@@ -343,6 +344,19 @@ const ManageReseller = () => {
       }
     }
   };
+
+  const fetchUpdatedResellers = async () => {
+    setIsLoading(true); 
+    try {
+      const updatedResellersList = await fetchResellersForUser(userId);
+      setResellers(updatedResellersList); 
+    } catch (error) {
+      // Handle error
+    } finally {
+      setIsLoading(false); 
+    }
+  };
+
 
   const filteredResellers = useFilteredResellers(resellers, value, currentTab);
 
@@ -432,10 +446,6 @@ const ManageReseller = () => {
   const handleClose = () => {
     setOpen(false);
     setShowCredentialsPopup(false);
-
-    setTimeout(() => {
-      window.location.reload();
-    }, 500);
   };
 
   const fetchData = async () => {
