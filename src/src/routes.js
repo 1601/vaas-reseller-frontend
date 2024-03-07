@@ -80,6 +80,8 @@ export default function Router() {
 
     const storeUrlPattern = /^\/([a-zA-Z0-9_-]+)$/;
     const match = currentPath.match(storeUrlPattern);
+    const storeUrl = match ? match[1] : null;
+
     const isExcludedSubdomain = subdomain
       ? excludedSubdomains.includes(subdomain) ||
         subdomain.includes('pldt-vaas-frontend') ||
@@ -111,6 +113,30 @@ export default function Router() {
             window.location.href = `https://${storeUrl}.sevenstarjasem.com`;
           }
         });
+    }
+
+    // Grab Query Parameter from URL
+    const getQueryParam = (param) => {
+      const searchParams = new URLSearchParams(window.location.search);
+      return searchParams.get(param);
+    };
+
+    const resellerCode = getQueryParam('reseller');
+
+    if (storeUrl && !resellerCode) {
+      ls.remove('resellerCode');
+    } else if (resellerCode) {
+      ls.set('resellerCode', JSON.stringify({ code: resellerCode, timestamp: new Date().getTime() }));
+      window.history.pushState({}, '', currentPath);
+    } else {
+      const storedData = ls.get('resellerCode');
+      if (storedData) {
+        const { timestamp } = JSON.parse(storedData);
+        const currentTime = new Date().getTime();
+        if (currentTime - timestamp > 3600000) {
+          ls.remove('resellerCode');
+        }
+      }
     }
   }, []);
 
@@ -217,7 +243,6 @@ export default function Router() {
                 { path: ':productName', element: <TopUpConfig /> },
               ],
             },
-           
           ],
         },
         {
