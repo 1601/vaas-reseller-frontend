@@ -526,20 +526,26 @@ const LiveStorePage = () => {
         </Typography>
 
         <Container>
-          <Stack direction={'row'} justifyContent={'center'} spacing={2}>
-            <Link href={storeUrl === window.location.hostname.split('.')[0] ? '/bills' : `${previewStoreUrl}/bills`} style={linkButtonStyle}>
-              <img src={BillsImage} height="50px" alt="Bills" />
-              Bills
-            </Link>
-            <Link href={storeUrl === window.location.hostname.split('.')[0] ? '/topup' : `${previewStoreUrl}/topup`} style={linkButtonStyle}>
-              <img src={LoadImage} height="50px" alt="Load" />
-              Load
-            </Link>
-            <Link href={storeUrl === window.location.hostname.split('.')[0] ? '/voucher' : `${previewStoreUrl}/voucher`} style={linkButtonStyle}>
-              <img src={VoucherImage} height="50px" alt="Vouchers" />
-              Vouchers
-            </Link>
-          </Stack>
+            <Stack direction={'row'} justifyContent={'center'} spacing={2}>
+              {platformVariables.enableBills && (
+                <Link href={storeUrl === window.location.hostname.split('.')[0] ? '/bills' : `${previewStoreUrl}/bills`} style={linkButtonStyle}>
+                  <img src={BillsImage} height="50px" alt="Bills" />
+                  Bills
+                </Link>
+              )}
+              {platformVariables.enableLoad && (
+                <Link href={storeUrl === window.location.hostname.split('.')[0] ? '/topup' : `${previewStoreUrl}/topup`} style={linkButtonStyle}>
+                  <img src={LoadImage} height="50px" alt="Load" />
+                  Load
+                </Link>
+              )}
+              {platformVariables.enableGift && (
+                <Link href={storeUrl === window.location.hostname.split('.')[0] ? '/voucher' : `${previewStoreUrl}/voucher`} style={linkButtonStyle}>
+                  <img src={VoucherImage} height="50px" alt="Vouchers" />
+                  Vouchers
+                </Link>
+              )}
+            </Stack>
           <Button variant="contained" style={transactionButtonStyle} onClick={handleOpenLoginDialog}>
             Login first to view Transactions
           </Button>
