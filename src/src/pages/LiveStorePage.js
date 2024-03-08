@@ -6,6 +6,7 @@ import {
   Stack,
   Link,
   Button,
+  Typography,
   Dialog,
   DialogActions,
   DialogContent,
@@ -18,7 +19,16 @@ import {
   TableCell,
   TableBody,
   TableContainer,
+  Collapse,
+  AppBar,
+  Box, 
+  Toolbar,
+  IconButton,
+  useTheme,
+  useMediaQuery,
 } from '@mui/material';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import axios from 'axios';
 import BillsImage from '../images/logos/bills.svg';
 import LoadImage from '../images/logos/load.svg';
@@ -52,6 +62,13 @@ const LiveStorePage = () => {
     enableLoad: true,
     enableGift: true,
   });
+  // const [isPreviewBannerOpen, setIsPreviewBannerOpen] = useState(!storeData.isLive);
+  const [isPreviewBannerOpen, setIsPreviewBannerOpen] = useState(true);
+  const togglePreviewBanner = () => {
+    setIsPreviewBannerOpen(!isPreviewBannerOpen);
+  };
+  const bannerHeight = isPreviewBannerOpen ? 'auto' : '48px'; // Height of the collapsed banner
+
 
   const handleOpenLoginDialog = () => {
     setOpenLoginDialog(true);
@@ -60,6 +77,10 @@ const LiveStorePage = () => {
   const handleCloseLoginDialog = () => {
     setOpenLoginDialog(false);
     setDialogStage(1);
+  };
+
+  const handlePreviewBannerClose = () => {
+    setIsPreviewBannerOpen(false);
   };
 
   const handleOpenTransactionsDialog = async () => {
@@ -371,6 +392,88 @@ const LiveStorePage = () => {
     }
   }, [storeData]);
 
+  const PreviewBanner = () => {
+    const [isExpanded, setIsExpanded] = useState(true);
+  
+    const toggleBanner = () => {
+      setIsExpanded((prev) => !prev);
+    };
+  
+    return (
+      <AppBar position="static" sx={{ background: 'linear-gradient(45deg, purple, red)' }}>
+        <Collapse in={isExpanded} timeout="auto">
+          <Toolbar sx={{ justifyContent: 'center', alignItems: 'center' }}>
+            <Container sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Box sx={{ typography: 'h6', color: 'white' }}>This store is not yet live</Box>
+              <IconButton
+                color="inherit"
+                aria-label={isExpanded ? 'collapse' : 'expand'}
+                onClick={toggleBanner}
+                sx={{ marginLeft: 'auto' }}
+              >
+                {isExpanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+              </IconButton>
+            </Container>
+          </Toolbar>
+        </Collapse>
+        {!isExpanded && (
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              height: '48px',
+            }}
+          >
+            <IconButton
+              color="inherit"
+              aria-label={isExpanded ? 'collapse' : 'expand'}
+              onClick={toggleBanner}
+            >
+              <ExpandMoreIcon />
+            </IconButton>
+          </Box>
+        )}
+      </AppBar>
+    );
+  };
+
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+  // Styles
+  const logoContainerStyle = {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: '20px 0'
+  };
+
+  const logoStyle = {
+    maxWidth: isMobile ? '150px' : '200px', // Smaller on mobile
+    height: 'auto', // maintain aspect ratio
+  };
+
+  const linkButtonStyle = {
+    margin: '5px',
+    background: '#FFFFFF', // White background for visibility
+    padding: '10px 15px',
+    borderRadius: '5px',
+    color: '#000000', // Black color for text
+    boxShadow: '0 2px 4px rgba(0,0,0,0.2)', // Shadow for better visibility
+    '&:hover': {
+      background: '#F5F5F5', // Slightly darker on hover
+    },
+    textDecoration: 'none', // Remove underline from links
+  };
+
+  const transactionButtonStyle = {
+    ...linkButtonStyle,
+    marginTop: '10px',
+    fontWeight: 'bold', // Bold for visibility
+  };
+
+
   useEffect(() => {
     const pathname = window.location.pathname.split('/')[1];
     const isSpecialPath = ['topup', 'bills'].includes(pathname);
@@ -405,273 +508,46 @@ const LiveStorePage = () => {
 
   if (storeData && ((user && user._id === storeData.ownerId) || storeData.isLive)) {
     return (
-      <div
-        style={{
-          ...gradientStyle,
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '100vh',
-        }}
-      >
-        {/* banner to alert the user that this is a preview only if the storeData is not yet live and the owner is the user.id -
-        the preview is always there but I should be able to interact still on the UI */}
-        <div
-          style={{
-            display: storeData.isLive ? 'none' : 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            pointerEvents: 'none',
-            opacity: 0.3,
-            alignItems: 'center',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            background: 'rgba(0,0,0,0.5)',
-            color: 'white',
-            fontSize: '1.5rem',
-          }}
-        >
-          <div style={{ textAlign: 'center' }}>
-            <h1>Preview Only</h1>
-            <h3>This store is not yet live</h3>
-            <Button variant="outlined" color="inherit" href={`/dashboard/store`} style={{ pointerEvents: 'all' }}>
-              Edit Store
-            </Button>
-          </div>
-        </div>
+      <div style={{ 
+        ...gradientStyle,
+        display: 'flex', flexDirection: 'column', height: '100vh' }}>
+      <PreviewBanner/>
+
+      <div style={{ flex: 1, textAlign: 'center' }}>
+        <Box style={logoContainerStyle}>
+          <img
+            src={storeData?.storeLogo || "https://i.ibb.co/Sx8HSXp/download-removebg-preview.png"}
+            alt={`${storeData?.storeName || 'Your Store'}'s Logo`}
+            style={logoStyle}
+          />
+        </Box>
+        <Typography variant="h4" gutterBottom>
+          {storeData.storeName}
+        </Typography>
+
+        <Container>
+          <Stack direction={'row'} justifyContent={'center'} spacing={2}>
+            <Link href={storeUrl === window.location.hostname.split('.')[0] ? '/bills' : `${previewStoreUrl}/bills`} style={linkButtonStyle}>
+              <img src={BillsImage} height="50px" alt="Bills" />
+              Bills
+            </Link>
+            <Link href={storeUrl === window.location.hostname.split('.')[0] ? '/topup' : `${previewStoreUrl}/topup`} style={linkButtonStyle}>
+              <img src={LoadImage} height="50px" alt="Load" />
+              Load
+            </Link>
+            <Link href={storeUrl === window.location.hostname.split('.')[0] ? '/voucher' : `${previewStoreUrl}/voucher`} style={linkButtonStyle}>
+              <img src={VoucherImage} height="50px" alt="Vouchers" />
+              Vouchers
+            </Link>
+          </Stack>
+          <Button variant="contained" style={transactionButtonStyle} onClick={handleOpenLoginDialog}>
+            Login first to view Transactions
+          </Button>
+        </Container>
+
         <Outlet />
-        <div style={{ textAlign: 'center' }}>
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center', 
-              height: '100%', 
-              width: '100%', 
-            }}
-          >
-            <img
-              src={storeData ? storeData.storeLogo : '/vortex_logo_black.png'}
-              alt={`${storeData ? storeData.storeName : 'Your Store'}'s Logo`}
-              style={{
-                maxWidth: '400px',
-                maxHeight: '400px',
-                margin: '0',
-              }}
-            />
-          </div>
-          <h1>{storeData.storeName}</h1>
-          {/* <h1>{`${location.pathname}`}</h1> */}
-
-          <Container>
-            {/* Using Flexbox to Center the Items */}
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'row',
-                justifyContent: 'center',
-                gap: '16px',
-                '@media (max-width: 600px)': {
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                },
-              }}
-            >
-              {platformVariables.enableBills && (
-                <div
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <Link
-                    href={storeUrl === window.location.hostname.split('.')[0] ? '/bills' : `${previewStoreUrl}/bills`}
-                  >
-                    <img src={BillsImage} height="100px" alt="Home" />
-                    <div className="menu--text">Bills</div>
-                  </Link>
-                </div>
-              )}
-              {platformVariables.enableLoad && (
-                <div
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <Link
-                    href={storeUrl === window.location.hostname.split('.')[0] ? '/topup' : `${previewStoreUrl}/topup`}
-                  >
-                    <img src={LoadImage} height="100px" alt="Express" />
-                    <div className="menu--text">Load</div>
-                  </Link>
-                </div>
-              )}
-              {platformVariables.enableGift && (
-                <div
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <Link
-                    href={
-                      storeUrl === window.location.hostname.split('.')[0] ? '/voucher' : `${previewStoreUrl}/voucher`
-                    }
-                  >
-                    <img src={VoucherImage} height="100px" alt="Express" />
-                    <div className="menu--text">Vouchers</div>
-                  </Link>
-                </div>
-              )}
-            </div>
-
-            <Stack m={3} direction={'column'} alignItems={'center'} justifyContent={'center'}>
-              {isLoggedIn ? (
-                <>
-                  <Link
-                    onClick={handleOpenTransactionsDialog}
-                    style={{ cursor: 'pointer', textDecoration: 'underline', marginBottom: '10px' }}
-                  >
-                    View Transactions
-                  </Link>
-                  <Link onClick={handleLogout} style={{ cursor: 'pointer', textDecoration: 'underline' }}>
-                    Logout
-                  </Link>
-                </>
-              ) : (
-                <Link onClick={handleOpenLoginDialog} style={{ cursor: 'pointer', textDecoration: 'underline' }}>
-                  Login first to view Transactions
-                </Link>
-              )}
-            </Stack>
-          </Container>
-
-          <Dialog
-            open={openLoginDialog}
-            onClose={handleCloseLoginDialog}
-            id="loginDialog"
-            maxWidth="md"
-            fullWidth
-            PaperProps={{ style: { width: dialogWidth } }}
-          >
-            <DialogTitle>{dialogStage === 1 ? 'Login' : 'OTP Verification'}</DialogTitle>
-            <DialogContent>
-              {showOtpSuccessDialog ? (
-                <DialogContentText>OTP Verified Successfully!</DialogContentText>
-              ) : isLoading ? (
-                <DialogContentText>{dialogStage === 1 ? 'Sending OTP...' : 'Verifying OTP...'}</DialogContentText>
-              ) : dialogStage === 1 ? (
-                <>
-                  <DialogContentText>Please enter your email to receive OTP.</DialogContentText>
-                  <TextField
-                    autoFocus
-                    margin="dense"
-                    id="email"
-                    label="Email Address"
-                    type="email"
-                    fullWidth
-                    variant="standard"
-                    value={email}
-                    onChange={handleEmailChange}
-                    error={emailError}
-                    helperText={emailError ? emailErrorMessage : ''}
-                  />
-                </>
-              ) : (
-                <>
-                  <DialogContentText>Please enter the OTP sent to your email.</DialogContentText>
-                  <TextField
-                    autoFocus
-                    margin="dense"
-                    id="otp"
-                    label="OTP"
-                    type="text"
-                    fullWidth
-                    variant="standard"
-                    value={otp}
-                    onChange={(e) => setOtp(e.target.value)}
-                  />
-                </>
-              )}
-              {loginErrorMessage && <DialogContentText style={{ color: 'red' }}>{loginErrorMessage}</DialogContentText>}
-            </DialogContent>
-            {!isLoading && !showOtpSuccessDialog && (
-              <DialogActions>
-                <Button onClick={handleCloseLoginDialog}>Cancel</Button>
-                {dialogStage === 1 ? (
-                  <Button onClick={handleEmailSubmit} disabled={emailError || email === ''}>
-                    Submit
-                  </Button>
-                ) : (
-                  <Button onClick={handleOtpSubmit}>Confirm</Button>
-                )}
-              </DialogActions>
-            )}
-          </Dialog>
-
-          <Dialog
-            open={openTransactionsDialog}
-            onClose={() => setOpenTransactionsDialog(false)}
-            maxWidth="md"
-            fullWidth
-          >
-            <DialogTitle>Transactions</DialogTitle>
-            <DialogContent>
-              {isLoading ? (
-                <DialogContentText>Loading transactions...</DialogContentText>
-              ) : transactions.length > 0 ? (
-                <TableContainer>
-                  <Table>
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>Product</TableCell>
-                        <TableCell>Amount</TableCell>
-                        <TableCell>Status</TableCell>
-                        <TableCell>Date</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {transactions.map((transaction, index) => (
-                        <TableRow key={index}>
-                          <TableCell>{transaction.productName}</TableCell>
-                          <TableCell>{transaction.amount}</TableCell>
-                          <TableCell>{transaction.status}</TableCell>
-                          <TableCell>
-                            {`${new Date(transaction.date).toLocaleDateString('en-US', {
-                              month: '2-digit',
-                              day: '2-digit',
-                              year: 'numeric',
-                            })} ${new Date(transaction.date).toLocaleTimeString('en-US', {
-                              hour: '2-digit',
-                              minute: '2-digit',
-                              hour12: false,
-                            })}`}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              ) : (
-                <DialogContentText>No transactions found.</DialogContentText>
-              )}
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={() => setOpenTransactionsDialog(false)}>Close</Button>
-            </DialogActions>
-          </Dialog>
-        </div>
       </div>
+    </div>
     );
   }
 
