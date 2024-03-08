@@ -402,23 +402,25 @@ const LiveStorePage = () => {
     return (
       <AppBar position="static" sx={{ background: 'linear-gradient(45deg, purple, red)' }}>
         <Collapse in={isExpanded} timeout="auto">
-          <Toolbar sx={{ justifyContent: 'center', alignItems: 'center' }}>
-            <Container sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Box sx={{ typography: 'h6', color: 'white' }}>This store is not yet live</Box>
-              <Button variant="contained" color="secondary" href={`/dashboard/store`} 
-              style={{ pointerEvents: 'all', margin: 'auto' }}>
-              Edit Store
-            </Button>
-              <IconButton
-                color="inherit"
-                aria-label={isExpanded ? 'collapse' : 'expand'}
-                onClick={toggleBanner}
-                sx={{ marginLeft: 'auto' }}
-              >
-                {isExpanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-              </IconButton>
-            </Container>
-          </Toolbar>
+          {!storeData.isLive && (
+            <Toolbar sx={{ justifyContent: 'center', alignItems: 'center' }}>
+              <Container sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Box sx={{ typography: 'h6', color: 'white' }}>This store is not yet live</Box>
+                <Button variant="contained" color="secondary" href={`/dashboard/store`}
+                  style={{ pointerEvents: 'all', margin: 'auto' }}>
+                  Edit Store
+                </Button>
+                <IconButton
+                  color="inherit"
+                  aria-label={isExpanded ? 'collapse' : 'expand'}
+                  onClick={toggleBanner}
+                  sx={{ marginLeft: 'auto' }}
+                >
+                  {isExpanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                </IconButton>
+              </Container>
+            </Toolbar>
+          )}
         </Collapse>
         {!isExpanded && (
           <Box
