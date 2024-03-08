@@ -62,7 +62,7 @@ const WalletPayouts = () => {
   const [selectedCountry, setSelectedCountry] = useState('USA');
   const [file, setFile] = useState(null);
   const [walletRequests, setWalletRequests] = useState([]);
-
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [bankDetails] = useState({
     'USA': {
@@ -162,7 +162,7 @@ const WalletPayouts = () => {
   };
 
   // Function to create a new wallet request
-const createWalletRequest = () => {
+const createWalletRequest = async() => {
 
   const date = new Date();
   const year = date.getFullYear();
@@ -189,41 +189,36 @@ const createWalletRequest = () => {
     image: ""
   };
 
-  axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/wallet-requests`, walletRequestData)
-    .then((response) => {
-      // Use the response ID in the next request
-      const walletRequestId = response.data.body._id;
-      console.log('Wallet request created successfully: ', response.data);
-      uploadBankSlipImage(walletRequestId);
-    })
-    .catch((error) => {
-      alert('Error creating wallet request. Please try again.')
-      console.error('Error creating wallet request: ', error);
-    });
+  try {
+    const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/wallet-requests`, walletRequestData);
+    console.log('Wallet request created successfully: ', response.data);
+    const walletRequestId = response.data.body._id;
+    await uploadBankSlipImage(walletRequestId); // Wait for the image upload to complete
+    setIsSubmitting(false); // Re-enable the submit button after the operation
+    handleNext(); // Move to the next step only after the upload is successful
+  } catch (error) {
+    alert('Error creating wallet request. Please try again.')
+    console.error('Error in wallet request creation or image upload: ', error);
+    setIsSubmitting(false); // Ensure button is re-enabled even if there's an error
+  }
 };
 
-// Function to upload the bank slip image for a wallet request
-const uploadBankSlipImage = (walletRequestId) => {
+// Ensure uploadBankSlipImage does not directly call handleNext
+const uploadBankSlipImage = async (walletRequestId) => {
   const formData = new FormData();
-  formData.append('file', file); // 'file' is the state containing the uploaded file
+  formData.append('file', file);
 
-  axios.put(`${process.env.REACT_APP_BACKEND_URL}/v1/api/wallet-requests/walletRequest/${walletRequestId}`, formData, {
+  await axios.put(`${process.env.REACT_APP_BACKEND_URL}/v1/api/wallet-requests/walletRequest/${walletRequestId}`, formData, {
     headers: {
       'Content-Type': 'multipart/form-data'
     }
-  })
-  .then((response) => {
-    console.log('Bank slip image uploaded successfully: ', response);
-    handleNext();
-  })
-  .catch((error) => {
-    alert('Error uploading bank slip image. Please try again.')
-    console.error('Error uploading bank slip image: ', error);
   });
+  console.log('Bank slip image uploaded successfully');
 };
 
   const handleReplenishSubmit = () => {
     // Submit replenishment logic here
+    setIsSubmitting(true);
     createWalletRequest();
   };
 
@@ -395,8 +390,8 @@ const uploadBankSlipImage = (walletRequestId) => {
         <Button variant="outlined" onClick={() => setSelectedMethod(null)}>
           Back
         </Button>
-        <Button variant="outlined" onClick={handleReplenishSubmit}>
-          Submit
+        <Button variant="outlined" onClick={handleReplenishSubmit} disabled={!file || isSubmitting}>
+          {isSubmitting ? 'Submitting...' : 'Submit'}
         </Button>
       </Box>
     </>
@@ -514,13 +509,14 @@ const uploadBankSlipImage = (walletRequestId) => {
                   <Button
                     variant="outlined"
                     onClick={handleNext}
+                    disabled={!amount || parseFloat(amount) <= 0} // Disable if no amount or amount is 0 or less
                     sx={{
                       marginLeft: 'auto',
                       width: 'fit-content',
                     }}
                   >
                     Next
-                  </Button> 
+                  </Button>
                 </Box>
               )}
               {activeStep === 1 && (
