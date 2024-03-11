@@ -19,7 +19,7 @@ function HeroHome() {
   };
 
   const startStore = () => {
-    navigate('/signup', { state: { email } });
+    navigate('/signup', { state: { email }, replace: true });
   };
 
   return (
@@ -262,6 +262,8 @@ function HeroHome() {
                           fullWidth
                           variant="outlined"
                           placeholder="Your email…"
+                          value={email}
+                          onChange={handleEmailChange}
                           InputLabelProps={{
                             shrink: true,
                           }}
@@ -278,8 +280,7 @@ function HeroHome() {
                         />
 
                         <Button
-                          component={Link}
-                          to="/login"
+                          onClick={startStore}
                           variant="contained"
                           color="primary"
                           style={{
