@@ -82,7 +82,7 @@ function convertParamToCat(paramCategory) {
 }
 
 const createLink = async (amount, description) => {
-  // console.log(`Creating link with amount: ${amount} and description: ${description}`);
+  console.log(`Creating link with amount: ${amount} and description: ${description}`);
   const url = 'https://api.paymongo.com/v1/links';
 
   const myHeaders = new Headers();
@@ -607,23 +607,27 @@ const VortexTopUp = () => {
   };
 
   useEffect(() => {
-    const fetchTopupToggles = async () => {
+    const fetchTopupToggles = async (userId, isFallbackAttempt = false) => {
       try {
-        const decryptedUserIdFromLS = ls.get('encryptedUserId');
-
-        if (decryptedUserIdFromLS) {
-          setDecryptedUserId(decryptedUserIdFromLS); // Update the state
-          const togglesResponse = await axios.get(
-            `${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/${decryptedUserIdFromLS}/topup-toggles/public`
-          );
-          setTopupToggles(togglesResponse.data);
-        }
+        const response = await axios.get(
+          `${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/${userId}/topup-toggles/public`
+        );
+        setDecryptedUserId(userId); 
+        setTopupToggles(response.data);
       } catch (error) {
         console.error('Error fetching top-up toggles:', error);
+        if ((error.response && (error.response.status === 500 || error.response.status === 404)) && !isFallbackAttempt) {
+          const encryptedUserId = ls.get('encryptedUserId');
+          if (encryptedUserId && userId !== encryptedUserId) {
+            console.log('Attempting fallback with encryptedUserId...');
+            fetchTopupToggles(encryptedUserId, true); 
+          }
+        }
       }
     };
-
-    fetchTopupToggles();
+  
+    const initialUserId = ls.get('resellerCode') ? JSON.parse(ls.get('resellerCode')).code : ls.get('encryptedUserId');
+    fetchTopupToggles(initialUserId);
   }, []);
 
   useEffect(() => {
@@ -898,26 +902,29 @@ const VortexTopUp = () => {
 
     // Fetch Dealer Product Config Function
     async function fetchDealerProductConfig(dealerId, brandName) {
-      // console.log(`fetchDealerProductConfig called with dealerId: ${dealerId}, brandName: ${brandName}`);
+      let userIdToUse = ls.get('resellerCode') ? JSON.parse(ls.get('resellerCode')).code : null;
+    
+      userIdToUse = userIdToUse || dealerId;
+    
       try {
-        // console.log(`Attempting to fetch product configuration for dealer ${dealerId}, brand ${brandName}`);
         const response = await axios.get(
-          `${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/product-config/${dealerId}/${brandName}/public`
+          `${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/product-config/${userIdToUse}/${brandName}/public`
         );
-
+    
         if (response.data && response.data.products) {
-          // console.log(
-          //   `Fetched product configuration for dealer ${dealerId}, brand ${brandName}:`,
-          //   response.data.products
-          // );
-          return response.data.products; // Contains the products with enabled status and current price
+          return response.data.products;
         }
-
-        // console.log(`No products found for dealer ${dealerId}, brand ${brandName}`);
-        return []; // Return an empty array if the response does not contain products
+    
+        return [];
       } catch (error) {
-        console.error(`Error fetching product configuration for dealer ${dealerId}, brand ${brandName}:`, error);
-        return []; // Return an empty array in case of an error
+        console.error(`Error fetching product configuration for dealer/reseller ${userIdToUse}, brand ${brandName}:`, error);
+    
+        if (userIdToUse !== dealerId) {
+          console.log(`Attempting fallback with dealerId ${dealerId}...`);
+          return fetchDealerProductConfig(dealerId, brandName, true); // Notice the third parameter is not used anymore, kept for consistency
+        }
+    
+        return [];
       }
     }
 
@@ -1715,13 +1722,16 @@ const VortexTopUp = () => {
       try {
         const customerId = transactionData.customerId;
         const dealerId = transactionData.dealerId;
+        const resellerCodeObject = ls.get('resellerCode');
+        const resellerId = resellerCodeObject ? JSON.parse(resellerCodeObject).code : null;
         // console.log('customerId: ', customerId);
         // console.log('dealerId: ', dealerId);
 
         const purchaseData = {
           productName: transactionData.productName,
           amount: transactionData.totalPrice,
-          dealerId, // Include this if your API requires it
+          dealerId,
+          resellerId,
         };
 
         const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/purchase/${customerId}`, {

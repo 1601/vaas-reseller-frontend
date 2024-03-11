@@ -393,57 +393,44 @@ const VortexBillsPaymentPage = () => {
     return isEnabled;
   }  
 
+  const initialUserId = ls.get('resellerCode') ? JSON.parse(ls.get('resellerCode')).code : ls.get('encryptedUserId');
+
   useEffect(() => {
     async function fetchUserDataAndBillers() {
-      // console.log("Starting to fetch user data and billers");
       setisLoading(true);
-  
-      const storeUrl = extractStoreUrl();
-      // console.log("Extracted Store URL:", storeUrl);
+      let userId = initialUserId;
   
       try {
-        const userResponse = await fetch(`${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/url/${storeUrl}/user`);
-        // console.log("User Response Status:", userResponse.status);
-  
-        if (userResponse.status === 200) {
-          const { userId } = await userResponse.json();
-          // console.log("User ID:", userId);
-  
+        if (!userId) {
+          const storeUrl = extractStoreUrl();
+          const userResponse = await fetch(`${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/url/${storeUrl}/user`);
+          if (userResponse.status === 200) {
+            const userData = await userResponse.json();
+            userId = userData.userId;
+          }
+        }
+    
+        if (userId) {
           const dealerResponse = await fetch(`${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/${userId}/billertoggles/public`);
-          // console.log("Dealer Response Status:", dealerResponse.status);
-  
           if (dealerResponse.status === 200) {
             const dealerData = await dealerResponse.json();
-            // console.log("Dealer Data:", dealerData);
             setDealerSettings(dealerData);
   
             const vortexTokenResponse = await getVortexTokenBase();
-            // console.log("Vortex Token Response Status:", vortexTokenResponse.status);
-  
             if (vortexTokenResponse.status === 200) {
               const vortexTokenResult = await vortexTokenResponse.json();
               const response = await getBillers(vortexTokenResult.access_token, 1, 1000);
-              // console.log("Billers Response Status:", response.status);
-  
               if (response.status === 200) {
                 const billers = await response.json();
-                // console.log("All Billers:", billers);
-          
-                const filteredBillers = billers.filter(biller => {
-                  const isEnabled = isBillerEnabled(biller.name, dealerData);
-                  // console.log(`Biller: ${biller.name}, Enabled: ${isEnabled}`);
-                  return isEnabled;
-                });
-          
-                // console.log("Filtered Billers:", filteredBillers);
+                const filteredBillers = billers.filter(biller => isBillerEnabled(biller.name, dealerData));
                 setData(filteredBillers);
               }
             }
           }
         }
-        setisLoading(false);
       } catch (error) {
         console.error('Error in fetchUserDataAndBillers:', error);
+      } finally {
         setisLoading(false);
       }
     }
