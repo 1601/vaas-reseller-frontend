@@ -19,7 +19,7 @@ function HeroHome() {
   };
 
   const startStore = () => {
-    navigate('/signup', { state: { email }, replace: true });
+    navigate('/signup', { state: { email } });
   };
 
   return (

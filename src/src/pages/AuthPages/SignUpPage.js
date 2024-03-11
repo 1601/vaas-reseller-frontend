@@ -209,7 +209,7 @@ export default function SignUpPage() {
     middleName: '',
     lastName: '',
     designation: '',
-    email: '',
+    email,
     mobileNumber: undefined,
     country: '',
     ipAddress: '',
@@ -371,6 +371,12 @@ export default function SignUpPage() {
       validatePassword(value);
     }
   };
+
+  useEffect(() => {
+    // validate email once on enter page
+    validateEmailAndCheckExistence(email);
+
+  }, []);
 
   const validateMobileNumber = (country, number) => {
     const expectedLength = mobileNumberLengths[country];
