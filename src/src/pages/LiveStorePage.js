@@ -483,9 +483,12 @@ const LiveStorePage = () => {
   useEffect(() => {
     const pathname = window.location.pathname.split('/')[1];
     const isSpecialPath = ['topup', 'bills'].includes(pathname);
-
-    if (storeData && storeData.storeName) {
-      document.title = `${storeData.storeName} | VAAS`;
+    // if storeData null, set title to 'Loading Store... | VAAS'
+    if (storeData === null) {
+        setShowNotFoundError(false);
+        document.title = 'Loading Store... | VAAS';
+    }else if(storeData && storeData.storeName) {
+        document.title = `${storeData.storeName} | VAAS`;
     } else if (!isSpecialPath && (!storeData || storeData === 'domainNotFound') && notFound !== 'true') {
       setShowNotFoundError(true);
       document.title = 'Domain Not Found | VAAS';
