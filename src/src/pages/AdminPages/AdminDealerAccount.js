@@ -16,6 +16,9 @@ import {
   FormControl,
   InputLabel,
   Box,
+  Autocomplete,
+  TextField,
+  Chip
 } from '@mui/material';
 import { MoreVert as MoreVertIcon } from '@mui/icons-material';
 import { ViewUserModal } from '../../components/admin/ViewUserModal';
@@ -38,6 +41,7 @@ const AdminDealerAccount = () => {
   const [userToView, setUserToView] = useState(null);
   const [resellersModalOpen, setResellersModalOpen] = useState(false);
   const [emailChangeError, setEmailChangeError] = useState('');
+  const [filteredUsers, setFilteredUsers] = useState(users);
 
   const handleMenuClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -96,6 +100,7 @@ const AdminDealerAccount = () => {
 
         if (response.data) {
           setUsers([...response.data.withStoreDetails, ...response.data.withoutStoreDetails]);
+          console.log(users);
         }
       } catch (error) {
         console.error('Could not fetch users:', error);
@@ -106,6 +111,10 @@ const AdminDealerAccount = () => {
 
     fetchUsers();
   }, []);
+
+  useEffect(() => {
+    setFilteredUsers(users)
+  }, [users]);
 
   // Handler for submitting the email change
   const handleSubmitEmailChange = async (currentEmail, newEmail) => {
@@ -144,11 +153,41 @@ const AdminDealerAccount = () => {
     );
   }
 
+  const handleFilterChange = (event, newValue) => {
+    const filteredUsers = [];
+    newValue.forEach((email) => {
+      filteredUsers.push(users.filter((user) => user.email.includes(email))[0]);
+    });
+    setFilteredUsers(newValue.length !== 0 ? filteredUsers : users);
+  };
+
+
   return (
     <Card className="mt-4 max-w-screen-lg mx-auto p-4" style={{ backgroundColor: '#ffffff' }}>
       <Typography variant="h3" align="center" gutterBottom>
         Dealer Accounts
       </Typography>
+      <Autocomplete
+          multiple
+          id="tags-filled"
+          options={users.map((user) => user.email
+          )}
+          freeSolo
+          onChange={handleFilterChange}
+          renderTags={(value, getTagProps) =>
+              value.map((option, index) => (
+                  <Chip variant="outlined" label={option} {...getTagProps({ index })} />
+              ))
+          }
+          renderInput={(params) => (
+              <TextField
+                  {...params}
+                  variant="filled"
+                  label="Search dealers by email"
+                  placeholder="dealers"
+              />
+          )}
+      />
       <TableContainer component={Card}>
         <Table>
           <TableHead>
@@ -160,7 +199,7 @@ const AdminDealerAccount = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {users.map((user, index) => (
+            {filteredUsers.map((user, index) => (
               <TableRow key={index}>
                 <TableCell>
                   <Typography variant="h6">
