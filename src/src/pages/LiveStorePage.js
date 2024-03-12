@@ -46,13 +46,15 @@ const LiveStorePage = () => {
   const [openLoginDialog, setOpenLoginDialog] = useState(false);
   const [dialogStage, setDialogStage] = useState(1); // 1 for email, 2 for OTP
   const [dialogWidth, setDialogWidth] = useState('md');
-  const [customerFound, setCustomerFound] = useState(true);
   const [email, setEmail] = useState('');
   const [emailError, setEmailError] = useState(false);
   const [emailErrorMessage, setEmailErrorMessage] = useState('');
   const [otp, setOtp] = useState('');
+  const [otpError, setOtpError] = useState(false);
+  const [otpErrorMessage, setOtpErrorMessage] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSessionTimedOut, setIsSessionTimedOut] = useState(false);
   const [openTransactionsDialog, setOpenTransactionsDialog] = useState(false);
   const [transactions, setTransactions] = useState([]);
   const [showOtpSuccessDialog, setShowOtpSuccessDialog] = useState(false);
@@ -67,10 +69,16 @@ const LiveStorePage = () => {
   const togglePreviewBanner = () => {
     setIsPreviewBannerOpen(!isPreviewBannerOpen);
   };
-  const bannerHeight = isPreviewBannerOpen ? 'auto' : '48px'; // Height of the collapsed banner
+  const bannerHeight = isPreviewBannerOpen ? 'auto' : '48px'; 
 
 
   const handleOpenLoginDialog = () => {
+    setEmail(''); 
+    setOtp(''); 
+    setOtpError(false);
+    setOtpErrorMessage('');
+    setEmailError(false); 
+    setEmailErrorMessage('');
     setOpenLoginDialog(true);
   };
 
@@ -95,7 +103,6 @@ const LiveStorePage = () => {
       const customerDetailsFromLS = ls.get('customerDetails');
 
       if (customerDetailsFromLS) {
-        // If customerDetails exist in secure-ls, use them
         customerId = customerDetailsFromLS.customerId;
       } else {
         // If customerDetails not in secure-ls, fetch it from the backend
@@ -123,7 +130,7 @@ const LiveStorePage = () => {
   const handleEmailSubmit = async () => {
     setEmailError(false);
     setEmailErrorMessage('');
-
+  
     setIsLoading(true);
     try {
       const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/customer/otp`, { email });
@@ -138,7 +145,11 @@ const LiveStorePage = () => {
       }
     } catch (error) {
       setIsLoading(false);
-      if (error.response && error.response.status === 404) {
+      if (error.response && error.response.status === 429) {
+        console.error('Too many OTP attempts:', error.response.data.message);
+        setEmailError(true);
+        setEmailErrorMessage(error.response.data.message);
+      } else if (error.response && error.response.status === 404) {
         setEmailError(true);
         setEmailErrorMessage('No customer found with this email');
       } else {
@@ -149,8 +160,53 @@ const LiveStorePage = () => {
     }
   };
 
+  // UseEffect for checking of Customer Timeout
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const customerDetails = ls.get('customerDetails');
+      if (customerDetails && customerDetails.timeOut) {
+        const currentTime = Date.now();
+        const timeElapsed = currentTime - customerDetails.timeOut;
+
+        // 15 minutes = 900000 milliseconds
+        if (timeElapsed > 900000) {
+          ls.remove('customerDetails'); 
+          setIsSessionTimedOut(true); 
+          setIsLoggedIn(false);
+        }
+      }
+    }, 1000 * 60); 
+
+    return () => clearInterval(interval); 
+  }, []);
+
+  const SessionTimeoutDialog = () => {
+    return (
+      <Dialog
+        open={isSessionTimedOut}
+        onClose={() => setIsSessionTimedOut(false)}
+        aria-labelledby="session-timeout-dialog-title"
+        aria-describedby="session-timeout-dialog-description"
+      >
+        <DialogTitle id="session-timeout-dialog-title">{"Customer Session Timeout"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="session-timeout-dialog-description">
+            The current session has expired. Please login again.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setIsSessionTimedOut(false)} color="primary">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
+    );
+  };
+
   const handleOtpSubmit = async () => {
     setIsLoading(true);
+    setOtpError(false);
+    setOtpErrorMessage('');
     try {
       let storeUrl = window.location.hostname.split('.')[0];
 
@@ -194,6 +250,7 @@ const LiveStorePage = () => {
           email: customerData.email,
           dealerId,
           customerId: customerData._id,
+          timeOut: Date.now(),
         });
 
         setIsLoggedIn(true);
@@ -206,10 +263,19 @@ const LiveStorePage = () => {
       } else {
         console.error('Failed to verify OTP');
         setIsLoading(false);
+        setOtpError(true);
+        setOtpErrorMessage('Incorrect OTP. Please try again.');
       }
     } catch (error) {
       setIsLoading(false);
-      console.error('Error during OTP verification or fetching customer details:', error);
+      if (error.response && error.response.status === 400) {
+        console.error('OTP verification error:', error.response.data.message);
+        setOtpError(true);
+        setOtpErrorMessage(error.response.data.message);
+      } else {
+        setOtpError(true);
+        setOtpErrorMessage('An unexpected error occurred. Please try again.');
+      }
     }
   };
 
@@ -521,6 +587,7 @@ const LiveStorePage = () => {
         ...gradientStyle,
         display: 'flex', flexDirection: 'column', height: '100vh' }}>
       <PreviewBanner/>
+      <SessionTimeoutDialog />
 
       <div style={{ flex: 1, textAlign: 'center' }}>
         <Box style={logoContainerStyle}>
@@ -555,10 +622,155 @@ const LiveStorePage = () => {
                 </Link>
               )}
             </Stack>
-          <Button variant="contained" style={transactionButtonStyle} onClick={handleOpenLoginDialog}>
-            Login first to view Transactions
-          </Button>
-        </Container>
+
+            {isLoggedIn ? (
+              <>
+                <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <Button
+                      onClick={handleOpenTransactionsDialog}
+                      variant="contained"
+                      style={transactionButtonStyle}
+                    >
+                      View Transactions
+                    </Button>
+                    <Button
+                      onClick={handleLogout}
+                      variant="contained"
+                      style={transactionButtonStyle}
+                    >
+                      Logout
+                    </Button>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <Button
+                onClick={handleOpenLoginDialog}
+                variant="contained"
+                style={transactionButtonStyle}
+              >
+                Login first to view Transactions
+              </Button>
+            )}
+          </Container>
+
+          <Dialog
+            open={openLoginDialog}
+            onClose={handleCloseLoginDialog}
+            id="loginDialog"
+            maxWidth="md"
+            fullWidth
+            PaperProps={{ style: { width: dialogWidth } }}
+          >
+            <DialogTitle>{dialogStage === 1 ? 'Login' : 'OTP Verification'}</DialogTitle>
+            <DialogContent>
+              {showOtpSuccessDialog ? (
+                <DialogContentText>OTP Verified Successfully!</DialogContentText>
+              ) : isLoading ? (
+                <DialogContentText>{dialogStage === 1 ? 'Sending OTP...' : 'Verifying OTP...'}</DialogContentText>
+              ) : dialogStage === 1 ? (
+                <>
+                  <DialogContentText>Please enter your email to receive OTP.</DialogContentText>
+                  <TextField
+                    autoFocus
+                    margin="dense"
+                    id="email"
+                    label="Email Address"
+                    type="email"
+                    fullWidth
+                    variant="standard"
+                    value={email}
+                    onChange={handleEmailChange}
+                    error={emailError}
+                    helperText={emailError ? emailErrorMessage : ''}
+                  />
+                </>
+              ) : (
+                <>
+                  <DialogContentText>Please enter the OTP sent to your email.</DialogContentText>
+                  <TextField
+                    autoFocus
+                    margin="dense"
+                    id="otp"
+                    label="OTP"
+                    type="text"
+                    fullWidth
+                    variant="standard"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                    error={otpError} 
+                    helperText={otpError ? otpErrorMessage : ''}
+                  />
+                </>
+              )}
+              {loginErrorMessage && <DialogContentText style={{ color: 'red' }}>{loginErrorMessage}</DialogContentText>}
+            </DialogContent>
+            {!isLoading && !showOtpSuccessDialog && (
+              <DialogActions>
+                <Button onClick={handleCloseLoginDialog}>Cancel</Button>
+                {dialogStage === 1 ? (
+                  <Button onClick={handleEmailSubmit} disabled={emailError || email === ''}>
+                    Submit
+                  </Button>
+                ) : (
+                  <Button onClick={handleOtpSubmit}>Confirm</Button>
+                )}
+              </DialogActions>
+            )}
+          </Dialog>
+
+          <Dialog
+            open={openTransactionsDialog}
+            onClose={() => setOpenTransactionsDialog(false)}
+            maxWidth="md"
+            fullWidth
+          >
+            <DialogTitle>Transactions</DialogTitle>
+            <DialogContent>
+              {isLoading ? (
+                <DialogContentText>Loading transactions...</DialogContentText>
+              ) : transactions.length > 0 ? (
+                <TableContainer>
+                  <Table>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Product</TableCell>
+                        <TableCell>Amount</TableCell>
+                        <TableCell>Status</TableCell>
+                        <TableCell>Date</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {transactions.map((transaction, index) => (
+                        <TableRow key={index}>
+                          <TableCell>{transaction.productName}</TableCell>
+                          <TableCell>{transaction.amount}</TableCell>
+                          <TableCell>{transaction.status}</TableCell>
+                          <TableCell>
+                            {`${new Date(transaction.date).toLocaleDateString('en-US', {
+                              month: '2-digit',
+                              day: '2-digit',
+                              year: 'numeric',
+                            })} ${new Date(transaction.date).toLocaleTimeString('en-US', {
+                              hour: '2-digit',
+                              minute: '2-digit',
+                              hour12: false,
+                            })}`}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              ) : (
+                <DialogContentText>No transactions found.</DialogContentText>
+              )}
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setOpenTransactionsDialog(false)}>Close</Button>
+            </DialogActions>
+          </Dialog>
 
         <Outlet />
       </div>
