@@ -110,7 +110,7 @@ const TopUpProducts = () => {
         </Typography>
         <Grid container spacing={2}>
           {Object.entries(topUpToggles).map(([key, { enabled, dealerConfig }]) => (
-            <Grid item xs={12} sm={6} md={4} key={key}>
+            <Grid hidden={role === 'reseller' && !dealerConfig?.enabled} item xs={12} sm={6} md={4} key={key}>
               <Paper
                 elevation={3}
                 sx={{

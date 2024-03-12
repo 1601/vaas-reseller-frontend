@@ -157,7 +157,7 @@ const BillerProducts = () => {
                         const isDisabledByDealer = dealerConfig[category] && dealerConfig[category][name] === false;
 
                         return (
-                          <TableRow key={`${category}-${name}`}>
+                          <TableRow hidden={isDisabledByDealer} key={`${category}-${name}`}>
                             <TableCell>{name}</TableCell>
                             <TableCell align="right">
                               {isDisabledByDealer ? (

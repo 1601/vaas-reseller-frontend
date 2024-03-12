@@ -186,6 +186,7 @@ const TopUpConfig = () => {
 
                 return (
                   <TableRow
+                    hidden={isDisabledByDealer}
                     key={config._id}
                     sx={{
                       opacity: isDisabledByDealer ? 0.5 : 1,
