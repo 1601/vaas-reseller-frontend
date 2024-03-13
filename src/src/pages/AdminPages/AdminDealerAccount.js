@@ -154,11 +154,11 @@ const AdminDealerAccount = () => {
   }
 
   const handleFilterChange = (event, newValue) => {
-    const filteredUsers = [];
-    newValue.forEach((email) => {
-      filteredUsers.push(users.filter((user) => user.email.includes(email))[0]);
-    });
-    setFilteredUsers(newValue.length !== 0 ? filteredUsers : users);
+    const foundUsers = [];
+
+    foundUsers.push(...users.filter((user) => newValue.some((email) => user.email.includes(email))));
+
+    setFilteredUsers(newValue.length !== 0 ? foundUsers : users);
   };
 
 
@@ -188,7 +188,7 @@ const AdminDealerAccount = () => {
               />
           )}
       />
-      <TableContainer component={Card}>
+      <TableContainer style={{borderTopLeftRadius: "0", borderTopRightRadius: "0"}} component={Card}>
         <Table>
           <TableHead>
             <TableRow>
