@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import SecureLS from 'secure-ls';
-import { Card, Typography, CircularProgress } from '@mui/material';
+import {Card, Typography, CircularProgress, Chip, TextField, Autocomplete} from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import CircularLoading from '../../components/preLoader';
 
@@ -32,6 +32,9 @@ const AdminStores = () => {
   const [approvedStores, setApprovedStores] = useState([]);
   const [liveStores, setLiveStores] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [filteredApprovedStores, setFilteredApprovedStores] = useState(approvedStores);
+  const [filteredLiveStores, setFilteredLiveStores] = useState(liveStores);
+  const [filteredStoresNeedingApproval, setFilteredStoresNeedingApproval] = useState(storesNeedingApproval);
 
   const token = ls.get('token');
 
@@ -40,10 +43,9 @@ const AdminStores = () => {
       const storesNeedingApproval = await fetchStores('stores/pending/admin', token);
       const allApprovedStores = await fetchStores('stores/approved/admin', token);
       const liveStores = await fetchStores('stores/live/admin', token);
-      const filteredApprovedStores = allApprovedStores.filter((store) => !store.isLive);
 
       setStoresNeedingApproval(storesNeedingApproval);
-      setApprovedStores(filteredApprovedStores);
+      setApprovedStores(allApprovedStores);
       setLiveStores(liveStores);
       setIsLoading(false);
     } catch (error) {
@@ -52,8 +54,26 @@ const AdminStores = () => {
   }, [token]);
 
   useEffect(() => {
+    setFilteredApprovedStores(approvedStores);
+    setFilteredLiveStores(liveStores);
+    setFilteredStoresNeedingApproval(storesNeedingApproval);
+  }, [approvedStores, liveStores, storesNeedingApproval]);
+
+  const allStores = [
+    ...storesNeedingApproval,
+    ...approvedStores,
+    ...liveStores,
+  ];
+
+  useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  useEffect(() => {
+    console.log(filteredLiveStores);
+    console.log(filteredApprovedStores);
+    console.log(filteredStoresNeedingApproval);
+  }, [filteredLiveStores, filteredApprovedStores, filteredStoresNeedingApproval]);
 
   const handleStoreClick = (storeId) => {
     navigate(`/dashboard/admin/storeapproval/${storeId}`);
@@ -89,15 +109,53 @@ const AdminStores = () => {
     </div>
   );
 
+  const handleFilterChange = (event, newValue) => {
+    const foundApprovedStores = [];
+    const foundLiveStores = [];
+    const foundStoresNeedingApproval = [];
+
+    foundApprovedStores.push(...approvedStores.filter((store) => newValue.some((name) => store.storeName.includes(name))));
+    foundLiveStores.push(...liveStores.filter((store) => newValue.some((name) => store.storeName.includes(name))));
+    foundStoresNeedingApproval.push(...storesNeedingApproval.filter((store) => newValue.some((name) => store.storeName.includes(name))));
+
+    setFilteredApprovedStores(newValue.length !== 0 ? foundApprovedStores : approvedStores);
+    setFilteredLiveStores(newValue.length !== 0 ? foundLiveStores : liveStores);
+    setFilteredStoresNeedingApproval(newValue.length !== 0 ? foundStoresNeedingApproval : storesNeedingApproval);
+  };
+
+
   return (
     <Card className="mt-4 max-w-screen-lg mx-auto p-4" style={{ backgroundColor: '#ffffff' }}>
       <Typography variant="h3" align="center" gutterBottom>
         Store Approval
       </Typography>
+      <div>
+        <Autocomplete
+            multiple
+            id="tags-filled"
+            options={allStores.map((store) => store.storeName
+            )}
+            freeSolo
+            onChange={handleFilterChange}
+            renderTags={(value, getTagProps) =>
+                value.map((option, index) => (
+                    <Chip variant="outlined" label={option} {...getTagProps({ index })} />
+                ))
+            }
+            renderInput={(params) => (
+                <TextField
+                    {...params}
+                    variant="filled"
+                    label="Search store by name"
+                    placeholder="stores"
+                />
+            )}
+        />
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 max-w-screen-lg mx-auto">
-        {renderStoreCard('Needs Approval', storesNeedingApproval)}
-        {renderStoreCard('Approved Shops', approvedStores)}
-        {renderStoreCard('Live Shops', liveStores)}
+        {renderStoreCard('Needs Approval', filteredStoresNeedingApproval)}
+        {renderStoreCard('Approved Shops', filteredApprovedStores)}
+        {renderStoreCard('Live Shops', filteredLiveStores)}
       </div>
     </Card>
   );
