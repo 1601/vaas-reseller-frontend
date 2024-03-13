@@ -6,7 +6,7 @@ import Cookies from 'js-cookie';
 import SecureLS from 'secure-ls';
 // @mui
 import { useTheme } from '@mui/material/styles';
-import { Box, Grid, Container, Typography, Card, CardContent, Button } from '@mui/material';
+import { Box, Grid, Container, Divider, Typography, Card, CardContent, Button } from '@mui/material';
 // components
 import Iconify from '../components/iconify';
 import AccountStatusModal from '../components/user-account/AccountStatusModal';
@@ -146,7 +146,12 @@ export default function DashboardAppPage() {
       </Card>
     ) : null;
 
-  const userRole = ls.get('user') ? ls.get('user').role : null;
+  const user = ls.get('user');
+  const userRole = user ? user.role : null;
+  
+  const storeUrl = user?.storeUrl;
+  const baseUrl = `${window.location.protocol}//${window.location.host}`;
+  const referralLink = `${baseUrl}/${storeUrl}?reseller=${userId}`;
 
   if (userRole === 'reseller') {
     return (
@@ -158,7 +163,7 @@ export default function DashboardAppPage() {
           <Typography variant="h4" gutterBottom>
             Reseller Dashboard
           </Typography>
-          <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+          <Box sx={{ display: 'flex', gap: 2, mt: 2, mb: 2 }}>
             <Button
               variant="outlined"
               color="primary"
@@ -174,6 +179,13 @@ export default function DashboardAppPage() {
               Transactions
             </Button>
           </Box>
+          <Divider sx={{ width: '100%', mb: 2 }} /> 
+          <Typography variant="body1" gutterBottom>
+            Reseller Webstore Referral Link:
+          </Typography>
+          <Typography variant="body2" gutterBottom>
+            {referralLink} {/* Ensure `referralLink` is defined and contains the full referral URL */}
+          </Typography>
         </Container>
       </>
     );

@@ -272,8 +272,13 @@ export default function LoginPage() {
         console.error('No role received from verifyRole API');
       }
 
+      const userData = {
+        ...response.data, 
+        storeUrl, 
+      };
+
       ls.set('token', token);
-      ls.set('user', response.data);
+      ls.set('user', userData);
 
       const dealerId = response.data._id;
       const products = await fetchDealerProductConfig(dealerId, 'TNTPH');
