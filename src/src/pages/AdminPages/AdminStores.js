@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import SecureLS from 'secure-ls';
-import {Card, Typography, CircularProgress, Chip, TextField, Autocomplete} from '@mui/material';
+import {Card, Typography, CircularProgress, Chip, TextField, Autocomplete, Select, MenuItem, FormControl, InputLabel} from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import CircularLoading from '../../components/preLoader';
 
@@ -35,6 +35,7 @@ const AdminStores = () => {
   const [filteredApprovedStores, setFilteredApprovedStores] = useState(approvedStores);
   const [filteredLiveStores, setFilteredLiveStores] = useState(liveStores);
   const [filteredStoresNeedingApproval, setFilteredStoresNeedingApproval] = useState(storesNeedingApproval);
+  const [sortBy, setSortBy] = useState("");
 
   const token = ls.get('token');
 
@@ -69,12 +70,6 @@ const AdminStores = () => {
     fetchData();
   }, [fetchData]);
 
-  useEffect(() => {
-    console.log(filteredLiveStores);
-    console.log(filteredApprovedStores);
-    console.log(filteredStoresNeedingApproval);
-  }, [filteredLiveStores, filteredApprovedStores, filteredStoresNeedingApproval]);
-
   const handleStoreClick = (storeId) => {
     navigate(`/dashboard/admin/storeapproval/${storeId}`);
   };
@@ -87,11 +82,28 @@ const AdminStores = () => {
     );
   }
 
+  const handleSortChange = (event) => {
+    setSortBy(event.target.value);
+    console.log(sortBy);
+  }
+
   const renderStoreCard = (title, stores) => (
     <div className="mb-4 w-full">
       <Card variant="outlined" className="p-4" style={{ backgroundColor: '#ffffff' }}>
         <Typography variant="h4" gutterBottom>
-          {title}
+          <div>
+            {title}
+            <Select
+                className="h-10 w-20 md:h-8 md:w-12 lg:h-12 lg:w-28 ml-4"
+                id="demo-simple-select"
+                label="Sort by"
+                value={sortBy}
+                onChange={handleSortChange}
+            >
+              <MenuItem value={"latest"}>Latest</MenuItem>
+              <MenuItem value={"oldest"}>Oldest</MenuItem>
+            </Select>
+          </div>
         </Typography>
         <div className="overflow-auto" style={{ maxHeight: 'calc(100vh - 220px)' }}>
           {stores.map((shop, index) => (
