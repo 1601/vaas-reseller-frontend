@@ -151,8 +151,8 @@ const AdminKYC = () => {
               <TextField
                   {...params}
                   variant="filled"
-                  label="Search KYC by email"
-                  placeholder="stores"
+                  label="Search KYC by name"
+                  placeholder="KYC"
               />
           )}
       />
