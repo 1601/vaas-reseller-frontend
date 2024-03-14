@@ -6,6 +6,7 @@ import { Box, Button, Divider, Stack, Grid, TextField, Toolbar, Typography, Inpu
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import PhoneIphoneIcon from '@mui/icons-material/PhoneIphone';
 import Autocomplete from '@mui/material/Autocomplete';
@@ -612,20 +613,20 @@ const VortexTopUp = () => {
         const response = await axios.get(
           `${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/${userId}/topup-toggles/public`
         );
-        setDecryptedUserId(userId); 
+        setDecryptedUserId(userId);
         setTopupToggles(response.data);
       } catch (error) {
         console.error('Error fetching top-up toggles:', error);
-        if ((error.response && (error.response.status === 500 || error.response.status === 404)) && !isFallbackAttempt) {
+        if (error.response && (error.response.status === 500 || error.response.status === 404) && !isFallbackAttempt) {
           const encryptedUserId = ls.get('encryptedUserId');
           if (encryptedUserId && userId !== encryptedUserId) {
             console.log('Attempting fallback with encryptedUserId...');
-            fetchTopupToggles(encryptedUserId, true); 
+            fetchTopupToggles(encryptedUserId, true);
           }
         }
       }
     };
-  
+
     const initialUserId = ls.get('resellerCode') ? JSON.parse(ls.get('resellerCode')).code : ls.get('encryptedUserId');
     fetchTopupToggles(initialUserId);
   }, []);
@@ -903,27 +904,30 @@ const VortexTopUp = () => {
     // Fetch Dealer Product Config Function
     async function fetchDealerProductConfig(dealerId, brandName) {
       let userIdToUse = ls.get('resellerCode') ? JSON.parse(ls.get('resellerCode')).code : null;
-    
+
       userIdToUse = userIdToUse || dealerId;
-    
+
       try {
         const response = await axios.get(
           `${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/product-config/${userIdToUse}/${brandName}/public`
         );
-    
+
         if (response.data && response.data.products) {
           return response.data.products;
         }
-    
+
         return [];
       } catch (error) {
-        console.error(`Error fetching product configuration for dealer/reseller ${userIdToUse}, brand ${brandName}:`, error);
-    
+        console.error(
+          `Error fetching product configuration for dealer/reseller ${userIdToUse}, brand ${brandName}:`,
+          error
+        );
+
         if (userIdToUse !== dealerId) {
           console.log(`Attempting fallback with dealerId ${dealerId}...`);
           return fetchDealerProductConfig(dealerId, brandName, true); // Notice the third parameter is not used anymore, kept for consistency
         }
-    
+
         return [];
       }
     }
@@ -1470,6 +1474,12 @@ const VortexTopUp = () => {
   const ReviewConfirmationForm = ({ setActiveStep, setTransactionData }) => {
     const paymentMethodType = ls.get('paymentMethodType');
     const customerDetails = ls.get('customerDetails');
+    const [showOtpVerificationDialog, setShowOtpVerificationDialog] = useState(false);
+    const [showSessionVerifiedDialog, setShowSessionVerifiedDialog] = useState(false);
+    const [isVerifyingSession, setIsVerifyingSession] = useState(false);
+    const [otp, setOtp] = useState('');
+    const [otpError, setOtpError] = useState(false);
+    const [otpErrorMessage, setOtpErrorMessage] = useState('');
 
     // const { email, name, phone, address } = getUser();
 
@@ -1490,6 +1500,7 @@ const VortexTopUp = () => {
         setExpanded(isExpanded ? 'panel2' : 'panel1');
       }
     };
+
     const handleUserDetailsSubmit = async (userDetails) => {
       // console.log('User Details Submitted: ', userDetails);
       // Logic to open the URL
@@ -1519,11 +1530,91 @@ const VortexTopUp = () => {
     };
 
     const handlePayment = async () => {
-      if (customerDetails) {
-        handleUserDetailsSubmit(customerDetails);
-      } else {
-        const userDetailsDialog = await handleOpenDialog();
-        // console.log('User Details Dialog: ', userDetailsDialog);
+      const customerOTPIdle = ls.get('customerOTPIdle');
+
+      if (customerOTPIdle && customerDetails) {
+        const currentTime = Date.now();
+        const timeElapsed = currentTime - customerOTPIdle;
+        const fifteenMinutes = 15 * 60 * 1000;
+
+        if (timeElapsed > fifteenMinutes) {
+          setIsVerifyingSession(true); // Show the verifying session dialog
+          try {
+            await sendOtp(customerDetails.email);
+            setIsVerifyingSession(false); // Hide the verifying session dialog
+            setShowOtpVerificationDialog(true); // Then show the OTP verification dialog
+          } catch (error) {
+            console.error('Error sending OTP:', error);
+            setIsVerifyingSession(false); // Ensure the dialog is hidden even on error
+          }
+        } else {
+          handleUserDetailsSubmit(customerDetails);
+        }
+      } else if (!customerOTPIdle || !customerDetails) {
+        await handleOpenDialog();
+      }
+    };
+
+    async function sendOtp(email) {
+      try {
+        const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/customer/otp`, { email });
+        console.log('OTP sent successfully');
+      } catch (error) {
+        console.error('Failed to send OTP', error);
+      }
+    }
+
+    const handleCloseOtpDialog = () => {
+      setShowOtpVerificationDialog(false);
+      setOtp('');
+      setOtpError(false);
+      setOtpErrorMessage('');
+    };
+
+    const handleOtpChange = (event) => {
+      setOtp(event.target.value);
+      if (otpError) {
+        setOtpError(false);
+        setOtpErrorMessage('');
+      }
+    };
+
+    const handleVerifyOtp = async () => {
+      if (!otp.trim()) {
+        setOtpError(true);
+        setOtpErrorMessage('OTP is required');
+        return;
+      }
+
+      const customerDetails = ls.get('customerDetails');
+      if (!customerDetails) {
+        console.error('Customer details not found');
+        return;
+      }
+
+      try {
+        const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/customer/verify-otp`, {
+          email: customerDetails.email,
+          otpCode: otp,
+        });
+
+        if (response.data.message === 'OTP verified successfully') {
+          console.log('OTP verified');
+          setShowOtpVerificationDialog(false);
+          setShowSessionVerifiedDialog(true);
+          ls.set('customerOTPIdle', Date.now());
+          setOtp('');
+          setOtpError(false);
+          setOtpErrorMessage('');
+        } else {
+          setOtpError(true);
+          setOtpErrorMessage('Failed to verify OTP. Please try again.');
+        }
+      } catch (error) {
+        console.error('Error verifying OTP:', error);
+        setOtpError(true);
+        const errorMessage = error.response?.data?.message || 'There was an error verifying the OTP. Please try again.';
+        setOtpErrorMessage(errorMessage);
       }
     };
 
@@ -1708,6 +1799,59 @@ const VortexTopUp = () => {
                 >
                   {isLoadingTransaction ? 'PLEASE WAIT . . . TRANSACTION IN PROGRESS . . ' : 'PAY'}
                 </Button>
+                <Dialog
+                  open={showOtpVerificationDialog}
+                  onClose={handleCloseOtpDialog}
+                  aria-labelledby="otp-verification-dialog-title"
+                >
+                  <DialogTitle id="otp-verification-dialog-title">OTP Verification</DialogTitle>
+                  <DialogContent>
+                    <DialogContentText>
+                      We're just making sure it's still you. Please enter the OTP sent to your email.
+                    </DialogContentText>
+                    <TextField
+                      autoFocus
+                      margin="dense"
+                      id="otp"
+                      label="OTP"
+                      type="text"
+                      fullWidth
+                      variant="outlined"
+                      value={otp}
+                      onChange={handleOtpChange}
+                      error={otpError}
+                      helperText={otpError ? otpErrorMessage : ''}
+                    />
+                  </DialogContent>
+                  <DialogActions>
+                    <Button onClick={handleCloseOtpDialog}>Cancel</Button>
+                    <Button onClick={handleVerifyOtp} color="primary" disabled={isLoading}>
+                      Verify
+                    </Button>
+                  </DialogActions>
+                </Dialog>
+
+                <Dialog
+                  open={isVerifyingSession}
+                  onClose={() => setIsVerifyingSession(false)}
+                  aria-labelledby="verifying-session-dialog-title"
+                >
+                  <DialogTitle id="verifying-session-dialog-title">Session Verification</DialogTitle>
+                  <DialogContent>
+                    <DialogContentText>Verifying customer session...</DialogContentText>
+                  </DialogContent>
+                </Dialog>
+
+                <Dialog open={showSessionVerifiedDialog} onClose={() => setShowSessionVerifiedDialog(false)}>
+                  <DialogTitle>Customer Session Verified</DialogTitle>
+                  <DialogContent>
+                    <DialogContentText>
+                      We have successfully verified your identity. Please proceed to Payment again to continue your
+                      transaction.
+                    </DialogContentText>
+                  </DialogContent>
+                  <Button onClick={() => setShowSessionVerifiedDialog(false)}>Close</Button>
+                </Dialog>
               </Stack>
             </Stack>
           </div>
