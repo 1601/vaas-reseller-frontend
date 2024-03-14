@@ -161,24 +161,24 @@ const LiveStorePage = () => {
   };
 
   // UseEffect for checking of Customer Timeout
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const customerDetails = ls.get('customerDetails');
-      if (customerDetails && customerDetails.timeOut) {
-        const currentTime = Date.now();
-        const timeElapsed = currentTime - customerDetails.timeOut;
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     const customerDetails = ls.get('customerDetails');
+  //     if (customerDetails && customerDetails.timeOut) {
+  //       const currentTime = Date.now();
+  //       const timeElapsed = currentTime - customerDetails.timeOut;
 
-        // 15 minutes = 900000 milliseconds
-        if (timeElapsed > 900000) {
-          ls.remove('customerDetails'); 
-          setIsSessionTimedOut(true); 
-          setIsLoggedIn(false);
-        }
-      }
-    }, 1000 * 60); 
+  //       // 15 minutes = 900000 milliseconds
+  //       if (timeElapsed > 900000) {
+  //         ls.remove('customerDetails'); 
+  //         setIsSessionTimedOut(true); 
+  //         setIsLoggedIn(false);
+  //       }
+  //     }
+  //   }, 1000 * 60); 
 
-    return () => clearInterval(interval); 
-  }, []);
+  //   return () => clearInterval(interval); 
+  // }, []);
 
   const SessionTimeoutDialog = () => {
     return (
@@ -253,6 +253,8 @@ const LiveStorePage = () => {
           timeOut: Date.now(),
         });
 
+        ls.set('customerOTPIdle', Date.now());
+
         setIsLoggedIn(true);
         setIsLoading(false);
         setShowOtpSuccessDialog(true);
@@ -282,6 +284,7 @@ const LiveStorePage = () => {
   const handleLogout = () => {
     setIsLoggedIn(false);
     ls.remove('customerDetails');
+    ls.remove('customerOTPIdle');
   };
 
   // Function to validate email
