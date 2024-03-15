@@ -405,7 +405,7 @@ export default function LoginPage() {
 
   const handleFacebookLogin = () => {
     const clientId = process.env.REACT_APP_FACEBOOK_CLIENT_ID;
-    const redirectUri = encodeURIComponent(`${window.location.origin}${process.env.REACT_APP_FACEBOOK_REDIRECT_URI}`);
+    const redirectUri = encodeURIComponent(`${process.env.REACT_APP_FACEBOOK_REDIRECT_URI}`);
     const state = encodeURIComponent(window.location.origin); // Optional: A string that represents app state. It will be passed back to you at the redirect URI.
 
     // Define the scope of access that the application is requesting.
