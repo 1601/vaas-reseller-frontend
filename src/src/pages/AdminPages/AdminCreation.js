@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import SecureLS from 'secure-ls';
 import { useNavigate } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import {
@@ -16,6 +17,8 @@ import {
   Snackbar,
 } from '@mui/material';
 import ArrowBack from '@mui/icons-material/ArrowBack';
+
+const ls = new SecureLS({ encodingType: 'aes' });
 
 const AdminCreation = () => {
   const navigate = useNavigate();
@@ -86,13 +89,19 @@ const AdminCreation = () => {
   const handleFinalSubmit = async () => {
     setOpenConfirmDialog(false);
     const uniqueKey = uuidv4();
+    const token = ls.get('token');
 
     try {
       await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/admin/send-invite`, {
         email: formState.email,
         mobileNumber: formState.phoneNumber,
         uniqueKey,
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
       });
+      
       setOpenSnackbar(true);
       setTimeout(() => {
         navigate('/dashboard/admin/home');

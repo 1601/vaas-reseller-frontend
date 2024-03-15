@@ -394,7 +394,6 @@ export default function SignUpPage() {
   useEffect(() => {
     // validate email once on enter page
     validateEmailAndCheckExistence(email);
-
   }, []);
 
   const validateMobileNumber = (country, number) => {
@@ -442,7 +441,7 @@ export default function SignUpPage() {
   const validateEmailAndCheckExistence = async (email) => {
     let valid = true;
     let message = '';
-  
+
     // Client-side validation first
     if (!email) {
       valid = false;
@@ -454,7 +453,7 @@ export default function SignUpPage() {
         message = 'Invalid email format';
       }
     }
-  
+
     if (valid) {
       try {
         await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/email`, {
@@ -476,12 +475,11 @@ export default function SignUpPage() {
         }
       }
     }
-  
+
     setIsEmailValid(valid);
     setEmailErrorMessage(message);
     setFieldErrors((prev) => ({ ...prev, email: !valid }));
   };
-  
 
   const handleEmailChange = (e) => {
     setEmail(e.target.value);
@@ -531,7 +529,7 @@ export default function SignUpPage() {
     handleSignUpStart();
     setPasswordError(false);
     setPasswordHelperText('');
-  
+
     try {
       await validateEmailAndCheckExistence(email);
     } catch (error) {
@@ -541,25 +539,26 @@ export default function SignUpPage() {
       handleSignUpEnd(); // Ensure this is called here to handle errors properly
       return; // Stop execution if email validation fails
     }
-  
+
     const isFormFullyValid = validateForm() && formData.password === formData.confirmPassword;
-  
+
     if (!formData.password.trim()) {
       setFieldErrors((prev) => ({ ...prev, confirmPassword: true }));
     }
-  
+
     if (isEmailValid && validateForm() && isFormFullyValid) {
       try {
         const submissionData = {
           ...formData,
           mobileNumber: countryCodes[formData.country] + formData.mobileNumber,
+          role: 'dealer',
         };
-  
+
         const signupResponse = await axios.post(
           `${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/signup`,
           submissionData
         );
-  
+
         if (signupResponse.status === 200) {
           try {
             const verificationResponse = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/email`, {
@@ -567,7 +566,7 @@ export default function SignUpPage() {
               firstName: formData.firstName,
               lastName: formData.lastName,
             });
-  
+
             if (verificationResponse.status === 200) {
               setErrorMessage('');
               setShowSuccessMessage(true);
@@ -583,10 +582,13 @@ export default function SignUpPage() {
         }
       } catch (error) {
         if (error.response && error.response.data) {
-          setErrorMessage(error.response.data.message);
-          if (error.response.data.message.includes('Password')) {
+          const errorMessage = error.response.data.message || 'An error occurred during signup.';
+
+          setErrorMessage(errorMessage);
+
+          if (errorMessage.includes('password')) {
             setPasswordError(true);
-            setPasswordHelperText(error.response.data.message);
+            setPasswordHelperText(errorMessage);
           }
         } else {
           setErrorMessage('An error occurred during signup.');
@@ -601,7 +603,6 @@ export default function SignUpPage() {
       handleSignUpEnd(); // Ensure this is called even when password validation fails
     }
   };
-  
 
   // const handleCloseModal = () => {
   //   setShowSuccessMessage(false);
