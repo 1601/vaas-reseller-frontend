@@ -42,6 +42,7 @@ const AdminDealerAccount = () => {
   const [resellersModalOpen, setResellersModalOpen] = useState(false);
   const [emailChangeError, setEmailChangeError] = useState('');
   const [filteredUsers, setFilteredUsers] = useState(users);
+  const [sortBy, setSortBy] = useState('');
 
   const handleMenuClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -141,6 +142,33 @@ const AdminDealerAccount = () => {
     }
   };
 
+  const handleSortChange = (event) => {
+    setSortBy(event.target.value);
+    if (event.target.value === 'latest') {
+       filteredUsers.sort((a, b) => {
+         if (!Object.prototype.hasOwnProperty.call(a, 'createdAt')) {
+           return 1;
+         }
+         if (!Object.prototype.hasOwnProperty.call(b, 'createdAt')) {
+           return -1;
+         }
+         return new Date(b.createdAt) - new Date(a.createdAt);
+       });
+    }
+    if (event.target.value === 'oldest') {
+      // if createdAt does not exist at json sort to last
+      filteredUsers.sort((a, b) => {
+        if (!Object.prototype.hasOwnProperty.call(a, 'createdAt')) {
+            return 1;
+        }
+        if (!Object.prototype.hasOwnProperty.call(b, 'createdAt')) {
+            return -1;
+        }
+        return new Date(a.createdAt) - new Date(b.createdAt);
+      });
+    }
+  }
+
   const handleEmailEdit = () => {
     setEmailChangeError('');
   };
@@ -163,127 +191,143 @@ const AdminDealerAccount = () => {
 
 
   return (
-    <Card className="mt-4 max-w-screen-lg mx-auto p-4" style={{ backgroundColor: '#ffffff' }}>
-      <Typography variant="h3" align="center" gutterBottom>
-        Dealer Accounts
-      </Typography>
-      <Autocomplete
-          multiple
-          id="tags-filled"
-          options={users.map((user) => user.email
-          )}
-          freeSolo
-          onChange={handleFilterChange}
-          renderTags={(value, getTagProps) =>
-              value.map((option, index) => (
-                  <Chip variant="outlined" label={option} {...getTagProps({ index })} />
-              ))
-          }
-          renderInput={(params) => (
-              <TextField
-                  {...params}
-                  variant="filled"
-                  label="Search dealers by email"
-                  placeholder="dealers"
-              />
-          )}
-      />
-      <TableContainer style={{borderTopLeftRadius: "0", borderTopRightRadius: "0"}} component={Card}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell style={{ width: '70%' }}>User</TableCell>
-              <TableCell align="right">Email</TableCell>
-              <TableCell align="right">Mobile Number</TableCell>
-              <TableCell align="right">Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {filteredUsers.map((user, index) => (
-              <TableRow key={index}>
-                <TableCell>
-                  <Typography variant="h6">
-                    {user.firstName || user.lastName
-                      ? `${user.firstName || ''} ${user.lastName || ''}`
-                      : user.userName || user.email}
-                  </Typography>
-                </TableCell>
-                <TableCell align="right">
-                  <div
-                    style={{
-                      display: 'inline-block',
-                      backgroundColor: user.isActive ? 'green' : 'red',
-                      width: '20px',
-                      height: '20px',
-                    }}
+      <Card className="mt-4 max-w-screen-lg mx-auto p-4" style={{backgroundColor: '#ffffff'}}>
+        <Typography variant="h3" align="center" gutterBottom>
+          Dealer Accounts
+        </Typography>
+        <div className="flex">
+          <Autocomplete
+              multiple
+              className="w-4/5"
+              id="tags-filled"
+              options={users.map((user) => user.email
+              )}
+              freeSolo
+              onChange={handleFilterChange}
+              renderTags={(value, getTagProps) =>
+                  value.map((option, index) => (
+                      <Chip variant="outlined" label={option} {...getTagProps({index})} />
+                  ))
+              }
+              renderInput={(params) => (
+                  <TextField
+                      {...params}
+                      variant="filled"
+                      label="Search dealers by email"
+                      placeholder="dealers"
                   />
-                </TableCell>
-                <TableCell align="right">
-                  <div
-                    style={{
-                      display: 'inline-block',
-                      backgroundColor: user.mobileNumberVerified ? 'green' : 'red',
-                      width: '20px',
-                      height: '20px',
-                    }}
-                  />
-                </TableCell>
-                <TableCell align="right">
-                  <MoreVertIcon
-                    aria-controls="simple-menu"
-                    aria-haspopup="true"
-                    onClick={(event) => {
-                      setAnchorEl(event.currentTarget);
-                      setUserToDelete(user._id);
-                    }}
-                    style={{ cursor: 'pointer' }}
-                  />
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <Menu anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleMenuClose}>
-        <MenuItem
-          onClick={() => {
-            setUserToView(users.find((u) => u._id === userToDelete));
-            setViewModalOpen(true);
-            handleMenuClose();
-          }}
-        >
-          View Info
-        </MenuItem>
-        <MenuItem onClick={() => handleResellers(userToDelete)}>Resellers</MenuItem>
-        <MenuItem
-          onClick={() => {
-            const user = users.find((u) => u._id === userToDelete);
-            if (user) {
-              setUserToEdit(user);
-              setChangeEmailModalOpen(true);
-            }
-            setAnchorEl(null);
-          }}
-        >
-          Change Email
-        </MenuItem>
-        <MenuItem onClick={() => handleDelete(userToDelete)}>Delete</MenuItem>
-      </Menu>
-      <ViewUserModal open={viewModalOpen} onClose={() => setViewModalOpen(false)} user={userToView} />
-      <ChangeDealerEmailModal
-        open={changeEmailModalOpen}
-        onClose={() => {
-          setChangeEmailModalOpen(false);
-        }}
-        user={userToEdit}
-        onSubmit={handleSubmitEmailChange}
-        errorMessage={emailChangeError}
-        onEmailEdit={handleEmailEdit} 
-      />
-      <ResellersModal open={resellersModalOpen} onClose={() => setResellersModalOpen(false)} userId={userToDelete} />
-      <DeleteUserModal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)} onConfirm={confirmDelete} />
-    </Card>
-  );
+              )}
+          />
+          <FormControl className="w-1/5">
+            <InputLabel id={"demo-simple-select-label"}>Sort By</InputLabel>
+            <Select
+                labelId={"demo-simple-select-label"}
+                id="demo-simple-select"
+                label="Sort By"
+                value={sortBy}
+                onChange={handleSortChange}
+            >
+              <MenuItem value={"latest"}>Latest</MenuItem>
+              <MenuItem value={"oldest"}>Oldest</MenuItem>
+            </Select>
+          </FormControl>
+        </div>
+          <TableContainer style={{borderTopLeftRadius: "0", borderTopRightRadius: "0"}} component={Card}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell style={{width: '70%'}}>User</TableCell>
+                  <TableCell align="right">Email</TableCell>
+                  <TableCell align="right">Mobile Number</TableCell>
+                  <TableCell align="right">Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {filteredUsers.map((user, index) => (
+                    <TableRow key={index}>
+                      <TableCell>
+                        <Typography variant="h6">
+                          {user.firstName || user.lastName
+                              ? `${user.firstName || ''} ${user.lastName || ''}`
+                              : user.userName || user.email}
+                        </Typography>
+                      </TableCell>
+                      <TableCell align="right">
+                        <div
+                            style={{
+                              display: 'inline-block',
+                              backgroundColor: user.isActive ? 'green' : 'red',
+                              width: '20px',
+                              height: '20px',
+                            }}
+                        />
+                      </TableCell>
+                      <TableCell align="right">
+                        <div
+                            style={{
+                              display: 'inline-block',
+                              backgroundColor: user.mobileNumberVerified ? 'green' : 'red',
+                              width: '20px',
+                              height: '20px',
+                            }}
+                        />
+                      </TableCell>
+                      <TableCell align="right">
+                        <MoreVertIcon
+                            aria-controls="simple-menu"
+                            aria-haspopup="true"
+                            onClick={(event) => {
+                              setAnchorEl(event.currentTarget);
+                              setUserToDelete(user._id);
+                            }}
+                            style={{cursor: 'pointer'}}
+                        />
+                      </TableCell>
+                    </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          <Menu anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleMenuClose}>
+            <MenuItem
+                onClick={() => {
+                  setUserToView(users.find((u) => u._id === userToDelete));
+                  setViewModalOpen(true);
+                  handleMenuClose();
+                }}
+            >
+              View Info
+            </MenuItem>
+            <MenuItem onClick={() => handleResellers(userToDelete)}>Resellers</MenuItem>
+            <MenuItem
+                onClick={() => {
+                  const user = users.find((u) => u._id === userToDelete);
+                  if (user) {
+                    setUserToEdit(user);
+                    setChangeEmailModalOpen(true);
+                  }
+                  setAnchorEl(null);
+                }}
+            >
+              Change Email
+            </MenuItem>
+            <MenuItem onClick={() => handleDelete(userToDelete)}>Delete</MenuItem>
+          </Menu>
+          <ViewUserModal open={viewModalOpen} onClose={() => setViewModalOpen(false)} user={userToView}/>
+          <ChangeDealerEmailModal
+              open={changeEmailModalOpen}
+              onClose={() => {
+                setChangeEmailModalOpen(false);
+              }}
+              user={userToEdit}
+              onSubmit={handleSubmitEmailChange}
+              errorMessage={emailChangeError}
+              onEmailEdit={handleEmailEdit}
+          />
+          <ResellersModal open={resellersModalOpen} onClose={() => setResellersModalOpen(false)} userId={userToDelete}/>
+          <DeleteUserModal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)} onConfirm={confirmDelete}/>
+      </Card>
+);
 };
 
 export default AdminDealerAccount;
