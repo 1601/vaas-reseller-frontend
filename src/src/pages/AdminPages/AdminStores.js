@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import SecureLS from 'secure-ls';
-import {Card, Typography, CircularProgress, Chip, TextField, Autocomplete, Select, MenuItem, FormControl, InputLabel} from '@mui/material';
+import {Card, Typography, CircularProgress, Chip, TextField, Autocomplete, Select, MenuItem, InputLabel, FormControl} from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import CircularLoading from '../../components/preLoader';
 
@@ -35,7 +35,7 @@ const AdminStores = () => {
   const [filteredApprovedStores, setFilteredApprovedStores] = useState(approvedStores);
   const [filteredLiveStores, setFilteredLiveStores] = useState(liveStores);
   const [filteredStoresNeedingApproval, setFilteredStoresNeedingApproval] = useState(storesNeedingApproval);
-  const [sortBy, setSortBy] = useState("");
+  const [sortBy, setSortBy] = useState('');
 
   const token = ls.get('token');
 
@@ -84,7 +84,16 @@ const AdminStores = () => {
 
   const handleSortChange = (event) => {
     setSortBy(event.target.value);
-    console.log(sortBy);
+    if (event.target.value === 'latest') {
+      filteredApprovedStores.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+      filteredLiveStores.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+      filteredStoresNeedingApproval.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+    }
+    if (event.target.value === 'oldest') {
+      filteredApprovedStores.sort((a, b) => new Date(a.updatedAt) - new Date(b.updatedAt));
+      filteredLiveStores.sort((a, b) => new Date(a.updatedAt) - new Date(b.updatedAt));
+      filteredStoresNeedingApproval.sort((a, b) => new Date(a.updatedAt) - new Date(b.updatedAt));
+    }
   }
 
   const renderStoreCard = (title, stores) => (
@@ -93,16 +102,6 @@ const AdminStores = () => {
         <Typography variant="h4" gutterBottom>
           <div>
             {title}
-            <Select
-                className="h-10 w-20 md:h-8 md:w-12 lg:h-12 lg:w-28 ml-4"
-                id="demo-simple-select"
-                label="Sort by"
-                value={sortBy}
-                onChange={handleSortChange}
-            >
-              <MenuItem value={"latest"}>Latest</MenuItem>
-              <MenuItem value={"oldest"}>Oldest</MenuItem>
-            </Select>
           </div>
         </Typography>
         <div className="overflow-auto" style={{ maxHeight: 'calc(100vh - 220px)' }}>
@@ -141,8 +140,9 @@ const AdminStores = () => {
       <Typography variant="h3" align="center" gutterBottom>
         Store Approval
       </Typography>
-      <div>
+      <div className="flex">
         <Autocomplete
+            className="w-4/5"
             multiple
             id="tags-filled"
             options={allStores.map((store) => store.storeName
@@ -163,6 +163,19 @@ const AdminStores = () => {
                 />
             )}
         />
+        <FormControl className="w-1/5">
+        <InputLabel id={"demo-simple-select-label"}>Sort By</InputLabel>
+        <Select
+            labelId={"demo-simple-select-label"}
+            id="demo-simple-select"
+            label="Sort By"
+            value={sortBy}
+            onChange={handleSortChange}
+        >
+          <MenuItem value={"latest"}>Latest</MenuItem>
+          <MenuItem value={"oldest"}>Oldest</MenuItem>
+        </Select>
+        </FormControl>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 max-w-screen-lg mx-auto">
         {renderStoreCard('Needs Approval', filteredStoresNeedingApproval)}
