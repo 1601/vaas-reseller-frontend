@@ -239,6 +239,8 @@ export default function SignUpPage() {
   const [initialCurrency, setInitialCurrency] = useState('');
   const [passwordFocus, setPasswordFocus] = useState(false);
   const [signUpDialogOpen, setSignUpDialogOpen] = React.useState(false);
+  const [isGoogleSignUp, setIsGoogleSignUp] = React.useState(false);
+  const [isFacebookSignUp, setIsFacebookSignUp] = React.useState(false);
 
   const [fieldErrors, setFieldErrors] = useState({
     firstName: false,
@@ -265,8 +267,23 @@ export default function SignUpPage() {
     confirmPassword: false,
   });
 
-  const openTermsDialog = () => {
+  useEffect(() => {
+    if (isGoogleSignUp && isTermsAccepted) {
+      handleGoogleSignUp();
+    }
+    if (isFacebookSignUp && isTermsAccepted) {
+      handleFacebookSignUp();
+    }
+  }, [isFacebookSignUp, isGoogleSignUp, isTermsAccepted]);
+
+  const openTermsDialog = (googleSignUp = false, facebookSignUp = false) => {
     setIsTermsDialogOpen(true);
+    if (googleSignUp) {
+      setIsGoogleSignUp(true);
+    }
+    if (facebookSignUp) {
+      setIsFacebookSignUp(true);
+    }
   };
 
   const agreeToTerms = () => {
@@ -1126,7 +1143,9 @@ export default function SignUpPage() {
 
                   <TermsDialog
                     open={isTermsDialogOpen}
-                    onClose={() => setIsTermsDialogOpen(false)}
+                    onClose={() => {
+                      setIsTermsDialogOpen(false); setIsGoogleSignUp(false); setIsFacebookSignUp(false)
+                    }}
                     onAgree={agreeToTerms}
                   />
 
@@ -1197,8 +1216,7 @@ export default function SignUpPage() {
                         color="inherit"
                         variant="outlined"
                         startIcon={<Iconify icon="eva:google-fill" color="#DF3E30" width={22} height={22} />}
-                        onClick={handleGoogleSignUp}
-                        disabled={!isTermsAccepted}
+                        onClick={() => {openTermsDialog(true, false) }}
                         sx={ssoStyles}
                       >
                         <Typography sx={ssoStyles}>Sign Up with Google</Typography>
@@ -1211,8 +1229,7 @@ export default function SignUpPage() {
                         color="inherit"
                         variant="outlined"
                         startIcon={<Iconify icon="eva:facebook-fill" color="#1877F2" width={22} height={22} />}
-                        disabled={!isTermsAccepted}
-                        onClick={handleFacebookSignUp}
+                        onClick={() => {openTermsDialog(false, true)}}
                       >
                         <Typography sx={ssoStyles}>Sign Up with Facebook</Typography>
                       </Button>
