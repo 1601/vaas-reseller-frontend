@@ -268,21 +268,23 @@ export default function SignUpPage() {
   });
 
   useEffect(() => {
-    if (isGoogleSignUp && isTermsAccepted) {
+    if (isGoogleSignUp === true && isTermsAccepted === true) {
       handleGoogleSignUp();
     }
-    if (isFacebookSignUp && isTermsAccepted) {
+    if (isFacebookSignUp === true && isTermsAccepted === true) {
       handleFacebookSignUp();
     }
   }, [isFacebookSignUp, isGoogleSignUp, isTermsAccepted]);
 
   const openTermsDialog = (googleSignUp = false, facebookSignUp = false) => {
     setIsTermsDialogOpen(true);
-    if (googleSignUp) {
+    if (googleSignUp === true) {
       setIsGoogleSignUp(true);
+      console.log("triggered")
     }
-    if (facebookSignUp) {
+    if (facebookSignUp === true) {
       setIsFacebookSignUp(true);
+      console.log("triggered2")
     }
   };
 
@@ -1191,7 +1193,7 @@ export default function SignUpPage() {
 
                   {/* Accept Terms and Conditions */}
                   <FormControlLabel
-                    control={<Checkbox checked={isTermsAccepted} onChange={openTermsDialog} />}
+                    control={<Checkbox checked={isTermsAccepted} onChange={() => openTermsDialog(false, false)} />}
                     label={
                       <>
                         I agree to the
