@@ -280,11 +280,9 @@ export default function SignUpPage() {
     setIsTermsDialogOpen(true);
     if (googleSignUp === true) {
       setIsGoogleSignUp(true);
-      console.log("triggered")
     }
     if (facebookSignUp === true) {
       setIsFacebookSignUp(true);
-      console.log("triggered2")
     }
   };
 
