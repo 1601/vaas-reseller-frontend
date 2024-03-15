@@ -1,7 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import SecureLS from 'secure-ls';
-import {Autocomplete, Card, Chip, TextField, Typography} from '@mui/material';
+import {
+  Autocomplete,
+  Card,
+  Chip,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+  Typography
+} from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import CircularLoading from '../../components/preLoader';
 
@@ -39,6 +49,7 @@ const AdminKYC = () => {
   const [filteredKycNotSubmitted, setFilteredKycNotSubmitted] = useState(kycNotSubmitted);
   const [filteredKycPending, setFilteredKycPending] = useState(kycPending);
   const [filteredKycApproved, setFilteredKycApproved] = useState(kycApproved);
+  const [sortBy, setSortBy] = useState('');
 
   const fetchKYCStatus = async (status) => {
     const token = ls.get('token');
@@ -90,6 +101,20 @@ const AdminKYC = () => {
     setFilteredKycApproved(kycApproved);
   }, [kycNotSubmitted, kycPending, kycApproved]);
 
+  const handleSortChange = (event) => {
+    setSortBy(event.target.value);
+    if (event.target.value === 'latest') {
+      filteredKycNotSubmitted.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+      filteredKycPending.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+      filteredKycApproved.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+    }
+    if (event.target.value === 'oldest') {
+      filteredKycNotSubmitted.sort((a, b) => new Date(a.updatedAt) - new Date(b.updatedAt));
+      filteredKycPending.sort((a, b) => new Date(a.updatedAt) - new Date(b.updatedAt));
+      filteredKycApproved.sort((a, b) => new Date(a.updatedAt) - new Date(b.updatedAt));
+    }
+  }
+
   const handleStoreClick = (storeId) => {
     navigate(`/dashboard/admin/kycapprove/${storeId}`);
   };
@@ -131,38 +156,54 @@ const AdminKYC = () => {
   };
 
   return (
-    <Card className="mt-4 max-w-screen-lg mx-auto p-4 bg-white">
-      <Typography variant="h3" align="center" gutterBottom>
-        KYC Approval
-      </Typography>
-      <Autocomplete
-          multiple
-          id="tags-filled"
-          options={allKyc.map((store) => store.storeName
-          )}
-          freeSolo
-          onChange={handleFilterChange}
-          renderTags={(value, getTagProps) =>
-              value.map((option, index) => (
-                  <Chip variant="outlined" label={option} {...getTagProps({ index })} />
-              ))
-          }
-          renderInput={(params) => (
-              <TextField
-                  {...params}
-                  variant="filled"
-                  label="Search KYC by name"
-                  placeholder="KYC"
-              />
-          )}
-      />
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 max-w-screen-lg mx-auto">
-        <KYCCard title="No KYC Submitted" items={filteredKycNotSubmitted} onStoreClick={handleStoreClick} />
-        <KYCCard title="For KYC Approval" items={filteredKycPending} onStoreClick={handleStoreClick} />
-        <KYCCard title="Approved KYC" items={filteredKycApproved} onStoreClick={handleStoreClick} />
-      </div>
-    </Card>
-  );
+      <Card className="mt-4 max-w-screen-lg mx-auto p-4 bg-white">
+        <Typography variant="h3" align="center" gutterBottom>
+          KYC Approval
+        </Typography>
+        <div className="flex">
+          <Autocomplete
+              multiple
+              className="w-4/5"
+              id="tags-filled"
+              options={allKyc.map((store) => store.storeName
+              )}
+              freeSolo
+              onChange={handleFilterChange}
+              renderTags={(value, getTagProps) =>
+                  value.map((option, index) => (
+                      <Chip variant="outlined" label={option} {...getTagProps({index})} />
+                  ))
+              }
+              renderInput={(params) => (
+                  <TextField
+                      {...params}
+                      variant="filled"
+                      label="Search KYC by name"
+                      placeholder="KYC"
+                  />
+              )}
+          />
+          <FormControl className="w-1/5">
+            <InputLabel id={"demo-simple-select-label"}>Sort By</InputLabel>
+            <Select
+                labelId={"demo-simple-select-label"}
+                id="demo-simple-select"
+                label="Sort By"
+                value={sortBy}
+                onChange={handleSortChange}
+            >
+              <MenuItem value={"latest"}>Latest</MenuItem>
+              <MenuItem value={"oldest"}>Oldest</MenuItem>
+            </Select>
+          </FormControl>
+        </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 max-w-screen-lg mx-auto">
+            <KYCCard title="No KYC Submitted" items={filteredKycNotSubmitted} onStoreClick={handleStoreClick}/>
+            <KYCCard title="For KYC Approval" items={filteredKycPending} onStoreClick={handleStoreClick}/>
+            <KYCCard title="Approved KYC" items={filteredKycApproved} onStoreClick={handleStoreClick}/>
+          </div>
+      </Card>
+);
 };
 
 export default AdminKYC;
