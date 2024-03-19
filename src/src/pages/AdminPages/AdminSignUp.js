@@ -15,8 +15,6 @@ import {
   Box,
 } from '@mui/material';
 
-const passwordValidation = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,12}$/;
-
 const AdminSignUp = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -34,10 +32,47 @@ const AdminSignUp = () => {
     country: 'not_applicable',
   });
   const [isRestricted, setIsRestricted] = useState(false);
+  const [showErrorDialog, setShowErrorDialog] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const [passwordValid, setPasswordValid] = useState(false);
   const [passwordError, setPasswordError] = useState('');
   const [isPasswordTouched, setIsPasswordTouched] = useState(false);
+  const [isPasswordFocused, setIsPasswordFocused] = useState(false);
+
+  const PasswordRequirements = ({ password }) => {
+    const requirements = [
+      { label: '8-12 characters long', test: (pw) => pw.length >= 8 && pw.length <= 12 },
+      { label: 'One uppercase letter', test: (pw) => /[A-Z]/.test(pw) },
+      { label: 'One lowercase letter', test: (pw) => /[a-z]/.test(pw) },
+      { label: 'One number', test: (pw) => /\d/.test(pw) },
+      { label: 'One special character (@$!%*?&)', test: (pw) => /[@$!%*?&]/.test(pw) },
+    ];
+
+    return (
+      <Box
+        sx={{
+          mb: 2,
+          p: 2,
+          border: '1px solid #ccc',
+          borderRadius: '4px',
+          backgroundColor: '#f9f9f9',
+          display: isPasswordFocused ? 'block' : 'none',
+        }}
+      >
+        <Typography variant="body2" color="textSecondary" gutterBottom>
+          Password must contain:
+        </Typography>
+        <ul style={{ margin: 0, padding: 0, listStyleType: 'none', paddingLeft: '15px' }}>
+          {requirements.map((req, index) => (
+            <li key={index} style={{ color: req.test(password) ? 'green' : 'red' }}>
+              {req.label}
+            </li>
+          ))}
+        </ul>
+      </Box>
+    );
+  };
 
   useEffect(() => {
     const query = new URLSearchParams(location.search);
@@ -79,15 +114,17 @@ const AdminSignUp = () => {
       alert('Please input all required fields.');
       return;
     }
+
+    setLoading(true);
     try {
-      setLoading(true);
       const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/admin/signup`, formState);
-      // console.log('Response:', response.data);
       setLoading(false);
       setShowSuccessDialog(true);
     } catch (error) {
       console.error('Error during admin signup:', error);
       setLoading(false);
+      setErrorMessage('Failed to create admin. Please try again later.'); // Customize this message based on your error handling logic
+      setShowErrorDialog(true);
     }
   };
 
@@ -95,6 +132,25 @@ const AdminSignUp = () => {
     setShowSuccessDialog(false);
     navigate('/admin');
   };
+
+  const LoadingDialog = () => (
+    <Dialog open={loading} onClose={() => {}}>
+      <Box sx={{ p: 2, display: 'flex', alignItems: 'center' }}>
+        <CircularProgress size={24} sx={{ mr: 2 }} />
+        <Typography>Creating admin...</Typography>
+      </Box>
+    </Dialog>
+  );
+
+  const ErrorDialog = () => (
+    <Dialog open={showErrorDialog} onClose={() => setShowErrorDialog(false)}>
+      <DialogTitle>Error</DialogTitle>
+      <DialogContent>
+        <Typography>{errorMessage}</Typography>
+      </DialogContent>
+      <Button onClick={() => setShowErrorDialog(false)}>Close</Button>
+    </Dialog>
+  );
 
   const validatePassword = (password) => {
     const errors = [];
@@ -130,6 +186,9 @@ const AdminSignUp = () => {
       validatePassword(e.target.value);
     }
   };
+
+  const handlePasswordFocus = () => setIsPasswordFocused(true);
+  const handlePasswordBlur = () => setIsPasswordFocused(false);
 
   const isFormFilled = () => {
     return formState.firstName && formState.lastName && formState.password && formState.email && formState.mobileNumber;
@@ -180,12 +239,14 @@ const AdminSignUp = () => {
             type="password"
             value={formState.password}
             onChange={handleInputChange}
+            onFocus={handlePasswordFocus}
+            onBlur={handlePasswordBlur}
             fullWidth
             variant="outlined"
             sx={{ mb: 2 }}
             error={isPasswordTouched && !passwordValid}
-            helperText={isPasswordTouched && !passwordValid && passwordError}
           />
+          {isPasswordFocused && <PasswordRequirements password={formState.password} />}
           <TextField
             label="Email"
             name="email"
@@ -225,6 +286,9 @@ const AdminSignUp = () => {
         </DialogContent>
         <Button onClick={handleCloseSuccessDialog}>Proceed to Login</Button>
       </Dialog>
+
+      <LoadingDialog />
+      <ErrorDialog />
     </Container>
   );
 };
