@@ -178,7 +178,17 @@ export default function CustomerPage() {
 
   const handleOpenModal = async (row) => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/purchase/${row._id}`);
+      const token = ls.get('token');
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+
+      const response = await axios.get(
+        `${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/purchase/${row._id}`,
+        config
+      );
       const purchases = response.data.body;
 
       const totalAmount = purchases.reduce((accumulator, purchase) => accumulator + purchase.amount, 0);
@@ -210,7 +220,15 @@ export default function CustomerPage() {
   useEffect(() => {
     const fetchCustomers = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/all/${userId}`);
+        const token = ls.get('token');
+
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/all/${userId}`, config);
         if (response.data.body) {
           setCustomers(response.data.body.length);
           setFilterCustomer(response.data.body);

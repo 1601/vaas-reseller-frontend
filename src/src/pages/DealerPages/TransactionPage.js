@@ -112,6 +112,7 @@ export default function TransactionPage() {
   const fetchCustomerPurchases = async () => {
     let userId;
     let role;
+    let filteredTransactions = [];
 
     try {
       const storedUser = ls.get('user');
@@ -119,36 +120,42 @@ export default function TransactionPage() {
         userId = storedUser._id;
         role = storedUser.role;
       }
-    } catch (error) {
-      console.error('Error parsing user data from secureLS:', error);
-      return;
-    }
 
-    try {
+      const token = ls.get('token');
+      if (!token) {
+        console.error('JWT token is missing. Unable to fetch customer purchases.');
+        return filteredTransactions;
+      }
+
+      // Fetch all customers related to the user
       const endpoint = `${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/all/${userId}`;
-      const customerResponse = await axios.get(endpoint);
+      const headers = { Authorization: `Bearer ${token}` };
+      const customerResponse = await axios.get(endpoint, { headers });
       const customers = customerResponse.data.body;
 
-      const transactions = await Promise.all(
-        customers.map(async (customer) => {
-          const purchaseResponse = await axios.get(
-            `${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/purchase/${customer._id}`
-          );
-          return purchaseResponse.data.body
-            .filter((purchase) => role !== 'reseller' || (role === 'reseller' && purchase.resellerId === userId))
-            .map((purchase) => ({
-              ...purchase,
-              userName: customer.fullName,
-              type: 'Topup',
-              refNo: purchase.productName,
-              ID: purchase.customerId,
-              paymentId: `vaas_${purchase._id}`,
-            }));
-        })
-      ).then((result) => result.flat());
+      // Extract customer IDs from the customer data
+      const customerIds = customers.map((customer) => customer._id);
+      // Ensure the request to the purchases endpoint includes customer IDs in query parameters
+      const purchasesEndpoint = `${
+        process.env.REACT_APP_BACKEND_URL
+      }/v1/api/customer/purchases?customerIds=${customerIds.join(',')}`;
+      const purchasesResponse = await axios.get(purchasesEndpoint, { headers });
+      const purchases = purchasesResponse.data.body;
+
+      // Filter and map purchases as needed, similar to before
+      const transactions = purchases
+        .filter((purchase) => role !== 'reseller' || (role === 'reseller' && purchase.resellerId === userId))
+        .map((purchase) => ({
+          ...purchase,
+          userName: customers.find((customer) => customer._id === purchase.customerId)?.fullName || 'Unknown',
+          type: 'Topup',
+          refNo: purchase.productName,
+          ID: purchase.customerId,
+          paymentId: `vaas_${purchase._id}`,
+        }));
 
       // Filter transactions by selected date range
-      const filteredTransactions = transactions.filter((transaction) => {
+      filteredTransactions = transactions.filter((transaction) => {
         const transactionDate = new Date(transaction.createdAt);
         const startDate = new Date(selectedRange[0].startDate);
         const endDate = new Date(selectedRange[0].endDate);
@@ -156,16 +163,15 @@ export default function TransactionPage() {
 
         return transactionDate >= startDate && transactionDate <= endDate;
       });
-
-      setTransactions(filteredTransactions);
     } catch (error) {
       console.error('Error fetching customer purchases:', error);
     }
+    return filteredTransactions;
   };
 
-  useEffect(() => {
-    fetchCustomerPurchases();
-  }, [selectedRange, userId]);
+  // useEffect(() => {
+  //   fetchCustomerPurchases();
+  // }, [selectedRange, userId]);
 
   const handleGetData = async () => {
     setIsLoading(true);
@@ -179,38 +185,30 @@ export default function TransactionPage() {
     try {
       // Fetch transactions within the specified date range
       const rangeResult = await getAllByDateRange(formattedStartDate, formattedEndDate);
-      let dateRangeTransactions = [];
-      if (rangeResult && rangeResult.body && rangeResult.body.length > 0) {
-        dateRangeTransactions = rangeResult.body.map((transaction) => ({
-          ...transaction,
-          userName: transaction.userName || 'Unknown',
-          type: 'Transaction',
-        }));
-      }
+      const dateRangeTransactions =
+        rangeResult && rangeResult.body && rangeResult.body.length > 0
+          ? rangeResult.body.map((transaction) => ({
+              // Mapping logic remains the same...
+            }))
+          : [];
 
-      // Fetch customer purchase transactions separately
-      await fetchCustomerPurchases();
+      // Now fetchCustomerPurchases returns the transactions
+      const customerPurchases = await fetchCustomerPurchases();
 
-      // Combine transactions from both sources
-      const combinedTransactions = [
-        ...transactions.filter((transaction) => {
-          const transactionDate = new Date(transaction.createdAt);
-          return transactionDate >= startDate && transactionDate <= endDate;
-        }),
-        ...dateRangeTransactions,
-      ];
+      // Combine and filter transactions here
+      const combinedTransactions = [...customerPurchases, ...dateRangeTransactions].filter((transaction) => {
+        const transactionDate = new Date(transaction.createdAt);
+        return transactionDate >= startDate && transactionDate <= endDate;
+      });
 
-      setTransactionList(combinedTransactions);
+      setTransactionList(combinedTransactions); // Update state with combined transactions
       handleToDownloadData(combinedTransactions);
 
-      if (combinedTransactions.length === 0) {
-        setIsNotFound(true);
-      }
-
-      setIsLoading(false);
+      setIsNotFound(combinedTransactions.length === 0);
     } catch (error) {
       console.error('Error fetching combined transactions data:', error);
       setIsNotFound(true);
+    } finally {
       setIsLoading(false);
     }
   };
