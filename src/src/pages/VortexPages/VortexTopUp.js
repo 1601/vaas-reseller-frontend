@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useReducer, useContext, useCallback } from 'react';
+import React, { useRef, useState, useEffect, useReducer, useContext, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import SecureLS from 'secure-ls';
@@ -324,6 +324,16 @@ const VortexTopUp = () => {
     // setUserDetailShown(detailsSubmitted); // Update this line
   };
 
+  const [showErrorDialog, setShowErrorDialog] = useState(false);
+  const [errorDialogMessage, setErrorDialogMessage] = useState('');
+  const [showOtpVerificationDialog, setShowOtpVerificationDialog] = useState(false);
+  const [showSessionVerifiedDialog, setShowSessionVerifiedDialog] = useState(false);
+  const [isVerifyingSession, setIsVerifyingSession] = useState(false);
+  const [otp, setOtp] = useState('');
+  const [otpError, setOtpError] = useState(false);
+  const [otpErrorMessage, setOtpErrorMessage] = useState('');
+  const emailRef = useRef('');
+
   const UserDetailsDialog = ({ open, onUserDetailsSubmit, handleDialogClose }) => {
     const [selectedCountry, setSelectedCountry] = useState('');
     const [userDetails, setUserDetails] = useState({
@@ -438,43 +448,40 @@ const VortexTopUp = () => {
       if (isValid || userDetails.ipAddress) {
         try {
           const storeUrl = getStoreUrl();
-          // console.log('storeUrl: ', storeUrl);
-
           const fullPhoneNumber = userDetails.country
             ? countryCodes[userDetails.country] + userDetails.phoneNumber
             : userDetails.phoneNumber;
 
-          // Fetch dealerId from the store URL
           const storeResponse = await axios.get(
             `${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/url/${storeUrl}/user`
           );
           const dealerId = storeResponse.data.userId;
-          // console.log('dealerId: ', dealerId);
 
           // Append customer details first
-          const appendResponse = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/append`, {
+          const appendResponse = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/new`, {
             ...userDetails,
-            phoneNumber: fullPhoneNumber, // Use fullPhoneNumber which includes the country code
+            phoneNumber: fullPhoneNumber,
             dealerId,
           });
-          // console.log('appendResponse: ', appendResponse);
-
-          let customerId;
 
           if (appendResponse.data && appendResponse.data.body && appendResponse.data.body._id) {
-            // Use the ID from the append response directly
-            customerId = appendResponse.data.body._id;
+            const customerId = appendResponse.data.body._id;
 
-            // Update transactionData with dealerId and customerId
-            const updatedTransactionData = { ...transactionData, dealerId, customerId };
-            onUserDetailsSubmit(updatedTransactionData);
-            handleDialogClose({ userDetails, skipped: false }, true);
+            try {
+              setIsVerifyingSession(true);
+              await sendOtp(userDetails.email);
+              setIsVerifyingSession(false);
+            } catch (error) {
+              console.error('Error sending OTP:', error);
+              setIsVerifyingSession(false);
+            }
           } else {
             throw new Error('Failed to create or append customer');
           }
         } catch (error) {
           console.error('Error fetching IDs or submitting user details:', error);
-          // Handle error cases here
+          setErrorDialogMessage(error.response?.data?.message || 'An unexpected error occurred. Please try again.');
+          setShowErrorDialog(true);
         }
       }
     };
@@ -501,18 +508,17 @@ const VortexTopUp = () => {
         };
 
         // Submitting payload
-        const appendResponse = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/append`, payload);
+        const appendResponse = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/new`, payload);
 
         if (appendResponse.status === 200 || appendResponse.status === 201) {
-          // Attempt to fetch customerId using the IP address
           const customerResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/find`, {
             params: { ipAddress },
           });
 
-          // If customer is found, use its ID
           const customerId = customerResponse.data ? customerResponse.data._id : null;
 
-          // Update transactionData with dealerId and customerId
+          ls.set('guestDetails', { dealerId, customerId, skipped: true, timestamp: Date.now() });
+
           const updatedTransactionData = { ...transactionData, dealerId, customerId };
           onUserDetailsSubmit(updatedTransactionData);
 
@@ -524,86 +530,267 @@ const VortexTopUp = () => {
       }
     };
 
+    async function sendOtp(email) {
+      try {
+        const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/customer/otp`, { email });
+        console.log('OTP sent successfully');
+        emailRef.current = email;
+        setShowOtpVerificationDialog(true);
+      } catch (error) {
+        console.error('Failed to send OTP', error);
+      }
+    }
+
+    const handleCloseOtpDialog = () => {
+      setShowOtpVerificationDialog(false);
+      setOtp('');
+      setOtpError(false);
+      setOtpErrorMessage('');
+    };
+
+    const handleOtpChange = (event) => {
+      setOtp(event.target.value);
+      if (otpError) {
+        setOtpError(false);
+        setOtpErrorMessage('');
+      }
+    };
+
+    const handleVerifyOtp = async () => {
+      if (!otp.trim()) {
+        setOtpError(true);
+        setOtpErrorMessage('OTP is required');
+        return;
+      }
+
+      console.log('emailRef.current: ', emailRef.current);
+
+      let storeUrl = window.location.hostname.split('.')[0];
+
+      if (window.location.hostname === 'localhost' || 'sparkledev' || !storeUrl || storeUrl === 'www') {
+        const pathParts = window.location.pathname.split('/');
+        if (pathParts.length > 1 && pathParts[1]) {
+          storeUrl = pathParts[1];
+        } else {
+          console.error('Store URL not found');
+          setIsLoading(false);
+          return;
+        }
+      }
+
+      try {
+        const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/customer/verify-otp`, {
+          email: emailRef.current,
+          otpCode: otp,
+        });
+
+        if (response.data.message === 'OTP verified successfully') {
+          console.log('OTP verified');
+
+          const customerResponse = await axios.get(
+            `${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/${emailRef.current}`
+          );
+          const customerData = customerResponse.data;
+          const { token } = customerData;
+
+          const base64Url = token.split('.')[1];
+          const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+          const decodedPayload = JSON.parse(window.atob(base64));
+          const { id: customerId } = decodedPayload;
+
+          console.log('Decoded JWT Payload:', decodedPayload);
+          console.log('Extracted Customer ID:', customerId);
+
+          // Fetch dealer ID
+          const dealerResponse = await axios.get(
+            `${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/url/${storeUrl}/user`
+          );
+          const dealerId = dealerResponse.data.userId;
+
+          ls.set('customerDetails', {
+            mobileNumber: customerData.mobileNumber,
+            email: customerData.customer.email,
+            dealerId,
+            customerId,
+            timeOut: Date.now(),
+            jwtToken: token,
+          });
+
+          ls.set('customerOTPIdle', Date.now());
+
+          setShowOtpVerificationDialog(false);
+          setShowSessionVerifiedDialog(true);
+          setOtp('');
+          setOtpError(false);
+          setOtpErrorMessage('');
+
+          const updatedTransactionData = {
+            ...transactionData,
+            dealerId,
+            customerId,
+          };
+          onUserDetailsSubmit(updatedTransactionData);
+          handleDialogClose({ userDetails, skipped: false }, true);
+        } else {
+          setOtpError(true);
+          setOtpErrorMessage('Failed to verify OTP. Please try again.');
+        }
+      } catch (error) {
+        console.error('Error verifying OTP:', error);
+        setOtpError(true);
+        const errorMessage = error.response?.data?.message || 'There was an error verifying the OTP. Please try again.';
+        setOtpErrorMessage(errorMessage);
+      }
+    };
+
     return (
-      <Dialog open={open} onClose={handleSkip} aria-labelledby="form-dialog-title">
-        <DialogTitle id="form-dialog-title">Enter Your Details</DialogTitle>
-        <DialogContent>
-          <Typography variant="body2">
-            To follow up on the transaction, please provide at least one contact detail.
-          </Typography>
-          <Autocomplete
-            id="country-select"
-            options={countries}
-            getOptionLabel={(option) => option}
-            value={selectedCountry}
-            onChange={handleChange('country')}
-            fullWidth
-            renderInput={(params) => <TextField {...params} label="Country" />}
-          />
-          <TextField
-            autoFocus
-            margin="dense"
-            id="phone"
-            label="Phone Number"
-            type="tel"
-            fullWidth
-            value={userDetails.phoneNumber}
-            onChange={handleChange('phoneNumber')}
-            error={!!phoneNumberError}
-            helperText={phoneNumberError}
-            disabled={!selectedCountry}
-            InputProps={{
-              startAdornment: userDetails.country ? (
-                <InputAdornment position="start">{countryCodes[userDetails.country]}</InputAdornment>
-              ) : null,
-            }}
-          />
-          <TextField
-            margin="dense"
-            id="email"
-            label="Email Address"
-            type="email"
-            fullWidth
-            value={userDetails.email}
-            onChange={handleChange('email')}
-            error={!!emailError}
-            helperText={emailError}
-          />
-          <Grid container spacing={2}>
-            <Grid item xs={6}>
-              <TextField
-                margin="dense"
-                id="firstName"
-                label="First Name"
-                type="text"
-                fullWidth
-                value={userDetails.firstName}
-                onChange={handleChange('firstName')}
-              />
+      <>
+        <Dialog open={open} onClose={handleSkip} aria-labelledby="form-dialog-title">
+          <DialogTitle id="form-dialog-title">Enter Your Details</DialogTitle>
+          <DialogContent>
+            <Typography variant="body2">
+              To follow up on the transaction, please provide at least one contact detail.
+            </Typography>
+            <Autocomplete
+              id="country-select"
+              options={countries}
+              getOptionLabel={(option) => option}
+              value={selectedCountry}
+              onChange={handleChange('country')}
+              fullWidth
+              renderInput={(params) => <TextField {...params} label="Country" />}
+            />
+            <TextField
+              autoFocus
+              margin="dense"
+              id="phone"
+              label="Phone Number"
+              type="tel"
+              fullWidth
+              value={userDetails.phoneNumber}
+              onChange={handleChange('phoneNumber')}
+              error={!!phoneNumberError}
+              helperText={phoneNumberError}
+              disabled={!selectedCountry}
+              InputProps={{
+                startAdornment: userDetails.country ? (
+                  <InputAdornment position="start">{countryCodes[userDetails.country]}</InputAdornment>
+                ) : null,
+              }}
+            />
+            <TextField
+              margin="dense"
+              id="email"
+              label="Email Address"
+              type="email"
+              fullWidth
+              value={userDetails.email}
+              onChange={handleChange('email')}
+              error={!!emailError}
+              helperText={emailError}
+            />
+            <Grid container spacing={2}>
+              <Grid item xs={6}>
+                <TextField
+                  margin="dense"
+                  id="firstName"
+                  label="First Name"
+                  type="text"
+                  fullWidth
+                  value={userDetails.firstName}
+                  onChange={handleChange('firstName')}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  margin="dense"
+                  id="lastName"
+                  label="Last Name"
+                  type="text"
+                  fullWidth
+                  value={userDetails.lastName}
+                  onChange={handleChange('lastName')}
+                />
+              </Grid>
             </Grid>
-            <Grid item xs={6}>
-              <TextField
-                margin="dense"
-                id="lastName"
-                label="Last Name"
-                type="text"
-                fullWidth
-                value={userDetails.lastName}
-                onChange={handleChange('lastName')}
-              />
-            </Grid>
-          </Grid>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleSkip} color="primary">
-            Skip
-          </Button>
-          <div style={{ flex: '1 0 0' }} /> {/* This will push the Submit button to the right */}
-          <Button onClick={handleSubmit} color="primary" disabled={!isValid}>
-            Submit
-          </Button>
-        </DialogActions>
-      </Dialog>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleSkip} color="primary">
+              Skip
+            </Button>
+            <div style={{ flex: '1 0 0' }} /> {/* This will push the Submit button to the right */}
+            <Button onClick={handleSubmit} color="primary" disabled={!isValid}>
+              Submit
+            </Button>
+          </DialogActions>
+        </Dialog>
+        <Dialog
+          open={showOtpVerificationDialog}
+          onClose={handleCloseOtpDialog}
+          aria-labelledby="otp-verification-dialog-title"
+        >
+          <DialogTitle id="otp-verification-dialog-title">OTP Verification</DialogTitle>
+          <DialogContent>
+            <DialogContentText>Please enter the OTP sent to your email to verify if it's you.</DialogContentText>
+            <TextField
+              autoFocus
+              margin="dense"
+              id="otp"
+              label="OTP"
+              type="text"
+              fullWidth
+              variant="outlined"
+              value={otp}
+              onChange={handleOtpChange}
+              error={otpError}
+              helperText={otpError ? otpErrorMessage : ''}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseOtpDialog}>Cancel</Button>
+            <Button onClick={handleVerifyOtp} color="primary" disabled={isLoading}>
+              Verify
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        <Dialog
+          open={isVerifyingSession}
+          onClose={() => setIsVerifyingSession(false)}
+          aria-labelledby="verifying-session-dialog-title"
+        >
+          <DialogTitle id="verifying-session-dialog-title">Session Verification</DialogTitle>
+          <DialogContent>
+            <DialogContentText>Verifying customer session...</DialogContentText>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={showSessionVerifiedDialog} onClose={() => setShowSessionVerifiedDialog(false)}>
+          <DialogTitle>Customer Session Verified</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              We have successfully verified your identity. Please proceed to Payment again to continue your transaction.
+            </DialogContentText>
+          </DialogContent>
+          <Button onClick={() => setShowSessionVerifiedDialog(false)}>Close</Button>
+        </Dialog>
+        <Dialog
+          open={showErrorDialog}
+          onClose={() => setShowErrorDialog(false)}
+          aria-labelledby="error-dialog-title"
+          aria-describedby="error-dialog-description"
+        >
+          <DialogTitle id="error-dialog-title">{'An Error Occurred'}</DialogTitle>
+          <DialogContent>
+            <DialogContentText id="error-dialog-description">{errorDialogMessage}</DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setShowErrorDialog(false)} color="primary" autoFocus>
+              Close
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </>
     );
   };
 
@@ -1505,32 +1692,45 @@ const VortexTopUp = () => {
       // console.log('User Details Submitted: ', userDetails);
       // Logic to open the URL
       const url = await createLink(grandTotalFee * 100, selectedProduct.name);
+
       if (url) {
         const paymentWindow = window.open(url, '_blank');
-        // Polling to check if the payment window has been closed
-        const paymentWindowClosed = setInterval(() => {
-          if (paymentWindow.closed) {
-            clearInterval(paymentWindowClosed);
 
-            const newTransactionData = {
-              productName: selectedProduct.name,
-              price: selectedProduct.price,
-              convenienceFee,
-              totalPrice: grandTotalFee,
-              currency: platformVariables?.currencySymbol,
-              customerId: userDetails.customerId,
-              dealerId: userDetails.dealerId,
-            };
-            // console.log('Setting Transaction Data: ', newTransactionData);
-            setTransactionData(newTransactionData);
-            setActiveStep(3);
-          }
-        }, 500);
+        if (paymentWindow) {
+          const paymentWindowClosed = setInterval(() => {
+            if (paymentWindow.closed) {
+              clearInterval(paymentWindowClosed);
+
+              const newTransactionData = {
+                productName: selectedProduct.name,
+                price: selectedProduct.price,
+                convenienceFee,
+                totalPrice: grandTotalFee,
+                currency: platformVariables?.currencySymbol,
+                customerId: userDetails.customerId,
+                dealerId: userDetails.dealerId,
+              };
+
+              // Proceed with setting transaction data and updating the active step
+              setTransactionData(newTransactionData);
+              setActiveStep(3);
+            }
+          }, 500);
+        } else {
+          alert(
+            'Failed to open the payment window. Please ensure pop-up blockers are disabled for this site and try again.'
+          );
+        }
+      } else {
+        alert('Failed to generate the payment link. Please try again later.');
       }
     };
 
     const handlePayment = async () => {
       const customerOTPIdle = ls.get('customerOTPIdle');
+      const customerDetails = ls.get('customerDetails');
+
+      console.log('customerDetails: ', customerDetails);
 
       if (customerOTPIdle && customerDetails) {
         const currentTime = Date.now();
@@ -1807,7 +2007,7 @@ const VortexTopUp = () => {
                   <DialogTitle id="otp-verification-dialog-title">OTP Verification</DialogTitle>
                   <DialogContent>
                     <DialogContentText>
-                      We're just making sure it's still you. Please enter the OTP sent to your email.
+                      Please enter the OTP sent to your email to verify if it's you.
                     </DialogContentText>
                     <TextField
                       autoFocus
@@ -1862,14 +2062,11 @@ const VortexTopUp = () => {
 
   const TransactionCompletedForm = ({ setActiveStep, transactionData, resetTransactionData }) => {
     const handleConfirmClick = async () => {
-      // console.log('Transaction Data in handleConfirmClick: ', transactionData);
       try {
         const customerId = transactionData.customerId;
         const dealerId = transactionData.dealerId;
         const resellerCodeObject = ls.get('resellerCode');
         const resellerId = resellerCodeObject ? JSON.parse(resellerCodeObject).code : null;
-        // console.log('customerId: ', customerId);
-        // console.log('dealerId: ', dealerId);
 
         const purchaseData = {
           productName: transactionData.productName,
@@ -1878,20 +2075,35 @@ const VortexTopUp = () => {
           resellerId,
         };
 
-        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/purchase/${customerId}`, {
+        const guestDetails = ls.get('guestDetails');
+        const customerDetails = ls.get('customerDetails');
+        const jwtToken = customerDetails ? customerDetails.jwtToken : null;
+
+        let endpoint = `${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/purchase/${customerId}`;
+        const headers = {
+          'Content-Type': 'application/json',
+        };
+
+        // If the user has skipped login, adjust the endpoint and headers accordingly
+        if (guestDetails && guestDetails.skipped) {
+          endpoint += '/guest';
+        } else if (jwtToken) {
+          // eslint-disable-next-line dot-notation
+          headers['Authorization'] = `Bearer ${jwtToken}`;
+        } else {
+          console.error('JWT token is missing. User might not be logged in.');
+          return;
+        }
+
+        const response = await fetch(endpoint, {
           method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers,
           body: JSON.stringify(purchaseData),
         });
 
         if (response.ok) {
-          // Handle successful transaction confirmation
-          // console.log('Transaction confirmed and saved');
           resetTransactionData();
         } else {
-          // Handle errors
           const errorResponse = await response.json();
           console.error('Failed to save transaction:', errorResponse.message);
         }
