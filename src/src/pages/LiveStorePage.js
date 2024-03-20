@@ -21,7 +21,7 @@ import {
   TableContainer,
   Collapse,
   AppBar,
-  Box, 
+  Box,
   Toolbar,
   IconButton,
   useTheme,
@@ -53,6 +53,7 @@ const LiveStorePage = () => {
   const [otpError, setOtpError] = useState(false);
   const [otpErrorMessage, setOtpErrorMessage] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isGuest, setIsGuest] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isSessionTimedOut, setIsSessionTimedOut] = useState(false);
   const [openTransactionsDialog, setOpenTransactionsDialog] = useState(false);
@@ -69,15 +70,14 @@ const LiveStorePage = () => {
   const togglePreviewBanner = () => {
     setIsPreviewBannerOpen(!isPreviewBannerOpen);
   };
-  const bannerHeight = isPreviewBannerOpen ? 'auto' : '48px'; 
-
+  const bannerHeight = isPreviewBannerOpen ? 'auto' : '48px';
 
   const handleOpenLoginDialog = () => {
-    setEmail(''); 
-    setOtp(''); 
+    setEmail('');
+    setOtp('');
     setOtpError(false);
     setOtpErrorMessage('');
-    setEmailError(false); 
+    setEmailError(false);
     setEmailErrorMessage('');
     setOpenLoginDialog(true);
   };
@@ -94,29 +94,31 @@ const LiveStorePage = () => {
   const handleOpenTransactionsDialog = async () => {
     try {
       setIsLoading(true);
+      const guestDetails = ls.get('guestDetails');
+      const customerDetailsFromLS = ls.get('customerDetails');
+      const jwtToken = customerDetailsFromLS ? customerDetailsFromLS.jwtToken : null;
+
       const dealerResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/url/${storeUrl}/user`);
       const dealerId = dealerResponse.data.userId;
 
-      let customerId;
+      let endpoint;
+      let headers = {};
 
-      // Check if customerDetails exist in secure-ls
-      const customerDetailsFromLS = ls.get('customerDetails');
-
-      if (customerDetailsFromLS) {
-        customerId = customerDetailsFromLS.customerId;
+      if (guestDetails) {
+        endpoint = `/v1/api/customer/purchase/${guestDetails.customerId}/${dealerId}/guest`;
+      } else if (customerDetailsFromLS && jwtToken) {
+        endpoint = `/v1/api/customer/purchase/${customerDetailsFromLS.customerId}/${dealerId}`;
+        headers = {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${jwtToken}`,
+        };
       } else {
-        // If customerDetails not in secure-ls, fetch it from the backend
-        const customerResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/${email}`);
-        customerId = customerResponse.data._id;
-
-        // Store customerDetails in secure-ls for future use
-        ls.set('customerDetails', customerResponse.data);
+        console.error('No valid session for transactions');
+        setIsLoading(false);
+        return;
       }
 
-      // Fetch transactions
-      const transactionsResponse = await axios.get(
-        `${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/purchase/${customerId}/${dealerId}`
-      );
+      const transactionsResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}${endpoint}`, { headers });
       setTransactions(transactionsResponse.data.body);
 
       setIsLoading(false);
@@ -130,7 +132,7 @@ const LiveStorePage = () => {
   const handleEmailSubmit = async () => {
     setEmailError(false);
     setEmailErrorMessage('');
-  
+
     setIsLoading(true);
     try {
       const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/customer/otp`, { email });
@@ -170,14 +172,14 @@ const LiveStorePage = () => {
 
   //       // 15 minutes = 900000 milliseconds
   //       if (timeElapsed > 900000) {
-  //         ls.remove('customerDetails'); 
-  //         setIsSessionTimedOut(true); 
+  //         ls.remove('customerDetails');
+  //         setIsSessionTimedOut(true);
   //         setIsLoggedIn(false);
   //       }
   //     }
-  //   }, 1000 * 60); 
+  //   }, 1000 * 60);
 
-  //   return () => clearInterval(interval); 
+  //   return () => clearInterval(interval);
   // }, []);
 
   const SessionTimeoutDialog = () => {
@@ -188,7 +190,7 @@ const LiveStorePage = () => {
         aria-labelledby="session-timeout-dialog-title"
         aria-describedby="session-timeout-dialog-description"
       >
-        <DialogTitle id="session-timeout-dialog-title">{"Customer Session Timeout"}</DialogTitle>
+        <DialogTitle id="session-timeout-dialog-title">{'Customer Session Timeout'}</DialogTitle>
         <DialogContent>
           <DialogContentText id="session-timeout-dialog-description">
             The current session has expired. Please login again.
@@ -236,8 +238,15 @@ const LiveStorePage = () => {
         // Fetch customer details
         const customerResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/${email}`);
         const customerData = customerResponse.data;
+        const { token } = customerData;
 
-        // console.log('Store URL:', storeUrl);
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const decodedPayload = JSON.parse(window.atob(base64));
+        const { id: customerId } = decodedPayload;
+
+        console.log('Decoded JWT Payload:', decodedPayload);
+        console.log('Extracted Customer ID:', customerId);
 
         // Fetch dealer ID
         const dealerResponse = await axios.get(
@@ -247,10 +256,11 @@ const LiveStorePage = () => {
 
         ls.set('customerDetails', {
           mobileNumber: customerData.mobileNumber,
-          email: customerData.email,
+          email: customerData.customer.email,
           dealerId,
-          customerId: customerData._id,
+          customerId,
           timeOut: Date.now(),
+          jwtToken: token,
         });
 
         ls.set('customerOTPIdle', Date.now());
@@ -285,6 +295,7 @@ const LiveStorePage = () => {
     setIsLoggedIn(false);
     ls.remove('customerDetails');
     ls.remove('customerOTPIdle');
+    ls.remove('guestDetails');
   };
 
   // Function to validate email
@@ -307,10 +318,33 @@ const LiveStorePage = () => {
   };
 
   useEffect(() => {
+    const guestDetails = ls.get('guestDetails');
+    setIsGuest(!!guestDetails);
+
     const customerDetails = ls.get('customerDetails');
-    if (customerDetails) {
+    if (!guestDetails && customerDetails) {
       setIsLoggedIn(true);
     }
+  }, []);
+
+  useEffect(() => {
+    const checkGuestSessionTimeout = () => {
+      const guestDetails = ls.get('guestDetails');
+      if (guestDetails && guestDetails.timestamp) {
+        const currentTime = Date.now();
+        const timeElapsed = currentTime - guestDetails.timestamp;
+
+        if (timeElapsed > 600000) {
+          ls.remove('guestDetails');
+          setIsGuest(false);
+          console.log('Guest session expired. Guest details removed.');
+        }
+      }
+    };
+
+    const intervalId = setInterval(checkGuestSessionTimeout, 60000); 
+
+    return () => clearInterval(intervalId);
   }, []);
 
   useEffect(() => {
@@ -463,11 +497,11 @@ const LiveStorePage = () => {
 
   const PreviewBanner = () => {
     const [isExpanded, setIsExpanded] = useState(true);
-  
+
     const toggleBanner = () => {
       setIsExpanded((prev) => !prev);
     };
-  
+
     return (
       <AppBar position="static" sx={{ background: 'linear-gradient(45deg, purple, red)' }}>
         <Collapse in={isExpanded} timeout="auto">
@@ -475,8 +509,12 @@ const LiveStorePage = () => {
             <Toolbar sx={{ justifyContent: 'center', alignItems: 'center' }}>
               <Container sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Box sx={{ typography: 'h6', color: 'white' }}>This store is not yet live</Box>
-                <Button variant="contained" color="secondary" href={`/dashboard/store`}
-                  style={{ pointerEvents: 'all', margin: 'auto' }}>
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  href={`/dashboard/store`}
+                  style={{ pointerEvents: 'all', margin: 'auto' }}
+                >
                   Edit Store
                 </Button>
                 <IconButton
@@ -500,11 +538,7 @@ const LiveStorePage = () => {
               height: '48px',
             }}
           >
-            <IconButton
-              color="inherit"
-              aria-label={isExpanded ? 'collapse' : 'expand'}
-              onClick={toggleBanner}
-            >
+            <IconButton color="inherit" aria-label={isExpanded ? 'collapse' : 'expand'} onClick={toggleBanner}>
               <ExpandMoreIcon />
             </IconButton>
           </Box>
@@ -521,7 +555,7 @@ const LiveStorePage = () => {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: '20px 0'
+    padding: '20px 0',
   };
 
   const logoStyle = {
@@ -548,16 +582,15 @@ const LiveStorePage = () => {
     fontWeight: 'bold', // Bold for visibility
   };
 
-
   useEffect(() => {
     const pathname = window.location.pathname.split('/')[1];
     const isSpecialPath = ['topup', 'bills'].includes(pathname);
     // if storeData null, set title to 'Loading Store... | VAAS'
     if (storeData === null) {
-        setShowNotFoundError(false);
-        document.title = 'Loading Store... | VAAS';
-    }else if(storeData && storeData.storeName) {
-        document.title = `${storeData.storeName} | VAAS`;
+      setShowNotFoundError(false);
+      document.title = 'Loading Store... | VAAS';
+    } else if (storeData && storeData.storeName) {
+      document.title = `${storeData.storeName} | VAAS`;
     } else if (!isSpecialPath && (!storeData || storeData === 'domainNotFound') && notFound !== 'true') {
       setShowNotFoundError(true);
       document.title = 'Domain Not Found | VAAS';
@@ -566,6 +599,8 @@ const LiveStorePage = () => {
       document.title = 'Store Page | VAAS';
     }
   }, [storeData, notFound]);
+
+  const guestDetails = ls.get('guestDetails');
 
   if (showNotFoundError) {
     return (
@@ -586,73 +621,75 @@ const LiveStorePage = () => {
 
   if (storeData && ((user && user._id === storeData.ownerId) || storeData.isLive)) {
     return (
-      <div style={{ 
-        ...gradientStyle,
-        display: 'flex', flexDirection: 'column', height: '100vh' }}>
-      <PreviewBanner/>
-      <SessionTimeoutDialog />
+      <div
+        style={{
+          ...gradientStyle,
+          display: 'flex',
+          flexDirection: 'column',
+          height: '100vh',
+        }}
+      >
+        <PreviewBanner />
+        <SessionTimeoutDialog />
 
-      <div style={{ flex: 1, textAlign: 'center' }}>
-        <Box style={logoContainerStyle}>
-          <img
-            src={storeData?.storeLogo || "https://i.ibb.co/Sx8HSXp/download-removebg-preview.png"}
-            alt={`${storeData?.storeName || 'Your Store'}'s Logo`}
-            style={logoStyle}
-          />
-        </Box>
-        <Typography variant="h4" gutterBottom>
-          {storeData.storeName}
-        </Typography>
+        <div style={{ flex: 1, textAlign: 'center' }}>
+          <Box style={logoContainerStyle}>
+            <img
+              src={storeData?.storeLogo || 'https://i.ibb.co/Sx8HSXp/download-removebg-preview.png'}
+              alt={`${storeData?.storeName || 'Your Store'}'s Logo`}
+              style={logoStyle}
+            />
+          </Box>
+          <Typography variant="h4" gutterBottom>
+            {storeData.storeName}
+          </Typography>
 
-        <Container>
+          <Container>
             <Stack direction={'row'} justifyContent={'center'} spacing={2}>
               {platformVariables.enableBills && (
-                <Link href={storeUrl === window.location.hostname.split('.')[0] ? '/bills' : `${previewStoreUrl}/bills`} style={linkButtonStyle}>
+                <Link
+                  href={storeUrl === window.location.hostname.split('.')[0] ? '/bills' : `${previewStoreUrl}/bills`}
+                  style={linkButtonStyle}
+                >
                   <img src={BillsImage} height="50px" alt="Bills" />
                   Bills
                 </Link>
               )}
               {platformVariables.enableLoad && (
-                <Link href={storeUrl === window.location.hostname.split('.')[0] ? '/topup' : `${previewStoreUrl}/topup`} style={linkButtonStyle}>
+                <Link
+                  href={storeUrl === window.location.hostname.split('.')[0] ? '/topup' : `${previewStoreUrl}/topup`}
+                  style={linkButtonStyle}
+                >
                   <img src={LoadImage} height="50px" alt="Load" />
                   Load
                 </Link>
               )}
               {platformVariables.enableGift && (
-                <Link href={storeUrl === window.location.hostname.split('.')[0] ? '/voucher' : `${previewStoreUrl}/voucher`} style={linkButtonStyle}>
+                <Link
+                  href={storeUrl === window.location.hostname.split('.')[0] ? '/voucher' : `${previewStoreUrl}/voucher`}
+                  style={linkButtonStyle}
+                >
                   <img src={VoucherImage} height="50px" alt="Vouchers" />
                   Vouchers
                 </Link>
               )}
             </Stack>
 
-            {isLoggedIn ? (
+            {isLoggedIn || guestDetails ? (
               <>
                 <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
                   <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <Button
-                      onClick={handleOpenTransactionsDialog}
-                      variant="contained"
-                      style={transactionButtonStyle}
-                    >
-                      View Transactions
+                    <Button onClick={handleOpenTransactionsDialog} variant="contained" style={transactionButtonStyle}>
+                      {guestDetails ? 'View Guest Transactions' : 'View Transactions'}
                     </Button>
-                    <Button
-                      onClick={handleLogout}
-                      variant="contained"
-                      style={transactionButtonStyle}
-                    >
+                    <Button onClick={handleLogout} variant="contained" style={transactionButtonStyle}>
                       Logout
                     </Button>
                   </div>
                 </div>
               </>
             ) : (
-              <Button
-                onClick={handleOpenLoginDialog}
-                variant="contained"
-                style={transactionButtonStyle}
-              >
+              <Button onClick={handleOpenLoginDialog} variant="contained" style={transactionButtonStyle}>
                 Login first to view Transactions
               </Button>
             )}
@@ -702,7 +739,7 @@ const LiveStorePage = () => {
                     variant="standard"
                     value={otp}
                     onChange={(e) => setOtp(e.target.value)}
-                    error={otpError} 
+                    error={otpError}
                     helperText={otpError ? otpErrorMessage : ''}
                   />
                 </>
@@ -775,9 +812,9 @@ const LiveStorePage = () => {
             </DialogActions>
           </Dialog>
 
-        <Outlet />
+          <Outlet />
+        </div>
       </div>
-    </div>
     );
   }
 
