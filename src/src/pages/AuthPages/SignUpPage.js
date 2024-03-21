@@ -952,28 +952,29 @@ export default function SignUpPage() {
                         <Typography sx={{ mb: 1 }}> Contact Information </Typography>
                         <Grid item xs={12} sm={12} md={12}>
                           <TextField
-                            error={fieldErrors.email}
+                            error={fieldErrors.email && dirtyFields.email}
                             fullWidth
                             label="Email"
                             variant="outlined"
                             name="email"
                             value={email}
-                            onChange={handleEmailChange}
+                            onChange={(e) => {
+                              handleEmailChange(e); 
+                              setDirtyFields((prev) => ({ ...prev, email: true }));
+                            }}
                             onFocus={() => setDirtyFields((prev) => ({ ...prev, email: true }))}
                             onBlur={() => {
-                              if (dirtyFields.email && !email.trim()) {
+                              if (email.trim() === '') {
                                 setFieldErrors((prevErrors) => ({ ...prevErrors, email: true }));
                               }
                             }}
                             sx={{ mb: 2 }}
                             helperText={
-                              fieldErrors.email
+                              fieldErrors.email && dirtyFields.email
                                 ? email.trim()
-                                  ? emailErrorMessage
-                                  : dirtyFields.email
-                                  ? 'Email is required'
-                                  : ''
-                                : ''
+                                  ? emailErrorMessage 
+                                  : 'Email is required' 
+                                : '' 
                             }
                           />
                         </Grid>
@@ -1145,7 +1146,9 @@ export default function SignUpPage() {
                   <TermsDialog
                     open={isTermsDialogOpen}
                     onClose={() => {
-                      setIsTermsDialogOpen(false); setIsGoogleSignUp(false); setIsFacebookSignUp(false)
+                      setIsTermsDialogOpen(false);
+                      setIsGoogleSignUp(false);
+                      setIsFacebookSignUp(false);
                     }}
                     onAgree={agreeToTerms}
                   />
@@ -1217,7 +1220,9 @@ export default function SignUpPage() {
                         color="inherit"
                         variant="outlined"
                         startIcon={<Iconify icon="eva:google-fill" color="#DF3E30" width={22} height={22} />}
-                        onClick={() => {openTermsDialog(true, false) }}
+                        onClick={() => {
+                          openTermsDialog(true, false);
+                        }}
                         sx={ssoStyles}
                       >
                         <Typography sx={ssoStyles}>Sign Up with Google</Typography>
@@ -1230,7 +1235,9 @@ export default function SignUpPage() {
                         color="inherit"
                         variant="outlined"
                         startIcon={<Iconify icon="eva:facebook-fill" color="#1877F2" width={22} height={22} />}
-                        onClick={() => {openTermsDialog(false, true)}}
+                        onClick={() => {
+                          openTermsDialog(false, true);
+                        }}
                       >
                         <Typography sx={ssoStyles}>Sign Up with Facebook</Typography>
                       </Button>
