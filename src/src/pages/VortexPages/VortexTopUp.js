@@ -457,11 +457,18 @@ const VortexTopUp = () => {
           );
           const dealerId = storeResponse.data.userId;
 
+          let ipAddress = userDetails.ipAddress;
+          if (!ipAddress) {
+            const ipResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/get-ip`);
+            ipAddress = ipResponse.data.ipAddress;
+          }
+
           // Append customer details first
           const appendResponse = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/new`, {
             ...userDetails,
             phoneNumber: fullPhoneNumber,
             dealerId,
+            ipAddress,
           });
 
           if (appendResponse.data && appendResponse.data.body && appendResponse.data.body._id) {

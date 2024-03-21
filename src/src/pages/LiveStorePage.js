@@ -319,6 +319,9 @@ const LiveStorePage = () => {
 
   useEffect(() => {
     const guestDetails = ls.get('guestDetails');
+    if (guestDetails) {
+      setIsLoggedIn(true);
+    }
     setIsGuest(!!guestDetails);
 
     const customerDetails = ls.get('customerDetails');
@@ -675,7 +678,7 @@ const LiveStorePage = () => {
               )}
             </Stack>
 
-            {isLoggedIn || guestDetails ? (
+            {isLoggedIn ? (
               <>
                 <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
                   <div style={{ display: 'flex', alignItems: 'center' }}>
