@@ -301,6 +301,8 @@ const ManageReseller = () => {
       setCreateErrorMessage('');
 
       try {
+        const token = ls.get('token');
+
         const dataToSend = {
           ...formState,
           mobileNumber:
@@ -311,15 +313,25 @@ const ManageReseller = () => {
 
         const res = await axios.post(
           `${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/${userId}/resellers`,
-          dataToSend
+          dataToSend,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
         );
 
         if (res.status === 200 && res.data) {
           // Send the account creation details to the reseller's email
-          await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/resellers`, {
-            email: formState.email, 
-            password: res.data.password, 
-          });
+          await axios.post(
+            `${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/resellers`,
+            { email: formState.email, password: res.data.password },
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
 
           setFormState(initialFormState);
           setCreateSuccessMessage('Email with account details successfully sent');
@@ -348,12 +360,11 @@ const ManageReseller = () => {
   const fetchUpdatedResellers = async () => {
     try {
       const updatedResellersList = await fetchResellersForUser(userId);
-      setResellers(updatedResellersList); 
+      setResellers(updatedResellersList);
     } catch (error) {
       console.error(error);
     }
   };
-
 
   const filteredResellers = useFilteredResellers(resellers, value, currentTab);
 
@@ -443,15 +454,15 @@ const ManageReseller = () => {
   const handleClose = () => {
     setOpen(false);
     setShowCredentialsPopup(false);
-  
+
     setFormState(initialFormState);
-  
+
     setValidationErrors({});
-  
+
     setIsCreating(false);
     setCreateSuccessMessage('');
     setCreateErrorMessage('');
-  
+
     setSelectedRows([]);
     setIsAllSelected(false);
   };
