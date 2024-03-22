@@ -56,11 +56,14 @@ const TopUpConfig = () => {
           }
           const sortedProducts = products.sort((a, b) => a.defaultPrice - b.defaultPrice);
           setProductConfigs(sortedProducts);
-          console.log('Product configurations:', sortedProducts);
         })
         .catch((error) => {
           console.error('Error fetching product configurations:', error);
         });
+    }else{
+      // pop up message
+      window.alert('Token expired, please login again');
+      navigate('/login');
     }
   }, [userId, productName, token, userRole]);
 
@@ -102,6 +105,7 @@ const TopUpConfig = () => {
         })
         .catch((error) => {
           console.error('Error updating product:', error);
+          window.alert('Failed to update product');
         });
     }
   };
@@ -160,39 +164,27 @@ const TopUpConfig = () => {
   const handleSortChange = (event) => {
     setSortBy(event.target.value);
     if (event.target.value === 'name asc') {
-      const sortedData = [...filteredProductConfigs].sort((a, b) => {
-        return a.name.localeCompare(b.name);
-      });
+      const sortedData = [...filteredProductConfigs].sort((a, b) => a.name.localeCompare(b.name));
       setFilteredProductConfigs(sortedData);
     }
     if (event.target.value === 'name desc') {
-      const sortedData = [...filteredProductConfigs].sort((a, b) => {
-        return b.name.localeCompare(a.name);
-      });
+      const sortedData = [...filteredProductConfigs].sort((a, b) => b.name.localeCompare(a.name));
       setFilteredProductConfigs(sortedData);
     }
     if (event.target.value === 'current price desc') {
-      const sortedData = [...filteredProductConfigs].sort((a, b) => {
-        return b.currentPrice - a.currentPrice;
-      });
+      const sortedData = [...filteredProductConfigs].sort((a, b) => b.currentPrice - a.currentPrice);
       setFilteredProductConfigs(sortedData);
     }
     if (event.target.value === 'current price asc') {
-      const sortedData = [...filteredProductConfigs].sort((a, b) => {
-        return a.currentPrice - b.currentPrice;
-      });
+      const sortedData = [...filteredProductConfigs].sort((a, b) => a.currentPrice - b.currentPrice);
       setFilteredProductConfigs(sortedData);
     }
     if (event.target.value === 'default price desc') {
-      const sortedData = [...filteredProductConfigs].sort((a, b) => {
-        return b.defaultPrice - a.defaultPrice;
-      });
+      const sortedData = [...filteredProductConfigs].sort((a, b) => b.defaultPrice - a.defaultPrice);
       setFilteredProductConfigs(sortedData);
     }
     if (event.target.value === 'default price asc') {
-      const sortedData = [...filteredProductConfigs].sort((a, b) => {
-        return a.defaultPrice - b.defaultPrice;
-      });
+      const sortedData = [...filteredProductConfigs].sort((a, b) => a.defaultPrice - b.defaultPrice);
       setFilteredProductConfigs(sortedData);
     }
   }
