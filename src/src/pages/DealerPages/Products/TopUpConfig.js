@@ -15,7 +15,7 @@ import {
   TableRow,
   Switch,
   TextField,
-  Button,
+  Button, Autocomplete, Chip, FormControl, InputLabel, Select, MenuItem,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
@@ -24,8 +24,10 @@ const ls = new SecureLS({ encodingType: 'aes' });
 const TopUpConfig = () => {
   const { productName } = useParams();
   const [productConfigs, setProductConfigs] = useState([]);
+  const [filteredProductConfigs, setFilteredProductConfigs] = useState(productConfigs);
   const [dealerConfig, setDealerConfig] = useState({});
   const [markupInputValues, setMarkupInputValues] = useState({});
+  const [sortBy, setSortBy] = useState('');
 
   const user = ls.get('user');
   const userId = user ? user._id : null;
@@ -54,12 +56,17 @@ const TopUpConfig = () => {
           }
           const sortedProducts = products.sort((a, b) => a.defaultPrice - b.defaultPrice);
           setProductConfigs(sortedProducts);
+          console.log('Product configurations:', sortedProducts);
         })
         .catch((error) => {
           console.error('Error fetching product configurations:', error);
         });
     }
   }, [userId, productName, token, userRole]);
+
+  useEffect(() => {
+    setFilteredProductConfigs(productConfigs);
+  }, [productConfigs]);
 
   // Function to calculate current price
   const calculateCurrentPrice = (defaultPrice, markUp) => {
@@ -150,20 +157,108 @@ const TopUpConfig = () => {
     }
   };
 
+  const handleSortChange = (event) => {
+    setSortBy(event.target.value);
+    if (event.target.value === 'name asc') {
+      const sortedData = [...filteredProductConfigs].sort((a, b) => {
+        return a.name.localeCompare(b.name);
+      });
+      setFilteredProductConfigs(sortedData);
+    }
+    if (event.target.value === 'name desc') {
+      const sortedData = [...filteredProductConfigs].sort((a, b) => {
+        return b.name.localeCompare(a.name);
+      });
+      setFilteredProductConfigs(sortedData);
+    }
+    if (event.target.value === 'current price desc') {
+      const sortedData = [...filteredProductConfigs].sort((a, b) => {
+        return b.currentPrice - a.currentPrice;
+      });
+      setFilteredProductConfigs(sortedData);
+    }
+    if (event.target.value === 'current price asc') {
+      const sortedData = [...filteredProductConfigs].sort((a, b) => {
+        return a.currentPrice - b.currentPrice;
+      });
+      setFilteredProductConfigs(sortedData);
+    }
+    if (event.target.value === 'default price desc') {
+      const sortedData = [...filteredProductConfigs].sort((a, b) => {
+        return b.defaultPrice - a.defaultPrice;
+      });
+      setFilteredProductConfigs(sortedData);
+    }
+    if (event.target.value === 'default price asc') {
+      const sortedData = [...filteredProductConfigs].sort((a, b) => {
+        return a.defaultPrice - b.defaultPrice;
+      });
+      setFilteredProductConfigs(sortedData);
+    }
+  }
+
+  const handleFilterChange = (event, newValue) => {
+    const foundProductConfigs = [];
+
+    foundProductConfigs.push(...productConfigs.filter((store) => newValue.some((name) => store.name.includes(name))));
+
+    setFilteredProductConfigs(newValue.length !== 0 ? foundProductConfigs : productConfigs);
+  };
+
   return (
     <Box sx={{ padding: '20px' }}>
-      <Paper elevation={3} sx={{ padding: '20px', margin: 'auto', maxWidth: '100%', width: 'auto' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
+      <Paper elevation={3} sx={{padding: '20px', margin: 'auto', maxWidth: '100%', width: 'auto'}}>
+        <Box sx={{display: 'flex', alignItems: 'center', marginBottom: '20px'}}>
           <IconButton onClick={() => navigate(-1)} aria-label="back">
-            <ArrowBackIcon />
+            <ArrowBackIcon/>
           </IconButton>
-          <Typography variant="h4" sx={{ fontWeight: 'bold', flexGrow: 1, textAlign: 'center' }}>
+          <Typography variant="h4" sx={{fontWeight: 'bold', flexGrow: 1, textAlign: 'center'}}>
             Configure: {productName}
           </Typography>
         </Box>
-
+        <div className="flex">
+          <Autocomplete
+              className="w-4/5"
+              multiple
+              id="tags-filled"
+              options={productConfigs.map((product) => product.name
+              )}
+              freeSolo
+              onChange={handleFilterChange}
+              renderTags={(value, getTagProps) =>
+                  value.map((option, index) => (
+                      <Chip variant="outlined" label={option} {...getTagProps({index})} />
+                  ))
+              }
+              renderInput={(params) => (
+                  <TextField
+                      {...params}
+                      variant="filled"
+                      label="Search product by name"
+                      placeholder="product"
+                  />
+              )}
+          />
+          <FormControl className="w-1/5">
+            <InputLabel id={"demo-simple-select-label"}>Sort By</InputLabel>
+            <Select
+                labelId={"demo-simple-select-label"}
+                id="demo-simple-select"
+                label="Sort By"
+                value={sortBy}
+                onChange={handleSortChange}
+            >
+              <MenuItem value={"name asc"}>Name (Asc)</MenuItem>
+              <MenuItem value={"name desc"}>Name (Desc)</MenuItem>
+              <MenuItem value={"current price desc"}>Current Price (Desc)</MenuItem>
+              <MenuItem value={"current price asc"}>Current Price (Asc)</MenuItem>
+              <MenuItem value={"default price desc"}>Default Price (Desc)</MenuItem>
+              <MenuItem value={"default price asc"}>Default Price (Asc)</MenuItem>
+            </Select>
+          </FormControl>
+        </div>
         <TableContainer>
-          <Table sx={{ tableLayout: 'auto', width: '100%' }}>
+          <Table sx={{tableLayout: 'auto', width: '100%'}}>
             <TableHead>
               <TableRow>
                 <TableCell>Product</TableCell>
@@ -175,76 +270,76 @@ const TopUpConfig = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {productConfigs.map((config) => {
+              {filteredProductConfigs.map((config) => {
                 const isDisabledByDealer =
-                  userRole === 'reseller' &&
-                  !dealerConfig[productName]?.products.find((product) => product._id === config._id)?.enabled;
+                    userRole === 'reseller' &&
+                    !dealerConfig[productName]?.products.find((product) => product._id === config._id)?.enabled;
                 const calculatedCurrentPrice = calculateCurrentPrice(
-                  config.defaultPrice,
-                  markupInputValues[config._id] || config.markUp
+                    config.defaultPrice,
+                    markupInputValues[config._id] || config.markUp
                 );
 
                 return (
-                  <TableRow
-                    hidden={isDisabledByDealer}
-                    key={config._id}
-                    sx={{
-                      opacity: isDisabledByDealer ? 0.5 : 1,
-                      position: 'relative',
-                    }}
-                  >
-                    <TableCell sx={{ zIndex: isDisabledByDealer ? 0 : 1 }}>{config.name}</TableCell>
-                    <TableCell align="right" sx={{ zIndex: isDisabledByDealer ? 0 : 1 }}>
-                      ₱ {config.defaultPrice}
-                    </TableCell>
-                    <TableCell align="right" sx={{ zIndex: isDisabledByDealer ? 0 : 1 }}>
-                      {isDisabledByDealer ? (
-                        <Typography variant="subtitle1" sx={{ opacity: 0.5 }}>
-                          Disabled by Dealer
-                        </Typography>
-                      ) : (
-                        <TextField
-                          variant="outlined"
-                          size="small"
-                          value={markupInputValues[config._id] || config.markUp.toString()}
-                          onChange={(e) => {
-                            let inputValue = e.target.value.replace(/[^0-9.]/g, '');
+                    <TableRow
+                        hidden={isDisabledByDealer}
+                        key={config._id}
+                        sx={{
+                          opacity: isDisabledByDealer ? 0.5 : 1,
+                          position: 'relative',
+                        }}
+                    >
+                      <TableCell sx={{zIndex: isDisabledByDealer ? 0 : 1}}>{config.name}</TableCell>
+                      <TableCell align="right" sx={{zIndex: isDisabledByDealer ? 0 : 1}}>
+                        ₱ {config.defaultPrice}
+                      </TableCell>
+                      <TableCell align="right" sx={{zIndex: isDisabledByDealer ? 0 : 1}}>
+                        {isDisabledByDealer ? (
+                            <Typography variant="subtitle1" sx={{opacity: 0.5}}>
+                              Disabled by Dealer
+                            </Typography>
+                        ) : (
+                            <TextField
+                                variant="outlined"
+                                size="small"
+                                value={markupInputValues[config._id] || config.markUp.toString()}
+                                onChange={(e) => {
+                                  let inputValue = e.target.value.replace(/[^0-9.]/g, '');
 
-                            if (inputValue.startsWith('0') && inputValue.length > 1) {
-                              inputValue = inputValue.substring(1);
-                            }
+                                  if (inputValue.startsWith('0') && inputValue.length > 1) {
+                                    inputValue = inputValue.substring(1);
+                                  }
 
-                            handleMarkUpChange(config._id, inputValue);
-                          }}
-                          placeholder="Enter markup"
-                          InputProps={{
-                            startAdornment: <span style={{ marginRight: '8px' }}>₱</span>,
-                          }}
-                          style={{ opacity: config.markUp !== undefined ? 1 : 0.5 }}
-                          disabled={isDisabledByDealer}
+                                  handleMarkUpChange(config._id, inputValue);
+                                }}
+                                placeholder="Enter markup"
+                                InputProps={{
+                                  startAdornment: <span style={{marginRight: '8px'}}>₱</span>,
+                                }}
+                                style={{opacity: config.markUp !== undefined ? 1 : 0.5}}
+                                disabled={isDisabledByDealer}
+                            />
+                        )}
+                      </TableCell>
+                      <TableCell align="right" sx={{zIndex: isDisabledByDealer ? 0 : 1}}>
+                        <Button
+                            variant="outlined"
+                            onClick={() => handleApplyDiscount(config._id)}
+                            disabled={isDisabledByDealer} // Disable button if row is disabled
+                        >
+                          Apply
+                        </Button>
+                      </TableCell>
+                      <TableCell align="right" sx={{zIndex: isDisabledByDealer ? 0 : 1}}>
+                        ₱ {calculatedCurrentPrice}
+                      </TableCell>
+                      <TableCell align="center" sx={{zIndex: isDisabledByDealer ? 0 : 1}}>
+                        <Switch
+                            checked={config.enabled}
+                            onChange={() => handleToggle(config._id, !config.enabled)}
+                            disabled={isDisabledByDealer}
                         />
-                      )}
-                    </TableCell>
-                    <TableCell align="right" sx={{ zIndex: isDisabledByDealer ? 0 : 1 }}>
-                      <Button
-                        variant="outlined"
-                        onClick={() => handleApplyDiscount(config._id)}
-                        disabled={isDisabledByDealer} // Disable button if row is disabled
-                      >
-                        Apply
-                      </Button>
-                    </TableCell>
-                    <TableCell align="right" sx={{ zIndex: isDisabledByDealer ? 0 : 1 }}>
-                      ₱ {calculatedCurrentPrice}
-                    </TableCell>
-                    <TableCell align="center" sx={{ zIndex: isDisabledByDealer ? 0 : 1 }}>
-                      <Switch
-                        checked={config.enabled}
-                        onChange={() => handleToggle(config._id, !config.enabled)}
-                        disabled={isDisabledByDealer}
-                      />
-                    </TableCell>
-                  </TableRow>
+                      </TableCell>
+                    </TableRow>
                 );
               })}
             </TableBody>
