@@ -508,7 +508,7 @@ const VortexBillsPaymentPage = () => {
         />
         <Toolbar />
 
-        {!isLoading && (
+        {!isLoading ? (
           <>
             <VortexBillerSearch onInput={searchBillers} />
             {search.length === 0 ? (
@@ -538,7 +538,7 @@ const VortexBillsPaymentPage = () => {
               />
             )}
           </>
-        )}
+        ) : ( <div className="flex justify-center items-center h-screen"> <CircularProgress /> </div>)}
       </Box>
     )
   }

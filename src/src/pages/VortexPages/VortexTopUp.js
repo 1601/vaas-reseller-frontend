@@ -2,7 +2,18 @@ import React, { useRef, useState, useEffect, useReducer, useContext, useCallback
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import SecureLS from 'secure-ls';
-import { Box, Button, Divider, Stack, Grid, TextField, Toolbar, Typography, InputBase } from '@mui/material';
+import {
+  Box,
+  Button,
+  Divider,
+  Stack,
+  Grid,
+  TextField,
+  Toolbar,
+  Typography,
+  InputBase,
+  CircularProgress
+} from '@mui/material';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -232,7 +243,7 @@ const VortexTopUp = () => {
 
   const [renderData, setRenderData] = useState([]);
 
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   // const [isLoggin, setisLoggin] = useState(null);
 
@@ -809,6 +820,7 @@ const VortexTopUp = () => {
         );
         setDecryptedUserId(userId);
         setTopupToggles(response.data);
+        setIsLoading(false);
       } catch (error) {
         console.error('Error fetching top-up toggles:', error);
         if (error.response && (error.response.status === 500 || error.response.status === 404) && !isFallbackAttempt) {
@@ -818,6 +830,7 @@ const VortexTopUp = () => {
             fetchTopupToggles(encryptedUserId, true);
           }
         }
+        setIsLoading(false);
       }
     };
 
@@ -1261,6 +1274,7 @@ const VortexTopUp = () => {
       : brands;
 
     return (
+     !isLoading ? (
       <>
         <VortexFormToolbar
           title={'Load'}
@@ -1399,6 +1413,7 @@ const VortexTopUp = () => {
           </>
         )}
       </>
+     ) : (<div className="flex justify-center items-center h-screen"> <CircularProgress /> </div>)
     );
   };
 
