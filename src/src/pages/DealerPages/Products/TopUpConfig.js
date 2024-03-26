@@ -15,7 +15,7 @@ import {
   TableRow,
   Switch,
   TextField,
-  Button, Autocomplete, Chip, FormControl, InputLabel, Select, MenuItem,
+  Button, Autocomplete, Chip, FormControl, InputLabel, Select, MenuItem, CircularProgress,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import UserDataFetch from "../../../components/user-account/UserDataFetch";
@@ -29,6 +29,8 @@ const TopUpConfig = () => {
   const [dealerConfig, setDealerConfig] = useState({});
   const [markupInputValues, setMarkupInputValues] = useState({});
   const [sortBy, setSortBy] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+
 
   const user = ls.get('user');
   const userId = user ? user._id : null;
@@ -58,13 +60,16 @@ const TopUpConfig = () => {
           }
           const sortedProducts = products.sort((a, b) => a.defaultPrice - b.defaultPrice);
           setProductConfigs(sortedProducts);
+          setIsLoading(false);
         })
         .catch((error) => {
           console.error('Error fetching product configurations:', error);
+          setIsLoading(false);
         });
     }else{
       // pop up message
       window.alert('Token expired, please login again');
+      setIsLoading(false);
       navigate('/login');
     }
   }, [userId, productName, token, userRole]);
@@ -262,7 +267,13 @@ const TopUpConfig = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {filteredProductConfigs.map((config) => {
+              {isLoading ? (
+                  <TableRow>
+                    <TableCell colSpan={6} align="center">
+                      <CircularProgress />
+                    </TableCell>
+                  </TableRow>
+              ) : filteredProductConfigs.map((config) => {
                 const isDisabledByDealer =
                     userRole === 'reseller' &&
                     !dealerConfig[productName]?.products.find((product) => product._id === config._id)?.enabled;
