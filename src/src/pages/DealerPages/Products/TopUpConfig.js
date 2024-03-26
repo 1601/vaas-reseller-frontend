@@ -18,6 +18,7 @@ import {
   Button, Autocomplete, Chip, FormControl, InputLabel, Select, MenuItem,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import UserDataFetch from "../../../components/user-account/UserDataFetch";
 
 const ls = new SecureLS({ encodingType: 'aes' });
 
@@ -34,6 +35,7 @@ const TopUpConfig = () => {
   const userRole = user ? user.role : null;
   const navigate = useNavigate();
   const token = ls.get('token');
+  UserDataFetch();
 
   useEffect(() => {
     if (token) {
@@ -77,18 +79,9 @@ const TopUpConfig = () => {
   };
 
   const handleToggle = (configId, enabled) => {
-    const updatedConfigs = productConfigs.map((config) => {
-      if (config._id === configId) {
-        return { ...config, enabled };
-      }
-      return config;
-    });
-    setProductConfigs(updatedConfigs);
-
     const updateData = {
       enabled,
     };
-
     if (token) {
       axios
         .put(
@@ -102,6 +95,13 @@ const TopUpConfig = () => {
         )
         .then((response) => {
           // console.log('Product updated successfully:', response.data);
+          const updatedConfigs = productConfigs.map((config) => {
+            if (config._id === configId) {
+              return { ...config, enabled };
+            }
+            return config;
+          });
+          setProductConfigs(updatedConfigs);
         })
         .catch((error) => {
           console.error('Error updating product:', error);
