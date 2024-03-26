@@ -1140,64 +1140,44 @@ const VortexTopUp = () => {
     }
 
     function navigateInternationalLoad(name, data, previous = {}) {
-      // console.log(`navigateInternationalLoad called with name: ${name}, data:`, data);
-
       if (name === 'brandProducts') {
         const brandName = data[0]?.brand;
-        // console.log(`Brand name in navigateInternationalLoad: ${brandName}`);
 
-        // Mapping existing product data to prepare for update
         const products = data.map((product) => ({
           ...product,
-          name: product.name, // Keep the original name
+          name: product.name,
           price: product.pricing.price,
-          isAvailable: product.enabled, // Use the original 'enabled' status
+          isAvailable: true,
         }));
-
-        // console.log(`Preparing to update product details for brand: ${brandName}`, products);
 
         updateProductDetailsForAllDealers(brandName, products);
 
         if (decryptedUserId) {
-          // console.log(`DecryptedUserId available: ${decryptedUserId}`);
+          setNavigation((prevState) => ({
+            ...prevState,
+            data: [],
+          }));
 
           fetchDealerProductConfig(decryptedUserId, brandName).then((dealerProductConfig) => {
-            // console.log(`Dealer Product Config:`, dealerProductConfig);
-
-            const updatedProducts = products.map((product) => {
+            let updatedProducts = products.map((product) => {
               const fetchedProduct = dealerProductConfig.find((p) => p.name === product.name);
 
-              // If no product-config found, default isAvailable to true
-              if (!fetchedProduct) {
+              if (fetchedProduct) {
                 return {
                   ...product,
-                  isAvailable: true, // Default to true if no specific config is found
+                  name: fetchedProduct.enabled ? product.name : `${product.name} (Not Available)`,
+                  price: fetchedProduct.currentPrice || product.price,
+                  isAvailable: fetchedProduct.enabled,
                 };
               }
-
-              // If the fetchedProduct is found, use its enabled status
-              return {
-                ...product,
-                name: fetchedProduct.enabled ? product.name : `${product.name} (Not Available)`,
-                price: fetchedProduct.currentPrice,
-                isAvailable: fetchedProduct.enabled,
-              };
+              return product;
             });
 
-            // Sort the updated products so that unavailable products are at the bottom
-            const sortedProducts = updatedProducts.sort((a, b) => {
-              if (!a.isAvailable && b.isAvailable) {
-                return 1;
-              }
-              if (a.isAvailable && !b.isAvailable) {
-                return -1;
-              }
-              return 0;
-            });
+            updatedProducts = updatedProducts.filter((product) => product.isAvailable);
 
             setNavigation({
               name,
-              data: sortedProducts,
+              data: updatedProducts,
               previous: {
                 ...navigation.previous,
                 ...previous,
@@ -1205,11 +1185,12 @@ const VortexTopUp = () => {
             });
           });
         } else {
-          // If decryptedUserId is not available, default all products to available
-          const defaultAvailableProducts = products.map((product) => ({
-            ...product,
-            isAvailable: true,
-          }));
+          const defaultAvailableProducts = products
+            .map((product) => ({
+              ...product,
+              isAvailable: true,
+            }))
+            .filter((product) => product.isAvailable);
 
           setNavigation({
             name,
