@@ -15,9 +15,11 @@ import {
   TableRow,
   Switch,
   TextField,
-  Button, Autocomplete, Chip, FormControl, InputLabel, Select, MenuItem,
+  Autocomplete, Chip, FormControl, InputLabel, Select, MenuItem, CircularProgress,
 } from '@mui/material';
+import {LoadingButton} from "@mui/lab";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import UserDataFetch from "../../../components/user-account/UserDataFetch";
 
 const ls = new SecureLS({ encodingType: 'aes' });
 
@@ -28,12 +30,18 @@ const TopUpConfig = () => {
   const [dealerConfig, setDealerConfig] = useState({});
   const [markupInputValues, setMarkupInputValues] = useState({});
   const [sortBy, setSortBy] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingApplyButton, setIsLoadingApplyButton] = useState(null);
+  const [failedApplyButton, setFailedApplyButton] = useState(null);
+  const [successApplyButton, setSuccessApplyButton] = useState(null);
+
 
   const user = ls.get('user');
   const userId = user ? user._id : null;
   const userRole = user ? user.role : null;
   const navigate = useNavigate();
   const token = ls.get('token');
+  UserDataFetch();
 
   useEffect(() => {
     if (token) {
@@ -56,13 +64,16 @@ const TopUpConfig = () => {
           }
           const sortedProducts = products.sort((a, b) => a.defaultPrice - b.defaultPrice);
           setProductConfigs(sortedProducts);
+          setIsLoading(false);
         })
         .catch((error) => {
           console.error('Error fetching product configurations:', error);
+          setIsLoading(false);
         });
     }else{
       // pop up message
       window.alert('Token expired, please login again');
+      setIsLoading(false);
       navigate('/login');
     }
   }, [userId, productName, token, userRole]);
@@ -77,18 +88,9 @@ const TopUpConfig = () => {
   };
 
   const handleToggle = (configId, enabled) => {
-    const updatedConfigs = productConfigs.map((config) => {
-      if (config._id === configId) {
-        return { ...config, enabled };
-      }
-      return config;
-    });
-    setProductConfigs(updatedConfigs);
-
     const updateData = {
       enabled,
     };
-
     if (token) {
       axios
         .put(
@@ -102,6 +104,13 @@ const TopUpConfig = () => {
         )
         .then((response) => {
           // console.log('Product updated successfully:', response.data);
+          const updatedConfigs = productConfigs.map((config) => {
+            if (config._id === configId) {
+              return { ...config, enabled };
+            }
+            return config;
+          });
+          setProductConfigs(updatedConfigs);
         })
         .catch((error) => {
           console.error('Error updating product:', error);
@@ -119,7 +128,8 @@ const TopUpConfig = () => {
     }));
   };
 
-  const handleApplyDiscount = (configId) => {
+  const handleApplyDiscount = (configId, rowIndex) => {
+    setIsLoadingApplyButton(rowIndex);
     const newMarkUp = markupInputValues[configId] !== undefined ? markupInputValues[configId] : '0';
     const configIndex = productConfigs.findIndex((config) => config._id === configId);
 
@@ -147,15 +157,21 @@ const TopUpConfig = () => {
             // console.log('Markup and current price updated successfully:', response.data);
             setProductConfigs((prevConfigs) =>
               prevConfigs.map((config, index) => {
+                setIsLoadingApplyButton(null);
+                setSuccessApplyButton(rowIndex);
                 if (index === configIndex) {
                   return { ...config, markUp: newMarkUp, currentPrice: newCurrentPrice };
                 }
+
                 return config;
               })
             );
           })
           .catch((error) => {
             console.error('Error updating markup and current price:', error);
+            setIsLoadingApplyButton(null);
+            setFailedApplyButton(rowIndex);
+            window.alert('Failed to update markup and current price');
           });
       }
     }
@@ -262,7 +278,13 @@ const TopUpConfig = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {filteredProductConfigs.map((config) => {
+              {isLoading ? (
+                  <TableRow>
+                    <TableCell colSpan={6} align="center">
+                      <CircularProgress />
+                    </TableCell>
+                  </TableRow>
+              ) : filteredProductConfigs.map((config, index) => {
                 const isDisabledByDealer =
                     userRole === 'reseller' &&
                     !dealerConfig[productName]?.products.find((product) => product._id === config._id)?.enabled;
@@ -313,13 +335,15 @@ const TopUpConfig = () => {
                         )}
                       </TableCell>
                       <TableCell align="right" sx={{zIndex: isDisabledByDealer ? 0 : 1}}>
-                        <Button
-                            variant="outlined"
-                            onClick={() => handleApplyDiscount(config._id)}
-                            disabled={isDisabledByDealer} // Disable button if row is disabled
-                        >
-                          Apply
-                        </Button>
+                      <LoadingButton
+                          loading={isLoadingApplyButton === index}
+                          variant="outlined"
+                          color={successApplyButton === index ? 'success' : failedApplyButton === index ? 'error' : 'primary'}
+                          onClick={() => handleApplyDiscount(config._id, index)}
+                          disabled={isDisabledByDealer} // Disable button if row is disabled
+                      >
+                        Apply
+                      </LoadingButton>
                       </TableCell>
                       <TableCell align="right" sx={{zIndex: isDisabledByDealer ? 0 : 1}}>
                         ₱ {calculatedCurrentPrice}

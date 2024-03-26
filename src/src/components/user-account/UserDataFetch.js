@@ -40,6 +40,12 @@ const UserDataFetch = () => {
     };
 
     fetchBillerToggles();
+
+    const intervalId = setInterval(() => {
+      fetchBillerToggles();
+    }, 5000);
+
+    return () => clearInterval(intervalId);
   }, [userId, userRole]);
 
   return userData;
