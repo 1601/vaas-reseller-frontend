@@ -15,8 +15,9 @@ import {
   TableRow,
   Switch,
   TextField,
-  Button, Autocomplete, Chip, FormControl, InputLabel, Select, MenuItem, CircularProgress,
+  Autocomplete, Chip, FormControl, InputLabel, Select, MenuItem, CircularProgress,
 } from '@mui/material';
+import {LoadingButton} from "@mui/lab";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import UserDataFetch from "../../../components/user-account/UserDataFetch";
 
@@ -30,6 +31,9 @@ const TopUpConfig = () => {
   const [markupInputValues, setMarkupInputValues] = useState({});
   const [sortBy, setSortBy] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingApplyButton, setIsLoadingApplyButton] = useState(null);
+  const [failedApplyButton, setFailedApplyButton] = useState(null);
+  const [successApplyButton, setSuccessApplyButton] = useState(null);
 
 
   const user = ls.get('user');
@@ -124,7 +128,8 @@ const TopUpConfig = () => {
     }));
   };
 
-  const handleApplyDiscount = (configId) => {
+  const handleApplyDiscount = (configId, rowIndex) => {
+    setIsLoadingApplyButton(rowIndex);
     const newMarkUp = markupInputValues[configId] !== undefined ? markupInputValues[configId] : '0';
     const configIndex = productConfigs.findIndex((config) => config._id === configId);
 
@@ -152,15 +157,21 @@ const TopUpConfig = () => {
             // console.log('Markup and current price updated successfully:', response.data);
             setProductConfigs((prevConfigs) =>
               prevConfigs.map((config, index) => {
+                setIsLoadingApplyButton(null);
+                setSuccessApplyButton(rowIndex);
                 if (index === configIndex) {
                   return { ...config, markUp: newMarkUp, currentPrice: newCurrentPrice };
                 }
+
                 return config;
               })
             );
           })
           .catch((error) => {
             console.error('Error updating markup and current price:', error);
+            setIsLoadingApplyButton(null);
+            setFailedApplyButton(rowIndex);
+            window.alert('Failed to update markup and current price');
           });
       }
     }
@@ -273,7 +284,7 @@ const TopUpConfig = () => {
                       <CircularProgress />
                     </TableCell>
                   </TableRow>
-              ) : filteredProductConfigs.map((config) => {
+              ) : filteredProductConfigs.map((config, index) => {
                 const isDisabledByDealer =
                     userRole === 'reseller' &&
                     !dealerConfig[productName]?.products.find((product) => product._id === config._id)?.enabled;
@@ -324,13 +335,15 @@ const TopUpConfig = () => {
                         )}
                       </TableCell>
                       <TableCell align="right" sx={{zIndex: isDisabledByDealer ? 0 : 1}}>
-                        <Button
-                            variant="outlined"
-                            onClick={() => handleApplyDiscount(config._id)}
-                            disabled={isDisabledByDealer} // Disable button if row is disabled
-                        >
-                          Apply
-                        </Button>
+                      <LoadingButton
+                          loading={isLoadingApplyButton === index}
+                          variant="outlined"
+                          color={successApplyButton === index ? 'success' : failedApplyButton === index ? 'error' : 'primary'}
+                          onClick={() => handleApplyDiscount(config._id, index)}
+                          disabled={isDisabledByDealer} // Disable button if row is disabled
+                      >
+                        Apply
+                      </LoadingButton>
                       </TableCell>
                       <TableCell align="right" sx={{zIndex: isDisabledByDealer ? 0 : 1}}>
                         ₱ {calculatedCurrentPrice}
