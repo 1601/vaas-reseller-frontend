@@ -1,10 +1,12 @@
-import { useEffect } from 'react';
-import { Navigate, useRoutes } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import jwtDecode from 'jwt-decode';
+import { Navigate, useRoutes, useLocation } from 'react-router-dom';
 import SecureLS from 'secure-ls';
 // layouts
 import DashboardLayout from './layouts/dashboard';
 import SimpleLayout from './layouts/simple';
 // pages
+import LoginDialog from './components/authentication/LoginDialog';
 import BlogPage from './pages/BlogPage';
 import CustomerPage from './pages/DealerPages/CustomerPage';
 import UserPage from './pages/UserPage';
@@ -58,7 +60,18 @@ import AdminAccounts from './pages/AdminPages/AdminAccounts';
 const excludedSubdomains = ['www', 'lvh', 'localhost'];
 const ls = new SecureLS({ encodingType: 'aes' });
 
+const checkTokenValidity = () => {
+  const token = ls.get('token');
+  try {
+    const decoded = jwtDecode(token);
+    return decoded.exp > Date.now() / 1000;
+  } catch {
+    return false;
+  }
+};
+
 export default function Router() {
+  const location = useLocation();
   const hostnameParts = window.location.hostname.split('.');
   const subdomain = hostnameParts.length > 2 ? hostnameParts[0] : null;
   const isExcludedSubdomain = subdomain
@@ -70,6 +83,8 @@ export default function Router() {
   const isSubdomain = subdomain && !isExcludedSubdomain;
   const user = ls.get('user');
   const role = user ? user.role : null;
+  const [isTokenValid, setIsTokenValid] = useState(checkTokenValidity());
+  const [showLoginDialog, setShowLoginDialog] = useState(false);
 
   useEffect(() => {
     const currentHostname = window.location.hostname;
@@ -139,6 +154,25 @@ export default function Router() {
       }
     }
   }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const valid = checkTokenValidity();
+      setIsTokenValid(valid);
+      if (!valid && location.pathname.startsWith('/dashboard')) {
+        setShowLoginDialog(true);
+      } else {
+        setShowLoginDialog(false);
+      }
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, [location.pathname]);
+
+  const handleCloseDialog = () => {
+    setShowLoginDialog(false);
+    setIsTokenValid(checkTokenValidity());
+  };
 
   const routes = useRoutes([
     {
@@ -227,7 +261,8 @@ export default function Router() {
     },
     {
       path: '/dashboard/reseller',
-      element: isLoggedIn && role === 'reseller' ? <DashboardLayout /> : <Navigate to="/login" />,
+      element:
+        isLoggedIn && role === 'reseller' ? <DashboardLayout /> : <Navigate to="/login" />,
       children: [
         { path: '', element: <Navigate to="app" replace />, index: true },
         { path: 'app', element: <DashboardAppPage /> },
@@ -409,5 +444,10 @@ export default function Router() {
     },
   ]);
 
-  return routes;
+  return (
+    <>
+      {!isTokenValid && <LoginDialog open={showLoginDialog} onClose={handleCloseDialog} />}
+      {routes}
+    </>
+  );
 }
