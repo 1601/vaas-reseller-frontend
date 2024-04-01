@@ -477,7 +477,11 @@ const StorePageEdit = () => {
                     </Typography>
                     <div className="flex space-x-2">
                       {isEditing ? (
-                        <Button onClick={handleSaveClick} className="bg-blue-600 text-white px-4 py-2 rounded mr-2">
+                        <Button
+                          onClick={handleSaveClick}
+                          className="bg-blue-600 text-white px-4 py-2 rounded mr-2"
+                          disabled={!isStoreNameValid || !isStoreUrlValid}
+                        >
                           Save
                         </Button>
                       ) : (
