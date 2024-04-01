@@ -68,8 +68,8 @@ const AdminApproval = () => {
     try {
       const token = ls.get('token');
       const response = await axios.put(
-        `${BACKEND_URL}/v1/api/stores/owner/${ownerId}`,
-        { isLive },
+        `${BACKEND_URL}/v1/api/stores/owner`,
+        { ownerId, isLive },
         {
           headers: {
             Authorization: `Bearer ${token}`,
