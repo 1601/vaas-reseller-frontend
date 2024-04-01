@@ -195,7 +195,6 @@ export default function LoginPage() {
   };
 
   const handleLogin = async () => {
-    setLoggingIn(true);
     setError('');
     if (!email.trim() || !password.trim()) {
       setError('Please supply all required fields');
@@ -215,6 +214,7 @@ export default function LoginPage() {
     const storeUrl = getStoreUrlFromPath();
 
     try {
+      setLoggingIn(true);
       const storeResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/url/${storeUrl}/user`);
       const ownerId = storeResponse.data.userId;
 

@@ -82,7 +82,6 @@ export default function LoginForm() {
   };
 
   const handleLogin = async () => {
-    setLoggingIn(true);
     setError('');
     if (!email.trim() || !password.trim()) {
       setError('Please supply all required fields');
@@ -99,6 +98,7 @@ export default function LoginForm() {
       return;
     }
     try {
+      setLoggingIn(true);
       const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/login`, {
         email,
         password,
