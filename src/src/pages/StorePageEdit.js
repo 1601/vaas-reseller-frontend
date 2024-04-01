@@ -27,6 +27,7 @@ const StorePageEdit = () => {
   const navigate = useNavigate();
   const [storeData, setStoreData] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [isFileValid, setIsFileValid] = useState(false);
   const [editedData, setEditedData] = useState({});
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -180,10 +181,15 @@ const StorePageEdit = () => {
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
 
+    let isValid = false;
+
     // File type and size validation
-    if (file && ['image/jpeg', 'image/png'].includes(file.type)) {
-      if (file.size <= 5000000) {
-        // file size <= 5MB
+    if (file) {
+      // Check if file is of type JPEG or PNG and size is less than or equal to 5MB
+      const isValidType = ['image/jpeg', 'image/png'].includes(file.type);
+      const isValidSize = file.size <= 5000000; // 5MB
+
+      if (isValidType && isValidSize) {
         const storeName = editedData.storeName.replace(/\s+/g, '_');
         const fileName = `${storeName}_logo.${file.type.split('/')[1]}`;
 
@@ -194,12 +200,14 @@ const StorePageEdit = () => {
           needsApproval: true,
           isApproved: false,
         });
+
+        isValid = true;
       } else {
-        alert('File size must not exceed 5MB');
+        alert('File must be JPEG or PNG and not exceed 5MB.');
       }
-    } else {
-      alert('Supported file types are JPEG and PNG');
     }
+
+    setIsFileValid(isValid);
   };
 
   const handleToggle = async (field) => {
@@ -673,6 +681,7 @@ const StorePageEdit = () => {
                           <Button
                             onClick={() => handleUploadClick('logo')}
                             className="bg-blue-600 text-white px-4 py-2 rounded mt-4"
+                            disabled={!isFileValid}
                           >
                             Upload
                           </Button>
