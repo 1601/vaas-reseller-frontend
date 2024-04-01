@@ -46,11 +46,14 @@ const StorePageEdit = () => {
   useEffect(() => {}, [storeData]);
 
   useEffect(() => {
-    const storedUserId = ls.get('user') ? ls.get('user')._id : null;
-
     const fetchStoreData = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/owner/${storedUserId}`);
+        const token = ls.get('token');
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/owner`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         setStoreData(response.data);
         setEditedData(response.data);
         setPlatformVariables(response.data.platformVariables);
@@ -98,13 +101,13 @@ const StorePageEdit = () => {
 
   const handleConfirmSave = async () => {
     try {
-      const storedUserId = ls.get('user') ? ls.get('user')._id : null;
-
       if (!isValidSubdomain(editedData.storeUrl)) {
         setErrorMessage('Please ensure only lowercase alphanumerical with no special symbols');
         setErrorDialogOpen(true);
         return;
       }
+
+      const token = ls.get('token');
 
       const updatedData = {
         ...editedData,
@@ -116,10 +119,11 @@ const StorePageEdit = () => {
 
       delete updatedData.storeLogo;
 
-      const response = await axios.put(
-        `${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/owner/${storedUserId}`,
-        updatedData
-      );
+      const response = await axios.put(`${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/owner`, updatedData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       if (response.status === 200) {
         setStoreData((prevStoreData) => ({
@@ -229,10 +233,13 @@ const StorePageEdit = () => {
 
   const handleUploadClick = async (proseso) => {
     try {
-      await axios.put(`${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/owner/${storedUserId}`, {
-        isLive: false,
-        isApproved: false,
-      });
+      const token = ls.get('token');
+
+      await axios.put(
+        `${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/owner`,
+        { isLive: false, isApproved: false },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
     } catch (err) {
       console.error('Error updating isLive status:', err);
     }
@@ -305,20 +312,12 @@ const StorePageEdit = () => {
 
   const handleGoLiveClick = async () => {
     try {
-      const storedUserId = ls.get('user') ? ls.get('user')._id : null;
-      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/owner/${storedUserId}`);
-      const updatedStoreData = response.data;
+      const token = ls.get('token');
 
       const updateResponse = await axios.put(
-        `${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/owner/${storedUserId}`,
-        {
-          isLive: true,
-        },
-        {
-          headers: {
-            'Owner-Id': storedUserId,
-          },
-        }
+        `${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/owner`,
+        { isLive: true },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
       if (updateResponse.status === 200) {
@@ -336,20 +335,12 @@ const StorePageEdit = () => {
 
   const handleUnliveClick = async () => {
     try {
-      const storedUserId = ls.get('user') ? ls.get('user')._id : null;
-      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/owner/${storedUserId}`);
-      const updatedStoreData = response.data;
+      const token = ls.get('token');
 
       const updateResponse = await axios.put(
-        `${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/owner/${storedUserId}`,
-        {
-          isLive: false,
-        },
-        {
-          headers: {
-            'Owner-Id': storedUserId,
-          },
-        }
+        `${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/owner`,
+        { isLive: false },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
       if (updateResponse.status === 200) {
@@ -381,28 +372,22 @@ const StorePageEdit = () => {
       };
 
       const token = ls.get('token');
-      const userId = ls.get('user') ? ls.get('user')._id : null;
 
-      const response = await axios.put(
-        `${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/colors/${userId}`,
-        dataToSend,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await axios.put(`${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/colors`, dataToSend, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-      if (response.status !== 200) {
+      if (response.status === 200) {
+        alert('Colors updated successfully');
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+      } else {
         throw new Error(response.data.message);
       }
-
-      alert('Colors updated successfully');
-
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
     } catch (error) {
       console.error('Error updating colors:', error.message);
       alert('Failed to update colors. Please try again.');

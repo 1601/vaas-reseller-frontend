@@ -1,5 +1,12 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import SecureLS from 'secure-ls';
+
+const ls = new SecureLS({ encodingType: 'aes' });
+
+const getToken = () => {
+  return ls.get('token'); 
+};
 
 const StoreDataFetch = (userId) => {
   const [storeData, setStoreData] = useState(null);
@@ -8,9 +15,15 @@ const StoreDataFetch = (userId) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchStoreData = async () => { 
+    const fetchStoreData = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/owner/${userId}`);
+        const token = getToken(); 
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`, 
+          },
+        };
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/owner`, config);
         setStoreData(response.data);
         setEditedData(response.data);
         setPlatformVariables(response.data.platformVariables);
@@ -19,8 +32,9 @@ const StoreDataFetch = (userId) => {
         setError(err);
       }
     };
+
     fetchStoreData();
-  }, [userId]);
+  }, []);
 
   return { storeData, editedData, platformVariables, error };
 };
