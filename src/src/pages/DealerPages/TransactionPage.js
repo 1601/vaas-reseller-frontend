@@ -154,9 +154,10 @@ export default function TransactionPage() {
           paymentId: `vaas_${purchase._id}`,
         }));
 
+
       // Filter transactions by selected date range
-      filteredTransactions = transactions.filter((transaction) => {
-        const transactionDate = new Date(transaction.createdAt);
+      filteredTransactions = transactions.filter(transaction => {
+        const transactionDate = new Date(transaction.date);
         const startDate = new Date(selectedRange[0].startDate);
         const endDate = new Date(selectedRange[0].endDate);
         endDate.setHours(23, 59, 59, 999);
@@ -185,25 +186,24 @@ export default function TransactionPage() {
     try {
       // Fetch transactions within the specified date range
       const rangeResult = await getAllByDateRange(formattedStartDate, formattedEndDate);
-      const dateRangeTransactions =
-        rangeResult && rangeResult.body && rangeResult.body.length > 0
-          ? rangeResult.body.map((transaction) => ({
-              // Mapping logic remains the same...
+      const dateRangeTransactions = rangeResult && rangeResult.body && rangeResult.body.length > 0
+          ? rangeResult.body.map(transaction => ({
+              ...transaction,
             }))
           : [];
 
-      // Now fetchCustomerPurchases returns the transactions
       const customerPurchases = await fetchCustomerPurchases();
 
       // Combine and filter transactions here
-      const combinedTransactions = [...customerPurchases, ...dateRangeTransactions].filter((transaction) => {
-        const transactionDate = new Date(transaction.createdAt);
+      const combinedTransactions = [...customerPurchases, ...dateRangeTransactions].filter(transaction => {
+        const transactionDate = new Date(transaction.date); 
         return transactionDate >= startDate && transactionDate <= endDate;
       });
 
-      setTransactionList(combinedTransactions); // Update state with combined transactions
-      handleToDownloadData(combinedTransactions);
+      console.log("combinedTransactions: ", combinedTransactions)
 
+      setTransactionList(combinedTransactions); 
+      handleToDownloadData(combinedTransactions);
       setIsNotFound(combinedTransactions.length === 0);
     } catch (error) {
       console.error('Error fetching combined transactions data:', error);
@@ -288,7 +288,7 @@ export default function TransactionPage() {
                     transactionList.map((row) => {
                       const {
                         _id,
-                        createdAt,
+                        date,
                         type,
                         referenceNumber,
                         userId,
@@ -302,7 +302,7 @@ export default function TransactionPage() {
                         <TableRow hover key={_id} tabIndex={-1}>
                           <TableCell component="th" scope="row" padding="none">
                             <Typography variant="caption" noWrap>
-                              {new Date(createdAt).toDateString()}
+                              {new Date(date).toDateString()}
                             </Typography>
                           </TableCell>
                           <TableCell align="left">
