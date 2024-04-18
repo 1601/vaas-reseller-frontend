@@ -61,9 +61,12 @@ export const AuthProvider = ({ children }) => {
     (response) => response,
     async (error) => {
       if (error.response) {
+        const status = error.response.status;
+
         if ([400, 402, 403, 404].includes(status)) {
-          await checkTokenExpiration();
+          await checkTokenExpiration(); 
         }
+        
         if (error.response.status === 401) {
           if (error.response.data.message === 'Token is invalid due to new login.') {
             setNewLoginDialogOpen(true);
@@ -71,7 +74,7 @@ export const AuthProvider = ({ children }) => {
             error.response.data.message === 'Token is expired.' ||
             error.message.includes('TokenExpiredError: jwt expired')
           ) {
-            setTokenExpiredDialogOpen(true);
+            setTokenExpiredDialogOpen(true); 
           }
         }
       }
