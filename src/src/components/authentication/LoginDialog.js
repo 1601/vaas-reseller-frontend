@@ -18,7 +18,14 @@ const ls = new SecureLS({ encodingType: 'aes' });
 
 export default function LoginDialog({ open, onClose }) {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const {
+    login,
+    logout,
+    newLoginDialogOpen,
+    setNewLoginDialogOpen,
+    tokenExpiredDialogOpen,
+    setTokenExpiredDialogOpen,
+  } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -78,46 +85,60 @@ export default function LoginDialog({ open, onClose }) {
   };
 
   return (
-    <Dialog open={open} onClose={handleLogout}>
-      <DialogTitle sx={{ textAlign: 'center' }}>Verify User Session</DialogTitle>
-      <DialogContent>
-        {loading ? (
-          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <CircularProgress />
-            <p>{action === 'login' ? 'Verifying login credentials...' : 'Logging out...'}</p>
-          </Box>
-        ) : (
-          <>
-            <TextField
-              label="Email Address"
-              type="email"
-              fullWidth
-              value={email}
-              onChange={handleEmailChange}
-              margin="normal"
-              error={!!emailError}
-              helperText={emailError}
-            />
-            <TextField
-              label="Password"
-              type="password"
-              fullWidth
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              margin="normal"
-            />
-            {error && <p style={{ color: 'red' }}>{error}</p>}
-          </>
-        )}
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={handleLogout} color="error" disabled={loading}>
-          Logout
-        </Button>
-        <Button onClick={handleLogin} disabled={!isFormValid() || loading}>
-          Log in
-        </Button>
-      </DialogActions>
-    </Dialog>
+    <>
+      <Dialog open={newLoginDialogOpen} disableBackdropClick disableEscapeKeyDown>
+        <DialogTitle>New Session Detected</DialogTitle>
+        <DialogContent>
+          <p>Your session has been logged out because your account was accessed from another location.</p>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleLogout} color="primary">
+            Logout
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={tokenExpiredDialogOpen} disableBackdropClick disableEscapeKeyDown onClose={handleLogout}>
+        <DialogTitle sx={{ textAlign: 'center' }}>Verify User Session</DialogTitle>
+        <DialogContent>
+          {loading ? (
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <CircularProgress />
+              <p>{action === 'login' ? 'Verifying login credentials...' : 'Logging out...'}</p>
+            </Box>
+          ) : (
+            <>
+              <TextField
+                label="Email Address"
+                type="email"
+                fullWidth
+                value={email}
+                onChange={handleEmailChange}
+                margin="normal"
+                error={!!emailError}
+                helperText={emailError}
+              />
+              <TextField
+                label="Password"
+                type="password"
+                fullWidth
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                margin="normal"
+              />
+              {error && <p style={{ color: 'red' }}>{error}</p>}
+            </>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleLogout} color="error" disabled={loading}>
+            Logout
+          </Button>
+          <Button onClick={handleLogin} disabled={!isFormValid() || loading}>
+            Log in
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
   );
 }

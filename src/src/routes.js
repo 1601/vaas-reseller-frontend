@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import jwtDecode from 'jwt-decode';
+import axios from 'axios';
 import { Navigate, useRoutes, useLocation } from 'react-router-dom';
 import SecureLS from 'secure-ls';
+import { useAuth } from './components/authentication/AuthContext';
 // layouts
 import DashboardLayout from './layouts/dashboard';
 import SimpleLayout from './layouts/simple';
@@ -60,13 +62,30 @@ import AdminAccounts from './pages/AdminPages/AdminAccounts';
 const excludedSubdomains = ['www', 'lvh', 'localhost'];
 const ls = new SecureLS({ encodingType: 'aes' });
 
-const checkTokenValidity = () => {
+const checkTokenValidity = async () => {
   const token = ls.get('token');
+  if (!token) {
+    return { isValid: false, reason: 'no_token' };
+  }
+
   try {
     const decoded = jwtDecode(token);
-    return decoded.exp > Date.now() / 1000;
-  } catch {
-    return false;
+    if (decoded.exp * 1000 < Date.now()) {
+      return { isValid: false, reason: 'expired' };
+    }
+
+    const response = await axios.post(
+      `${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/verify-token`,
+      { token },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    return { isValid: response.data.isValid, reason: 'valid' };
+  } catch (error) {
+    console.error('Token validation error:', error);
+    if (error.response) {
+      return { isValid: false, reason: error.response.data.message };
+    }
+    return { isValid: false, reason: 'error' };
   }
 };
 
@@ -83,8 +102,14 @@ export default function Router() {
   const isSubdomain = subdomain && !isExcludedSubdomain;
   const user = ls.get('user');
   const role = user ? user.role : null;
-  const [isTokenValid, setIsTokenValid] = useState(checkTokenValidity());
-  const [showLoginDialog, setShowLoginDialog] = useState(false);
+  const [isTokenValid, setIsTokenValid] = useState(true);
+  const {
+    isAuthenticated,
+    newLoginDialogOpen,
+    tokenExpiredDialogOpen,
+    setNewLoginDialogOpen,
+    setTokenExpiredDialogOpen,
+  } = useAuth();
 
   useEffect(() => {
     const currentHostname = window.location.hostname;
@@ -156,22 +181,37 @@ export default function Router() {
   }, []);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      const valid = checkTokenValidity();
-      setIsTokenValid(valid);
-      if (!valid && location.pathname.startsWith('/dashboard')) {
-        setShowLoginDialog(true);
-      } else {
-        setShowLoginDialog(false);
-      }
-    }, 10000);
+    let intervalId;
 
-    return () => clearInterval(interval);
-  }, [location.pathname]);
+    if (!newLoginDialogOpen && !tokenExpiredDialogOpen) {
+      intervalId = setInterval(async () => {
+        const { isValid, reason } = await checkTokenValidity();
+        setIsTokenValid(isValid);
+
+        if (!isValid && location.pathname.startsWith('/dashboard')) {
+          if (reason === 'Token is invalid due to new login.') {
+            setNewLoginDialogOpen(true);
+            setTokenExpiredDialogOpen(false);
+          } else if (reason === 'Token is expired.') {
+            setNewLoginDialogOpen(false);
+            setTokenExpiredDialogOpen(true);
+          } else {
+            setNewLoginDialogOpen(false);
+            setTokenExpiredDialogOpen(false);
+          }
+        } else {
+          setNewLoginDialogOpen(false);
+          setTokenExpiredDialogOpen(false);
+        }
+      }, 60000);
+    }
+
+    return () => clearInterval(intervalId);
+  }, [location.pathname, newLoginDialogOpen, tokenExpiredDialogOpen]);
 
   const handleCloseDialog = () => {
-    setShowLoginDialog(false);
-    setIsTokenValid(checkTokenValidity());
+    setNewLoginDialogOpen(false);
+    setTokenExpiredDialogOpen(false);
   };
 
   const routes = useRoutes([
@@ -261,8 +301,7 @@ export default function Router() {
     },
     {
       path: '/dashboard/reseller',
-      element:
-        isLoggedIn && role === 'reseller' ? <DashboardLayout /> : <Navigate to="/login" />,
+      element: isLoggedIn && role === 'reseller' ? <DashboardLayout /> : <Navigate to="/login" />,
       children: [
         { path: '', element: <Navigate to="app" replace />, index: true },
         { path: 'app', element: <DashboardAppPage /> },
@@ -446,7 +485,20 @@ export default function Router() {
 
   return (
     <>
-      {!isTokenValid && <LoginDialog open={showLoginDialog} onClose={handleCloseDialog} />}
+      <LoginDialog
+        open={newLoginDialogOpen}
+        onClose={() => handleCloseDialog('newLogin')}
+        dialogType="newLogin"
+        disableBackdropClick
+        disableEscapeKeyDown
+      />
+      <LoginDialog
+        open={tokenExpiredDialogOpen}
+        onClose={() => handleCloseDialog('tokenExpired')}
+        dialogType="tokenExpired"
+        disableBackdropClick
+        disableEscapeKeyDown
+      />
       {routes}
     </>
   );
