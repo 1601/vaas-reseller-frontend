@@ -289,7 +289,7 @@ const StorePageEdit = () => {
 
       try {
         const response = await axios.put(
-          `${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/logo/${proseso}/${storedUserId}`,
+          `${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/logo/${proseso}`,
           formData,
           config
         );
