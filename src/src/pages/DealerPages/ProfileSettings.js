@@ -21,6 +21,9 @@ import {
   DialogContent,
   DialogTitle,
   IconButton,
+  Switch,
+  FormControlLabel,
+  Tooltip
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import UserDataFetch from '../../components/user-account/UserDataFetch';
@@ -31,6 +34,7 @@ import { mobileNumberLengths } from '../../components/country/countryNumLength';
 import ValidatedTextField from '../../components/validation/ValidatedTextField';
 import { validateName, validateEmail, validateMobileNumber } from '../../components/validation/validationUtils';
 import CircularLoading from '../../components/preLoader';
+import termsAndAgreement from '../../components/agreements/termsAndAgreement';
 
 const ls = new SecureLS({ encodingType: 'aes' });
 
@@ -49,6 +53,10 @@ const ProfileSettings = () => {
   const [otpError, setOtpError] = useState('');
   const [resendOtpCooldown, setResendOtpCooldown] = useState(0);
   const [originalMobileNumber, setOriginalMobileNumber] = useState('');
+  const [email, setEmail] = useState('');
+  const [acceptedMarketSub, setAcceptedMarketSub] = useState(userData?.marketSub); // Default state is true
+  const [showTerms, setShowTerms] = useState(false);
+  const [isTermsDialogOpen, setIsTermsDialogOpen] = useState(false);
 
   const kycStatuses = ['Unsubmitted Documents', 'Pending Approval', 'Approved', 'Rejected'];
 
@@ -292,6 +300,8 @@ const ProfileSettings = () => {
     const strippedMobileNumber = userData?.mobileNumber?.replace(countryCode, '') || '';
     setOriginalMobileNumber(userData.mobileNumber || '');
 
+    setAcceptedMarketSub(userData?.marketSub);
+
     setFormState({
       firstName: userData?.firstName || '',
       lastName: userData?.lastName || '',
@@ -301,6 +311,7 @@ const ProfileSettings = () => {
       mobileNumber: strippedMobileNumber,
       username: userData?.username || '',
     });
+
     setEditMode(true);
   };
 
@@ -331,6 +342,7 @@ const ProfileSettings = () => {
           designation: formState.designation,
           country: formState.country,
           mobileNumber: fullMobileNumber,
+          marketSub: acceptedMarketSub
         }),
       });
 
@@ -394,6 +406,21 @@ const ProfileSettings = () => {
     }
   };
 
+  const openTermsDialog = () => {
+    console.log();
+    setIsTermsDialogOpen(true);
+  };
+
+  const closeTermsDialog = () => {
+    setIsTermsDialogOpen(false);
+  };
+
+  const handleMarketingEmailSubChange = (event) => {
+      console.log(user);
+      setAcceptedMarketSub(event.target.checked);
+
+  };
+
   if (!userData || !storeData) {
     return <CircularLoading />;
   }
@@ -403,6 +430,7 @@ const ProfileSettings = () => {
   }
 
   return (
+
     <Container>
       <Box mt={4} mb={4}>
         <Card variant="outlined" style={{ padding: '20px', marginBottom: '20px' }}>
@@ -694,6 +722,66 @@ const ProfileSettings = () => {
                 </CardContent>
               </Card>
             </Grid>
+
+            {/* Preference */}
+            <Grid item xs={12}>
+              <Card style={{ borderColor: 'purple', borderWidth: '2px' }}>
+                <CardContent>
+                  <Typography variant="h6">Preferences</Typography>
+                  <Card style={{ marginBottom: '20px', padding: '15px' }}>
+                    <FormControlLabel
+                        control={
+                          <Switch
+                              checked={editMode ? acceptedMarketSub  : userData.marketSub}
+                              onChange={handleMarketingEmailSubChange}
+                              color="primary"
+                              disabled={!editMode}
+                          />
+                        }
+                        label="Subscribe to Marketing Emails"
+                    />
+                  </Card>
+                  <Card style={{ marginBottom: '20px', padding: '15px' }}>
+                    <Typography variant="body1">
+                      You have agreed to our{' '}
+                      <Tooltip
+                          title={showTerms ? 'Terms and Agreements' : ''}
+                          onOpen={() =>
+                            setShowTerms(true)
+                          }
+                          onClose={() => setShowTerms(false)}
+                          onClick={openTermsDialog}
+                      >
+                        <span style={{ textDecoration: 'underline', cursor: 'pointer' }}>
+                          Terms and Conditions, and Privacy Policy
+                        </span>
+                      </Tooltip>{' '}
+                      upon signing up.
+                    </Typography>
+                  </Card>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            <Dialog open={isTermsDialogOpen} onClose={closeTermsDialog} scroll="paper">
+              <DialogTitle>Terms and Conditions</DialogTitle>
+              <DialogContent dividers>
+                <div
+                    style={{
+                      overflowY: 'auto',
+                      maxHeight: 400,
+                      whiteSpace: 'pre-line',
+                    }}
+                >
+                  <p>{termsAndAgreement}</p>
+                </div>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={closeTermsDialog} color="primary">
+                  Close
+                </Button>
+              </DialogActions>
+            </Dialog>
 
             {/* Change Password Dialog */}
             <Dialog open={changePasswordDialogOpen} onClose={closeChangePasswordDialog}>
