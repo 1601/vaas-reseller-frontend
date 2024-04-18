@@ -61,7 +61,7 @@ export const AuthProvider = ({ children }) => {
     (response) => response,
     async (error) => {
       if (error.response) {
-        if (error.response.status === 400) {
+        if ([400, 402, 403, 404].includes(status)) {
           await checkTokenExpiration();
         }
         if (error.response.status === 401) {
