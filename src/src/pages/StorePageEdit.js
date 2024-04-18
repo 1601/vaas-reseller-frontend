@@ -276,6 +276,7 @@ const StorePageEdit = () => {
       const storedUserId = ls.get('user') ? ls.get('user')._id : null;
 
       formData.append('file', editedData.storeLogo);
+      formData.append('storeId', storedUserId);
       formData.append('logoFileName', editedData.logoFileName);
       formData.append('storeName', editedData.storeName);
 
