@@ -9,12 +9,16 @@ const UserDataFetch = () => {
   const userRole = user ? user.role : null;
 
   const [userData, setUserData] = useState(null);
-
   useEffect(() => {
     const fetchUserData = async () => {
+      let headers = {}
       try {
-        if (userId) { 
-          const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/${userId}`);
+        if (userId) {
+           headers = {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${user.token}`,
+          };
+          const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/${userId}`, {headers});
           setUserData(response.data);
         }
       } catch (error) {
