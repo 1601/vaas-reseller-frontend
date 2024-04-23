@@ -2,17 +2,20 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
 
-const DeleteResellerDialog = ({ open, handleCloseDeleteDialog, userId, resellerId, fetchData }) => {
+const DeleteResellerDialog = ({ open, handleCloseDeleteDialog, userId, resellerId, fetchData, token }) => {
     const [deletingResellerId, setDeletingResellerId] = useState(null);
-
     const handleConfirmDelete = async () => {
+        let headers = {}
         if (!userId || !resellerId) {
             console.error("UserId or ResellerId is missing!");
             return;
         }
-
         try {
-            await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/${userId}/${resellerId}`);
+            headers = {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`,
+            };
+            await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/${userId}/${resellerId}`, {headers});
             handleCloseDeleteDialog();
             if (fetchData) {
                 fetchData();  

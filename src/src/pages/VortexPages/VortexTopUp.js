@@ -207,6 +207,7 @@ const VortexTopUp = () => {
   const navigate = useNavigate();
 
   const ls = new SecureLS({ encodingType: 'aes' });
+  const user = ls.get('user');
 
   const { userId } = useParams();
 
@@ -1096,12 +1097,16 @@ const VortexTopUp = () => {
     );
 
     async function updateProductDetailsForAllDealers(brandName, products) {
+      const headers = {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${user.token}`,
+      }
       try {
         // console.log(`Attempting to update product details for brand: ${brandName}`);
         const response = await axios.put(`${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/topup/products`, {
           brandName,
           products,
-        });
+        }, {headers});
         // console.log(`Successfully updated product details for brand: ${brandName}`, response.data);
       } catch (error) {
         console.error(`Error updating product details for ${brandName}:`, error);
@@ -1112,11 +1117,17 @@ const VortexTopUp = () => {
     async function fetchDealerProductConfig(dealerId, brandName) {
       let userIdToUse = ls.get('resellerCode') ? JSON.parse(ls.get('resellerCode')).code : null;
 
+      const headers = {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${user.token}`,
+      }
+
       userIdToUse = userIdToUse || dealerId;
 
       try {
         const response = await axios.get(
-          `${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/product-config/${userIdToUse}/${brandName}/public`
+          `${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/product-config/${userIdToUse}/${brandName}/public`,
+            {headers}
         );
 
         if (response.data && response.data.products) {

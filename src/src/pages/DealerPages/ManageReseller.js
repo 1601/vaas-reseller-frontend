@@ -87,6 +87,7 @@ const StatusLabel = ({ status }) => {
 const ManageReseller = () => {
   const userId = ls.get('user') ? ls.get('user')._id : null;
   const userData = UserDataFetch(userId);
+  const user = ls.get('user');
   const [open, setOpen] = useState(false);
   const initialFormState = {
     email: '',
@@ -164,10 +165,15 @@ const ManageReseller = () => {
   };
 
   const handleStatusChange = async (newStatus) => {
+    let headers = {}
     try {
+      headers = {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${user.token}`,
+      };
       await axios.put(`${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/${userId}/${editingResellerId}`, {
         status: newStatus,
-      });
+      }, {headers});
       const updatedResellers = await fetchResellersForUser(userId);
       setResellers(updatedResellers);
     } catch (error) {
@@ -397,8 +403,13 @@ const ManageReseller = () => {
   };
 
   const fetchResellersForUser = async (userId) => {
+    let headers = {}
     try {
-      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/${userId}/resellers`);
+      headers = {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${user.token}`,
+      };
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/${userId}/resellers`, {headers});
       return response.data;
     } catch (error) {
       console.error('Error fetching resellers:', error);
@@ -727,6 +738,7 @@ const ManageReseller = () => {
             userId={userId}
             resellerId={resellerToDelete?._id}
             fetchData={fetchData}
+            token={user.token}
           />
         </>
       )}

@@ -33,9 +33,14 @@ const UserDataFetch = () => {
 
   useEffect(() => {
     const fetchBillerToggles = async () => {
+      let headers = {}
       try {
-        if (userRole === 'reseller' && userId) { 
-          const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/${userId}/billertoggles`);
+        if (userRole === 'reseller' && userId) {
+          headers = {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${user.token}`,
+          };
+          const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/${userId}/billertoggles`, {headers});
           setUserData(response.data);
         }
       } catch (error) {
