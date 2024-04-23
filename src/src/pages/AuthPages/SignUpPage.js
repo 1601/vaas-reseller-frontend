@@ -97,7 +97,9 @@ function TermsDialog({ open, onClose, onAgree }) {
   const [isScrolledToEnd, setIsScrolledToEnd] = useState(false);
 
   const handleScroll = (e) => {
-    const bottom = e.target.scrollHeight - e.target.scrollTop === e.target.clientHeight;
+    const target = e.target;
+    const tolerance = 1; 
+    const bottom = target.scrollHeight - target.scrollTop <= target.clientHeight + tolerance;
     setIsScrolledToEnd(bottom);
   };
 
@@ -480,8 +482,16 @@ export default function SignUpPage() {
   };
 
   const handleEmailChange = (e) => {
-    setEmail(e.target.value);
-    validateEmailAndCheckExistence(e.target.value);
+    const newEmail = e.target.value;
+    setEmail(newEmail);
+
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      email: newEmail,
+      username: newEmail,
+    }));
+
+    validateEmailAndCheckExistence(newEmail);
   };
 
   const handleGoogleSignUp = () => {
@@ -959,7 +969,7 @@ export default function SignUpPage() {
                             name="email"
                             value={email}
                             onChange={(e) => {
-                              handleEmailChange(e); 
+                              handleEmailChange(e);
                               setDirtyFields((prev) => ({ ...prev, email: true }));
                             }}
                             onFocus={() => setDirtyFields((prev) => ({ ...prev, email: true }))}
@@ -972,9 +982,9 @@ export default function SignUpPage() {
                             helperText={
                               fieldErrors.email && dirtyFields.email
                                 ? email.trim()
-                                  ? emailErrorMessage 
-                                  : 'Email is required' 
-                                : '' 
+                                  ? emailErrorMessage
+                                  : 'Email is required'
+                                : ''
                             }
                           />
                         </Grid>
@@ -1045,7 +1055,7 @@ export default function SignUpPage() {
                             variant="outlined"
                             name="username"
                             value={formData.username}
-                            onChange={handleInputChange}
+                            disabled
                             onFocus={() => setDirtyFields((prev) => ({ ...prev, username: true }))}
                             onBlur={() => {
                               if (dirtyFields.username && !formData.username.trim()) {
@@ -1055,11 +1065,7 @@ export default function SignUpPage() {
                             sx={{ mb: 1 }}
                             helperText={
                               fieldErrors.username
-                                ? formData.username.trim()
-                                  ? 'Username contains invalid characters'
-                                  : dirtyFields.username
-                                  ? 'Username is required'
-                                  : ''
+                                ? 'Username is auto-generated from your email and cannot be changed.'
                                 : ''
                             }
                           />

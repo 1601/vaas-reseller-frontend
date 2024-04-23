@@ -41,6 +41,7 @@ import ProfilePage from './pages/DealerPages/ProfilePage';
 import VerifyInLoginPage from './pages/AuthPages/VerifyInLoginPage';
 import ProfileSettings from './pages/DealerPages/ProfileSettings';
 import FAQs from './pages/OtherPages/FAQs';
+import SupportDetails from './pages/OtherPages/SupportDetails';
 import ManageReseller from './pages/DealerPages/ManageReseller';
 import VortexTopUp from './pages/VortexPages/VortexTopUp';
 import VortexContext from './Vortex/context/VortexContext';
@@ -294,7 +295,7 @@ export default function Router() {
             { path: '/dashboard/settings', element: <Navigate to="profile" replace />, index: true },
             { path: 'profile', element: <ProfileSettings /> },
             { path: 'faq', element: <FAQs /> },
-            { path: 'support', element: <ProfileSettings /> },
+            { path: 'support', element: <SupportDetails  /> },
           ],
         },
       ],
