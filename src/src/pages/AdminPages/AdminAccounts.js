@@ -21,6 +21,12 @@ import {
   Button,
   CircularProgress,
   Box,
+  FormControl,
+  InputLabel,
+  Select,
+  Autocomplete,
+  TextField,
+  Chip,
 } from '@mui/material';
 import { MoreVert as MoreVertIcon } from '@mui/icons-material';
 import { ViewUserModal } from '../../components/admin/ViewUserModal';
@@ -31,8 +37,10 @@ const ls = new SecureLS({ encodingType: 'aes' });
 
 const AdminAccounts = () => {
   const [admins, setAdmins] = useState([]);
+  const [filteredAdmins, setFilteredAdmins] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [anchorEl, setAnchorEl] = useState(null);
+  const [sortBy, setSortBy] = useState('latest');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogContent, setDialogContent] = useState('');
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
@@ -43,6 +51,56 @@ const AdminAccounts = () => {
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [userToView, setUserToView] = useState(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchAdmins = async () => {
+      setIsLoading(true);
+      const token = ls.get('token');
+
+      try {
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/admin/users`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (Array.isArray(response.data)) {
+          const admins = response.data.filter((user) => user.role === 'admin');
+          admins.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+          setAdmins(admins);
+          setFilteredAdmins(admins);
+        } else {
+          console.error('Unexpected API response format for admins');
+        }
+      } catch (error) {
+        console.error('Could not fetch admins:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchAdmins();
+  }, []);
+
+  useEffect(() => {
+    setFilteredAdmins(admins);
+  }, [admins]);
+
+  const handleFilterChange = (event, newValue) => {
+    const foundAdmins = [];
+    foundAdmins.push(...admins.filter((admin) => newValue.some((email) => admin.email.includes(email))));
+    setFilteredAdmins(newValue.length !== 0 ? foundAdmins : admins);
+  };
+
+  const handleSortChange = (event) => {
+    setSortBy(event.target.value);
+    const sortedAdmins = [...filteredAdmins];
+    if (event.target.value === 'latest') {
+      sortedAdmins.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    } else if (event.target.value === 'oldest') {
+      sortedAdmins.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+    }
+    setFilteredAdmins(sortedAdmins);
+  };
 
   const handleMenuClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -95,7 +153,7 @@ const AdminAccounts = () => {
     try {
       const payload = {
         email: emailToReset,
-        fromAdminCRM: true, 
+        fromAdminCRM: true,
       };
 
       const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/password/email`, payload);
@@ -118,34 +176,6 @@ const AdminAccounts = () => {
     setDialogOpen(true);
   };
 
-  useEffect(() => {
-    const fetchAdmins = async () => {
-      setIsLoading(true);
-
-      try {
-        const token = ls.get('token');
-        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/admin/users`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (Array.isArray(response.data)) {
-          const admins = response.data.filter((user) => user.role === 'admin');
-          setAdmins(admins);
-        } else {
-          console.error('Unexpected API response format for admins');
-        }
-      } catch (error) {
-        console.error('Could not fetch admins', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchAdmins();
-  }, []);
-
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -164,6 +194,29 @@ const AdminAccounts = () => {
           Create Admin
         </Button>
       </Box>
+      <div className="flex">
+        <Autocomplete
+          multiple
+          className="w-4/5"
+          id="tags-filled"
+          options={admins.map((admin) => admin.email)}
+          freeSolo
+          onChange={handleFilterChange}
+          renderTags={(value, getTagProps) =>
+            value.map((option, index) => <Chip variant="outlined" label={option} {...getTagProps({ index })} />)
+          }
+          renderInput={(params) => (
+            <TextField {...params} variant="filled" label="Search admins by email" placeholder="admins" />
+          )}
+        />
+        <FormControl className="w-1/5">
+          <InputLabel id="sort-label">Sort By</InputLabel>
+          <Select labelId="sort-label" id="sort-select" value={sortBy} onChange={handleSortChange} label="Sort By">
+            <MenuItem value="latest">Latest</MenuItem>
+            <MenuItem value="oldest">Oldest</MenuItem>
+          </Select>
+        </FormControl>
+      </div>
       <TableContainer component={Card}>
         <Table>
           <TableHead>
@@ -174,7 +227,7 @@ const AdminAccounts = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {admins.map((admin, index) => (
+            {filteredAdmins.map((admin, index) => (
               <TableRow key={index}>
                 <TableCell>
                   <Typography variant="h6">
