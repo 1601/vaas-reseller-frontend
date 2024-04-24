@@ -418,7 +418,7 @@ export default function LoginPage() {
       const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/product-config/create`, {
         dealerId,
         config: defaultProductConfig,
-      }, {header});
+      }, {headers: header});
 
       // console.log('Response received:', response);
       // console.log('Default product config created successfully');

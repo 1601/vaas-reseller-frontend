@@ -221,7 +221,7 @@ export default function LoginPage() {
       ls.set('user', response.data);
 
       const dealerId = response.data._id;
-      const products = await fetchDealerProductConfig(dealerId, 'TNTPH');
+      const products = await fetchDealerProductConfig(dealerId, 'TNTPH', token);
       if (products.length === 0) {
         await createDefaultProductConfig(dealerId);
       }
@@ -320,19 +320,19 @@ export default function LoginPage() {
   };
 
   // Fetch Dealer Product Config Function
-  async function fetchDealerProductConfig(dealerId, brandName) {
+  async function fetchDealerProductConfig(dealerId, brandName, token) {
     // console.log(`fetchDealerProductConfig called with dealerId: ${dealerId}, brandName: ${brandName}`);
-
+    console.log(token);
     const header = {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${ls.get('user').token}`,
+      Authorization: `Bearer ${token}`,
     }
 
     try {
       // console.log(`Attempting to fetch product configuration for dealer ${dealerId}, brand ${brandName}`);
       const response = await axios.get(
         `${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/product-config/${dealerId}/${brandName}/public`,
-          {header}
+          {headers: header}
       );
 
       if (response.data && response.data.products) {
@@ -365,7 +365,7 @@ export default function LoginPage() {
       const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/product-config/create`, {
         dealerId,
         config: defaultProductConfig,
-      }, {header});
+      }, {headers: header});
 
       // console.log('Response received:', response);
       // console.log('Default product config created successfully');
