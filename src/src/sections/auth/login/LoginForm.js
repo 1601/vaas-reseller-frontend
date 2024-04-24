@@ -133,7 +133,7 @@ export default function LoginForm() {
       const dealerId = response.data._id;
       const products = await fetchDealerProductConfig(dealerId, 'TNTPH');
       if (products.length === 0) {
-        await createDefaultProductConfig(dealerId);
+        await createDefaultProductConfig(dealerId, token);
       }
 
       navigate(role === 'admin' ? '/dashboard/admin' : '/dashboard/app', { replace: true });
@@ -152,10 +152,16 @@ export default function LoginForm() {
   // Fetch Dealer Product Config Function
   async function fetchDealerProductConfig(dealerId, brandName) {
     // console.log(`fetchDealerProductConfig called with dealerId: ${dealerId}, brandName: ${brandName}`);
+    const header = {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${ls.get('user').token}`,
+    }
+
     try {
       // console.log(`Attempting to fetch product configuration for dealer ${dealerId}, brand ${brandName}`);
       const response = await axios.get(
-        `${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/product-config/${dealerId}/${brandName}/public`
+        `${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/product-config/${dealerId}/${brandName}/public`,
+          {headers: header}
       );
 
       if (response.data && response.data.products) {
@@ -174,15 +180,21 @@ export default function LoginForm() {
     }
   }
 
-  const createDefaultProductConfig = async (dealerId) => {
+  const createDefaultProductConfig = async (dealerId, token) => {
     try {
       // console.log(`Sending request to create default product config for dealerId: ${dealerId}`);
       // console.log(`Config to be sent:`, defaultProductConfig);
       // console.log(`Endpoint: ${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/product-config/create`);
 
+      const header = {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      }
+
       const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/product-config/create`, {
         dealerId,
         config: defaultProductConfig,
+        headers: header
       });
 
       // console.log('Response received:', response);

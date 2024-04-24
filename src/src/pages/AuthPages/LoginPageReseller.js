@@ -410,10 +410,15 @@ export default function LoginPage() {
       // console.log(`Config to be sent:`, defaultProductConfig);
       // console.log(`Endpoint: ${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/product-config/create`);
 
+      const header = {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${ls.get('user').token}`,
+      }
+
       const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/product-config/create`, {
         dealerId,
         config: defaultProductConfig,
-      });
+      }, {headers: header});
 
       // console.log('Response received:', response);
       // console.log('Default product config created successfully');

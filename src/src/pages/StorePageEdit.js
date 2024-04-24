@@ -223,9 +223,16 @@ const StorePageEdit = () => {
     };
 
     try {
+
+      const header = {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${ls.get('user').token}`,
+      }
+
       const response = await axios.put(
         `${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/${storedUserId}/platvar`,
-        requestBody
+        requestBody,
+        {headers: header}
       );
       if (response.status !== 200) {
         throw new Error(response.data.message);

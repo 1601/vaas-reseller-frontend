@@ -240,6 +240,7 @@ const ProfileSettings = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${user.token}`,
         },
         body: JSON.stringify({
           userId,
@@ -333,6 +334,7 @@ const ProfileSettings = () => {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${user.token}`,
         },
         body: JSON.stringify({
           username: formState.username,
