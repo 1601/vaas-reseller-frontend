@@ -1,18 +1,32 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import SecureLS from 'secure-ls';
-import { 
+import {
+  Box,
+  Button,
   Card,
   CardContent,
-  Container, Tab, Tabs, Box, Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Button ,
-  Stepper,
+  Chip,
+  Container,
+  Grid,
+  Paper,
   Step,
   StepLabel,
-  Chip, Grid, Tooltip 
+  Stepper,
+  Tab,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Tabs,
+  TextField,
+  Tooltip,
+  Typography
 } from '@mui/material';
 import axios from 'axios';
-import EditIcon from '@mui/icons-material/Edit';
 import * as XLSX from 'xlsx/xlsx.mjs';
-import { Helmet } from 'react-helmet-async';
+import {Helmet} from 'react-helmet-async';
 import UserDataFetch from '../../components/user-account/UserDataFetch';
 import AccountStatusModal from '../../components/user-account/AccountStatusModal';
 import StoreDataFetch from '../../components/user-account/StoreDataFetch';
@@ -205,14 +219,16 @@ const createWalletRequest = async() => {
 };
 
   const handleExportToExcel = () => {
-    const tableData = walletRequests.map(row => Object.values(row));
+    const requestKey = ['dateCreated', 'referenceNo', 'currency', 'amount', 'paymentStatus', 'paymentMethod'];
+    const headers = ['Date Created', 'Transaction', 'Currency', 'Amount', 'Payment Status', 'Payment Method']
+    const tableData = [headers, ...walletRequests.map(row => requestKey.map(key => row[key]))];
 
     // Create a new workbook and worksheet
     const workbook = XLSX.utils.book_new();
     const worksheet = XLSX.utils.json_to_sheet(tableData);
 
     // Add the worksheet to the workbook
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Wallet Replenishment Report');
 
     // Generate the Excel file
     const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
@@ -223,7 +239,9 @@ const createWalletRequest = async() => {
     // Create a download link and trigger the download
     const downloadLink = document.createElement('a');
     downloadLink.href = URL.createObjectURL(fileData);
-    downloadLink.download = 'data.xlsx';
+    const now = new Date().getTime();
+    const unixTimestamp = Math.floor(now / 1000);
+    downloadLink.download = `wallet_rep_report_${unixTimestamp}.xlsx`;
     downloadLink.click();
   };
 
