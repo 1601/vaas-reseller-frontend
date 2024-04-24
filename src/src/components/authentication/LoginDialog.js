@@ -65,6 +65,9 @@ export default function LoginDialog({ open, onClose }) {
       ls.set('token', token);
       ls.set('user', userData);
       login(userData, token);
+      setEmail('');
+      setPassword('');
+      setError('');
       setLoading(false);
       onClose();
     } catch (err) {
@@ -77,7 +80,10 @@ export default function LoginDialog({ open, onClose }) {
     setLoading(true);
     setAction('logout');
     setTimeout(() => {
-      ls.removeAll();
+      logout(); 
+      setEmail(''); 
+      setPassword(''); 
+      setError(''); 
       setLoading(false);
       onClose();
       navigate('/login');
