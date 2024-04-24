@@ -19,8 +19,10 @@ import {
   Autocomplete,
   TextField,
   Chip,
+  Button,
 } from '@mui/material';
 import { MoreVert as MoreVertIcon } from '@mui/icons-material';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { ViewUserModal } from '../../components/admin/ViewUserModal';
 import { DeleteUserModal } from '../../components/admin/DeleteUserModal';
 import ResellersModal from '../../components/admin/ResellersModal';
@@ -43,6 +45,32 @@ const AdminDealerAccount = () => {
   const [emailChangeError, setEmailChangeError] = useState('');
   const [filteredUsers, setFilteredUsers] = useState(users);
   const [sortBy, setSortBy] = useState('latest');
+
+  const downloadCSV = (arrayOfObjects) => {
+    if (!arrayOfObjects.length) return;
+
+    const headers = Object.keys(arrayOfObjects[0]).filter((header) => header !== 'password');
+
+    const csvRows = [headers.join(',')];
+
+    arrayOfObjects.forEach((row) => {
+      const values = headers.map((header) => {
+        const cell = row[header] === null || row[header] === undefined ? '' : row[header]; // Handle null or undefined
+        const escaped = `${cell}`.replace(/"/g, '\\"');
+        return `"${escaped}"`;
+      });
+      csvRows.push(values.join(','));
+    });
+
+    const blob = new Blob([csvRows.join('\n')], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'dealers.csv';
+    link.click();
+    window.URL.revokeObjectURL(url);
+    link.remove();
+  };
 
   const handleMenuClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -98,12 +126,12 @@ const AdminDealerAccount = () => {
             Authorization: `Bearer ${token}`,
           },
         });
-  
+
         if (response.data) {
           const combinedUsers = [...response.data.withStoreDetails, ...response.data.withoutStoreDetails];
-          console.log("Before sorting:", combinedUsers); // Debug log before sorting
+          console.log('Before sorting:', combinedUsers); // Debug log before sorting
           combinedUsers.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-          console.log("After sorting:", combinedUsers); // Debug log after sorting
+          console.log('After sorting:', combinedUsers); // Debug log after sorting
           setUsers(combinedUsers);
           setFilteredUsers(combinedUsers);
         }
@@ -113,7 +141,7 @@ const AdminDealerAccount = () => {
         setIsLoading(false);
       }
     };
-  
+
     fetchUsers();
   }, []);
 
@@ -195,9 +223,19 @@ const AdminDealerAccount = () => {
 
   return (
     <Card className="mt-4 max-w-screen-lg mx-auto p-4" style={{ backgroundColor: '#ffffff' }}>
-      <Typography variant="h3" align="center" gutterBottom>
-        Dealer Accounts
-      </Typography>
+      <Box display="flex" justifyContent="space-between" alignItems="center">
+        <Typography variant="h3" gutterBottom>
+          Dealer Accounts
+        </Typography>
+        <Button
+          variant="outlined"
+          color="primary"
+          startIcon={<FileDownloadIcon />}
+          onClick={() => downloadCSV(filteredUsers)}
+        >
+          Export CSV
+        </Button>
+      </Box>
       <div className="flex">
         <Autocomplete
           multiple

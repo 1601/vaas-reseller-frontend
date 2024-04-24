@@ -10,8 +10,11 @@ import {
   MenuItem,
   Select,
   TextField,
-  Typography
+  Typography,
+  Box,
+  Button,
 } from '@mui/material';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { useNavigate } from 'react-router-dom';
 import CircularLoading from '../../components/preLoader';
 
@@ -101,6 +104,34 @@ const AdminKYC = () => {
     setFilteredKycApproved(kycApproved);
   }, [kycNotSubmitted, kycPending, kycApproved]);
 
+  const downloadCSV = () => {
+    const createCSVData = (data, title) => {
+      const headers = data.length > 0 ? Object.keys(data[0]) : [];
+      const csvRows = data.map((item) =>
+        headers.map((header) => `"${String(item[header]).replace(/"/g, '""')}"`).join(',')
+      );
+      csvRows.unshift(headers.join(','));
+      csvRows.unshift(title);
+      return csvRows.join('\n');
+    };
+
+    const csvContent = [
+      createCSVData(kycNotSubmitted, 'No KYC Submitted'),
+      createCSVData(kycPending, 'For KYC Approval'),
+      createCSVData(kycApproved, 'Approved KYC'),
+    ]
+      .filter((section) => section)
+      .join('\n\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'KYC_statuses.csv';
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
   const handleSortChange = (event) => {
     setSortBy(event.target.value);
     if (event.target.value === 'latest') {
@@ -113,7 +144,7 @@ const AdminKYC = () => {
       filteredKycPending.sort((a, b) => new Date(a.updatedAt) - new Date(b.updatedAt));
       filteredKycApproved.sort((a, b) => new Date(a.updatedAt) - new Date(b.updatedAt));
     }
-  }
+  };
 
   const handleStoreClick = (storeId) => {
     navigate(`/dashboard/admin/kycapprove/${storeId}`);
@@ -135,18 +166,16 @@ const AdminKYC = () => {
     );
   }
 
-  const allKyc = [
-    ...kycNotSubmitted,
-    ...kycPending,
-    ...kycApproved,
-  ];
+  const allKyc = [...kycNotSubmitted, ...kycPending, ...kycApproved];
 
   const handleFilterChange = (event, newValue) => {
     const foundKycNotSubmitted = [];
     const foundKycPending = [];
     const foundKycApproved = [];
 
-    foundKycNotSubmitted.push(...kycNotSubmitted.filter((store) => newValue.some((name) => store.storeName.includes(name))));
+    foundKycNotSubmitted.push(
+      ...kycNotSubmitted.filter((store) => newValue.some((name) => store.storeName.includes(name)))
+    );
     foundKycPending.push(...kycPending.filter((store) => newValue.some((name) => store.storeName.includes(name))));
     foundKycApproved.push(...kycApproved.filter((store) => newValue.some((name) => store.storeName.includes(name))));
 
@@ -156,54 +185,51 @@ const AdminKYC = () => {
   };
 
   return (
-      <Card className="mt-4 max-w-screen-lg mx-auto p-4 bg-white">
-        <Typography variant="h3" align="center" gutterBottom>
+    <Card className="mt-4 max-w-screen-lg mx-auto p-4 bg-white">
+      <Box display="flex" justifyContent="space-between" alignItems="center">
+        <Typography variant="h3" gutterBottom>
           KYC Approval
         </Typography>
-        <div className="flex">
-          <Autocomplete
-              multiple
-              className="w-4/5"
-              id="tags-filled"
-              options={allKyc.map((store) => store.storeName
-              )}
-              freeSolo
-              onChange={handleFilterChange}
-              renderTags={(value, getTagProps) =>
-                  value.map((option, index) => (
-                      <Chip variant="outlined" label={option} {...getTagProps({index})} />
-                  ))
-              }
-              renderInput={(params) => (
-                  <TextField
-                      {...params}
-                      variant="filled"
-                      label="Search KYC by name"
-                      placeholder="KYC"
-                  />
-              )}
-          />
-          <FormControl className="w-1/5">
-            <InputLabel id={"demo-simple-select-label"}>Sort By</InputLabel>
-            <Select
-                labelId={"demo-simple-select-label"}
-                id="demo-simple-select"
-                label="Sort By"
-                value={sortBy}
-                onChange={handleSortChange}
-            >
-              <MenuItem value={"latest"}>Latest</MenuItem>
-              <MenuItem value={"oldest"}>Oldest</MenuItem>
-            </Select>
-          </FormControl>
-        </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 max-w-screen-lg mx-auto">
-            <KYCCard title="No KYC Submitted" items={filteredKycNotSubmitted} onStoreClick={handleStoreClick}/>
-            <KYCCard title="For KYC Approval" items={filteredKycPending} onStoreClick={handleStoreClick}/>
-            <KYCCard title="Approved KYC" items={filteredKycApproved} onStoreClick={handleStoreClick}/>
-          </div>
-      </Card>
-);
+        <Button variant="outlined" color="primary" startIcon={<FileDownloadIcon />} onClick={downloadCSV}>
+          Export CSV
+        </Button>
+      </Box>
+      <div className="flex">
+        <Autocomplete
+          multiple
+          className="w-4/5"
+          id="tags-filled"
+          options={allKyc.map((store) => store.storeName)}
+          freeSolo
+          onChange={handleFilterChange}
+          renderTags={(value, getTagProps) =>
+            value.map((option, index) => <Chip variant="outlined" label={option} {...getTagProps({ index })} />)
+          }
+          renderInput={(params) => (
+            <TextField {...params} variant="filled" label="Search KYC by name" placeholder="KYC" />
+          )}
+        />
+        <FormControl className="w-1/5">
+          <InputLabel id={'demo-simple-select-label'}>Sort By</InputLabel>
+          <Select
+            labelId={'demo-simple-select-label'}
+            id="demo-simple-select"
+            label="Sort By"
+            value={sortBy}
+            onChange={handleSortChange}
+          >
+            <MenuItem value={'latest'}>Latest</MenuItem>
+            <MenuItem value={'oldest'}>Oldest</MenuItem>
+          </Select>
+        </FormControl>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 max-w-screen-lg mx-auto">
+        <KYCCard title="No KYC Submitted" items={filteredKycNotSubmitted} onStoreClick={handleStoreClick} />
+        <KYCCard title="For KYC Approval" items={filteredKycPending} onStoreClick={handleStoreClick} />
+        <KYCCard title="Approved KYC" items={filteredKycApproved} onStoreClick={handleStoreClick} />
+      </div>
+    </Card>
+  );
 };
 
 export default AdminKYC;

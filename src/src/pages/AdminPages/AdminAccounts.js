@@ -29,6 +29,7 @@ import {
   Chip,
 } from '@mui/material';
 import { MoreVert as MoreVertIcon } from '@mui/icons-material';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { ViewUserModal } from '../../components/admin/ViewUserModal';
 import { DeleteUserModal } from '../../components/admin/DeleteUserModal';
 import CircularLoading from '../../components/preLoader';
@@ -84,6 +85,32 @@ const AdminAccounts = () => {
   useEffect(() => {
     setFilteredAdmins(admins);
   }, [admins]);
+
+  const downloadCSV = (arrayOfObjects) => {
+    if (!arrayOfObjects.length) return;
+
+    const headers = Object.keys(arrayOfObjects[0]).filter((header) => header !== 'password');
+
+    const csvRows = [headers.join(',')];
+
+    arrayOfObjects.forEach((obj) => {
+      const values = headers.map((header) => {
+        const cell = obj[header] === null || obj[header] === undefined ? '' : obj[header];
+        const escaped = `${cell}`.replace(/"/g, '\\"');
+        return `"${escaped}"`;
+      });
+      csvRows.push(values.join(','));
+    });
+
+    const blob = new Blob([csvRows.join('\n')], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'admin_accounts.csv';
+    link.click();
+    window.URL.revokeObjectURL(url);
+    link.remove();
+  };
 
   const handleFilterChange = (event, newValue) => {
     const foundAdmins = [];
@@ -190,9 +217,20 @@ const AdminAccounts = () => {
         <Typography variant="h3" gutterBottom>
           Admin Accounts
         </Typography>
-        <Button variant="outlined" color="primary" onClick={() => navigate('/dashboard/admin/create')}>
-          Create Admin
-        </Button>
+        <Box>
+          <Button variant="outlined" color="primary" onClick={() => navigate('/dashboard/admin/create')}>
+            Create Admin
+          </Button>
+          <Button
+            variant="outlined"
+            color="secondary"
+            startIcon={<FileDownloadIcon />}
+            onClick={() => downloadCSV(filteredAdmins)}
+            style={{ marginLeft: '10px' }}
+          >
+            Export CSV
+          </Button>
+        </Box>
       </Box>
       <div className="flex">
         <Autocomplete

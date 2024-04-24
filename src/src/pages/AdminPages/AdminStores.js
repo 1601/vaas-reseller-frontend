@@ -1,8 +1,22 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import SecureLS from 'secure-ls';
-import {Card, Typography, CircularProgress, Chip, TextField, Autocomplete, Select, MenuItem, InputLabel, FormControl} from '@mui/material';
+import {
+  Card,
+  Typography,
+  CircularProgress,
+  Chip,
+  TextField,
+  Autocomplete,
+  Select,
+  MenuItem,
+  InputLabel,
+  FormControl,
+  Box,
+  Button,
+} from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import CircularLoading from '../../components/preLoader';
 
 const ls = new SecureLS({ encodingType: 'aes' });
@@ -60,15 +74,43 @@ const AdminStores = () => {
     setFilteredStoresNeedingApproval(storesNeedingApproval);
   }, [approvedStores, liveStores, storesNeedingApproval]);
 
-  const allStores = [
-    ...storesNeedingApproval,
-    ...approvedStores,
-    ...liveStores,
-  ];
-
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  const downloadCSV = useCallback(() => {
+    const createCSVData = (data, title) => {
+      if (!data.length) return '';
+
+      const headers = Object.keys(data[0]);
+      const csvRows = data.map((store) =>
+        headers.map((header) => `"${String(store[header]).replace(/"/g, '""')}"`).join(',')
+      );
+
+      csvRows.unshift(headers.join(','));
+      csvRows.unshift(title);
+      return csvRows.join('\n');
+    };
+
+    const csvContentNeedsApproval = createCSVData(filteredStoresNeedingApproval, 'Needs Approval');
+    const csvContentApproved = createCSVData(filteredApprovedStores, 'Approved Shops');
+    const csvContentLive = createCSVData(filteredLiveStores, 'Live Shops');
+
+    const finalCSVContent = [csvContentNeedsApproval, csvContentApproved, csvContentLive]
+      .filter((section) => section)
+      .join('\n\n');
+
+    const blob = new Blob([finalCSVContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'store_approvals.csv';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }, [filteredStoresNeedingApproval, filteredApprovedStores, filteredLiveStores]);
+
+  const allStores = [...storesNeedingApproval, ...approvedStores, ...liveStores];
 
   const handleStoreClick = (storeId) => {
     navigate(`/dashboard/admin/storeapproval/${storeId}`);
@@ -94,15 +136,13 @@ const AdminStores = () => {
       filteredLiveStores.sort((a, b) => new Date(a.updatedAt) - new Date(b.updatedAt));
       filteredStoresNeedingApproval.sort((a, b) => new Date(a.updatedAt) - new Date(b.updatedAt));
     }
-  }
+  };
 
   const renderStoreCard = (title, stores) => (
     <div className="mb-4 w-full">
       <Card variant="outlined" className="p-4" style={{ backgroundColor: '#ffffff' }}>
         <Typography variant="h4" gutterBottom>
-          <div>
-            {title}
-          </div>
+          <div>{title}</div>
         </Typography>
         <div className="overflow-auto" style={{ maxHeight: 'calc(100vh - 220px)' }}>
           {stores.map((shop, index) => (
@@ -125,56 +165,56 @@ const AdminStores = () => {
     const foundLiveStores = [];
     const foundStoresNeedingApproval = [];
 
-    foundApprovedStores.push(...approvedStores.filter((store) => newValue.some((name) => store.storeName.includes(name))));
+    foundApprovedStores.push(
+      ...approvedStores.filter((store) => newValue.some((name) => store.storeName.includes(name)))
+    );
     foundLiveStores.push(...liveStores.filter((store) => newValue.some((name) => store.storeName.includes(name))));
-    foundStoresNeedingApproval.push(...storesNeedingApproval.filter((store) => newValue.some((name) => store.storeName.includes(name))));
+    foundStoresNeedingApproval.push(
+      ...storesNeedingApproval.filter((store) => newValue.some((name) => store.storeName.includes(name)))
+    );
 
     setFilteredApprovedStores(newValue.length !== 0 ? foundApprovedStores : approvedStores);
     setFilteredLiveStores(newValue.length !== 0 ? foundLiveStores : liveStores);
     setFilteredStoresNeedingApproval(newValue.length !== 0 ? foundStoresNeedingApproval : storesNeedingApproval);
   };
 
-
   return (
     <Card className="mt-4 max-w-screen-lg mx-auto p-4" style={{ backgroundColor: '#ffffff' }}>
-      <Typography variant="h3" align="center" gutterBottom>
-        Store Approval
-      </Typography>
+      <Box display="flex" justifyContent="space-between" alignItems="center">
+        <Typography variant="h3" gutterBottom>
+          Store Approval
+        </Typography>
+        <Button variant="outlined" color="primary" startIcon={<FileDownloadIcon />} onClick={downloadCSV}>
+          Export CSV
+        </Button>
+      </Box>
       <div className="flex">
         <Autocomplete
-            className="w-4/5"
-            multiple
-            id="tags-filled"
-            options={allStores.map((store) => store.storeName
-            )}
-            freeSolo
-            onChange={handleFilterChange}
-            renderTags={(value, getTagProps) =>
-                value.map((option, index) => (
-                    <Chip variant="outlined" label={option} {...getTagProps({ index })} />
-                ))
-            }
-            renderInput={(params) => (
-                <TextField
-                    {...params}
-                    variant="filled"
-                    label="Search store by name"
-                    placeholder="stores"
-                />
-            )}
+          className="w-4/5"
+          multiple
+          id="tags-filled"
+          options={allStores.map((store) => store.storeName)}
+          freeSolo
+          onChange={handleFilterChange}
+          renderTags={(value, getTagProps) =>
+            value.map((option, index) => <Chip variant="outlined" label={option} {...getTagProps({ index })} />)
+          }
+          renderInput={(params) => (
+            <TextField {...params} variant="filled" label="Search store by name" placeholder="stores" />
+          )}
         />
         <FormControl className="w-1/5">
-        <InputLabel id={"demo-simple-select-label"}>Sort By</InputLabel>
-        <Select
-            labelId={"demo-simple-select-label"}
+          <InputLabel id={'demo-simple-select-label'}>Sort By</InputLabel>
+          <Select
+            labelId={'demo-simple-select-label'}
             id="demo-simple-select"
             label="Sort By"
             value={sortBy}
             onChange={handleSortChange}
-        >
-          <MenuItem value={"latest"}>Latest</MenuItem>
-          <MenuItem value={"oldest"}>Oldest</MenuItem>
-        </Select>
+          >
+            <MenuItem value={'latest'}>Latest</MenuItem>
+            <MenuItem value={'oldest'}>Oldest</MenuItem>
+          </Select>
         </FormControl>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 max-w-screen-lg mx-auto">
