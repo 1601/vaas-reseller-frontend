@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import SecureLS from 'secure-ls';
 import {
+  Autocomplete,
   Box,
   Button,
   Card,
@@ -27,6 +28,7 @@ import {
 import axios from 'axios';
 import * as XLSX from 'xlsx/xlsx.mjs';
 import {Helmet} from 'react-helmet-async';
+import { DateRangePicker } from 'react-date-range';
 import UserDataFetch from '../../components/user-account/UserDataFetch';
 import AccountStatusModal from '../../components/user-account/AccountStatusModal';
 import StoreDataFetch from '../../components/user-account/StoreDataFetch';
@@ -78,6 +80,17 @@ const WalletPayouts = () => {
   const [file, setFile] = useState(null);
   const [walletRequests, setWalletRequests] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedRange, setSelectedRange] = useState([
+    {
+      startDate: new Date(),
+      endDate: new Date(),
+      key: 'selection',
+    },
+  ]);
+  const [dateRange, setDateRange] = useState({
+    startDate: '',
+    endDate: '',
+  });
 
   const [bankDetails] = useState({
     'USA': {
@@ -168,6 +181,14 @@ const WalletPayouts = () => {
       });
   };
 
+  const handleSelect = (ranges) => {
+    setSelectedRange([ranges.selection]);
+    setDateRange({
+      startDate: ranges.selection.startDate,
+      endDate: ranges.selection.endDate,
+    });
+  };
+
   const handleReplenishChange = (event) => {
     const { name, value } = event.target;
     setReplenishDetails({
@@ -219,9 +240,10 @@ const createWalletRequest = async() => {
 };
 
   const handleExportToExcel = () => {
+    const maxRows = 5000;
     const requestKey = ['dateCreated', 'referenceNo', 'currency', 'amount', 'paymentStatus', 'paymentMethod'];
     const headers = ['Date Created', 'Transaction', 'Currency', 'Amount', 'Payment Status', 'Payment Method']
-    const tableData = [headers, ...walletRequests.map(row => requestKey.map(key => row[key]))];
+    const tableData = [headers, ...walletRequests.slice(0, maxRows).map(row => requestKey.map(key => row[key]))];
 
     // Create a new workbook and worksheet
     const workbook = XLSX.utils.book_new();
@@ -257,6 +279,7 @@ const uploadBankSlipImage = async (walletRequestId) => {
   });
   console.log('Bank slip image uploaded successfully');
 };
+
 
   const handleReplenishSubmit = () => {
     // Submit replenishment logic here
@@ -620,53 +643,94 @@ const uploadBankSlipImage = async (walletRequestId) => {
       </Box>
         )}
         {tabValue === 1 && (
-        <>
-        <div>
-          <Button onClick={handleExportToExcel}>Export</Button>
-        </div>
-        <TableContainer component={Paper} sx={{ maxWidth: '100%', overflowX: 'auto' }}>
-          <Table stickyHeader aria-label="transaction history">
-            <TableHead>
-              <TableRow>
-                <TableCell>Date</TableCell>
-                <TableCell>Transaction</TableCell>
-                <TableCell align="right">Amount</TableCell>
-                <TableCell>Payment Status</TableCell>
-                <TableCell>Payment Method</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {walletRequests.map((request) => (
-                <TableRow
-                  key={request._id}
-                  sx={{ '&:hover': { cursor: 'pointer', backgroundColor: 'rgba(0, 0, 0, 0.04)' } }}
-                  onClick={() => window.open(request.image, '_blank')}
-                  hover
-                >
-                  <Tooltip title={`Created: ${new Date(request.dateCreated).toLocaleString()}, Updated: ${new Date(request.dateUpdated).toLocaleString()}`}>
-                    <TableCell component="th" scope="row">
-                      {new Date(request.dateCreated).toLocaleDateString()}
-                    </TableCell>
-                  </Tooltip>
-                  <Tooltip title={`Wallet Type: ${request.walletType}`}>
-                    <TableCell>{request.referenceNo}</TableCell>
-                  </Tooltip>
-                  <Tooltip title={`Trade Discount: ${request.tradeDiscount}, Bonus Amount: ${request.bonusAmount}`}>
-                    <TableCell align="right">{`${request.currency} ${request.amount}`}</TableCell>
-                  </Tooltip>
-                  <Tooltip title={`Account Email: ${request.accountEmail}`}>
-                    <TableCell>{request.paymentStatus}</TableCell>
-                  </Tooltip>
-                  <Tooltip title={`Image: Click row to view`}>
-                    <TableCell>{request.paymentMethod}</TableCell>
-                  </Tooltip>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-         </>
-)}
+            <>
+              <div>
+                <Card style={{marginBottom: '.5rem'}}>
+                  <Box style={{padding: '1rem'}}>
+                    <Box>
+                      <DateRangePicker ranges={selectedRange} onChange={handleSelect}/>
+                    </Box>
+                    <Box>
+                      <Button
+                          variant="contained"
+                          color="secondary"
+                          style={{backgroundColor: 'violet'}}
+                      >
+                        Get Data
+                      </Button>
+                    </Box>
+                  </Box>
+                </Card>
+              </div>
+              <div>
+              <Autocomplete
+                  className="w-5/5"
+                  multiple
+                  id="tags-filled"
+                  freeSolo
+                  renderTags={(value, getTagProps) =>
+                      value.map((option, index) => (
+                          <Chip variant="outlined" label={option} {...getTagProps({index})} />
+                      ))
+                  }
+                  renderInput={(params) => (
+                      <TextField
+                          {...params}
+                          variant="filled"
+                          label="Search transaction"
+                          placeholder="transaction"
+                      />
+                  )}
+              />
+              </div>
+              <TableContainer component={Paper} sx={{maxWidth: '100%', overflowX: 'auto'}}>
+                <Table stickyHeader aria-label="transaction history">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Date</TableCell>
+                      <TableCell>Transaction</TableCell>
+                      <TableCell align="right">Amount</TableCell>
+                      <TableCell>Payment Status</TableCell>
+                      <TableCell>Payment Method</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {walletRequests.map((request) => (
+                        <TableRow
+                            key={request._id}
+                            sx={{'&:hover': {cursor: 'pointer', backgroundColor: 'rgba(0, 0, 0, 0.04)'}}}
+                            onClick={() => window.open(request.image, '_blank')}
+                            hover
+                        >
+                          <Tooltip
+                              title={`Created: ${new Date(request.dateCreated).toLocaleString()}, Updated: ${new Date(request.dateUpdated).toLocaleString()}`}>
+                            <TableCell component="th" scope="row">
+                              {new Date(request.dateCreated).toLocaleDateString()}
+                            </TableCell>
+                          </Tooltip>
+                          <Tooltip title={`Wallet Type: ${request.walletType}`}>
+                            <TableCell>{request.referenceNo}</TableCell>
+                          </Tooltip>
+                          <Tooltip
+                              title={`Trade Discount: ${request.tradeDiscount}, Bonus Amount: ${request.bonusAmount}`}>
+                            <TableCell align="right">{`${request.currency} ${request.amount}`}</TableCell>
+                          </Tooltip>
+                          <Tooltip title={`Account Email: ${request.accountEmail}`}>
+                            <TableCell>{request.paymentStatus}</TableCell>
+                          </Tooltip>
+                          <Tooltip title={`Image: Click row to view`}>
+                            <TableCell>{request.paymentMethod}</TableCell>
+                          </Tooltip>
+                        </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+              <div>
+                <Button onClick={handleExportToExcel}>Export</Button>
+              </div>
+            </>
+        )}
       </Container>
       <AccountStatusModal open userData={userData} storeData={storeData} />
     </>
