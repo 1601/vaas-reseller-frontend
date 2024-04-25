@@ -26,7 +26,7 @@ import {
   Typography
 } from '@mui/material';
 import axios from 'axios';
-import * as XLSX from 'xlsx/xlsx.mjs';
+import * as XLSX from 'xlsx';
 import {Helmet} from 'react-helmet-async';
 import { DateRangePicker } from 'react-date-range';
 import UserDataFetch from '../../components/user-account/UserDataFetch';

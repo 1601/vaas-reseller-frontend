@@ -21,11 +21,13 @@ import {
   Chip,
   Button,
 } from '@mui/material';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import { MoreVert as MoreVertIcon } from '@mui/icons-material';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { ViewUserModal } from '../../components/admin/ViewUserModal';
 import { DeleteUserModal } from '../../components/admin/DeleteUserModal';
 import ResellersModal from '../../components/admin/ResellersModal';
+import DeactivatedAccounts from '../../components/admin/DeactivatedAccounts';
 import { ChangeDealerEmailModal } from '../../components/admin/ChangeDealerEmailModal';
 import CircularLoading from '../../components/preLoader';
 
@@ -45,6 +47,9 @@ const AdminDealerAccount = () => {
   const [emailChangeError, setEmailChangeError] = useState('');
   const [filteredUsers, setFilteredUsers] = useState(users);
   const [sortBy, setSortBy] = useState('latest');
+  const [sortConfig, setSortConfig] = useState({ key: 'createdAt', direction: 'desc' });
+  const [showDeactivated, setShowDeactivated] = useState(false);
+  const toggleDeactivatedModal = () => setShowDeactivated(!showDeactivated);
 
   const downloadCSV = (arrayOfObjects) => {
     if (!arrayOfObjects.length) return;
@@ -146,7 +151,8 @@ const AdminDealerAccount = () => {
   }, []);
 
   useEffect(() => {
-    setFilteredUsers(users);
+    const activeUsers = users.filter((user) => user.accountStatus !== 'Deactivated');
+    setFilteredUsers(activeUsers);
   }, [users]);
 
   // Handler for submitting the email change
@@ -175,30 +181,29 @@ const AdminDealerAccount = () => {
   };
 
   const handleSortChange = (event) => {
-    setSortBy(event.target.value);
-    if (event.target.value === 'latest') {
-      filteredUsers.sort((a, b) => {
-        if (!Object.prototype.hasOwnProperty.call(a, 'createdAt')) {
-          return 1;
-        }
-        if (!Object.prototype.hasOwnProperty.call(b, 'createdAt')) {
+    const value = event.target.value;
+    setSortBy(value);
+
+    const activeUsers = users.filter((user) => user.accountStatus !== 'Deactivated');
+
+    let sortedUsers;
+    if (value === 'FreeTrial' || value === 'Active' || value === 'Suspended') {
+      sortedUsers = [...activeUsers].sort((a, b) => {
+        if (a.accountStatus === value && b.accountStatus !== value) {
           return -1;
         }
-        return new Date(b.createdAt) - new Date(a.createdAt);
-      });
-    }
-    if (event.target.value === 'oldest') {
-      // if createdAt does not exist at json sort to last
-      filteredUsers.sort((a, b) => {
-        if (!Object.prototype.hasOwnProperty.call(a, 'createdAt')) {
+        if (a.accountStatus !== value && b.accountStatus === value) {
           return 1;
         }
-        if (!Object.prototype.hasOwnProperty.call(b, 'createdAt')) {
-          return -1;
-        }
-        return new Date(a.createdAt) - new Date(b.createdAt);
+        return 0;
       });
+    } else if (value === 'latest') {
+      sortedUsers = [...activeUsers].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    } else if (value === 'oldest') {
+      sortedUsers = [...activeUsers].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
     }
+
+    setFilteredUsers(sortedUsers);
   };
 
   const handleEmailEdit = () => {
@@ -227,14 +232,25 @@ const AdminDealerAccount = () => {
         <Typography variant="h3" gutterBottom>
           Dealer Accounts
         </Typography>
-        <Button
-          variant="outlined"
-          color="primary"
-          startIcon={<FileDownloadIcon />}
-          onClick={() => downloadCSV(filteredUsers)}
-        >
-          Export CSV
-        </Button>
+        <Box>
+          <Button
+            variant="outlined"
+            color="secondary"
+            startIcon={<VisibilityIcon />}
+            onClick={toggleDeactivatedModal}
+            sx={{ mr: 1 }}
+          >
+            Deactivated Accounts
+          </Button>
+          <Button
+            variant="outlined"
+            color="primary"
+            startIcon={<FileDownloadIcon />}
+            onClick={() => downloadCSV(filteredUsers)}
+          >
+            Export CSV
+          </Button>
+        </Box>
       </Box>
       <div className="flex">
         <Autocomplete
@@ -252,16 +268,19 @@ const AdminDealerAccount = () => {
           )}
         />
         <FormControl className="w-1/5">
-          <InputLabel id={'demo-simple-select-label'}>Sort By</InputLabel>
+          <InputLabel id="demo-simple-select-label">Sort By</InputLabel>
           <Select
-            labelId={'demo-simple-select-label'}
+            labelId="demo-simple-select-label"
             id="demo-simple-select"
             label="Sort By"
             value={sortBy}
             onChange={handleSortChange}
           >
-            <MenuItem value={'latest'}>Latest</MenuItem>
-            <MenuItem value={'oldest'}>Oldest</MenuItem>
+            <MenuItem value="latest">Latest</MenuItem>
+            <MenuItem value="oldest">Oldest</MenuItem>
+            <MenuItem value="FreeTrial">FreeTrial</MenuItem>
+            <MenuItem value="Active">Active</MenuItem>
+            <MenuItem value="Suspended">Suspended</MenuItem>
           </Select>
         </FormControl>
       </div>
@@ -270,6 +289,7 @@ const AdminDealerAccount = () => {
           <TableHead>
             <TableRow>
               <TableCell style={{ width: '70%' }}>User</TableCell>
+              <TableCell>Status</TableCell>
               <TableCell align="right">Email</TableCell>
               <TableCell align="right">Mobile Number</TableCell>
               <TableCell align="right">Actions</TableCell>
@@ -282,9 +302,10 @@ const AdminDealerAccount = () => {
                   <Typography variant="h6">
                     {user.firstName || user.lastName
                       ? `${user.firstName || ''} ${user.lastName || ''}`
-                      : user.userName || user.email}
+                      : user.username || user.email}
                   </Typography>
                 </TableCell>
+                <TableCell>{user.accountStatus}</TableCell>
                 <TableCell align="right">
                   <div
                     style={{
@@ -359,6 +380,12 @@ const AdminDealerAccount = () => {
       />
       <ResellersModal open={resellersModalOpen} onClose={() => setResellersModalOpen(false)} userId={userToDelete} />
       <DeleteUserModal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)} onConfirm={confirmDelete} />
+      <DeactivatedAccounts
+        open={showDeactivated}
+        onClose={toggleDeactivatedModal}
+        deactivatedUsers={users.filter((user) => user.accountStatus === 'Deactivated')}
+        onDelete={handleDelete}
+      />
     </Card>
   );
 };
