@@ -82,6 +82,7 @@ const WalletPayouts = () => {
   const [flattenedWalletRequests, setFlattenedWalletRequests] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [filteredWalletRequests, setFilteredWalletRequests] = useState(walletRequests);
+  const [dateFilteredWalletRequests, setDateFilteredWalletRequests] = useState(filteredWalletRequests);
   const [selectedRange, setSelectedRange] = useState([
     {
       startDate: new Date(),
@@ -183,13 +184,28 @@ const WalletPayouts = () => {
       });
   };
 
-  const handleSelect = (ranges) => {
+  const handleSelectDate = (ranges) => {
     setSelectedRange([ranges.selection]);
     setDateRange({
       startDate: ranges.selection.startDate,
       endDate: ranges.selection.endDate,
     });
   };
+
+  const handleClearSelectDate = () => {
+    setSelectedRange([
+      {
+        startDate: new Date(),
+        endDate: new Date(),
+        key: 'selection',
+      }
+    ]);
+    setDateRange({
+      startDate: '',
+      endDate: '',
+    });
+    setDateFilteredWalletRequests(filteredWalletRequests);
+  }
 
   const handleReplenishChange = (event) => {
     const { name, value } = event.target;
@@ -290,9 +306,10 @@ const uploadBankSlipImage = async (walletRequestId) => {
       return newValue.every(selects => flattenedObj.some((value) => selects.includes(value)));
     }));
 
-    console.log(foundWalletRequests);
-
     setFilteredWalletRequests(newValue.length !== 0 ? foundWalletRequests : walletRequests);
+    if(dateFilteredWalletRequests.length !== 0){
+      setDateFilteredWalletRequests(newValue.length !== 0 ? foundWalletRequests : walletRequests)
+    }
   };
 
 
@@ -322,6 +339,34 @@ const uploadBankSlipImage = async (walletRequestId) => {
     setFlattenedWalletRequests(flattenedValues);
 
   }, [walletRequests]);
+
+  useEffect(() => {
+
+    if(dateRange.startDate !== '' && dateRange.endDate !== ''){
+      if(dateFilteredWalletRequests.length === 0){
+        setDateFilteredWalletRequests(filteredWalletRequests.filter((item) => {
+          const date = new Date(item.dateCreated);
+          const startDate = new Date(dateRange.startDate);
+          const endDate = new Date(dateRange.endDate);
+          return (
+              (!startDate || date >= startDate) &&
+              (!endDate || date <= endDate)
+          )}));
+      }else{
+        setDateFilteredWalletRequests(dateFilteredWalletRequests.filter((item) => {
+          const date = new Date(item.dateCreated);
+          const startDate = new Date(dateRange.startDate);
+          const endDate = new Date(dateRange.endDate);
+          return (
+              (!startDate || date >= startDate) &&
+              (!endDate || date <= endDate)
+          )}));
+      }
+    }else{
+      setDateFilteredWalletRequests(filteredWalletRequests)
+    }
+
+  }, [dateRange, filteredWalletRequests]);
 
   useEffect(() => {
     const storedUser = ls.get('user');
@@ -684,15 +729,16 @@ const uploadBankSlipImage = async (walletRequestId) => {
                 <Card style={{marginBottom: '.5rem'}}>
                   <Box style={{padding: '1rem'}}>
                     <Box>
-                      <DateRangePicker ranges={selectedRange} onChange={handleSelect}/>
+                      <DateRangePicker ranges={selectedRange} onChange={handleSelectDate}/>
                     </Box>
                     <Box>
                       <Button
                           variant="contained"
                           color="secondary"
                           style={{backgroundColor: 'violet'}}
+                          onClick={handleClearSelectDate}
                       >
-                        Get Data
+                        Clear
                       </Button>
                     </Box>
                   </Box>
@@ -733,7 +779,7 @@ const uploadBankSlipImage = async (walletRequestId) => {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {filteredWalletRequests.map((request) => (
+                    {dateFilteredWalletRequests.map((request) => (
                         <TableRow
                             key={request._id}
                             sx={{'&:hover': {cursor: 'pointer', backgroundColor: 'rgba(0, 0, 0, 0.04)'}}}
