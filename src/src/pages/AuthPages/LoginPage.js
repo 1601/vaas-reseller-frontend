@@ -322,7 +322,6 @@ export default function LoginPage() {
   // Fetch Dealer Product Config Function
   async function fetchDealerProductConfig(dealerId, brandName, token) {
     // console.log(`fetchDealerProductConfig called with dealerId: ${dealerId}, brandName: ${brandName}`);
-    console.log(token);
     const header = {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
