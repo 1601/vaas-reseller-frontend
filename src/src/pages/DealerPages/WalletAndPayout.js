@@ -79,7 +79,9 @@ const WalletPayouts = () => {
   const [selectedCountry, setSelectedCountry] = useState('USA');
   const [file, setFile] = useState(null);
   const [walletRequests, setWalletRequests] = useState([]);
+  const [flattenedWalletRequests, setFlattenedWalletRequests] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [filteredWalletRequests, setFilteredWalletRequests] = useState(walletRequests);
   const [selectedRange, setSelectedRange] = useState([
     {
       startDate: new Date(),
@@ -280,12 +282,46 @@ const uploadBankSlipImage = async (walletRequestId) => {
   console.log('Bank slip image uploaded successfully');
 };
 
+  const handleFilterChange = (event, newValue) => {
+    const foundWalletRequests = [];
+
+    foundWalletRequests.push(...walletRequests.filter(obj => {
+      const flattenedObj = flattenObject(obj);
+      return newValue.every(selects => flattenedObj.some((value) => selects.includes(value)));
+    }));
+
+    console.log(foundWalletRequests);
+
+    setFilteredWalletRequests(newValue.length !== 0 ? foundWalletRequests : walletRequests);
+  };
+
 
   const handleReplenishSubmit = () => {
     // Submit replenishment logic here
     setIsSubmitting(true);
     createWalletRequest();
   };
+
+  const tableKeys = ['dateCreated', 'referenceNo', 'currency', 'amount', 'accountEmail', 'paymentMethod'];
+
+  const flattenObject = (obj) => {
+    return Object.entries(obj)
+        .filter(([key]) => tableKeys.includes(key))
+        .map(([key, value]) => {
+          if (key === 'dateCreated') {
+            return new Date(value).toLocaleDateString();
+          }
+          return value;
+        });
+  };
+
+  useEffect(() => {
+    setFilteredWalletRequests(walletRequests);
+
+    const flattenedValues = [...new Set(walletRequests.flatMap(flattenObject))];
+    setFlattenedWalletRequests(flattenedValues);
+
+  }, [walletRequests]);
 
   useEffect(() => {
     const storedUser = ls.get('user');
@@ -557,7 +593,7 @@ const uploadBankSlipImage = async (walletRequestId) => {
                   value={amount}
                   onChange={(e) => {
                     // Allow only numbers and decimal points
-                    const value = e.target.value;
+                    const {value} = e.target;
                     if (!value || value.match(/^\d*\.?\d*$/)) {
                       setAmount(value);
                     }
@@ -668,6 +704,8 @@ const uploadBankSlipImage = async (walletRequestId) => {
                   multiple
                   id="tags-filled"
                   freeSolo
+                  options={flattenedWalletRequests}
+                  onChange={handleFilterChange}
                   renderTags={(value, getTagProps) =>
                       value.map((option, index) => (
                           <Chip variant="outlined" label={option} {...getTagProps({index})} />
@@ -695,7 +733,7 @@ const uploadBankSlipImage = async (walletRequestId) => {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {walletRequests.map((request) => (
+                    {filteredWalletRequests.map((request) => (
                         <TableRow
                             key={request._id}
                             sx={{'&:hover': {cursor: 'pointer', backgroundColor: 'rgba(0, 0, 0, 0.04)'}}}
