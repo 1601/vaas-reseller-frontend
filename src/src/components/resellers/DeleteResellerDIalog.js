@@ -28,7 +28,7 @@ const DeleteResellerDialog = ({ open, handleCloseDeleteDialog, userId, resellerI
     return (
         <Dialog open={open} onClose={handleCloseDeleteDialog}>
             <DialogTitle>Confirm Deletion</DialogTitle>
-            <DialogContent>Are you sure you want to delete this Reseller?</DialogContent>
+            <DialogContent>Are you sure you want to delete this Retailer?</DialogContent>
             <DialogActions>
                 <Button onClick={handleCloseDeleteDialog} color="primary">
                     No

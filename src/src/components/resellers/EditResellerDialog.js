@@ -57,7 +57,7 @@ const EditResellerDialog = ({ open, onClose, reseller, onSubmit, userId, refresh
           fontSize: '35px !important',
         }}
       >
-        Edit Reseller
+        Edit Retailer
       </DialogTitle>
       <DialogContent>
         <ValidatedManageReseller

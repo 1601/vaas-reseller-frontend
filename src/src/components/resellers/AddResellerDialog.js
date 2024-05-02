@@ -38,7 +38,7 @@ const AddResellerDialog = ({
           fontSize: '35px !important',
         }}
       >
-        Add Reseller
+        Add Retailer
       </DialogTitle>
 
       <DialogContent>
@@ -46,7 +46,7 @@ const AddResellerDialog = ({
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px' }}>
             <CircularProgress />
             <Typography variant="h6" style={{ marginTop: '20px' }}>
-              Creating Reseller...
+              Creating Retailer...
             </Typography>
           </div>
         ) : createSuccessMessage ? (

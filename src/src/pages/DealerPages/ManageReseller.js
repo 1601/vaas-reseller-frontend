@@ -524,9 +524,9 @@ const ManageReseller = () => {
           <Card>
             <CardContent>
               <Box display="flex" justifyContent="space-between" alignItems="center" marginBottom="20px">
-                <Typography variant="h5">My Resellers</Typography>
+                <Typography variant="h5">My Retailers</Typography>
                 <Button variant="contained" style={{ backgroundColor: '#000', color: '#fff' }} onClick={handleOpen}>
-                  + Add Reseller
+                  + Add Retailer
                 </Button>
               </Box>
 

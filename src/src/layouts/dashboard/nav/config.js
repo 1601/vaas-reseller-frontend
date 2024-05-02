@@ -144,7 +144,7 @@ const getNavConfig = (role) => {
           path: '/dashboard/store/storefront',
         },
         {
-          title: 'Manage Resellers',
+          title: 'Manage Retailers',
           // icon: icon('ic_topup'),
           path: '/dashboard/store/resellers',
         },
