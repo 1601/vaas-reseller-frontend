@@ -245,9 +245,9 @@ const AdminWalletApproval = ({ selectedWallet, onBack }) => {
           <Button variant="outlined" color="primary" onClick={() => handleOpenConfirmation('approved')}>
             Approve
           </Button>
-          <Button variant="outlined" onClick={() => handleOpenConfirmation('verified')}>
+          {/* <Button variant="outlined" onClick={() => handleOpenConfirmation('verified')}>
             Adjust
-          </Button>
+          </Button> */}
           <Button variant="outlined" color="secondary" onClick={() => handleOpenConfirmation('rejected')}>
             Reject
           </Button>
