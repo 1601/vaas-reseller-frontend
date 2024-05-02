@@ -98,7 +98,7 @@ function TermsDialog({ open, onClose, onAgree }) {
 
   const handleScroll = (e) => {
     const target = e.target;
-    const tolerance = 1; 
+    const tolerance = 1;
     const bottom = target.scrollHeight - target.scrollTop <= target.clientHeight + tolerance;
     setIsScrolledToEnd(bottom);
   };
@@ -152,6 +152,29 @@ const currencies = [
   'NOK',
   'DKK',
 ];
+
+const currencyDescriptions = {
+  USD: 'United States Dollar',
+  EUR: 'Euro',
+  JPY: 'Japanese Yen',
+  GBP: 'British Pound',
+  CHF: 'Swiss Franc',
+  CAD: 'Canadian Dollar',
+  AUD: 'Australian Dollar',
+  CNY: 'Chinese Yuan',
+  INR: 'Indian Rupee',
+  KRW: 'South Korean Won',
+  BRL: 'Brazilian Real',
+  ZAR: 'South African Rand',
+  RUB: 'Russian Ruble',
+  MXN: 'Mexican Peso',
+  SGD: 'Singapore Dollar',
+  NZD: 'New Zealand Dollar',
+  HKD: 'Hong Kong Dollar',
+  SEK: 'Swedish Krona',
+  NOK: 'Norwegian Krone',
+  DKK: 'Danish Krone',
+};
 
 const fadeInDown = keyframes`
   from {
@@ -1032,14 +1055,12 @@ export default function SignUpPage() {
                             value={formData.currency}
                             onChange={handleInputChange}
                           >
-                            <MenuItem value={initialCurrency}>{initialCurrency}</MenuItem>
-                            {currencies.map((data, index) => (
-                              <MenuItem key={index} value={data}>
-                                {data}
+                            {currencies.map((currencyCode) => (
+                              <MenuItem key={currencyCode} value={currencyCode}>
+                                {`${currencyCode} - ${currencyDescriptions[currencyCode]}`}
                               </MenuItem>
                             ))}
                           </Select>
-                          {fieldErrors.designation && <FormHelperText error>Designation is required</FormHelperText>}
                         </FormControl>
                       </Box>
                     )}
