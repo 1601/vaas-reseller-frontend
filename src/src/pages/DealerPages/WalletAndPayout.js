@@ -7,9 +7,9 @@ import {
   Card,
   CardContent,
   Chip,
-  Container,
-  Grid,
-  Paper,
+  Container, FormControl,
+  Grid, InputLabel, MenuItem,
+  Paper, Select,
   Step,
   StepLabel,
   Stepper,
@@ -83,6 +83,7 @@ const WalletPayouts = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [filteredWalletRequests, setFilteredWalletRequests] = useState(walletRequests);
   const [dateFilteredWalletRequests, setDateFilteredWalletRequests] = useState(filteredWalletRequests);
+  const [sortBy, setSortBy] = useState('createdBy desc');
   const [selectedRange, setSelectedRange] = useState([
     {
       startDate: new Date(),
@@ -91,8 +92,8 @@ const WalletPayouts = () => {
     },
   ]);
   const [dateRange, setDateRange] = useState({
-    startDate: '',
-    endDate: '',
+    startDate: new Date(),
+    endDate: new Date(),
   });
 
   const [bankDetails] = useState({
@@ -201,8 +202,8 @@ const WalletPayouts = () => {
       }
     ]);
     setDateRange({
-      startDate: '',
-      endDate: '',
+      startDate: new Date(),
+      endDate: new Date(),
     });
     setDateFilteredWalletRequests(filteredWalletRequests);
   }
@@ -349,6 +350,21 @@ const uploadBankSlipImage = async (walletRequestId) => {
     setIsSubmitting(true);
     createWalletRequest();
   };
+
+  const handleSortChange = (event) => {
+    setSortBy(event.target.value);
+  }
+
+  useEffect(() => {
+    if (sortBy === 'createdBy desc') {
+      const sortedData = [...dateFilteredWalletRequests].sort((a, b) => b.dateCreated.localeCompare(a.dateCreated));
+      setDateFilteredWalletRequests(sortedData);
+    }
+    if (sortBy === 'createdBy asc') {
+      const sortedData = [...dateFilteredWalletRequests].sort((a, b) => a.dateCreated.localeCompare(b.dateCreated));
+      setDateFilteredWalletRequests(sortedData);
+    }
+  }, [sortBy, dateFilteredWalletRequests]);
 
   const tableKeys = ['paymentStatus', 'referenceNo', 'currency', 'amount', 'accountEmail', 'paymentMethod'];
 
@@ -772,9 +788,9 @@ const uploadBankSlipImage = async (walletRequestId) => {
                   </Box>
                 </Card>
               </div>
-              <div>
+              <div className="flex">
               <Autocomplete
-                  className="w-5/5"
+                  className="w-4/5"
                   multiple
                   id="tags-filled"
                   freeSolo
@@ -794,6 +810,19 @@ const uploadBankSlipImage = async (walletRequestId) => {
                       />
                   )}
               />
+                <FormControl className="w-1/5">
+                  <InputLabel id={"demo-simple-select-label"}>Sort By</InputLabel>
+                  <Select
+                      labelId={"demo-simple-select-label"}
+                      id="demo-simple-select"
+                      label="Sort By"
+                      value={sortBy}
+                      onChange={handleSortChange}
+                  >
+                    <MenuItem value={"createdBy desc"}>Created By (Desc)</MenuItem>
+                    <MenuItem value={"createdBy asc"}>Created By (Asc)</MenuItem>
+                  </Select>
+                </FormControl>
               </div>
               <TableContainer component={Paper} sx={{maxWidth: '100%', overflowX: 'auto'}}>
                 <Table stickyHeader aria-label="transaction history">
