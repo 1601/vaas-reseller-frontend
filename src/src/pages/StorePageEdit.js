@@ -631,7 +631,7 @@ const StorePageEdit = () => {
                 </Card>
               </div>
 
-              <div className="mb-4 w-full">
+              {/* <div className="mb-4 w-full">
                 <Card variant="outlined" style={{ padding: '20px', marginBottom: '20px' }}>
                   <Typography variant="h4" gutterBottom>
                     Store Logo
@@ -698,8 +698,9 @@ const StorePageEdit = () => {
                     </Grid>
                   </Grid>
                 </Card>
-              </div>
-              <div className="mb-4 w-full">
+              </div> */}
+
+              {/* <div className="mb-4 w-full">
                 <div className="w-full">
                   <Card variant="outlined" style={{ padding: '20px', marginBottom: '20px' }}>
                     <Typography variant="h4" gutterBottom>
@@ -735,7 +736,6 @@ const StorePageEdit = () => {
                                 />
                               </div>
                               <div className="md:flex flex-col md:items-center">
-                                {/* Current Primary Color */}
                                 <div className="mb-4 md:mb-2">
                                   <Typography
                                     variant="subtitle1"
@@ -750,7 +750,6 @@ const StorePageEdit = () => {
                                   />
                                 </div>
 
-                                {/* New Primary Color */}
                                 <div>
                                   <Typography
                                     variant="subtitle1"
@@ -794,9 +793,7 @@ const StorePageEdit = () => {
                                 />
                               </div>
 
-                              {/* Right side content */}
                               <div className="md:flex flex-col md:items-center">
-                                {/* Current Secondary Color */}
                                 <div className="mb-4 md:mb-2">
                                   <Typography
                                     variant="subtitle1"
@@ -811,7 +808,6 @@ const StorePageEdit = () => {
                                   />
                                 </div>
 
-                                {/* New Secondary Color */}
                                 <div>
                                   <Typography
                                     variant="subtitle1"
@@ -841,9 +837,9 @@ const StorePageEdit = () => {
                     </div>
                   </Card>
                 </div>
-              </div>
+              </div> */}
 
-              <div className="mb-4 w-full">
+              {/* <div className="mb-4 w-full">
                 <div className="w-full">
                   <Card variant="outlined" style={{ padding: '20px', marginBottom: '20px' }}>
                     <Typography variant="h4" gutterBottom>
@@ -894,7 +890,7 @@ const StorePageEdit = () => {
                     </Card>
                   </Card>
                 </div>
-              </div>
+              </div> */}
             </>
           ) : (
             <CircularLoading />
