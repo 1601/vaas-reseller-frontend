@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useMemo} from 'react';
 import SecureLS from 'secure-ls';
 import {
   Autocomplete,
@@ -300,11 +300,42 @@ const uploadBankSlipImage = async (walletRequestId) => {
 
   const handleFilterChange = (event, newValue) => {
     const foundWalletRequests = [];
+    const searchColumn = [];
+    const searchCriteria = {
+      paymentStatus: [],
+      referenceNo: [],
+      currency: [],
+      amount: [],
+      accountEmail: [],
+      paymentMethod: []
+    };
 
-    foundWalletRequests.push(...walletRequests.filter(obj => {
-      const flattenedObj = flattenObject(obj);
-      return newValue.every(selects => flattenedObj.some((value) => selects.includes(value)));
-    }));
+    if(newValue.length !== 0){
+
+      // let searchCategory = [];
+      newValue.forEach(value => {
+          const results = walletRequests.filter(obj => {
+            const jsonValues = Object.values(obj);
+            return jsonValues.some(jsonValue => jsonValue === value);
+          }).map(obj => {
+            const key = Object.entries(obj).find(([key, val]) => val === value)?.[0];
+            return key;
+          });
+
+        if (results[0]) searchCriteria[results[0]].push(value);
+
+      });
+
+      foundWalletRequests.push(...walletRequests.filter(obj => {
+        const flattenedObj = flattenObject(obj);
+        return Object.entries(searchCriteria).every(([key, value]) => {
+          if (value.length !== 0) {
+            return value.some(selects => flattenedObj.some(val => selects.includes(val)));
+          }
+          return true;
+        });
+      }));
+    }
 
     setFilteredWalletRequests(newValue.length !== 0 ? foundWalletRequests : walletRequests);
     if(dateFilteredWalletRequests.length !== 0){
@@ -319,15 +350,12 @@ const uploadBankSlipImage = async (walletRequestId) => {
     createWalletRequest();
   };
 
-  const tableKeys = ['dateCreated', 'referenceNo', 'currency', 'amount', 'accountEmail', 'paymentMethod'];
+  const tableKeys = ['paymentStatus', 'referenceNo', 'currency', 'amount', 'accountEmail', 'paymentMethod'];
 
   const flattenObject = (obj) => {
     return Object.entries(obj)
         .filter(([key]) => tableKeys.includes(key))
         .map(([key, value]) => {
-          if (key === 'dateCreated') {
-            return new Date(value).toLocaleDateString();
-          }
           return value;
         });
   };
