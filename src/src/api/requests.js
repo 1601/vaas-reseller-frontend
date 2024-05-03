@@ -8,8 +8,8 @@ const getNewToken = () => {
 };
 
 const getOwnerId = () => {
-  const userData = ls.get('user'); 
-  return userData ? userData._id : null; 
+  const userData = ls.get('user');
+  return userData ? userData._id : null;
 };
 
 // Create an Axios instance with default headers including the token
@@ -60,13 +60,21 @@ const autocompleteAddress = async (data) => {
 };
 
 const kycSubmittedStatus = async () => {
-  let response;
   try {
-    response = await axiosInstance.get(`kyc-business/store/${getOwnerId()}`);
+    const token = ls.get('token');
+    const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/owner`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (response && response.data) {
+      return response.data;
+    }
+    console.error('No data returned from API');
+    return null;
   } catch (error) {
-    console.log(error);
+    console.error('Failed to fetch KYC status:', error.response ? error.response.data : error);
+    return null;
   }
-  return response;
 };
 
 const addBanner = async (data) => {
