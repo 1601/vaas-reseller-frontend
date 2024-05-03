@@ -203,7 +203,6 @@ const WalletPayouts = () => {
       startDate: new Date(),
       endDate: new Date(),
     });
-    setDateFilteredWalletRequests(filteredWalletRequests);
   };
 
   const handleReplenishChange = (event) => {
@@ -261,8 +260,8 @@ const WalletPayouts = () => {
   const handleExportToExcel = () => {
     const maxRows = 5000;
     const requestKey = ['dateCreated', 'referenceNo', 'currency', 'amount', 'paymentStatus', 'paymentMethod'];
-    const headers = ['Date Created', 'Transaction', 'Currency', 'Amount', 'Payment Status', 'Payment Method'];
-    const tableData = [headers, ...walletRequests.slice(0, maxRows).map((row) => requestKey.map((key) => row[key]))];
+    const headers = ['Date Created', 'Transaction', 'Currency', 'Amount', 'Payment Status', 'Payment Method']
+    const tableData = [headers, ...dateFilteredWalletRequests.slice(0, maxRows).map(row => requestKey.map(key => row[key]))];
 
     // Create a new workbook and worksheet
     const workbook = XLSX.utils.book_new();
@@ -307,7 +306,6 @@ const WalletPayouts = () => {
 
   const handleFilterChange = (event, newValue) => {
     const foundWalletRequests = [];
-    const searchColumn = [];
     const searchCriteria = {
       paymentStatus: [],
       referenceNo: [],
@@ -317,11 +315,10 @@ const WalletPayouts = () => {
       paymentMethod: [],
     };
 
-    if (newValue.length !== 0) {
+    if(newValue.length !== 0){
       // let searchCategory = [];
-      newValue.forEach((value) => {
-        const results = walletRequests
-          .filter((obj) => {
+      newValue.forEach(value => {
+          const results = dateFilteredWalletRequests.filter(obj => {
             const jsonValues = Object.values(obj);
             return jsonValues.some((jsonValue) => jsonValue === value);
           })
@@ -333,23 +330,18 @@ const WalletPayouts = () => {
         if (results[0]) searchCriteria[results[0]].push(value);
       });
 
-      foundWalletRequests.push(
-        ...walletRequests.filter((obj) => {
-          const flattenedObj = flattenObject(obj);
-          return Object.entries(searchCriteria).every(([key, value]) => {
-            if (value.length !== 0) {
-              return value.some((selects) => flattenedObj.some((val) => selects.includes(val)));
-            }
-            return true;
-          });
-        })
-      );
+      foundWalletRequests.push(...dateFilteredWalletRequests.filter(obj => {
+        const flattenedObj = flattenObject(obj);
+        return Object.entries(searchCriteria).every(([key, value]) => {
+          if (value.length !== 0) {
+            return value.some(selects => flattenedObj.some(val => selects.includes(val)));
+          }
+          return true;
+        });
+      }));
     }
 
-    setFilteredWalletRequests(newValue.length !== 0 ? foundWalletRequests : walletRequests);
-    if (dateFilteredWalletRequests.length !== 0) {
-      setDateFilteredWalletRequests(newValue.length !== 0 ? foundWalletRequests : walletRequests);
-    }
+    setFilteredWalletRequests(newValue.length !== 0 ? foundWalletRequests : dateFilteredWalletRequests);
   };
 
   const handleReplenishSubmit = () => {
@@ -364,14 +356,14 @@ const WalletPayouts = () => {
 
   useEffect(() => {
     if (sortBy === 'createdBy desc') {
-      const sortedData = [...dateFilteredWalletRequests].sort((a, b) => b.dateCreated.localeCompare(a.dateCreated));
-      setDateFilteredWalletRequests(sortedData);
+      const sortedData = [...filteredWalletRequests].sort((a, b) => b.dateCreated.localeCompare(a.dateCreated));
+      setFilteredWalletRequests(sortedData);
     }
     if (sortBy === 'createdBy asc') {
-      const sortedData = [...dateFilteredWalletRequests].sort((a, b) => a.dateCreated.localeCompare(b.dateCreated));
-      setDateFilteredWalletRequests(sortedData);
+      const sortedData = [...filteredWalletRequests].sort((a, b) => a.dateCreated.localeCompare(b.dateCreated));
+      setFilteredWalletRequests(sortedData);
     }
-  }, [sortBy, dateFilteredWalletRequests]);
+  }, [sortBy, filteredWalletRequests]);
 
   const tableKeys = ['paymentStatus', 'referenceNo', 'currency', 'amount', 'accountEmail', 'paymentMethod'];
 
@@ -384,37 +376,36 @@ const WalletPayouts = () => {
   };
 
   useEffect(() => {
-    setFilteredWalletRequests(walletRequests);
+    setFilteredWalletRequests(dateFilteredWalletRequests);
 
-    const flattenedValues = [...new Set(walletRequests.flatMap(flattenObject))];
+    const flattenedValues = [...new Set(dateFilteredWalletRequests.flatMap(flattenObject))];
     setFlattenedWalletRequests(flattenedValues);
-  }, [walletRequests]);
+
+  }, [dateFilteredWalletRequests]);
 
   useEffect(() => {
-    if (dateRange.startDate !== '' && dateRange.endDate !== '') {
-      if (dateFilteredWalletRequests.length === 0) {
-        setDateFilteredWalletRequests(
-          filteredWalletRequests.filter((item) => {
-            const date = new Date(item.dateCreated);
-            const startDate = new Date(dateRange.startDate);
-            const endDate = new Date(dateRange.endDate);
-            return (!startDate || date >= startDate) && (!endDate || date <= endDate);
-          })
-        );
-      } else {
-        setDateFilteredWalletRequests(
-          dateFilteredWalletRequests.filter((item) => {
-            const date = new Date(item.dateCreated);
-            const startDate = new Date(dateRange.startDate);
-            const endDate = new Date(dateRange.endDate);
-            return (!startDate || date >= startDate) && (!endDate || date <= endDate);
-          })
-        );
+
+      if(dateFilteredWalletRequests.length === 0){
+        setDateFilteredWalletRequests(walletRequests.filter((item) => {
+          const date = new Date(item.dateCreated);
+          const startDate = new Date(dateRange.startDate);
+          const endDate = new Date(dateRange.endDate);
+          return (
+              (!startDate || date >= startDate) &&
+              (!endDate || date <= endDate)
+          )}));
+      }else{
+        setDateFilteredWalletRequests(dateFilteredWalletRequests.filter((item) => {
+          const date = new Date(item.dateCreated);
+          const startDate = new Date(dateRange.startDate);
+          const endDate = new Date(dateRange.endDate);
+          return (
+              (!startDate || date >= startDate) &&
+              (!endDate || date <= endDate)
+          )}));
       }
-    } else {
-      setDateFilteredWalletRequests(filteredWalletRequests);
-    }
-  }, [dateRange, filteredWalletRequests]);
+
+  }, [dateRange, walletRequests]);
 
   useEffect(() => {
     const storedUser = ls.get('user');
@@ -801,7 +792,8 @@ const WalletPayouts = () => {
                   multiple
                   id="tags-filled"
                   freeSolo
-                  options={flattenedWalletRequests}
+                  options={flattenedWalletRequests || ""}
+                  getOptionLabel={(option) => (option || "")}
                   onChange={handleFilterChange}
                   renderTags={(value, getTagProps) =>
                       value.map((option, index) => (
