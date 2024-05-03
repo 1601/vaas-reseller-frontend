@@ -20,6 +20,7 @@ import {
 import CircularLoading from '../components/preLoader';
 import AccountStatusModal from '../components/user-account/AccountStatusModal';
 import UserDataFetch from '../components/user-account/UserDataFetch';
+import ListDialog from '../components/dealer/ListDialog';
 
 const ls = new SecureLS({ encodingType: 'aes' });
 
@@ -37,6 +38,8 @@ const StorePageEdit = () => {
   const [isStoreUrlValid, setIsStoreUrlValid] = useState(true);
   const [isStoreNameValid, setIsStoreNameValid] = useState(true);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [rejectionDialogOpen, setRejectionDialogOpen] = useState(false);
+  const [rejectionReasons, setRejectionReasons] = useState([]);
 
   const [platformVariables, setPlatformVariables] = useState({
     enableBills: true,
@@ -58,6 +61,7 @@ const StorePageEdit = () => {
         setStoreData(response.data);
         setEditedData(response.data);
         setPlatformVariables(response.data.platformVariables);
+        setRejectionReasons(response.data.rejectionReasons || []);
       } catch (error) {
         console.error('Could not fetch store data', error);
       }
@@ -86,6 +90,14 @@ const StorePageEdit = () => {
       });
     }
   }, [storeData]);
+
+  const handleRejectionDialogOpen = () => {
+    setRejectionDialogOpen(true);
+  };
+
+  const handleRejectionDialogClose = () => {
+    setRejectionDialogOpen(false);
+  };
 
   const handleEditClick = () => {
     setIsEditing(true);
@@ -223,16 +235,15 @@ const StorePageEdit = () => {
     };
 
     try {
-
       const header = {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${ls.get('user').token}`,
-      }
+      };
 
       const response = await axios.put(
         `${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/${storedUserId}/platvar`,
         requestBody,
-        {headers: header}
+        { headers: header }
       );
       if (response.status !== 200) {
         throw new Error(response.data.message);
@@ -502,6 +513,14 @@ const StorePageEdit = () => {
                         </Button>
                       ) : (
                         <>
+                          <Button
+                            variant="outlined"
+                            color="primary"
+                            onClick={handleRejectionDialogOpen}
+                            style={{ marginRight: '8px' }}
+                          >
+                            Rejections
+                          </Button>
                           <Button
                             variant="outlined"
                             color="primary"
@@ -944,6 +963,14 @@ const StorePageEdit = () => {
               </Button>
             </DialogActions>
           </Dialog>
+
+          <ListDialog
+            open={rejectionDialogOpen}
+            onClose={handleRejectionDialogClose}
+            title="Rejection Reasons"
+            list={rejectionReasons}
+            itemKey="date" 
+          />
         </div>
       </div>
       <AccountStatusModal open userData={userData} storeData={storeData} />

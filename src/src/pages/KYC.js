@@ -27,26 +27,25 @@ import PersonIcon from '@mui/icons-material/Person';
 import GroupIcon from '@mui/icons-material/Group';
 import CorporateFareIcon from '@mui/icons-material/CorporateFare';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
-import CircularProgress from "@mui/material/CircularProgress";
+import CircularProgress from '@mui/material/CircularProgress';
 import PlaceIcon from '@mui/icons-material/Place';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import { styled } from '@mui/material/styles';
 import Grid from '@mui/material/Grid';
-import { useDropzone } from 'react-dropzone'
-import KycImage from '../images/Rectangle 52.png'
-import UnderReview from '../images/underReview.jpeg'
-import Approved from '../images/approved.png'
-import { postDataKyc, putFileKyc, autoCompleteAddress, kycSubmittedstatus } from '../api/public/kyc'
-
+import { useDropzone } from 'react-dropzone';
+import KycImage from '../images/Rectangle 52.png';
+import UnderReview from '../images/underReview.jpeg';
+import Approved from '../images/approved.png';
+import { postDataKyc, putFileKyc, autoCompleteAddress, kycSubmittedstatus } from '../api/public/kyc';
+import ListDialog from '../components/dealer/ListDialog';
 
 const ls = new SecureLS({ encodingType: 'aes' });
 
 const Responsive = styled('Typography')(({ theme }) => ({
   [theme.breakpoints.down('sm')]: {
-    fontSize: '.6rem'
-  }
-}))
-
+    fontSize: '.6rem',
+  },
+}));
 
 const HoverableCard = styled(Card)`
   width: 100%;
@@ -56,12 +55,12 @@ const HoverableCard = styled(Card)`
   color: ${(props) => (props.active ? '#BA61E8' : 'initial')}; /* Initial background color */
   box-shadow: ${(props) =>
     props.active ? '0px 0px 5px 0px rgba(0, 0, 0, 0.75)' : 'none'}; /* Box shadow when active */
-    
+
   &:hover {
     background-color: #f0f0f0; /* New background color on hover */
     box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.75); /* Box shadow on hover */
     cursor: pointer; /* Change cursor to pointer on hover (optional) */
-    color:#BA61E8;
+    color: #ba61e8;
   }
 `;
 
@@ -74,16 +73,7 @@ const HoverableButton = styled(Box)`
   }
 `;
 
-
-
-
-
-const steps = [
-  'What is KYC?',
-  'General Information',
-  'Business Information',
-  'Statement of acceptance'
-];
+const steps = ['What is KYC?', 'General Information', 'Business Information', 'Statement of acceptance'];
 
 const initialFormData = {
   customerServiceNumber: '',
@@ -107,37 +97,37 @@ const initialErrorMessage = {
   zipCodeAddress: '',
   numberOfEmployees: '',
   uniqueIdentifier: '',
-  externalLinkAccount: ''
-}
+  externalLinkAccount: '',
+};
 const CircularLoading = () => (
   <>
     <Box
       sx={{
-        width: "100%",
-        height: "100%",
-        position: "fixed",
+        width: '100%',
+        height: '100%',
+        position: 'fixed',
         top: 0,
         left: 0,
         right: 0,
         bottom: 0,
-        background: "rgba(0, 0, 0, 0.7)",
+        background: 'rgba(0, 0, 0, 0.7)',
         opacity: 0.5,
-        zIndex: 1
+        zIndex: 1,
       }}
     />
     <Box
       sx={{
-        position: "fixed",
-        left: "50%",
-        top: "50%",
-        transform: "translate(-50%, -50%)",
+        position: 'fixed',
+        left: '50%',
+        top: '50%',
+        transform: 'translate(-50%, -50%)',
         zIndex: 2,
-        textAlign: "center",
-        color: "#fff",
+        textAlign: 'center',
+        color: '#fff',
       }}
     >
       <CircularProgress size={70} />
-      <Typography variant='h4'>Uploading Files</Typography>
+      <Typography variant="h4">Uploading Files</Typography>
     </Box>
   </>
 );
@@ -151,14 +141,44 @@ export default function KYC() {
   // const docsInputRef = useRef(null);
   const [businessType, setBusinessType] = useState('');
   const [linkFieldsData, setLinkFieldsData] = useState([{ externalLinkAccount: '' }]);
-  const [approvalStatus, setApprovalStatus] = useState(0)
-  const [preload, setPreload] = useState(0)
-  const [autoComplete, setAutoComplete] = useState()
+  const [approvalStatus, setApprovalStatus] = useState(0);
+  const [preload, setPreload] = useState(0);
+  const [autoComplete, setAutoComplete] = useState();
   const [isActive1, setIsActive1] = useState(false);
   const [isActive2, setIsActive2] = useState(false);
   const [isActive3, setIsActive3] = useState(false);
   const [isActive4, setIsActive4] = useState(false);
-  const [isError, setIsError] = useState(initialErrorMessage)
+  const [isError, setIsError] = useState(initialErrorMessage);
+  const [openListDialog, setOpenListDialog] = useState(false);
+  const [rejectionList, setRejectionList] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStoreData = async () => {
+      const token = ls.get('token');
+      try {
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/owner`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (response.data && response.data.rejectionReasons) {
+          setRejectionList(response.data.rejectionReasons);
+        }
+      } catch (error) {
+        console.error('Error fetching store data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStoreData();
+  }, []);
+
+  const handleOpenRejections = () => {
+    setOpenListDialog(true);
+  };
+
+  const handleCloseRejections = () => {
+    setOpenListDialog(false);
+  };
 
   const handleAddTextField = () => {
     setLinkFieldsData([...linkFieldsData, { externalLinkAccount: '' }]);
@@ -179,82 +199,83 @@ export default function KYC() {
         if (letters) {
           return setIsError({
             ...isError,
-            customerServiceNumber: 'Only valid numbers'
-          })
+            customerServiceNumber: 'Only valid numbers',
+          });
         }
       } else {
-
         return setIsError({
           ...isError,
-          customerServiceNumber: 'This is a required field'
-        })
+          customerServiceNumber: 'This is a required field',
+        });
       }
 
       if (values[1] === '') {
         return setIsError({
           ...isError,
-          streetAddress: 'Street address is required'
-        })
+          streetAddress: 'Street address is required',
+        });
       }
       if (values[2] === '') {
         return setIsError({
           ...isError,
-          cityAddress: 'City address is required'
-        })
+          cityAddress: 'City address is required',
+        });
       }
       if (values[3] === '') {
         return setIsError({
           ...isError,
-          regionAddress: 'Region address is required'
-        })
+          regionAddress: 'Region address is required',
+        });
       }
       if (values[4] === '') {
         return setIsError({
           ...isError,
-          zipCodeAddress: 'Zip code is required'
-        })
+          zipCodeAddress: 'Zip code is required',
+        });
       }
       if (values[6] <= 0) {
         return setIsError({
           ...isError,
-          numberOfEmployees: 'Invalid input, need to have greater than 0'
-        })
+          numberOfEmployees: 'Invalid input, need to have greater than 0',
+        });
       }
       if (values[7] === '') {
         return setIsError({
           ...isError,
-          uniqueIdentifier: 'Unique identifier is required'
-        })
+          uniqueIdentifier: 'Unique identifier is required',
+        });
       }
     }
     setActiveStep((prevStep) => prevStep + 1);
-    return setIsError(initialErrorMessage)
+    return setIsError(initialErrorMessage);
   };
 
   function ErrorMessage(label) {
     return (
-      <Box style={{
-        marginTop: '0px',
-        marginBottom: '20px',
-        textAlign: 'left',
-        borderRadius: '10px',
-        width: '100%',
-        color: '#ff6b6b'
-      }}>
+      <Box
+        style={{
+          marginTop: '0px',
+          marginBottom: '20px',
+          textAlign: 'left',
+          borderRadius: '10px',
+          width: '100%',
+          color: '#ff6b6b',
+        }}
+      >
         <ErrorOutlineIcon />
-        <Typography
-          variant='caption'
-          color='#ff6b6b'
-        > {label.label}</Typography>
+        <Typography variant="caption" color="#ff6b6b">
+          {' '}
+          {label.label}
+        </Typography>
       </Box>
-    )
+    );
   }
   const handleBack = () => {
     setActiveStep((prevStep) => prevStep - 1);
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
     // Merge textFieldsData into formData
     const mergedFormData = {
@@ -264,31 +285,33 @@ export default function KYC() {
 
     // Send formData to the backend API
     try {
-      setPreload(1)
+      setPreload(1);
       const result = await postDataKyc(mergedFormData);
       if (result.status === 200) {
-        // Submit File 
-        const mergeFileData = [
-          ...selectedImage,
-          ...selectedDocs]
+        // Submit File
+        const mergeFileData = [...selectedImage, ...selectedDocs];
 
-        const fileResult = await putFileKyc(mergeFileData)
+        const fileResult = await putFileKyc(mergeFileData);
         if (fileResult.status === 200) {
           const userData = ls.get('user');
           const userId = userData._id;
-          const submitted = await axios.put(`${process.env.REACT_APP_BACKEND_URL}/v1/api/kyc/submit`, {}, {
-            headers: {
-              Authorization: `Bearer ${userId}`
+          const submitted = await axios.put(
+            `${process.env.REACT_APP_BACKEND_URL}/v1/api/kyc/submit`,
+            {},
+            {
+              headers: {
+                Authorization: `Bearer ${userId}`,
+              },
             }
-          });
+          );
 
           // console.log(result)
-          setFormData(initialFormData)
-          setLinkFieldsData([{ externalLinkAccount: '' }])
-          setSelectedDocs([])
-          setSelectedImage([])
+          setFormData(initialFormData);
+          setLinkFieldsData([{ externalLinkAccount: '' }]);
+          setSelectedDocs([]);
+          setSelectedImage([]);
           if (submitted) {
-            setPreload(2)
+            setPreload(2);
           }
           handleProceed();
         }
@@ -304,15 +327,14 @@ export default function KYC() {
     if (isError) {
       setIsError({
         ...isError,
-        [name]: ''
-      })
+        [name]: '',
+      });
     }
 
     if (name === 'streetAddress' && value !== '') {
-      autoCompleteAddress(value)
-        .then((result) => {
-          setAutoComplete(result.data.features)
-        })
+      autoCompleteAddress(value).then((result) => {
+        setAutoComplete(result.data.features);
+      });
     }
 
     setFormData({
@@ -321,35 +343,34 @@ export default function KYC() {
     });
   };
 
-
   const handleClick = (type, number) => {
     if (number === 1) {
-      setIsActive1(!isActive1)
-      setIsActive2(false)
-      setIsActive3(false)
-      setIsActive4(false)
+      setIsActive1(!isActive1);
+      setIsActive2(false);
+      setIsActive3(false);
+      setIsActive4(false);
     }
     if (number === 2) {
-      setIsActive1(false)
-      setIsActive2(!isActive2)
-      setIsActive3(false)
-      setIsActive4(false)
+      setIsActive1(false);
+      setIsActive2(!isActive2);
+      setIsActive3(false);
+      setIsActive4(false);
     }
     if (number === 3) {
-      setIsActive1(false)
-      setIsActive2(false)
-      setIsActive3(!isActive3)
-      setIsActive4(false)
+      setIsActive1(false);
+      setIsActive2(false);
+      setIsActive3(!isActive3);
+      setIsActive4(false);
     }
     if (number === 4) {
-      setIsActive1(false)
-      setIsActive2(false)
-      setIsActive3(false)
-      setIsActive4(!isActive4)
+      setIsActive1(false);
+      setIsActive2(false);
+      setIsActive3(false);
+      setIsActive4(!isActive4);
     }
-    setBusinessType(type)
+    setBusinessType(type);
     setFormData({ ...formData, businessType: type });
-  }
+  };
 
   const handleAddressClick = (datas) => {
     // Update the selected address and the TextField value when an option is clicked
@@ -359,7 +380,7 @@ export default function KYC() {
       streetAddress: datas.properties.address_line1,
       cityAddress: datas.properties.city,
       regionAddress: datas.properties.state,
-      zipCodeAddress: datas.properties.postcode
+      zipCodeAddress: datas.properties.postcode,
     });
   };
 
@@ -369,31 +390,29 @@ export default function KYC() {
     setLinkFieldsData(updatedData);
   };
 
-
   const handleProceed = () => {
-    window.location.href = "/dashboard/app"
-  }
+    window.location.href = '/dashboard/app';
+  };
 
-  const onDrop = useCallback(acceptedFiles => {
+  const onDrop = useCallback((acceptedFiles) => {
     // Do something with the files
-    const file = acceptedFiles[0]
+    const file = acceptedFiles[0];
     if (file.type === 'image/png' || file.type === 'image/jpeg') {
-      setSelectedImage((selectedImage) => [...selectedImage, acceptedFiles[0]])
+      setSelectedImage((selectedImage) => [...selectedImage, acceptedFiles[0]]);
     } else {
-      setSelectedDocs((selectedDocs) => [...selectedDocs, acceptedFiles[0]])
+      setSelectedDocs((selectedDocs) => [...selectedDocs, acceptedFiles[0]]);
     }
-
-  }, [])
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop })
+  }, []);
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
   const isLastStep = activeStep === steps.length - 1;
-
 
   useEffect(() => {
     const getStatus = async () => {
-      const datas = await kycSubmittedstatus()
+      const datas = await kycSubmittedstatus();
       if (datas) {
-        const { kycApprove } = datas.data.body[0]
-        switch (kycApprove) {
+        switch (
+          datas.kycApprove 
+        ) {
           case 1:
             setApprovalStatus(1);
             break;
@@ -406,14 +425,16 @@ export default function KYC() {
           default:
             setApprovalStatus(0);
         }
+      } else {
+        console.log('No KYC data available');
       }
-    }
-    getStatus()
-  }, [])
+    };
+    getStatus();
+  }, []);
 
   return (
     <>
-      {preload === 1 && (<CircularLoading />)}
+      {preload === 1 && <CircularLoading />}
       {approvalStatus !== null && (
         <Container maxWidth="md" style={{ textAlign: 'center', marginTop: '50px' }}>
           <Card style={{ paddingTop: '50px', paddingBottom: '50px' }}>
@@ -422,28 +443,36 @@ export default function KYC() {
                 <Stepper activeStep={activeStep} alternativeLabel>
                   {steps.map((label) => (
                     <Step key={label}>
-                      <StepLabel><Responsive>{label}</Responsive></StepLabel>
+                      <StepLabel>
+                        <Responsive>{label}</Responsive>
+                      </StepLabel>
                     </Step>
                   ))}
                 </Stepper>
                 <form onSubmit={(e) => e.preventDefault()}>
                   {activeStep === 0 && (
                     <Container maxWidth="md" style={{ textAlign: 'center', marginTop: '50px' }}>
-                      <Typography variant="h3" style={{ color: "#BA61E8" }}>Welcome to Vortex!</Typography>
+                      <Typography variant="h3" style={{ color: '#BA61E8' }}>
+                        Welcome to Vortex!
+                      </Typography>
                       <img className="mx-auto" src={KycImage} width="150" height="auto" alt="Hero" />
-                      {approvalStatus === 3 && (<Box
-                        style={{
-                          marginTop: '50px',
-                          textAlign: 'center',
-                          backgroundColor: '#fde4f2',
-                          border: 'solid #eea1cd 1px',
-                          borderRadius: '10px',
-                          width: '50%'
-                        }}
-                      >
-                        <Typography variant='subtitle2' color='#ff6b6b'> Please resubmit, rejected application </Typography>
-                      </Box>)
-                      }
+                      {approvalStatus === 3 && (
+                        <Box
+                          style={{
+                            marginTop: '50px',
+                            textAlign: 'center',
+                            backgroundColor: '#fde4f2',
+                            border: 'solid #eea1cd 1px',
+                            borderRadius: '10px',
+                            width: '50%',
+                          }}
+                        >
+                          <Typography variant="subtitle2" color="#ff6b6b">
+                            {' '}
+                            Please resubmit, rejected application{' '}
+                          </Typography>
+                        </Box>
+                      )}
                       <div style={{ marginTop: '20px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
                           <CheckCircleOutlineIcon style={{ color: 'green', marginRight: '10px' }} />
@@ -471,12 +500,17 @@ export default function KYC() {
                   {activeStep === 1 && (
                     <div>
                       {/* Step 2: General Information */}
-                      <Container maxWidth="md" style={{ textAlign: "left", marginTop: "50px" }}>
-                        <Typography variant="h6" style={{ marginBottom: '10px' }}>General Information</Typography>
+                      <Container maxWidth="md" style={{ textAlign: 'left', marginTop: '50px' }}>
+                        <Typography variant="h6" style={{ marginBottom: '10px' }}>
+                          General Information
+                        </Typography>
 
                         {/* Customer Service Number */}
                         <Typography variant="body1"> Customer Service Number </Typography>
-                        <Typography variant="caption" color='text.secondary'> This is a landline or mobile number your customer can contact</Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {' '}
+                          This is a landline or mobile number your customer can contact
+                        </Typography>
                         <TextField
                           fullWidth
                           label="Enter service number"
@@ -496,7 +530,7 @@ export default function KYC() {
                             ),
                           }}
                         />
-                        {isError.customerServiceNumber && (<ErrorMessage label={isError.customerServiceNumber} />)}
+                        {isError.customerServiceNumber && <ErrorMessage label={isError.customerServiceNumber} />}
                         {/* Street Address */}
                         <Typography variant="body1"> Business Address</Typography>
                         <TextField
@@ -518,35 +552,32 @@ export default function KYC() {
                             ),
                           }}
                         />
-                        {isError.streetAddress && (<ErrorMessage label={isError.streetAddress} />)}
-                        {autoComplete && (
+                        {isError.streetAddress && <ErrorMessage label={isError.streetAddress} />}
+                        {autoComplete &&
                           autoComplete.map((datas, index) => (
-                            <Box key={index}
-                              style={
-                                {
-                                  backgroundColor: '#f5f5f5',
-                                  border: '1px solid #ddd',
-                                  padding: '10px',
-                                  margin: '5px 0',
-                                  borderRadius: '4px',
-                                  cursor: 'pointer',
-                                  transition: 'background-color 0.2s ease',
-                                  fontSize: '.8rem',
-                                  display: 'flex',
-                                  alignItems: 'center'
-
-                                }
-                              }
+                            <Box
+                              key={index}
+                              style={{
+                                backgroundColor: '#f5f5f5',
+                                border: '1px solid #ddd',
+                                padding: '10px',
+                                margin: '5px 0',
+                                borderRadius: '4px',
+                                cursor: 'pointer',
+                                transition: 'background-color 0.2s ease',
+                                fontSize: '.8rem',
+                                display: 'flex',
+                                alignItems: 'center',
+                              }}
                               onClick={() => {
-                                handleAddressClick(datas)
-                                setAutoComplete('')
+                                handleAddressClick(datas);
+                                setAutoComplete('');
                               }}
                             >
                               <PlaceIcon sx={{ fontSize: '14px' }} />
                               <p>{datas.properties.formatted}</p>
                             </Box>
-                          ))
-                        )}
+                          ))}
 
                         {/* City Address */}
                         <Grid container spacing={1}>
@@ -571,7 +602,7 @@ export default function KYC() {
                                 ),
                               }}
                             />
-                            {isError.cityAddress && (<ErrorMessage label={isError.cityAddress} />)}
+                            {isError.cityAddress && <ErrorMessage label={isError.cityAddress} />}
                           </Grid>
 
                           {/* Region Address */}
@@ -586,7 +617,7 @@ export default function KYC() {
                               value={formData.regionAddress}
                               onChange={handleInputChange}
                             />
-                            {isError.regionAddress && (<ErrorMessage label={isError.regionAddress} />)}
+                            {isError.regionAddress && <ErrorMessage label={isError.regionAddress} />}
                           </Grid>
 
                           {/* Zip Code Address */}
@@ -601,13 +632,19 @@ export default function KYC() {
                               value={formData.zipCodeAddress}
                               onChange={handleInputChange}
                             />
-                            {isError.zipCodeAddress && (<ErrorMessage label={isError.zipCodeAddress} />)}
+                            {isError.zipCodeAddress && <ErrorMessage label={isError.zipCodeAddress} />}
                           </Grid>
                         </Grid>
 
                         {/* Physical Store Checkbox */}
                         <FormControlLabel
-                          control={<Checkbox name="physicalStore" checked={formData.physicalStore} onChange={handleInputChange} />}
+                          control={
+                            <Checkbox
+                              name="physicalStore"
+                              checked={formData.physicalStore}
+                              onChange={handleInputChange}
+                            />
+                          }
                           label="Do you have a physical store?"
                         />
 
@@ -632,16 +669,22 @@ export default function KYC() {
                             ),
                           }}
                         />
-                        {isError.numberOfEmployees && (<ErrorMessage label={isError.numberOfEmployees} />)}
-                        <Typography variant="body1" style={{ marginTop: "30px" }}> Online Presence </Typography>
-                        <Typography variant="caption" color='text.secondary'> Help us get to know your businese more by
-                          providing atleast one link for either business website or social media
-                          account
+                        {isError.numberOfEmployees && <ErrorMessage label={isError.numberOfEmployees} />}
+                        <Typography variant="body1" style={{ marginTop: '30px' }}>
+                          {' '}
+                          Online Presence{' '}
                         </Typography>
-                        <Typography variant="body2" style={{ marginTop: "20px" }}>Business website or social media</Typography>
-                        <Typography variant="caption" color='text.secondary'>Provide the link/s of your website
-                          and/ or social media where you conduct business with your customers.
-                          Business pages with your catalog of products and services are preferred
+                        <Typography variant="caption" color="text.secondary">
+                          {' '}
+                          Help us get to know your businese more by providing atleast one link for either business
+                          website or social media account
+                        </Typography>
+                        <Typography variant="body2" style={{ marginTop: '20px' }}>
+                          Business website or social media
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          Provide the link/s of your website and/ or social media where you conduct business with your
+                          customers. Business pages with your catalog of products and services are preferred
                         </Typography>
                         {/* Website links  */}
                         {linkFieldsData.map((text, index) => (
@@ -658,22 +701,36 @@ export default function KYC() {
                             InputProps={{
                               endAdornment: (
                                 <InputAdornment position="end">
-                                  {index > 0 ? <IconButton>
-                                    <DeleteForeverIcon onClick={() => handleDeleteField(index)} />
-                                  </IconButton> : null}
+                                  {index > 0 ? (
+                                    <IconButton>
+                                      <DeleteForeverIcon onClick={() => handleDeleteField(index)} />
+                                    </IconButton>
+                                  ) : null}
                                 </InputAdornment>
                               ),
                             }}
                           />
                         ))}
-                        {isError.externalLinkAccount && (<ErrorMessage label={isError.externalLinkAccount} />)}
+                        {isError.externalLinkAccount && <ErrorMessage label={isError.externalLinkAccount} />}
 
-                        <Button style={{ color: "#BA61E8", fontSize: '.7rem' }} onClick={handleAddTextField}><AddLinkIcon /> Add another link</Button>
+                        <Button style={{ color: '#BA61E8', fontSize: '.7rem' }} onClick={handleAddTextField}>
+                          <AddLinkIcon /> Add another link
+                        </Button>
 
-                        <Typography variant='body2' style={{ marginTop: '30px' }}> Preferred Business Handle</Typography>
-                        <Typography variant='caption' style={{ color: "#BA61E8" }}> This unique identifier is like a Vortex username for your business. Note that you can't change this in the future.</Typography>
+                        <Typography variant="body2" style={{ marginTop: '30px' }}>
+                          {' '}
+                          Preferred Business Handle
+                        </Typography>
+                        <Typography variant="caption" style={{ color: '#BA61E8' }}>
+                          {' '}
+                          This unique identifier is like a Vortex username for your business. Note that you can't change
+                          this in the future.
+                        </Typography>
                         <Box>
-                          <Typography variant='caption' style={{ color: "#BA61E8" }}> Use letter a - z, numbers 0-9 and dashes(-). No spaces and special character allowed</Typography>
+                          <Typography variant="caption" style={{ color: '#BA61E8' }}>
+                            {' '}
+                            Use letter a - z, numbers 0-9 and dashes(-). No spaces and special character allowed
+                          </Typography>
                           {/* Unique Identifier */}
                           <TextField
                             fullWidth
@@ -685,7 +742,7 @@ export default function KYC() {
                             value={formData.uniqueIdentifier}
                             onChange={handleInputChange}
                           />
-                          {isError.uniqueIdentifier && (<ErrorMessage label={isError.uniqueIdentifier} />)}
+                          {isError.uniqueIdentifier && <ErrorMessage label={isError.uniqueIdentifier} />}
                         </Box>
                       </Container>
                     </div>
@@ -693,23 +750,34 @@ export default function KYC() {
                   {activeStep === 2 && (
                     <div style={{ marginTop: '50px', textAlign: 'start' }}>
                       {/* Step 3: Business Information */}
-                      <Container maxWidth="md" style={{ marginTop: "50px" }}>
+                      <Container maxWidth="md" style={{ marginTop: '50px' }}>
                         <Typography variant="h6">Business Information</Typography>
-                        <Typography variant="caption" color='text.secondary'> Provide more details about your business. We ask questions specific to your business type.</Typography>
-                        <Box style={{
-                          marginTop: "40px",
-                          border: "solid 2px #e0e0e0",
-                          borderRadius: "20px",
-                          padding: "30px"
-                        }}>
+                        <Typography variant="caption" color="text.secondary">
+                          {' '}
+                          Provide more details about your business. We ask questions specific to your business type.
+                        </Typography>
+                        <Box
+                          style={{
+                            marginTop: '40px',
+                            border: 'solid 2px #e0e0e0',
+                            borderRadius: '20px',
+                            padding: '30px',
+                          }}
+                        >
                           <Typography> Choose your type of business</Typography>
-                          <Typography variant="caption" color='text.secondary'> Select appropriately to avoid delays in your application. This will be reviewd by our Onboarding team.</Typography>
-                          <Box style={{
-                            display: 'flex',
-                            gap: '10px',
-                            textAlign: "center",
-                            marginTop: "30px",
-                          }}>
+                          <Typography variant="caption" color="text.secondary">
+                            {' '}
+                            Select appropriately to avoid delays in your application. This will be reviewd by our
+                            Onboarding team.
+                          </Typography>
+                          <Box
+                            style={{
+                              display: 'flex',
+                              gap: '10px',
+                              textAlign: 'center',
+                              marginTop: '30px',
+                            }}
+                          >
                             <Grid container spacing={1}>
                               <Grid item xs={12} md={6}>
                                 <HoverableCard active={isActive1} onClick={() => handleClick('Individual', 1)}>
@@ -725,9 +793,9 @@ export default function KYC() {
                                 </HoverableCard>
                               </Grid>
                               <Grid item xs={12} md={6}>
-                                <HoverableCard active={isActive2} onClick={() => handleClick('Sole Proprietorship', 2)} >
+                                <HoverableCard active={isActive2} onClick={() => handleClick('Sole Proprietorship', 2)}>
                                   <CardContent>
-                                    <AccountBoxIcon style={{ fontSize: "4rem" }} />
+                                    <AccountBoxIcon style={{ fontSize: '4rem' }} />
                                     <Typography variant="h5" component="div">
                                       Sole Proprietorship
                                     </Typography>
@@ -740,12 +808,13 @@ export default function KYC() {
                               <Grid item xs={12} md={6}>
                                 <HoverableCard active={isActive3} onClick={() => handleClick('Partnership', 3)}>
                                   <CardContent>
-                                    <GroupIcon style={{ fontSize: "4rem" }} />
+                                    <GroupIcon style={{ fontSize: '4rem' }} />
                                     <Typography variant="h5" component="div">
                                       Partnership
                                     </Typography>
                                     <Typography color="text.secondary">
-                                      Your businese owner by two or more individuals or partners, and it is registered with the SEC.
+                                      Your businese owner by two or more individuals or partners, and it is registered
+                                      with the SEC.
                                     </Typography>
                                   </CardContent>
                                 </HoverableCard>
@@ -753,7 +822,7 @@ export default function KYC() {
                               <Grid item xs={12} md={6}>
                                 <HoverableCard active={isActive4} onClick={() => handleClick('Corporation', 4)}>
                                   <CardContent>
-                                    <CorporateFareIcon style={{ fontSize: "4rem" }} />
+                                    <CorporateFareIcon style={{ fontSize: '4rem' }} />
                                     <Typography variant="h5" component="div">
                                       Corporation
                                     </Typography>
@@ -771,17 +840,21 @@ export default function KYC() {
                   )}
                   {activeStep === 3 && (
                     <div style={{ marginTop: '50px', textAlign: 'start' }}>
-                      <Container maxWidth="md" style={{ marginTop: "50px" }}>
+                      <Container maxWidth="md" style={{ marginTop: '50px' }}>
                         <Typography variant="h6"> {businessType}- Business Information</Typography>
-                        <Typography variant="caption" color='text.secondary'> Details about your business like bank details, business documents and others</Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {' '}
+                          Details about your business like bank details, business documents and others
+                        </Typography>
                         <div style={{ marginTop: '20px', marginBottom: '20px' }}>
                           <Typography> Upload IDs</Typography>
-                          <Typography variant="caption" color='text.secondary'> Guidlines for uploading IDs</Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {' '}
+                            Guidlines for uploading IDs
+                          </Typography>
                           <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
                             <CheckCircleOutlineIcon style={{ color: 'green', marginRight: '10px' }} />
-                            <Typography variant="body1">
-                              Do not submit expired IDs.
-                            </Typography>
+                            <Typography variant="body1">Do not submit expired IDs.</Typography>
                           </div>
                           <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
                             <CheckCircleOutlineIcon style={{ color: 'green', marginRight: '10px' }} />
@@ -797,8 +870,11 @@ export default function KYC() {
                           </div>
 
                           <div style={{ marginTop: '30px', marginBottom: '30px' }}>
-                            <Typography variant='body2'> Valid Identification Documents</Typography>
-                            <Typography variant='caption' color='text.secondary'> Upload one(1) Primary ID or two(2) Secondary IDs( only if you cannot provide a primary ID)</Typography>
+                            <Typography variant="body2"> Valid Identification Documents</Typography>
+                            <Typography variant="caption" color="text.secondary">
+                              {' '}
+                              Upload one(1) Primary ID or two(2) Secondary IDs( only if you cannot provide a primary ID)
+                            </Typography>
                           </div>
 
                           <HoverableButton {...getRootProps()}>
@@ -818,11 +894,11 @@ export default function KYC() {
                                 Select Image
                               </Button>
                               <Box style={{ color: 'gray', fontSize: '.7rem' }}>
-                                {
-                                  isDragActive ?
-                                    <p>Drop the files here ...</p> :
-                                    <p>Drag 'n' drop some files here, or click to select files</p>
-                                }
+                                {isDragActive ? (
+                                  <p>Drop the files here ...</p>
+                                ) : (
+                                  <p>Drag 'n' drop some files here, or click to select files</p>
+                                )}
                               </Box>
                             </div>
                             {/* </label> */}
@@ -855,18 +931,17 @@ export default function KYC() {
                         <hr />
                         <div style={{ marginTop: '20px' }}>
                           <Typography> Upload Documents </Typography>
-                          <Typography variant="caption" color='text.secondary'> Guidelines for uploading documents</Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {' '}
+                            Guidelines for uploading documents
+                          </Typography>
                           <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
                             <CheckCircleOutlineIcon style={{ color: 'green', marginRight: '10px' }} />
-                            <Typography variant="body1">
-                              The documents must be in clear copies in color.
-                            </Typography>
+                            <Typography variant="body1">The documents must be in clear copies in color.</Typography>
                           </div>
                           <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
                             <CheckCircleOutlineIcon style={{ color: 'green', marginRight: '10px' }} />
-                            <Typography variant="body1">
-                              Make sure the documents have complete pages
-                            </Typography>
+                            <Typography variant="body1">Make sure the documents have complete pages</Typography>
                           </div>
                           <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
                             <CheckCircleOutlineIcon style={{ color: 'green', marginRight: '10px' }} />
@@ -882,7 +957,7 @@ export default function KYC() {
                           </div>
 
                           <div style={{ marginTop: '30px', marginBottom: '30px' }}>
-                            <Typography variant='body2'> DTI Business Name Registration certificate </Typography>
+                            <Typography variant="body2"> DTI Business Name Registration certificate </Typography>
                           </div>
                           <HoverableButton {...getRootProps()}>
                             <div>
@@ -901,11 +976,11 @@ export default function KYC() {
                                 Select Image
                               </Button>
                               <Box style={{ color: 'gray', fontSize: '.7rem' }}>
-                                {
-                                  isDragActive ?
-                                    <p>Drop the files here ...</p> :
-                                    <p>Drag 'n' drop some files here, or click to select files</p>
-                                }
+                                {isDragActive ? (
+                                  <p>Drop the files here ...</p>
+                                ) : (
+                                  <p>Drag 'n' drop some files here, or click to select files</p>
+                                )}
                               </Box>
                             </div>
 
@@ -942,20 +1017,24 @@ export default function KYC() {
                   )}
 
                   <div style={{ marginTop: '40px' }}>
-                    <Button
-                      disabled={activeStep === 0}
-                      onClick={handleBack}
-                      sx={{ mr: 1 }}
-                    >
+                    <Button disabled={activeStep === 0} onClick={handleBack} sx={{ mr: 1 }}>
                       Back
                     </Button>
                     <Button
                       variant="outlined"
                       color="primary"
-                      style={{ color: "white", backgroundColor: "#873EC0" }}
+                      style={{ color: 'white', backgroundColor: '#873EC0' }}
                       onClick={isLastStep ? handleSubmit : handleNext}
                     >
                       {isLastStep ? 'Submit' : 'Next'}
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      color="primary"
+                      onClick={handleOpenRejections}
+                      style={{ position: 'absolute', top: 0, left: 0 }}
+                    >
+                      View Rejections
                     </Button>
                   </div>
                 </form>
@@ -963,25 +1042,67 @@ export default function KYC() {
             )}
             {approvalStatus === 1 && (
               <div style={{ marginTop: '50px', textAlign: 'center', height: '350px' }}>
-                <Container maxWidth="md" style={{ marginTop: "50px" }}>
-                  <img className="mx-auto" src={UnderReview} alt="Under review" style={{ width: "250px", height: "auto", borderRadius: '10px', marginBottom: '10px' }} />
-                  <Typography variant='h5'> Your Files are Successfuly Uploaded And it is Under Review  </Typography>
-                  <Button onClick={handleProceed} style={{ color: "white", backgroundColor: "#873EC0", marginTop: '30px', paddingLeft: '30px', paddingRight: '30px' }}> PROCEED </Button>
+                <Container maxWidth="md" style={{ marginTop: '50px' }}>
+                  <img
+                    className="mx-auto"
+                    src={UnderReview}
+                    alt="Under review"
+                    style={{ width: '250px', height: 'auto', borderRadius: '10px', marginBottom: '10px' }}
+                  />
+                  <Typography variant="h5"> Your Files are Successfuly Uploaded And it is Under Review </Typography>
+                  <Button
+                    onClick={handleProceed}
+                    style={{
+                      color: 'white',
+                      backgroundColor: '#873EC0',
+                      marginTop: '30px',
+                      paddingLeft: '30px',
+                      paddingRight: '30px',
+                    }}
+                  >
+                    {' '}
+                    PROCEED{' '}
+                  </Button>
                 </Container>
               </div>
             )}
             {approvalStatus === 2 && (
               <div style={{ marginTop: '50px', textAlign: 'center', height: '350px' }}>
-                <Container maxWidth="md" style={{ marginTop: "50px" }}>
-                  <img className="mx-auto" src={Approved} alt="Under review" style={{ width: "250px", height: "auto", borderRadius: '10px', marginBottom: '10px' }} />
-                  <Typography variant='h5'> Submitted files are approved  </Typography>
-                  <Button onClick={handleProceed} style={{ color: "white", backgroundColor: "#873EC0", marginTop: '30px', paddingLeft: '30px', paddingRight: '30px' }}> PROCEED </Button>
+                <Container maxWidth="md" style={{ marginTop: '50px' }}>
+                  <img
+                    className="mx-auto"
+                    src={Approved}
+                    alt="Under review"
+                    style={{ width: '250px', height: 'auto', borderRadius: '10px', marginBottom: '10px' }}
+                  />
+                  <Typography variant="h5"> Submitted files are approved </Typography>
+                  <Button
+                    onClick={handleProceed}
+                    style={{
+                      color: 'white',
+                      backgroundColor: '#873EC0',
+                      marginTop: '30px',
+                      paddingLeft: '30px',
+                      paddingRight: '30px',
+                    }}
+                  >
+                    {' '}
+                    PROCEED{' '}
+                  </Button>
                 </Container>
               </div>
             )}
           </Card>
         </Container>
       )}
+
+      <ListDialog
+        open={openListDialog}
+        onClose={handleCloseRejections}
+        title="KYC Rejection Reasons"
+        list={rejectionList}
+        itemKey="date"
+      />
     </>
   );
 }
