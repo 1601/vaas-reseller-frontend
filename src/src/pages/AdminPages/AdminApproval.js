@@ -2,7 +2,21 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import SecureLS from 'secure-ls';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Card, Typography, Button, Grid, Box, CircularProgress } from '@mui/material';
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  TextField,
+  Card,
+  Typography,
+  Button,
+  Grid,
+  Box,
+  CircularProgress,
+} from '@mui/material';
+import ConfirmationDialog from '../../components/admin/ConfirmationDialog';
 
 const ls = new SecureLS({ encodingType: 'aes' });
 
@@ -13,6 +27,9 @@ const AdminApproval = () => {
   const [ownerId, setOwnerId] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [remarks, setRemarks] = useState('');
+  const [action, setAction] = useState('');
 
   const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
 
@@ -41,10 +58,11 @@ const AdminApproval = () => {
   }, [storeId, navigate, BACKEND_URL]);
 
   const handleApprovalChange = async (isApproved) => {
+
     try {
       const token = ls.get('token');
       const response = await axios.put(
-        `${BACKEND_URL}/v1/api/stores/${isApproved ? 'approve' : 'unapprove'}/${storeId}`,
+        `${BACKEND_URL}/v1/api/stores/approve/${storeId}`,
         {},
         {
           headers: {
@@ -55,11 +73,49 @@ const AdminApproval = () => {
       if (response.status === 200) {
         setStoreDetails((prevStoreDetails) => ({
           ...prevStoreDetails,
-          needsApproval: !isApproved,
-          isApproved,
+          needsApproval: false,
+          isApproved: true,
         }));
       }
     } catch (error) {
+      setError('Could not update approval status');
+    }
+  };
+
+  const handleReject = () => {
+    setAction('unapproved');
+    setShowConfirmation(true);
+  };
+
+  const handleConfirmationClose = () => {
+    setShowConfirmation(false);
+    setRemarks('');
+  };
+
+  const handleSubmitConfirmation = async () => {
+    try {
+      const token = ls.get('token');
+      const response = await axios.put(
+        `${BACKEND_URL}/v1/api/stores/unapprove/${storeId}`,
+        {
+          remarks,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.status === 200) {
+        setStoreDetails((prevStoreDetails) => ({
+          ...prevStoreDetails,
+          needsApproval: true,
+          isApproved: false,
+        }));
+      }
+      handleConfirmationClose();
+    } catch (error) {
+      console.error('Error updating store status: ', error);
       setError('Could not update approval status');
     }
   };
@@ -123,14 +179,24 @@ const AdminApproval = () => {
                 </Typography>
                 <div style={{ position: 'absolute', top: '20px', right: '20px' }}>
                   {storeDetails && storeDetails.needsApproval && !storeDetails.isLive && (
-                    <Button
-                      onClick={handleApprovalChange}
-                      variant="outlined"
-                      color="primary"
-                      style={{ marginRight: '8px' }}
-                    >
-                      Approve
-                    </Button>
+                    <>
+                      <Button
+                        onClick={() => handleApprovalChange(true)}
+                        variant="outlined"
+                        color="primary"
+                        style={{ marginRight: '8px' }}
+                      >
+                        Approve
+                      </Button>
+                      <Button
+                        onClick={handleReject}
+                        variant="outlined"
+                        color="secondary"
+                        style={{ marginRight: '8px' }}
+                      >
+                        Reject
+                      </Button>
+                    </>
                   )}
                   {storeDetails &&
                     storeDetails.isApproved &&
@@ -285,6 +351,16 @@ const AdminApproval = () => {
             </div>
           </Card>
         </div>
+
+        <ConfirmationDialog
+          open={showConfirmation}
+          onClose={handleConfirmationClose}
+          onSubmit={handleSubmitConfirmation}
+          title="Reason for Rejection"
+          contentText="Please provide a reason for rejection:"
+          remarks={remarks}
+          setRemarks={setRemarks}
+        />
       </div>
     </div>
   );
