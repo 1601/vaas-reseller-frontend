@@ -91,17 +91,15 @@ const AdminWalletApproval = ({ selectedWallet, onBack }) => {
     const data = {
       paymentStatus: status,
       ...(status === 'VERIFIED' && { computedAmount: adjustedAmount }),
-      remarks, // Using shorthand here
+      remarks, 
       action: confirmationAction,
     };
     
-  
     try {
       console.log('Updating wallet request...', data)
       const response = await axios.put(url, data);
       console.log(response.data);
       handleConfirmationClose();
-      // Optionally, refresh the wallet requests list or navigate back
       onBack();
     } catch (error) {
       console.error('Error updating wallet request: ', error);
