@@ -205,7 +205,6 @@ const WalletPayouts = () => {
       startDate: new Date(),
       endDate: new Date(),
     });
-    setDateFilteredWalletRequests(filteredWalletRequests);
   }
 
   const handleReplenishChange = (event) => {
@@ -262,7 +261,7 @@ const createWalletRequest = async() => {
     const maxRows = 5000;
     const requestKey = ['dateCreated', 'referenceNo', 'currency', 'amount', 'paymentStatus', 'paymentMethod'];
     const headers = ['Date Created', 'Transaction', 'Currency', 'Amount', 'Payment Status', 'Payment Method']
-    const tableData = [headers, ...walletRequests.slice(0, maxRows).map(row => requestKey.map(key => row[key]))];
+    const tableData = [headers, ...dateFilteredWalletRequests.slice(0, maxRows).map(row => requestKey.map(key => row[key]))];
 
     // Create a new workbook and worksheet
     const workbook = XLSX.utils.book_new();
@@ -301,7 +300,6 @@ const uploadBankSlipImage = async (walletRequestId) => {
 
   const handleFilterChange = (event, newValue) => {
     const foundWalletRequests = [];
-    const searchColumn = [];
     const searchCriteria = {
       paymentStatus: [],
       referenceNo: [],
@@ -312,10 +310,9 @@ const uploadBankSlipImage = async (walletRequestId) => {
     };
 
     if(newValue.length !== 0){
-
       // let searchCategory = [];
       newValue.forEach(value => {
-          const results = walletRequests.filter(obj => {
+          const results = dateFilteredWalletRequests.filter(obj => {
             const jsonValues = Object.values(obj);
             return jsonValues.some(jsonValue => jsonValue === value);
           }).map(obj => {
@@ -327,7 +324,7 @@ const uploadBankSlipImage = async (walletRequestId) => {
 
       });
 
-      foundWalletRequests.push(...walletRequests.filter(obj => {
+      foundWalletRequests.push(...dateFilteredWalletRequests.filter(obj => {
         const flattenedObj = flattenObject(obj);
         return Object.entries(searchCriteria).every(([key, value]) => {
           if (value.length !== 0) {
@@ -338,10 +335,7 @@ const uploadBankSlipImage = async (walletRequestId) => {
       }));
     }
 
-    setFilteredWalletRequests(newValue.length !== 0 ? foundWalletRequests : walletRequests);
-    if(dateFilteredWalletRequests.length !== 0){
-      setDateFilteredWalletRequests(newValue.length !== 0 ? foundWalletRequests : walletRequests)
-    }
+    setFilteredWalletRequests(newValue.length !== 0 ? foundWalletRequests : dateFilteredWalletRequests);
   };
 
 
@@ -357,14 +351,14 @@ const uploadBankSlipImage = async (walletRequestId) => {
 
   useEffect(() => {
     if (sortBy === 'createdBy desc') {
-      const sortedData = [...dateFilteredWalletRequests].sort((a, b) => b.dateCreated.localeCompare(a.dateCreated));
-      setDateFilteredWalletRequests(sortedData);
+      const sortedData = [...filteredWalletRequests].sort((a, b) => b.dateCreated.localeCompare(a.dateCreated));
+      setFilteredWalletRequests(sortedData);
     }
     if (sortBy === 'createdBy asc') {
-      const sortedData = [...dateFilteredWalletRequests].sort((a, b) => a.dateCreated.localeCompare(b.dateCreated));
-      setDateFilteredWalletRequests(sortedData);
+      const sortedData = [...filteredWalletRequests].sort((a, b) => a.dateCreated.localeCompare(b.dateCreated));
+      setFilteredWalletRequests(sortedData);
     }
-  }, [sortBy, dateFilteredWalletRequests]);
+  }, [sortBy, filteredWalletRequests]);
 
   const tableKeys = ['paymentStatus', 'referenceNo', 'currency', 'amount', 'accountEmail', 'paymentMethod'];
 
@@ -377,18 +371,17 @@ const uploadBankSlipImage = async (walletRequestId) => {
   };
 
   useEffect(() => {
-    setFilteredWalletRequests(walletRequests);
+    setFilteredWalletRequests(dateFilteredWalletRequests);
 
-    const flattenedValues = [...new Set(walletRequests.flatMap(flattenObject))];
+    const flattenedValues = [...new Set(dateFilteredWalletRequests.flatMap(flattenObject))];
     setFlattenedWalletRequests(flattenedValues);
 
-  }, [walletRequests]);
+  }, [dateFilteredWalletRequests]);
 
   useEffect(() => {
 
-    if(dateRange.startDate !== '' && dateRange.endDate !== ''){
       if(dateFilteredWalletRequests.length === 0){
-        setDateFilteredWalletRequests(filteredWalletRequests.filter((item) => {
+        setDateFilteredWalletRequests(walletRequests.filter((item) => {
           const date = new Date(item.dateCreated);
           const startDate = new Date(dateRange.startDate);
           const endDate = new Date(dateRange.endDate);
@@ -406,11 +399,8 @@ const uploadBankSlipImage = async (walletRequestId) => {
               (!endDate || date <= endDate)
           )}));
       }
-    }else{
-      setDateFilteredWalletRequests(filteredWalletRequests)
-    }
 
-  }, [dateRange, filteredWalletRequests]);
+  }, [dateRange, walletRequests]);
 
   useEffect(() => {
     const storedUser = ls.get('user');
@@ -794,7 +784,8 @@ const uploadBankSlipImage = async (walletRequestId) => {
                   multiple
                   id="tags-filled"
                   freeSolo
-                  options={flattenedWalletRequests}
+                  options={flattenedWalletRequests || ""}
+                  getOptionLabel={(option) => (option || "")}
                   onChange={handleFilterChange}
                   renderTags={(value, getTagProps) =>
                       value.map((option, index) => (
@@ -836,7 +827,7 @@ const uploadBankSlipImage = async (walletRequestId) => {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {dateFilteredWalletRequests.map((request) => (
+                    {filteredWalletRequests.map((request) => (
                         <TableRow
                             key={request._id}
                             sx={{'&:hover': {cursor: 'pointer', backgroundColor: 'rgba(0, 0, 0, 0.04)'}}}
