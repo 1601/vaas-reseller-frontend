@@ -3,6 +3,7 @@ import axios from 'axios';
 import SecureLS from 'secure-ls';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, Typography, Button, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
+import ConfirmationDialog from '../../components/admin/ConfirmationDialog';
 
 const ls = new SecureLS({ encodingType: 'aes' });
 
@@ -11,6 +12,8 @@ const AdminKYCApproval = () => {
   const navigate = useNavigate();
   const [kycDetails, setKYCDetails] = useState(null);
   const [kycApproved, setKYCApproved] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [remarks, setRemarks] = useState('');
 
   useEffect(() => {
     const fetchKYCDetails = async () => {
@@ -58,18 +61,19 @@ const AdminKYCApproval = () => {
     }
   };
 
-  const handleReject = async () => {
+  const handleReject = () => {
+    setShowConfirmation(true);
+  };
+
+  const handleConfirmReject = async () => {
     try {
       const token = ls.get('token');
       await axios.put(
         `${process.env.REACT_APP_BACKEND_URL}/v1/api/kyc/reject/${storeId}`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        { reason: remarks },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
+      setShowConfirmation(false);
       setKYCApproved(false);
     } catch (error) {
       console.error('Error rejecting KYC:', error);
@@ -77,57 +81,78 @@ const AdminKYCApproval = () => {
   };
 
   return (
-    <div className="flex flex-col mt-4">
-      <div className="flex-grow flex flex-col justify-center items-center transition-all duration-500 ease-in-out ml-0">
-        {kycDetails ? (
-          <div className="mb-4 w-full">
-            <Card variant="outlined" style={{ padding: '20px', marginBottom: '20px' }}>
-              <div
-                style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}
-              >
-                <Typography variant="h4" gutterBottom>
-                  KYC Details
-                </Typography>
-                <div style={{ position: 'absolute', top: '20px', right: '20px' }}>
-                  {kycApproved === 1 && (
-                    <>
-                      <Button onClick={handleApprove} variant="outlined" color="primary" style={{ marginRight: '5px' }}>
-                        Approve
-                      </Button>
-                      <Button
-                        onClick={handleReject}
-                        variant="outlined"
-                        color="secondary"
-                        style={{ marginRight: '5px' }}
-                      >
-                        Reject
-                      </Button>
-                    </>
-                  )}
-                  <Button
-                    variant="outlined"
-                    color="primary"
-                    onClick={() => navigate(`/dashboard/admin/storeapproval/${storeId}`)}
-                    style={{ marginRight: '5px' }}
-                  >
-                    Dealer Store
-                  </Button>
-                  <Button onClick={handleGoBack} variant="outlined" color="primary">
-                    Go Back
-                  </Button>
+    <>
+      <div className="flex flex-col mt-4">
+        <div className="flex-grow flex flex-col justify-center items-center transition-all duration-500 ease-in-out ml-0">
+          {kycDetails ? (
+            <div className="mb-4 w-full">
+              <Card variant="outlined" style={{ padding: '20px', marginBottom: '20px' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: '20px',
+                  }}
+                >
+                  <Typography variant="h4" gutterBottom>
+                    KYC Details
+                  </Typography>
+                  <div style={{ position: 'absolute', top: '20px', right: '20px' }}>
+                    {kycApproved === 1 && (
+                      <>
+                        <Button
+                          onClick={handleApprove}
+                          variant="outlined"
+                          color="primary"
+                          style={{ marginRight: '5px' }}
+                        >
+                          Approve
+                        </Button>
+                        <Button
+                          onClick={handleReject}
+                          variant="outlined"
+                          color="secondary"
+                          style={{ marginRight: '5px' }}
+                        >
+                          Reject
+                        </Button>
+                      </>
+                    )}
+                    <Button
+                      variant="outlined"
+                      color="primary"
+                      onClick={() => navigate(`/dashboard/admin/storeapproval/${storeId}`)}
+                      style={{ marginRight: '5px' }}
+                    >
+                      Dealer Store
+                    </Button>
+                    <Button onClick={handleGoBack} variant="outlined" color="primary">
+                      Go Back
+                    </Button>
+                  </div>
                 </div>
-              </div>
-              <div>
-                {/* Display KYC details from kycDetails object */}
-                <DisplayKYCDetails kycDetails={kycDetails} />
-              </div>
-            </Card>
-          </div>
-        ) : (
-          <p>Loading KYC details...</p>
-        )}
+                <div>
+                  {/* Display KYC details from kycDetails object */}
+                  <DisplayKYCDetails kycDetails={kycDetails} />
+                </div>
+              </Card>
+            </div>
+          ) : (
+            <p>Loading KYC details...</p>
+          )}
+        </div>
       </div>
-    </div>
+      <ConfirmationDialog
+        open={showConfirmation}
+        onClose={() => setShowConfirmation(false)}
+        onSubmit={handleConfirmReject}
+        title="Reason for KYC Rejection"
+        contentText="Please provide a reason for rejecting the KYC application:"
+        remarks={remarks}
+        setRemarks={setRemarks}
+      />
+    </>
   );
 };
 
