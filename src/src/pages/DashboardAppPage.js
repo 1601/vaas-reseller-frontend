@@ -1,6 +1,7 @@
 import { Helmet } from 'react-helmet-async';
 import { faker } from '@faker-js/faker';
 import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import SecureLS from 'secure-ls';
@@ -34,6 +35,7 @@ export default function DashboardAppPage() {
   const [kycApprove, setKycApprove] = useState(null);
   const [daysLeft, setDaysLeft] = useState(null);
   const [displayMessage, setDisplayMessage] = useState('');
+  const [walletDetails, setWalletDetails] = useState({ accountBalance: 0, testBalance: 0, currency: '' });
 
   const ls = new SecureLS({ encodingType: 'aes' });
 
@@ -70,6 +72,21 @@ export default function DashboardAppPage() {
       }
 
       navigate('/login', { replace: true });
+    }
+    const storedUser = ls.get('user');
+    if (storedUser && storedUser._id) {
+      axios
+          .get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/wallet/details/${storedUser._id}`)
+          .then((response) => {
+            setWalletDetails({
+              accountBalance: response.data.body[0].accountBalance,
+              testBalance: response.data.body[0].testBalance,
+              currency: response.data.body[0].currency,
+            });
+          })
+          .catch((error) => {
+            console.error('Error fetching user data: ', error);
+          });
     }
   }, [userData, navigate, userId]);
 
@@ -217,6 +234,13 @@ export default function DashboardAppPage() {
               <Typography variant="h4" sx={{ mb: 5 }}>
                 {userData && userData.firstName ? `Hi ${userData.firstName}, welcome back` : 'Hi, Welcome back'}
               </Typography>
+              <Card sx={{ mb: 5, textAlign: 'center', backgroundColor: 'skyblue', width: '40%'}}>
+                <CardContent>
+                  <Typography variant="h6" color="primary">
+                    Wallet Balance: ${walletDetails.accountBalance}
+                  </Typography>
+                </CardContent>
+              </Card>
               {trialMessageCard}
               {verificationCard}
               <Grid container spacing={3}>
