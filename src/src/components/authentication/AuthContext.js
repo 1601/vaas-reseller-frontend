@@ -13,8 +13,15 @@ export const AuthProvider = ({ children }) => {
   const [tokenExpired, setTokenExpired] = useState(false);
   const [newLoginDialogOpen, setNewLoginDialogOpen] = useState(false);
   const [tokenExpiredDialogOpen, setTokenExpiredDialogOpen] = useState(false);
+  let isCheckingTokenExpiration = false;
+  let intervalId;
 
   const checkTokenExpiration = async () => {
+    if (isCheckingTokenExpiration) {
+      return; // Exit the function to prevent infinite loop
+    }
+
+    isCheckingTokenExpiration = true;
     const storedToken = ls.get('token');
     if (storedToken) {
       try {
@@ -22,6 +29,7 @@ export const AuthProvider = ({ children }) => {
         if (decodedToken.exp * 1000 < Date.now()) {
           setTokenExpired(true);
           setTokenExpiredDialogOpen(true);
+          clearInterval(intervalId);
         } else {
           const isValid = await axios.post(
             `${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/verify-token`,
@@ -31,21 +39,23 @@ export const AuthProvider = ({ children }) => {
           if (!isValid.data.isValid) {
             setTokenExpired(true);
             setTokenExpiredDialogOpen(true);
+            clearInterval(intervalId);
           } else {
             setUser(ls.get('user'));
             setTokenExpired(false);
           }
         }
+        isCheckingTokenExpiration = false;
       } catch (error) {
         console.error('Error checking token validity:', error);
         setTokenExpired(true);
         setTokenExpiredDialogOpen(true);
+        isCheckingTokenExpiration = false;
       }
     }
   };
 
   useEffect(() => {
-    let intervalId;
     if (!newLoginDialogOpen && !tokenExpiredDialogOpen) {
       intervalId = setInterval(checkTokenExpiration, 60000);
     }
@@ -64,7 +74,7 @@ export const AuthProvider = ({ children }) => {
         const status = error.response.status;
   
         if ([400, 402, 403, 404].includes(status)) {
-          await checkTokenExpiration(); 
+          await checkTokenExpiration();
         }
         
         if (status === 401) {
