@@ -786,7 +786,7 @@ const WalletPayouts = () => {
                 </Box>
               </Card>
             </div>
-            <div>
+            <div className={"flex"}>
               <Autocomplete
                   className="w-4/5"
                   multiple
