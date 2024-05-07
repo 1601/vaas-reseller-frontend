@@ -1,0 +1,16 @@
+{
+    "name": "frontend-dev-environment",
+    "version": "1.0.0",
+    "scripts": {
+        "prepare": "husky install && npx husky add .husky/pre-commit \"cd src && npm run cy:run\"",
+        "postinstall": "npm run install-src && npm run postinstall-message",
+        "install-src": "cd src && npm install",
+        "postinstall-message": "echo 'Reminder: Please check and update the .env file in the src folder if necessary.'",
+        "start": "cd src && npm start",
+        "test": "cd src && npm run cy:run",
+        "precommit": "cd src && npm run cy:run"
+    },
+    "devDependencies": {
+        "husky": "^8.0.0"
+    }
+}

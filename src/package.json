@@ -7,7 +7,6 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
     "eject": "react-scripts eject",
     "lint": "eslint --ext .js,.jsx ./src",
     "lint:fix": "eslint --fix --ext .js,.jsx ./src",
@@ -15,7 +14,9 @@
     "re-start": "rm -rf build node_modules && npm install && npm start",
     "re-start-windows": "rd /s /q node_modules && npm install && npm start",
     "re-build-windows": "rd /s /q node_modules && npm install && npm run build",
-    "re-build": "rm -rf node_modules && npm install && npm run build"
+    "re-build": "rm -rf node_modules && npm install && npm run build",
+    "cy:open": "concurrently \"npm start\" \"cypress open\"",
+    "cy:run": "concurrently \"npm start\" \"node delay.js 10000 && cypress run\""
   },
   "eslintConfig": {
     "extends": [
@@ -88,6 +89,8 @@
   "devDependencies": {
     "@babel/core": "^7.21.0",
     "@babel/eslint-parser": "^7.19.1",
+    "concurrently": "^8.2.2",
+    "cypress": "^13.8.1",
     "eslint": "^8.34.0",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-prettier": "^8.6.0",
