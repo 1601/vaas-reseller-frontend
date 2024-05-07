@@ -338,6 +338,7 @@ const ProfileSettings = () => {
         },
         body: JSON.stringify({
           username: formState.username,
+          email: formState.email,
           firstName: formState.firstName,
           lastName: formState.lastName,
           middleName: formState.middleName,
@@ -575,7 +576,7 @@ const ProfileSettings = () => {
                           variant="outlined"
                           label="Designation"
                           sx={{ mb: 2 }}
-                          value={userData.designation}
+                          value={editMode ? formState.designation : userData.designation}
                           disabled={!editMode}
                         />
 
@@ -660,7 +661,7 @@ const ProfileSettings = () => {
                         <TextField
                           label="Email"
                           name="email"
-                          value={userData.email}
+                          value={editMode ? formState.email : userData.email}
                           onChange={handleInputChange}
                           fullWidth
                           sx={{ mb: 2, mt: 2 }}
