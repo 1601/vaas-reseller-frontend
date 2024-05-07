@@ -1229,8 +1229,25 @@ export default function SignUpPage() {
                         <Link component="button" onClick={openTermsDialog} sx={{ pl: 1, fontSize: { xs: '.9rem' } }}>
                           Terms and Conditions
                         </Link>
+                        ,
+                        <Link component="button" onClick={openTermsDialog} sx={{ pl: 1, fontSize: { xs: '.9rem' } }}>
+                          Privacy Policy
+                        </Link>
+                        , and
+                        <Link component="button" onClick={openTermsDialog} sx={{ pl: 1, fontSize: { xs: '.9rem' } }}>
+                          Cookie Policy
+                        </Link>
                       </>
                     }
+                  />
+
+                  <FormControlLabel
+                      control={<Checkbox checked={"true"} />}
+                      label={
+                        <>
+                          I agree to subscribe to the company's latest marketing promotion
+                        </>
+                      }
                   />
 
                   <Divider sx={{ my: 3 }}>
