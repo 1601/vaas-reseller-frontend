@@ -16,4 +16,25 @@ describe('Landing Page Tests', () => {
     cy.url().should('include', '/signup');
     cy.get('input[name="email"]').should('have.value', 'user@example.com');
   });
+
+  it('Check Login button redirection', () => {
+    cy.contains('Log in').click();
+    cy.url().should('include', '/login');
+    cy.get('input[name="email"]').should('be.visible')
+    cy.get('input[name="password"]').should('be.visible')
+    cy.contains('button', 'Login').should('be.visible');
+  });
+
+  it('Check Sign up button redirection', () => {
+    cy.contains('Create Shop').click();
+    cy.url().should('include', '/signup');
+    cy.get('input[name="firstName"]').should('exist')
+    cy.get('input[name="middleName"]').should('exist')
+    cy.get('input[name="lastName"]').should('exist')
+    cy.get('input[name="mobileNumber"]').should('exist')
+    cy.get('input[name="username"]').should('exist')
+    cy.get('input[name="password"]').should('exist')
+    cy.get('input[name="confirmPassword"]').should('exist')
+    cy.contains('h6', 'Sign Up').should('exist');
+  });
 });
