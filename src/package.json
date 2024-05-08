@@ -91,6 +91,7 @@
     "@babel/eslint-parser": "^7.19.1",
     "concurrently": "^8.2.2",
     "cypress": "^13.8.1",
+    "cypress-mailslurp": "^1.10.0",
     "eslint": "^8.34.0",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-prettier": "^8.6.0",

@@ -113,6 +113,7 @@ function TermsDialog({ open, onClose, onAgree }) {
             maxHeight: 400,
             whiteSpace: 'pre-line',
           }}
+          className={"termsScroll"}
           onScroll={handleScroll}
         >
           <p>{termsAndAgreement}</p>
@@ -233,7 +234,6 @@ export default function SignUpPage() {
     firstName: '',
     middleName: '',
     lastName: '',
-    designation: '',
     email,
     mobileNumber: undefined,
     country: '',
@@ -271,7 +271,6 @@ export default function SignUpPage() {
     firstName: false,
     middleName: false,
     lastName: false,
-    designation: false,
     email: false,
     mobileNumber: false,
     country: false,
@@ -511,7 +510,7 @@ export default function SignUpPage() {
     setFormData((prevFormData) => ({
       ...prevFormData,
       email: newEmail,
-      username: newEmail,
+      username: newEmail.slice(0, newEmail.indexOf('@')),
     }));
 
     validateEmailAndCheckExistence(newEmail);
@@ -543,7 +542,6 @@ export default function SignUpPage() {
       firstName: !formData.firstName?.trim() || !validateName(formData.firstName),
       middleName: formData.middleName && !validateName(formData.middleName),
       lastName: !formData.lastName?.trim() || !validateName(formData.lastName),
-      designation: !formData.designation?.trim(),
       email: !formData.email?.trim(),
       mobileNumber: !formData.mobileNumber?.replace(countryCodes[formData.country] || '', '').trim(),
       country: !formData.country?.trim(),
@@ -707,11 +705,12 @@ export default function SignUpPage() {
     const externalIpAddCur = async () => {
       const ipResult = await axios.get('https://api64.ipify.org?format=text');
       const currencyResult = await axios.get(`https://ipapi.co/${ipResult.data}/currency/`);
-
+      const countryIpResult = await axios.get(`http://ip-api.com/json/${ipResult.data}`);
       setFormData({
         ...formData,
         ipAddress: ipResult.data,
         currency: currencyResult.data,
+        country: countryIpResult.data.country
       });
 
       setInitialCurrency(currencyResult.data);
@@ -937,26 +936,6 @@ export default function SignUpPage() {
                           />
                         </Grid>
                         <Grid item xs={12} sm={12} md={12}>
-                          <FormControl fullWidth variant="outlined" error={fieldErrors.designation}>
-                            <InputLabel id="designation-label" error={fieldErrors.designation}>
-                              Designation
-                            </InputLabel>
-                            <Select
-                              error={fieldErrors.designation}
-                              labelId="designation-label"
-                              label="Designation"
-                              name="designation"
-                              value={formData.designation}
-                              onChange={handleInputChange}
-                            >
-                              <MenuItem value={'Mr.'}>Mr.</MenuItem>
-                              <MenuItem value={'Ms.'}>Ms.</MenuItem>
-                              <MenuItem value={'Mrs.'}>Mrs.</MenuItem>
-                            </Select>
-                            {fieldErrors.designation && <FormHelperText error>Designation is required</FormHelperText>}
-                          </FormControl>
-                        </Grid>
-                        <Grid item xs={12} sm={12} md={12}>
                           <Autocomplete
                             error={fieldErrors.country}
                             fullWidth
@@ -974,6 +953,7 @@ export default function SignUpPage() {
                                 helperText={fieldErrors.country && 'Country is required'}
                               />
                             )}
+                            disabled
                           />
                         </Grid>
                       </Grid>
@@ -1208,6 +1188,7 @@ export default function SignUpPage() {
                     fullWidth
                     size="large"
                     variant="outlined"
+                    name={"signup"}
                     onClick={handleSignup}
                     disabled={!isFormValid || !isTermsAccepted || !isEmailValid || mobileError || passwordError}
                     sx={{
@@ -1222,30 +1203,40 @@ export default function SignUpPage() {
 
                   {/* Accept Terms and Conditions */}
                   <FormControlLabel
-                    control={<Checkbox checked={isTermsAccepted} onChange={() => openTermsDialog(false, false)} />}
+                    control={<Checkbox name={"termsCheck"} checked={isTermsAccepted} onChange={() => openTermsDialog(false, false)} />}
                     label={
                       <>
                         I agree to the
                         <Link component="button" onClick={openTermsDialog} sx={{ pl: 1, fontSize: { xs: '.9rem' } }}>
                           Terms and Conditions
                         </Link>
-                        ,
-                        <Link component="button" onClick={openTermsDialog} sx={{ pl: 1, fontSize: { xs: '.9rem' } }}>
-                          Privacy Policy
-                        </Link>
-                        , and
-                        <Link component="button" onClick={openTermsDialog} sx={{ pl: 1, fontSize: { xs: '.9rem' } }}>
-                          Cookie Policy
-                        </Link>
+                         of the company
                       </>
                     }
                   />
 
                   <FormControlLabel
-                      control={<Checkbox checked={"true"} />}
+                      control={<Checkbox checked={isTermsAccepted} disabled/>}
                       label={
                         <>
-                          I agree to subscribe to the company's latest marketing promotion
+                          I agree to the
+                          <Link component="button" onClick={openTermsDialog} sx={{ pl: 1, fontSize: { xs: '.9rem' } }}>
+                            Privacy Policy
+                          </Link>
+                           of the company
+                        </>
+                      }
+                  />
+
+                  <FormControlLabel
+                      control={<Checkbox checked={isTermsAccepted} disabled/>}
+                      label={
+                        <>
+                          I agree to the
+                          <Link component="button" onClick={openTermsDialog} sx={{ pl: 1, fontSize: { xs: '.9rem' } }}>
+                            Cookie Policy
+                          </Link>
+                          of the company
                         </>
                       }
                   />
