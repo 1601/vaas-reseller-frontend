@@ -66,6 +66,7 @@ export default function AccountPopover() {
       </IconButton>
 
       <Popover
+        className={'accountPopover'}
         open={Boolean(open)}
         anchorEl={open}
         onClose={handleClose}

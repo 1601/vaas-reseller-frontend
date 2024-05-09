@@ -1,7 +1,7 @@
 describe('Landing Page Tests', () => {
   beforeEach(() => {
     // Runs before each test in the block
-    cy.visit('http://localhost:3000'); // Adjust if your local development URL is different
+    cy.visit(`${Cypress.env('REACT_CYPRESS_TEST_URL')}`); // Adjust if your local development URL is different
   });
 
   it('Checks for the presence of Login and Create Shop links, and email input field', () => {

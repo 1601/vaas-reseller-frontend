@@ -1,19 +1,12 @@
 describe('Sign Up Page Tests', () => {
-    // const now = new Date().getTime();
-    // const unixTimestamp = Math.floor(now / 1000);
-    // const tempEmail = `testuser${unixTimestamp}@example.com`;
+    const now = new Date().getTime();
+    const unixTimestamp = Math.floor(now / 1000);
+    const tempEmail = `testuser${unixTimestamp}@example.com`;
 
     beforeEach(() => {
         // Runs before each test in the block
-        cy.visit('http://localhost:3000/signup'); // Adjust if your local development URL is different
+        cy.visit(`${Cypress.env('REACT_CYPRESS_TEST_URL')}/signup`); // Adjust if your local development URL is different
     });
-
-    // it('create test email', () => {
-    //     cy.visit('https://yopmail.com/en/');
-    //     cy.get('input[class="ycptinput"]').type(tempEmail.slice(0,tempEmail.indexOf('@')));
-    //     cy.get('button[title="Check Inbox @yopmail.com"]').click();
-    //     cy.contains('.bname', 'tempEmail').should('be.visible');
-    // })
 
     it('Check sign up elements are visible', () => {
         cy.url().should('include', '/signup');
@@ -27,31 +20,80 @@ describe('Sign Up Page Tests', () => {
         cy.get('input[name="confirmPassword"]').should('exist');
     })
 
-    // todo sign up unit test
-    // it('Check sign up functionality', () => {
-    //     cy.get('input[name="firstName"]').type('test');
-    //     cy.get('input[name="middleName"]').type('testing');
-    //     cy.get('input[name="lastName"]').type('tester');
-    //     cy.get('input[name="email"]').type(tempEmail);
-    //     cy.get('input[name="mobileNumber"]').type('9513217169');
-    //     cy.get('input[name="password"]').type('Tonyspark@71');
-    //     cy.get('input[name="confirmPassword"]').type('Tonyspark@71');
-    //     cy.get('input[name="termsCheck"]').click();
-    //     cy.get('.termsScroll').scrollTo('bottom'); // Scroll 'sidebar' to its bottom
-    //     cy.contains('button', 'Agree to Terms').click();
-    //     cy.request(`https://api.temp-mail.org/request/mail/id/${encodeURIComponent(tempEmail)}`)
-    //     .its('body')
-    //     .then((body) => {
-    //         console.log(body);
-    //         const otp = body.match(/OTP: (\d+)/)[1]; // Regex to extract OTP
-    //         cy.get('#otp').type(otp);
-    //         cy.get('#verify').click();
-    //     });
-    //     cy.get('button[name="signup"]').click().wait(15000);
-    // })
+    it('Check sign up functionality', () => {
+        const isTestEnv = Cypress.env('IS_TEST_ENV');
+
+        if (isTestEnv) {
+            // Mock the OTP verification API in test environment
+            cy.intercept('POST', '**/verify', {
+                statusCode: 200,
+                body: { success: true },
+            }).as('mockOtp');
+        }
+
+        cy.wait(3000);
+        cy.get('[name="firstName"]').type('test');
+        cy.get('[name="lastName"]').type('tester');
+        cy.get('input[name="email"]').type(tempEmail);
+        cy.get('input[name="mobileNumber"]').type('9513217169');
+        cy.get('input[name="password"]').type('Tonyspark@71');
+        cy.get('input[name="confirmPassword"]').type('Tonyspark@71');
+        cy.get('input[name="termsCheck"]').click();
+        cy.get('.termsScroll').scrollTo('bottom'); // Scroll 'sidebar' to its bottom
+        cy.contains('button', 'Agree to Terms').click();
+        cy.get('button[name="signup"]').click();
+        cy.contains('Signing up...').should('be.visible');
+        cy.contains('Successful Sign-Up!').should('be.visible');
+        cy.wait(3000);
+        cy.get('[name="inputVerifyCode"]').type('123456');
+        cy.contains('Verify').click();
+        cy.contains('Success').should('be.visible');
+        cy.url().should('include', '/login');
+        cy.get('input[name="email"]').type(tempEmail);
+        cy.get('input[name="password"]').type('Tonyspark@71');
+        cy.contains('button', 'Login').click();
+        cy.url().should('include', '/dashboard/app');
+    })
+
+    it('Test Google Sign up', () => {
+        cy.contains('button p','Sign Up with Google').click();
+        cy.get('.termsScroll').scrollTo('bottom'); // Scroll 'sidebar' to its bottom
+        cy.contains('button', 'Agree to Terms').click();
+        cy.origin('https://accounts.google.com', () => {
+            cy.url().should('include', '/signin');
+        })
+    })
+
+    it('Test Login redirection', () => {
+        cy.contains('Login').click();
+        cy.url().should('include', '/login');
+        cy.contains('h6', 'Login').should('be.visible');
+    })
 
     // it('', () => {
     //
+    // })
+
+    // todo sign up unit test with working generated email
+    // it('Check sign up functionality', () => {
+    //     cy.mailslurp({apiKey: '2959d35a56fe2a37c56023b4f80ff31d2a7297a78c8b057de04db6c713988826'}).then((mailslurp) => {
+    //         // create an email address and store it on this
+    //         cy.then(() => mailslurp.createInbox())
+    //             .then((inbox) => {
+    //                 // save inbox id and email address to this
+    //                 cy.wait(5000);
+    //                 cy.get('[name="firstName"]').type('test');
+    //                 cy.get('[name="lastName"]').type('tester');
+    //                 cy.get('input[name="email"]').type(inbox.emailAddress);
+    //                 cy.get('input[name="mobileNumber"]').type('9513217169');
+    //                 cy.get('input[name="password"]').type('Tonyspark@71');
+    //                 cy.get('input[name="confirmPassword"]').type('Tonyspark@71');
+    //                 cy.get('input[name="termsCheck"]').click();
+    //                 cy.get('.termsScroll').scrollTo('bottom'); // Scroll 'sidebar' to its bottom
+    //                 cy.contains('button', 'Agree to Terms').click();
+    //                 cy.get('button[name="signup"]').click();
+    //             })
+    //     });
     // })
 
 });

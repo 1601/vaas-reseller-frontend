@@ -1,7 +1,7 @@
 describe('Login Page Tests', () => {
     beforeEach(() => {
         // Runs before each test in the block
-        cy.visit('http://localhost:3000/login'); // Adjust if your local development URL is different
+        cy.visit(`${Cypress.env('REACT_CYPRESS_TEST_URL')}/login`); // Adjust if your local development URL is different
     });
 
     it('Check login page elements are visible', () => {
@@ -16,7 +16,7 @@ describe('Login Page Tests', () => {
         cy.get('input[name="email"]').type('test21451523@yopmail.com');
         cy.get('input[name="password"]').type('Tonyspark@71');
         cy.contains('button', 'Login').click();
-        cy.url().should('include', '/login');
+        cy.url().should('include', '/dashboard/app');
         cy.contains('h4', 'Hi test, welcome back').should('be.visible');
     })
 

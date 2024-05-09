@@ -15,8 +15,10 @@
     "re-start-windows": "rd /s /q node_modules && npm install && npm start",
     "re-build-windows": "rd /s /q node_modules && npm install && npm run build",
     "re-build": "rm -rf node_modules && npm install && npm run build",
-    "cy:open": "concurrently \"npm start\" \"cypress open\"",
-    "cy:run": "concurrently \"npm start\" \"node delay.js 10000 && cypress run\""
+    "cy:open": "concurrently \"npm start\" \"cypress open --env IS_TEST_ENV=true\"",
+    "cy:run": "concurrently \"npm start\" \"node delay.js 10000 && cypress run --env IS_TEST_ENV=true\"",
+    "cy:open:no-env": "concurrently \"npm start\" \"cypress open\"",
+    "cy:run:no-env": "concurrently \"npm start\" \"node delay.js 10000 && cypress run\""
   },
   "eslintConfig": {
     "extends": [

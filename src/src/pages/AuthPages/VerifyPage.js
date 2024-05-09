@@ -146,6 +146,7 @@ export default function VerifyPage({ email, firstName, lastName }) {
 
             <TextField
               fullWidth
+              name={"inputVerifyCode"}
               label="Verification Code"
               variant="outlined"
               value={code}

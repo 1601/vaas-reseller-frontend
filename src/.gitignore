@@ -8,6 +8,10 @@
 # testing
 /coverage
 
+# Ignore Cypress screenshots
+cypress/screenshots/
+cypress/videos/
+
 # production
 /build
 

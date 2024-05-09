@@ -62,8 +62,7 @@ export default function ForgotPasswordPage() {
     setLoading(true);
     try {
       const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/password/email`, {
-        email,
-        state,
+        email
       });
 
       if (response.status === 200) {
@@ -76,9 +75,10 @@ export default function ForgotPasswordPage() {
     } catch (error) {
       setDialogOpen(true);
       if (error.response) {
+        console.log(error.response);
         if (error.response.status === 403) {
           setErrorMessage('Only admins and resellers can change their password here.');
-        } else if (error.response.data && error.response.data.message.includes('unregistered')) {
+        } else if (error.response.data && error.response.data.errors.map((error) => error.msg.includes('unregistered'))){
           setErrorMessage('Email is either unregistered or not activated');
         } else {
           setErrorMessage('Error sending password change request.');
@@ -118,6 +118,7 @@ export default function ForgotPasswordPage() {
             </Typography>
 
             <TextField
+              name={'forgotPassEmail'}
               fullWidth
               label="Email"
               variant="outlined"
