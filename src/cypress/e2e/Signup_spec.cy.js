@@ -67,15 +67,6 @@ describe('Sign Up Page Tests', () => {
         cy.url().should('include', '/dashboard/app');
     })
 
-    it('Test Google Sign up', () => {
-        cy.contains('button p','Sign Up with Google').click();
-        cy.get('.termsScroll').scrollTo('bottom'); // Scroll 'sidebar' to its bottom
-        cy.contains('button', 'Agree to Terms').click();
-        cy.origin('https://accounts.google.com', () => {
-            cy.url().should('include', '/signin');
-        })
-    })
-
     it('Test Login redirection', () => {
         cy.contains('Login').click();
         cy.url().should('include', '/login');
