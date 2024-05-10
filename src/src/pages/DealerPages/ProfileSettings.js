@@ -75,7 +75,6 @@ const ProfileSettings = () => {
 
     if (!formState.firstName) errors.firstName = 'First Name is required';
     if (!formState.lastName) errors.lastName = 'Last Name is required';
-    if (!formState.designation) errors.designation = 'Designation is required';
     if (!formState.country) errors.country = 'Country is required';
     if (!formState.username) errors.username = 'Username is required';
 
@@ -307,7 +306,6 @@ const ProfileSettings = () => {
       firstName: userData?.firstName || '',
       lastName: userData?.lastName || '',
       middleName: userData?.middleName || '',
-      designation: userData?.designation || '',
       country: userData?.country || '',
       mobileNumber: strippedMobileNumber,
       username: userData?.username || '',
@@ -342,7 +340,6 @@ const ProfileSettings = () => {
           firstName: formState.firstName,
           lastName: formState.lastName,
           middleName: formState.middleName,
-          designation: formState.designation,
           country: formState.country,
           mobileNumber: fullMobileNumber,
           marketSub: acceptedMarketSub
@@ -498,26 +495,6 @@ const ProfileSettings = () => {
                           fullWidth
                           sx={{ mb: 2 }}
                         />
-                        <FormControl fullWidth variant="outlined" sx={{ mb: 2 }}>
-                          <InputLabel id="designation-label">Designation</InputLabel>
-                          <Select
-                            labelId="designation-label"
-                            label="Designation"
-                            name="designation"
-                            value={formState.designation}
-                            onChange={handleInputChange}
-                            error={!!validationErrors.designation}
-                          >
-                            <MenuItem value={'Mr.'}>Mr.</MenuItem>
-                            <MenuItem value={'Ms.'}>Ms.</MenuItem>
-                            <MenuItem value={'Mrs.'}>Mrs.</MenuItem>
-                          </Select>
-                          {validationErrors.designation && (
-                            <Typography color="error" variant="caption">
-                              {validationErrors.designation}
-                            </Typography>
-                          )}
-                        </FormControl>
                         <Autocomplete
                           fullWidth
                           options={countries}
@@ -571,15 +548,6 @@ const ProfileSettings = () => {
                           sx={{ mb: 2 }}
                           disabled={!editMode}
                         />
-                        <TextField
-                          fullWidth
-                          variant="outlined"
-                          label="Designation"
-                          sx={{ mb: 2 }}
-                          value={editMode ? formState.designation : userData.designation}
-                          disabled={!editMode}
-                        />
-
                         <TextField
                           fullWidth
                           variant="outlined"
@@ -756,7 +724,7 @@ const ProfileSettings = () => {
                           onClick={openTermsDialog}
                       >
                         <span style={{ textDecoration: 'underline', cursor: 'pointer' }}>
-                          Terms and Conditions, and Privacy Policy
+                          Terms and Conditions, Cookie Policy, and Privacy Policy
                         </span>
                       </Tooltip>{' '}
                       upon signing up.
