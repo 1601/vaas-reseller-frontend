@@ -264,8 +264,6 @@ export default function SignUpPage() {
   const [initialCurrency, setInitialCurrency] = useState('');
   const [passwordFocus, setPasswordFocus] = useState(false);
   const [signUpDialogOpen, setSignUpDialogOpen] = React.useState(false);
-  const [isGoogleSignUp, setIsGoogleSignUp] = React.useState(false);
-  const [isFacebookSignUp, setIsFacebookSignUp] = React.useState(false);
 
   const [fieldErrors, setFieldErrors] = useState({
     firstName: false,
@@ -291,23 +289,8 @@ export default function SignUpPage() {
     confirmPassword: false,
   });
 
-  useEffect(() => {
-    if (isGoogleSignUp === true && isTermsAccepted === true) {
-      handleGoogleSignUp();
-    }
-    if (isFacebookSignUp === true && isTermsAccepted === true) {
-      handleFacebookSignUp();
-    }
-  }, [isFacebookSignUp, isGoogleSignUp, isTermsAccepted]);
-
-  const openTermsDialog = (googleSignUp = false, facebookSignUp = false) => {
+  const openTermsDialog = () => {
     setIsTermsDialogOpen(true);
-    if (googleSignUp === true) {
-      setIsGoogleSignUp(true);
-    }
-    if (facebookSignUp === true) {
-      setIsFacebookSignUp(true);
-    }
   };
 
   const agreeToTerms = () => {
@@ -516,27 +499,6 @@ export default function SignUpPage() {
     validateEmailAndCheckExistence(newEmail);
   };
 
-  const handleGoogleSignUp = () => {
-    const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
-    const redirectUri = process.env.REACT_APP_GOOGLE_REDIRECT_URI;
-    const scope = encodeURIComponent(
-      'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile'
-    );
-
-    const googleLoginUrl = `https://accounts.google.com/o/oauth2/v2/auth?scope=${scope}&access_type=offline&include_granted_scopes=true&redirect_uri=${redirectUri}&response_type=code&client_id=${clientId}`;
-    window.location.href = googleLoginUrl;
-  };
-
-  const handleFacebookSignUp = () => {
-    const clientId = process.env.REACT_APP_FACEBOOK_CLIENT_ID;
-    const redirectUri = encodeURIComponent(process.env.REACT_APP_FACEBOOK_REDIRECT_URI);
-    const scope = encodeURIComponent('email');
-
-    const facebookLoginUrl = `https://www.facebook.com/v18.0/dialog/oauth?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&response_type=code`;
-
-    window.location.href = facebookLoginUrl;
-  };
-
   const validateForm = () => {
     const newFieldErrors = {
       firstName: !formData.firstName?.trim() || !validateName(formData.firstName),
@@ -704,16 +666,15 @@ export default function SignUpPage() {
     // };
     const externalIpAddCur = async () => {
       const ipResult = await axios.get('https://api64.ipify.org?format=text');
-      const currencyResult = await axios.get(`https://ipapi.co/${ipResult.data}/currency/`);
-      const countryIpResult = await axios.get(`http://ip-api.com/json/${ipResult.data}`);
+      const locationResult = await axios.get(`https://ipapi.co/${ipResult.data}/json/`);
       setFormData({
         ...formData,
         ipAddress: ipResult.data,
-        currency: currencyResult.data,
-        country: countryIpResult.data.country
+        currency: locationResult.data.currency,
+        country: locationResult.data.country_name
       });
 
-      setInitialCurrency(currencyResult.data);
+      setInitialCurrency(locationResult.data.currency);
     };
 
     const fetchAllBanner = async () => {
@@ -1154,8 +1115,6 @@ export default function SignUpPage() {
                     open={isTermsDialogOpen}
                     onClose={() => {
                       setIsTermsDialogOpen(false);
-                      setIsGoogleSignUp(false);
-                      setIsFacebookSignUp(false);
                     }}
                     onAgree={agreeToTerms}
                   />
@@ -1209,7 +1168,7 @@ export default function SignUpPage() {
                         I agree to the
                         <Link component="button" onClick={openTermsDialog} sx={{ pl: 1, fontSize: { xs: '.9rem' } }}>
                           Terms and Conditions
-                        </Link>
+                        </Link>{' '}
                          of the company
                       </>
                     }
@@ -1222,7 +1181,7 @@ export default function SignUpPage() {
                           I agree to the
                           <Link component="button" onClick={openTermsDialog} sx={{ pl: 1, fontSize: { xs: '.9rem' } }}>
                             Privacy Policy
-                          </Link>
+                          </Link>{' '}
                            of the company
                         </>
                       }
@@ -1235,49 +1194,11 @@ export default function SignUpPage() {
                           I agree to the
                           <Link component="button" onClick={openTermsDialog} sx={{ pl: 1, fontSize: { xs: '.9rem' } }}>
                             Cookie Policy
-                          </Link>
+                          </Link>{' '}
                           of the company
                         </>
                       }
                   />
-
-                  <Divider sx={{ my: 3 }}>
-                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                      OR
-                    </Typography>
-                  </Divider>
-
-                  <Grid container spacing={2}>
-                    <Grid item xs={12} sm={12} md={6} lg={6}>
-                      <Button
-                        fullWidth
-                        size="large"
-                        color="inherit"
-                        variant="outlined"
-                        startIcon={<Iconify icon="eva:google-fill" color="#DF3E30" width={22} height={22} />}
-                        onClick={() => {
-                          openTermsDialog(true, false);
-                        }}
-                        sx={ssoStyles}
-                      >
-                        <Typography sx={ssoStyles}>Sign Up with Google</Typography>
-                      </Button>
-                    </Grid>
-                    <Grid item xs={12} sm={12} md={6} lg={6}>
-                      <Button
-                        fullWidth
-                        size="large"
-                        color="inherit"
-                        variant="outlined"
-                        startIcon={<Iconify icon="eva:facebook-fill" color="#1877F2" width={22} height={22} />}
-                        onClick={() => {
-                          openTermsDialog(false, true);
-                        }}
-                      >
-                        <Typography sx={ssoStyles}>Sign Up with Facebook</Typography>
-                      </Button>
-                    </Grid>
-                  </Grid>
 
                   {/* {errorMessage && (
             <Typography variant="body2" color="error" sx={{ my: 2 }}>
