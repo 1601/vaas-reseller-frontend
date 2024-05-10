@@ -31,10 +31,14 @@ describe('Sign Up Page Tests', () => {
             }).as('mockOtp');
         }
 
-        cy.wait(3000);
+        cy.wait(4000);
         cy.get('[name="firstName"]').type('test');
         cy.get('[name="lastName"]').type('tester');
-        cy.get('input[name="email"]').type(tempEmail);
+        if(isTestEnv){
+            cy.get('input[name="email"]').type(tempEmail);
+        }else{
+            cy.pause();
+        }
         cy.get('input[name="mobileNumber"]').type('9513217169');
         cy.get('input[name="password"]').type('Tonyspark@71');
         cy.get('input[name="confirmPassword"]').type('Tonyspark@71');
@@ -42,14 +46,22 @@ describe('Sign Up Page Tests', () => {
         cy.get('.termsScroll').scrollTo('bottom'); // Scroll 'sidebar' to its bottom
         cy.contains('button', 'Agree to Terms').click();
         cy.get('button[name="signup"]').click();
-        cy.contains('Signing up...').should('be.visible');
+        cy.contains('Signing up...').should('be.visible').wait(2000);
         cy.contains('Successful Sign-Up!').should('be.visible');
-        cy.wait(3000);
-        cy.get('[name="inputVerifyCode"]').type('123456');
+        cy.wait(2000);
+        if(isTestEnv){
+            cy.get('[name="inputVerifyCode"]').type('123456');
+        }else{
+            cy.pause();
+        }
         cy.contains('Verify').click();
         cy.contains('Success').should('be.visible');
         cy.url().should('include', '/login');
-        cy.get('input[name="email"]').type(tempEmail);
+        if(isTestEnv) {
+            cy.get('input[name="email"]').type(tempEmail);
+        }else{
+            cy.pause();
+        }
         cy.get('input[name="password"]').type('Tonyspark@71');
         cy.contains('button', 'Login').click();
         cy.url().should('include', '/dashboard/app');
