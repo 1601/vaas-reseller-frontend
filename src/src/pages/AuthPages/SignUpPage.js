@@ -953,7 +953,6 @@ export default function SignUpPage() {
                                 helperText={fieldErrors.country && 'Country is required'}
                               />
                             )}
-                            disabled
                           />
                         </Grid>
                       </Grid>
