@@ -401,35 +401,6 @@ export default function LoginPage() {
     }
   };
 
-  const handleGoogleLogin = () => {
-    const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
-    const redirectUri = process.env.REACT_APP_GOOGLE_REDIRECT_URI;
-    const scope = encodeURIComponent(
-      'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile'
-    );
-
-    const state = encodeURIComponent(window.location.origin);
-
-    const googleLoginUrl = `https://accounts.google.com/o/oauth2/v2/auth?scope=${scope}&access_type=offline&include_granted_scopes=true&redirect_uri=${redirectUri}&response_type=code&client_id=${clientId}&state=${state}`;
-
-    window.location.href = googleLoginUrl;
-  };
-
-  const handleFacebookLogin = () => {
-    const clientId = process.env.REACT_APP_FACEBOOK_CLIENT_ID;
-    const redirectUri = encodeURIComponent(`${process.env.REACT_APP_FACEBOOK_REDIRECT_URI}`);
-    const state = encodeURIComponent(window.location.origin); // Optional: A string that represents app state. It will be passed back to you at the redirect URI.
-
-    // Define the scope of access that the application is requesting.
-    const scope = encodeURIComponent('email,public_profile');
-
-    // Construct the Facebook OAuth URL
-    const facebookLoginUrl = `https://www.facebook.com/v18.0/dialog/oauth?client_id=${clientId}&redirect_uri=${redirectUri}&state=${state}&scope=${scope}&response_type=code`;
-
-    // Redirect the user to the Facebook OAuth page
-    window.location.href = facebookLoginUrl;
-  };
-
   return (
     <>
       <title> Login | VAAS </title>
@@ -545,40 +516,6 @@ export default function LoginPage() {
                 >
                   Login
                 </Button>
-
-                <Divider sx={{ my: 3 }}>
-                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                    OR
-                  </Typography>
-                </Divider>
-
-                <Grid container spacing={2}>
-                  <Grid item xs={12} sm={12} md={6} lg={6}>
-                    <Button
-                      fullWidth
-                      size="large"
-                      color="inherit"
-                      variant="outlined"
-                      onClick={handleGoogleLogin}
-                      startIcon={<Iconify icon="eva:google-fill" color="#DF3E30" width={22} height={22} />}
-                      sx={ssoStyles}
-                    >
-                      <Typography sx={ssoStyles}>Continue with Google</Typography>
-                    </Button>
-                  </Grid>
-                  <Grid item xs={12} sm={12} md={6} lg={6}>
-                    <Button
-                      fullWidth
-                      size="large"
-                      color="inherit"
-                      variant="outlined"
-                      onClick={handleFacebookLogin}
-                      startIcon={<Iconify icon="eva:facebook-fill" color="#1877F2" width={22} height={22} />}
-                    >
-                      <Typography sx={ssoStyles}>Continue with Facebook</Typography>
-                    </Button>
-                  </Grid>
-                </Grid>
 
                 {/* Error Dialog */}
                 <Dialog open={dialogOpen} onClose={handleCloseDialog}>

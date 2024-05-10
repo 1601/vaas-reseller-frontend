@@ -28,20 +28,6 @@ describe('Login Page Tests', () => {
         cy.contains('button', 'Request Password Change').should('be.visible');
     })
 
-    it('Check Google sign in functionality', () => {
-        cy.contains('p', 'Continue with Google').click();
-        cy.origin('https://accounts.google.com', () => {
-            cy.url().should('include', '/signin');
-        })
-    })
-
-    it('Check Facebook sign in functionality', () => {
-        cy.contains('p', 'Continue with Facebook').click();
-        cy.origin('https://www.facebook.com', () => {
-            cy.contains('u', 'Facebook').should('be.visible');
-        })
-    })
-
     it('Check sign up redirection', () => {
         cy.contains('a', 'Sign Up').click();
         cy.url().should('include', '/signup');
