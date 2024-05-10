@@ -1,4 +1,4 @@
-describe('template spec', () => {
+describe('dashboard unit tests', () => {
 
     beforeEach(() => {
         cy.visit(`${Cypress.env('REACT_CYPRESS_TEST_URL')}/login`); // Adjust if your local development URL is different

@@ -1,4 +1,4 @@
-describe('template spec', () => {
+describe('forgot password unit tests', () => {
     beforeEach(() => {
         // Runs before each test in the block
         cy.visit(`${Cypress.env('REACT_CYPRESS_TEST_URL')}/forgotpassword`); // Adjust if your local development URL is different
