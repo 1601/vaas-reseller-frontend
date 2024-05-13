@@ -45,6 +45,8 @@ import Logo from '../../components/logo';
 import { countries } from '../../components/country/CountriesList';
 import { countryCodes } from '../../components/country/countryNumCodes';
 import termsAndAgreement from '../../components/agreements/termsAndAgreement';
+import privacyPolicy from '../../components/agreements/privacyPolicy';
+import cookiePolicy from '../../components/agreements/cookiePolicy';
 import VerifyPage from './VerifyPage';
 import { mobileNumberLengths } from '../../components/country/countryNumLength';
 
@@ -128,6 +130,82 @@ function TermsDialog({ open, onClose, onAgree }) {
         </Button>
       </DialogActions>
     </Dialog>
+  );
+}
+
+function PrivacyDialog({ open, onClose, onAgree }) {
+  const [isScrolledToEnd, setIsScrolledToEnd] = useState(false);
+
+  const handleScroll = (e) => {
+    const target = e.target;
+    const tolerance = 1;
+    const bottom = target.scrollHeight - target.scrollTop <= target.clientHeight + tolerance;
+    setIsScrolledToEnd(bottom);
+  };
+
+  return (
+      <Dialog open={open} onClose={onClose} scroll="paper">
+        <DialogTitle>Privacy Policy</DialogTitle>
+        <DialogContent dividers>
+          <div
+              style={{
+                overflowY: 'auto',
+                maxHeight: 400,
+                whiteSpace: 'pre-line',
+              }}
+              className={"privacyScroll"}
+              onScroll={handleScroll}
+          >
+            <p>{privacyPolicy}</p>
+          </div>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={onClose} color="primary">
+            Close
+          </Button>
+          <Button onClick={onAgree} color="primary" disabled={!isScrolledToEnd}>
+            {isScrolledToEnd ? 'Agree to Terms' : 'Scroll to Agree to Terms'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+  );
+}
+
+function CookieDialog({ open, onClose, onAgree }) {
+  const [isScrolledToEnd, setIsScrolledToEnd] = useState(false);
+
+  const handleScroll = (e) => {
+    const target = e.target;
+    const tolerance = 1;
+    const bottom = target.scrollHeight - target.scrollTop <= target.clientHeight + tolerance;
+    setIsScrolledToEnd(bottom);
+  };
+
+  return (
+      <Dialog open={open} onClose={onClose} scroll="paper">
+        <DialogTitle>Cookie Policy</DialogTitle>
+        <DialogContent dividers>
+          <div
+              style={{
+                overflowY: 'auto',
+                maxHeight: 400,
+                whiteSpace: 'pre-line',
+              }}
+              className={"cookieScroll"}
+              onScroll={handleScroll}
+          >
+            <p>{cookiePolicy}</p>
+          </div>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={onClose} color="primary">
+            Close
+          </Button>
+          <Button onClick={onAgree} color="primary" disabled={!isScrolledToEnd}>
+            {isScrolledToEnd ? 'Agree to Terms' : 'Scroll to Agree to Terms'}
+          </Button>
+        </DialogActions>
+      </Dialog>
   );
 }
 
@@ -257,7 +335,11 @@ export default function SignUpPage() {
   const [succesSignup, setSuccesSignup] = useState(false);
   const [errorDialogOpen, setErrorDialogOpen] = useState(false);
   const [isTermsAccepted, setIsTermsAccepted] = useState(false);
+  const [isPrivacyAccepted, setIsPrivacyAccepted] = useState(false);
+  const [isCookieAccepted, setIsCookieAccepted] = useState(false);
   const [isTermsDialogOpen, setIsTermsDialogOpen] = useState(false);
+  const [isPrivacyDialogOpen, setIsPrivacyDialogOpen] = useState(false);
+  const [isCookieDialogOpen, setIsCookieDialogOpen] = useState(false);
   const [isScrolledToEnd, setIsScrolledToEnd] = useState(false);
   const [mobileError, setMobileError] = useState(false);
   const [banners, setBanners] = useState();
@@ -293,9 +375,27 @@ export default function SignUpPage() {
     setIsTermsDialogOpen(true);
   };
 
+  const openPrivacyDialog = () => {
+    setIsPrivacyDialogOpen(true);
+  };
+
+  const openCookieDialog = () => {
+    setIsCookieDialogOpen(true);
+  };
+
   const agreeToTerms = () => {
     setIsTermsDialogOpen(false);
     setIsTermsAccepted(true);
+  };
+
+  const agreeToPrivacy = () => {
+    setIsPrivacyDialogOpen(false);
+    setIsPrivacyAccepted(true);
+  };
+
+  const agreeToCookie = () => {
+    setIsCookieDialogOpen(false);
+    setIsCookieAccepted(true);
   };
 
   const handleSignUpStart = () => {
@@ -1118,6 +1218,22 @@ export default function SignUpPage() {
                     onAgree={agreeToTerms}
                   />
 
+                  <PrivacyDialog
+                      open={isPrivacyDialogOpen}
+                      onClose={() => {
+                        setIsPrivacyDialogOpen(false);
+                      }}
+                      onAgree={agreeToPrivacy}
+                  />
+
+                  <CookieDialog
+                      open={isCookieDialogOpen}
+                      onClose={() => {
+                        setIsCookieDialogOpen(false);
+                      }}
+                      onAgree={agreeToCookie}
+                  />
+
                   {/* Password Guidelines Dialog */}
                   <Dialog open={errorDialogOpen} onClose={() => setErrorDialogOpen(false)}>
                     <DialogTitle>Error</DialogTitle>
@@ -1148,7 +1264,7 @@ export default function SignUpPage() {
                     variant="outlined"
                     name={"signup"}
                     onClick={handleSignup}
-                    disabled={!isFormValid || !isTermsAccepted || !isEmailValid || mobileError || passwordError}
+                    disabled={!isFormValid || !isTermsAccepted || !isPrivacyAccepted || !isCookieAccepted || !isEmailValid || mobileError || passwordError}
                     sx={{
                       py: [1.5, 1],
                       backgroundColor: '#873EC0 !important', // Set the background color
@@ -1174,11 +1290,11 @@ export default function SignUpPage() {
                   />
 
                   <FormControlLabel
-                      control={<Checkbox checked={isTermsAccepted} disabled/>}
+                      control={<Checkbox name={"privacyCheck"} checked={isPrivacyAccepted} onChange={() => openPrivacyDialog(false, false)} />}
                       label={
                         <>
                           I agree to the
-                          <Link component="button" onClick={openTermsDialog} sx={{ pl: 1, fontSize: { xs: '.9rem' } }}>
+                          <Link component="button" onClick={openPrivacyDialog} sx={{ pl: 1, fontSize: { xs: '.9rem' } }}>
                             Privacy Policy
                           </Link>{' '}
                            of the company
@@ -1187,11 +1303,11 @@ export default function SignUpPage() {
                   />
 
                   <FormControlLabel
-                      control={<Checkbox checked={isTermsAccepted} disabled/>}
+                      control={<Checkbox name={"cookieCheck"} checked={isCookieAccepted} onChange={() => openCookieDialog(false, false)} />}
                       label={
                         <>
                           I agree to the
-                          <Link component="button" onClick={openTermsDialog} sx={{ pl: 1, fontSize: { xs: '.9rem' } }}>
+                          <Link component="button" onClick={openCookieDialog} sx={{ pl: 1, fontSize: { xs: '.9rem' } }}>
                             Cookie Policy
                           </Link>{' '}
                           of the company

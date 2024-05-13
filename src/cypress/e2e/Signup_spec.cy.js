@@ -5,7 +5,8 @@ describe('Sign Up Page Tests', () => {
 
     beforeEach(() => {
         // Runs before each test in the block
-        cy.visit(`${Cypress.env('REACT_CYPRESS_TEST_URL')}/signup`); // Adjust if your local development URL is different
+        const isStaging = Cypress.env('IsStaging');
+        cy.visit(`${Cypress.env(isStaging ? 'REACT_CYPRESS_STAGING_TEST_URL' : 'REACT_CYPRESS_LOCAL_TEST_URL')}/signup`); // Adjust if your local development URL is different
     });
 
     it('Check sign up elements are visible', () => {
@@ -43,7 +44,13 @@ describe('Sign Up Page Tests', () => {
         cy.get('input[name="password"]').type('Tonyspark@71');
         cy.get('input[name="confirmPassword"]').type('Tonyspark@71');
         cy.get('input[name="termsCheck"]').click();
-        cy.get('.termsScroll').scrollTo('bottom'); // Scroll 'sidebar' to its bottom
+        cy.get('.termsScroll').scrollTo('bottom');
+        cy.contains('button', 'Agree to Terms').click();
+        cy.get('input[name="privacyCheck"]').click();
+        cy.get('.privacyScroll').scrollTo('bottom');
+        cy.contains('button', 'Agree to Terms').click();
+        cy.get('input[name="cookieCheck"]').click();
+        cy.get('.cookieScroll').scrollTo('bottom'); // Scroll 'sidebar' to its bottom
         cy.contains('button', 'Agree to Terms').click();
         cy.get('button[name="signup"]').click();
         cy.contains('Signing up...').should('be.visible').wait(2000);
