@@ -7,6 +7,7 @@ module.exports = defineConfig({
     },
   },
   env: {
-    REACT_CYPRESS_TEST_URL: "http://localhost:3000"
+    REACT_CYPRESS_LOCAL_TEST_URL: "http://localhost:3000",
+    REACT_CYPRESS_STAGING_TEST_URL: "https://sparkledev.online"
   }
 });

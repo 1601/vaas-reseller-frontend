@@ -1,6 +1,7 @@
 describe('setting unit tests', () => {
     beforeEach(() => {
-        cy.visit(`${Cypress.env('REACT_CYPRESS_TEST_URL')}/login`); // Adjust if your local development URL is different
+        const isStaging = Cypress.env('IsStaging');
+        cy.visit(`${Cypress.env(isStaging ? 'REACT_CYPRESS_STAGING_TEST_URL' : 'REACT_CYPRESS_LOCAL_TEST_URL')}/login`); // Adjust if your local development URL is different
         cy.get('input[name="email"]').type('test21451523@yopmail.com');
         cy.get('input[name="password"]').type('Tonyspark@71');
         cy.contains('button', 'Login').click().wait(3000);

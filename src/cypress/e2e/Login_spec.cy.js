@@ -1,7 +1,8 @@
 describe('Login Page Tests', () => {
     beforeEach(() => {
         // Runs before each test in the block
-        cy.visit(`${Cypress.env('REACT_CYPRESS_TEST_URL')}/login`); // Adjust if your local development URL is different
+        const isStaging = Cypress.env('IsStaging');
+        cy.visit(`${Cypress.env(isStaging ? 'REACT_CYPRESS_STAGING_TEST_URL' : 'REACT_CYPRESS_LOCAL_TEST_URL')}/login`); // Adjust if your local development URL is different
     });
 
     it('Check login page elements are visible', () => {
