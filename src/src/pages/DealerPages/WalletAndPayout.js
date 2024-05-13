@@ -384,12 +384,13 @@ const WalletPayouts = () => {
   }, [dateFilteredWalletRequests]);
 
   useEffect(() => {
-
       if(dateFilteredWalletRequests.length === 0){
         setDateFilteredWalletRequests(walletRequests.filter((item) => {
           const date = new Date(item.dateCreated);
           const startDate = new Date(dateRange.startDate);
           const endDate = new Date(dateRange.endDate);
+          // Set the time of endDate to 23:59:59
+          endDate.setHours(23, 59, 59, 999);
           return (
               (!startDate || date >= startDate) &&
               (!endDate || date <= endDate)
@@ -399,6 +400,8 @@ const WalletPayouts = () => {
           const date = new Date(item.dateCreated);
           const startDate = new Date(dateRange.startDate);
           const endDate = new Date(dateRange.endDate);
+          // Set the time of endDate to 23:59:59
+          endDate.setHours(23, 59, 59, 999);
           return (
               (!startDate || date >= startDate) &&
               (!endDate || date <= endDate)
@@ -452,17 +455,6 @@ const WalletPayouts = () => {
     <>
       <Typography sx={{ mb: 2 }}>Please select your preferred payment method:</Typography>
       <Grid container spacing={2} justifyContent="center">
-        <Grid item>
-          <Paper
-            elevation={selectedMethod === 'PLDT' ? 12 : 1}
-            onClick={() => selectMethod('PLDT')}
-            sx={{ padding: 2, cursor: 'pointer', bgcolor: selectedMethod === 'PLDT' ? '#d32f2f' : '#f44336' }}
-          >
-            <Typography variant="button" display="block" gutterBottom sx={{ color: 'white' }}>
-              PLDT GLOBAL PAYMENTS
-            </Typography>
-          </Paper>
-        </Grid>
         <Grid item>
           <Paper
             elevation={selectedMethod === 'Bank' ? 12 : 1}
