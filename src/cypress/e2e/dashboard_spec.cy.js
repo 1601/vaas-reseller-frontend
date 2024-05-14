@@ -37,4 +37,11 @@ describe('dashboard unit tests', () => {
         cy.contains('h4', 'Store Details').should('be.visible');
     })
 
+    it('Test upload redirection', () => {
+        cy.url().should('include', '/dashboard/app');
+        cy.get('[name="navMenu"]').click();
+        cy.contains('a div', 'upload document').click();
+        cy.url().should('include', '/dashboard/kyc');
+    })
+
 })

@@ -21,6 +21,20 @@ describe('Sign Up Page Tests', () => {
         cy.get('input[name="confirmPassword"]').should('exist');
     })
 
+    // todo make the test succeed
+    it('Test sign up validation', () => {
+        cy.get('[name="firstName"]').type('test<>');
+        cy.get('[name="middleName"]').type('testng<>');
+        cy.get('[name="lastName"]').type('tester<>');
+        cy.get('input[name="email"]').type(`${tempEmail}<>`);
+        cy.get('input[name="mobileNumber"]').type('9513217169');
+        cy.contains('p[id=":r2l:-helper-text"]', 'First Name contains invalid characters').should('be.visible');
+        cy.contains('p[id=":r2l:-helper-text"]', 'Middle Name contains invalid characters').should('be.visible');
+        cy.contains('p[id=":r2l:-helper-text"]', 'Last Name contains invalid characters').should('be.visible');
+        cy.contains('p[id=":r2l:-helper-text"]', 'Wrong Number format. Please use only digits and optional "+".').should('be.visible');
+        cy.contains('p[id=":r2l:-helper-text"]', 'Invalid email format').should('be.visible');
+    })
+
     it('Check sign up functionality', () => {
         const isTestEnv = Cypress.env('IS_TEST_ENV');
 

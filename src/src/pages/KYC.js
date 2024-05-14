@@ -879,8 +879,9 @@ export default function KYC() {
 
                           <HoverableButton {...getRootProps()}>
                             <div>
-                              <input {...getInputProps()} />
+                              <input name={"uploadIdInput"} {...getInputProps()} />
                               <Button
+                                name={"uploadId"}
                                 variant="contained"
                                 color="primary"
                                 component="span"
@@ -961,8 +962,9 @@ export default function KYC() {
                           </div>
                           <HoverableButton {...getRootProps()}>
                             <div>
-                              <input {...getInputProps()} />
+                              <input name={"uploadDocInput"} {...getInputProps()} />
                               <Button
+                                name={"uploadDoc"}
                                 variant="contained"
                                 color="primary"
                                 component="span"
