@@ -132,6 +132,42 @@ const CircularLoading = () => (
   </>
 );
 
+const CircularLoadingSuccess = () => (
+    <>
+      <Box
+          sx={{
+            width: '100%',
+            height: '100%',
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0, 0, 0, 0.7)',
+            opacity: 0.5,
+            zIndex: 1,
+          }}
+      />
+      <Box
+          sx={{
+            position: 'fixed',
+            left: '50%',
+            top: '50%',
+            transform: 'translate(-50%, -50%)',
+            zIndex: 2,
+            textAlign: 'center',
+            color: '#fff',
+          }}
+      >
+        <Typography variant="h6">Upload Success</Typography>
+        <Button variant="outlined" color="primary" onClick={() => {
+          // Redirect to the desired URL inline
+          window.location.href = '/dashboard/app';
+        }}>Proceed</Button>
+      </Box>
+    </>
+);
+
 export default function KYC() {
   const [activeStep, setActiveStep] = useState(0);
   const [selectedImage, setSelectedImage] = useState([]);
@@ -160,8 +196,8 @@ export default function KYC() {
         const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/owner`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        if (response.data && response.data.rejectionReasons) {
-          setRejectionList(response.data.rejectionReasons);
+        if (response.data && response.data.kycRejectionReasons) {
+          setRejectionList(response.data.kycRejectionReasons);
         }
       } catch (error) {
         console.error('Error fetching store data:', error);
@@ -280,6 +316,7 @@ export default function KYC() {
     // Merge textFieldsData into formData
     const mergedFormData = {
       ...formData,
+      dateSubmitted: new Date(),
       externalLinkAccount: linkFieldsData.map((item) => item.externalLinkAccount),
     };
 
@@ -292,15 +329,16 @@ export default function KYC() {
         const mergeFileData = [...selectedImage, ...selectedDocs];
 
         const fileResult = await putFileKyc(mergeFileData);
+        console.log(fileResult);
         if (fileResult.status === 200) {
           const userData = ls.get('user');
-          const userId = userData._id;
+          const userToken = userData.token;
           const submitted = await axios.put(
             `${process.env.REACT_APP_BACKEND_URL}/v1/api/kyc/submit`,
             {},
             {
               headers: {
-                Authorization: `Bearer ${userId}`,
+                Authorization: `Bearer ${userToken}`,
               },
             }
           );
@@ -313,7 +351,8 @@ export default function KYC() {
           if (submitted) {
             setPreload(2);
           }
-          handleProceed();
+        }else{
+          setPreload(0);
         }
       }
     } catch (error) {
@@ -435,6 +474,7 @@ export default function KYC() {
   return (
     <>
       {preload === 1 && <CircularLoading />}
+      {preload === 2 && <CircularLoadingSuccess />}
       {approvalStatus !== null && (
         <Container maxWidth="md" style={{ textAlign: 'center', marginTop: '50px' }}>
           <Card style={{ paddingTop: '50px', paddingBottom: '50px' }}>
