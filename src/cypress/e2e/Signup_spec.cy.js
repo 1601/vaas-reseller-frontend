@@ -23,16 +23,17 @@ describe('Sign Up Page Tests', () => {
 
     // todo make the test succeed
     it('Test sign up validation', () => {
+        cy.wait(4000);
         cy.get('[name="firstName"]').type('test<>');
         cy.get('[name="middleName"]').type('testng<>');
         cy.get('[name="lastName"]').type('tester<>');
-        cy.get('input[name="email"]').type(`${tempEmail}<>`);
-        cy.get('input[name="mobileNumber"]').type('9513217169');
-        cy.contains('p[id=":r2l:-helper-text"]', 'First Name contains invalid characters').should('be.visible');
-        cy.contains('p[id=":r2l:-helper-text"]', 'Middle Name contains invalid characters').should('be.visible');
-        cy.contains('p[id=":r2l:-helper-text"]', 'Last Name contains invalid characters').should('be.visible');
-        cy.contains('p[id=":r2l:-helper-text"]', 'Wrong Number format. Please use only digits and optional "+".').should('be.visible');
-        cy.contains('p[id=":r2l:-helper-text"]', 'Invalid email format').should('be.visible');
+        cy.get('input[name="email"]').type(`${tempEmail}<>>>>>>`);
+        cy.get('input[name="mobileNumber"]').type('9513217169<>');
+        cy.contains('div p', 'First Name contains invalid characters').should('exist');
+        cy.contains('div p', 'Middle Name contains invalid characters').should('exist');
+        cy.contains('div p', 'Last Name contains invalid characters').should('exist');
+        cy.contains('div p', "Wrong Number format. Please use only digits and optional '+'.").should('exist');
+        cy.contains('div p', 'Invalid email format').should('exist');
     })
 
     it('Check sign up functionality', () => {

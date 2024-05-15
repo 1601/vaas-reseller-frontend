@@ -22,7 +22,7 @@ describe('Login Page Tests', () => {
         cy.get('input[name="email"]').type('test21451523<>@yopmail.com');
         cy.get('input[name="password"]').type('Tonyspark@71');
         cy.contains('button', 'Login').click();
-        cy.contains('div p','Invalid email format').should('exist');
+        cy.contains('div div div p','Invalid email format').should('exist');
     })
 
     it('Check login functionality', () => {
