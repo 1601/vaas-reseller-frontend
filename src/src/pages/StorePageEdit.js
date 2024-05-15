@@ -39,15 +39,15 @@ const StorePageEdit = () => {
   const [isStoreNameValid, setIsStoreNameValid] = useState(true);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [rejectionDialogOpen, setRejectionDialogOpen] = useState(false);
+  const [uploadHistoryDialogOpen, setUploadHistoryDialogOpen] = useState(false);
   const [rejectionReasons, setRejectionReasons] = useState([]);
+  const [uploadedDocument, setUploadedDocument] = useState(null);
 
   const [platformVariables, setPlatformVariables] = useState({
     enableBills: true,
     enableLoad: true,
     enableGift: true,
   });
-
-  useEffect(() => {}, [storeData]);
 
   useEffect(() => {
     const fetchStoreData = async () => {
@@ -77,6 +77,24 @@ const StorePageEdit = () => {
     };
   }, []);
 
+  useEffect(() => {
+    const fetchUploadHistory = async () => {
+      try {
+        const token = ls.get('token');
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/${userId}/kycdetail`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        console.log(response);
+        setUploadedDocument(response.data);
+      } catch (error) {
+        console.error('Could not fetch store data', error);
+      }
+    }
+    fetchUploadHistory();
+  }, []);
+
   const [color, setColor] = useState({
     primary: { hex: storeData ? storeData.primaryColor : '#FFFFFF' },
     secondary: { hex: storeData ? storeData.secondaryColor : '#FFFFFF' },
@@ -93,6 +111,14 @@ const StorePageEdit = () => {
 
   const handleRejectionDialogOpen = () => {
     setRejectionDialogOpen(true);
+  };
+
+  const handleUploadHistoryDialogOpen = () => {
+    setUploadHistoryDialogOpen(true);
+  };
+
+  const handleUploadHistoryDialogClose = () => {
+    setUploadHistoryDialogOpen(false);
   };
 
   const handleRejectionDialogClose = () => {
@@ -520,6 +546,14 @@ const StorePageEdit = () => {
                             style={{ marginRight: '8px' }}
                           >
                             Rejections
+                          </Button>
+                          <Button
+                              variant="outlined"
+                              color="primary"
+                              onClick={handleUploadHistoryDialogOpen}
+                              style={{ marginRight: '8px' }}
+                          >
+                            Uploaded Document
                           </Button>
                           <Button
                             variant="outlined"
@@ -971,6 +1005,52 @@ const StorePageEdit = () => {
             list={rejectionReasons}
             itemKey="date" 
           />
+
+          <Dialog open={uploadHistoryDialogOpen} onClose={handleUploadHistoryDialogClose} maxWidth="sm" fullWidth>
+            <DialogTitle>{'Uploaded Document'}</DialogTitle>
+            <DialogContent dividers>
+              <Typography
+                  sx={{
+                    bgcolor: 'background.paper',
+                    border: 1,
+                    borderColor: 'divider',
+                    p: 2,
+                    mt: 2,
+                    borderRadius: 1,
+                    textAlign: 'justify', // Set text alignment to justify
+                    color: 'text.secondary',
+                    margin: 'auto',
+                  }}
+              >
+                {uploadedDocument && (
+                    <div>
+                            <span>Date Submitted: {new Date(uploadedDocument.dateSubmitted).toLocaleDateString(undefined, {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                              second: '2-digit'
+                            })}</span><br/>
+                      <span>Physical Store: {uploadedDocument.physicalStore ? 'Yes' : 'No'}</span><br/>
+                      <span>Street Address: {uploadedDocument.streetAddress}</span><br/>
+                      <span>Region Address: {uploadedDocument.regionAddress}</span><br/>
+                      <span>City Address: {uploadedDocument.cityAddress}</span><br/>
+                      <span>Customer Service #: {uploadedDocument.customerServiceNumber}</span><br/>
+                      <span>Business Type: {uploadedDocument.businessType}</span><br/>
+                      <span># of Employees: {uploadedDocument.numberOfEmployee}</span><br/>
+                      <span>Zip Code: {uploadedDocument.zipCodeAddress}</span><br/>
+                      <span>Documents Uploaded: </span><br/>
+                    </div>
+                )}
+              </Typography>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleUploadHistoryDialogClose} color="primary">
+                Close
+              </Button>
+            </DialogActions>
+          </Dialog>
         </div>
       </div>
       <AccountStatusModal open userData={userData} storeData={storeData} />

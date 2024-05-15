@@ -9,7 +9,7 @@ const ListDialog = ({ open, onClose, title, list, itemKey }) => {
         <List>
           {list.map((item, index) => (
             <ListItem key={item[itemKey]}>
-              <ListItemText primary={item.reason} secondary={`Date: ${new Date(item.date).toLocaleDateString()}`} />
+              <ListItemText primary={item.reason} secondary={`Date: ${new Date(item.date).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' })}`} />
             </ListItem>
           ))}
         </List>
