@@ -84,6 +84,7 @@ const WalletPayouts = () => {
   const [filteredWalletRequests, setFilteredWalletRequests] = useState(walletRequests);
   const [dateFilteredWalletRequests, setDateFilteredWalletRequests] = useState(filteredWalletRequests);
   const [sortBy, setSortBy] = useState('createdBy desc');
+  const [walletReplenishResponse, setWalletReplenishResponse] = useState(null);
   const [selectedRange, setSelectedRange] = useState([
     {
       startDate: new Date(),
@@ -215,6 +216,7 @@ const WalletPayouts = () => {
 
   // Function to create a new wallet request
   const createWalletRequest = async () => {
+    // change here
     const date = new Date();
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -246,6 +248,7 @@ const WalletPayouts = () => {
         walletRequestData
       );
       console.log('Wallet request created successfully: ', response.data);
+      setWalletReplenishResponse(response.data.body);
       const walletRequestId = response.data.body._id;
       await uploadBankSlipImage(walletRequestId); // Wait for the image upload to complete
       setIsSubmitting(false); // Re-enable the submit button after the operation
@@ -713,22 +716,31 @@ const WalletPayouts = () => {
                 {activeStep === 2 && (
                   <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', mb: 2 }}>
                     <Typography
-                      sx={{
-                        bgcolor: 'background.paper',
-                        border: 1,
-                        borderColor: 'divider',
-                        p: 2,
-                        mt: 2,
-                        borderRadius: 1,
-                        textAlign: 'center',
-                        color: 'text.secondary',
-                        margin: 'auto',
-                      }}
+                        sx={{
+                          bgcolor: 'background.paper',
+                          border: 1,
+                          borderColor: 'divider',
+                          p: 2,
+                          mt: 2,
+                          borderRadius: 1,
+                          textAlign: 'justify', // Set text alignment to justify
+                          color: 'text.secondary',
+                          margin: 'auto',
+                        }}
                     >
-                      <span style={{ display: 'block' }}>
+                      {walletReplenishResponse && (
+                          <div>
+                            <span>Date Created: {new Date(walletReplenishResponse.dateCreated).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span><br/>
+                            <span>Reference Number: {walletReplenishResponse.referenceNo}</span><br/>
+                            <span>Amount: {walletReplenishResponse.currency} {walletReplenishResponse.amount}</span><br/>
+                            <span>Status: {walletReplenishResponse.paymentStatus}</span>
+                          </div>
+                      )}
+                      <br/>
+                      <span style={{display: 'block'}}>
                         Please wait for your replenishment request to be processed.
                       </span>
-                      <span style={{ display: 'block' }}>
+                      <span style={{display: 'block'}}>
                         You will receive an email notification once request has been approved.
                       </span>
                     </Typography>
