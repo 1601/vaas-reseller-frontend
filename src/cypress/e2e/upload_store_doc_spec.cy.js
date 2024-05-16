@@ -2,7 +2,7 @@ describe('upload store documents spec', () => {
     beforeEach(() => {
         const isStaging = Cypress.env('IsStaging');
         cy.visit(`${Cypress.env(isStaging ? 'REACT_CYPRESS_STAGING_TEST_URL' : 'REACT_CYPRESS_LOCAL_TEST_URL')}/login`); // Adjust if your local development URL is different
-        cy.get('input[name="email"]').type('test214515251658@yopmail.com');
+        cy.get('input[name="email"]').type('test891554@yopmail.com');
         cy.get('input[name="password"]').type('Tonyspark@71');
         cy.contains('button', 'Login').click();
     })
@@ -38,11 +38,16 @@ describe('upload store documents spec', () => {
                 cy.get('input[type="file"][name="uploadDocInput"]').invoke('show').selectFile('cypress/fixtures/test_business_doc.jpg');
                 cy.contains('button', 'Submit').click();
                 cy.contains('h4', 'Uploading Files').should('be.visible').wait(20000);
-                cy.contains('a div', 'upload document').click().wait(1000);
+                cy.contains('h6', 'Upload Success').should('be.visible');
             }
         });
-
     })
 
-    // todo add more unit test for store upload
+    it('Test show uploaded document', () => {
+        cy.get('[name="navMenu"]').click();
+        cy.contains('a div', 'Store').click();
+        cy.contains('a div', 'Storefront').click();
+        cy.contains('button', 'Uploaded Document').click();
+        cy.contains('h2', 'Uploaded Document').should('be.visible');
+    })
 })
