@@ -248,9 +248,12 @@ const WalletPayouts = () => {
         walletRequestData
       );
       console.log('Wallet request created successfully: ', response.data);
-      setWalletReplenishResponse(response.data.body);
       const walletRequestId = response.data.body._id;
       await uploadBankSlipImage(walletRequestId); // Wait for the image upload to complete
+      const responseLatestRequest = await axios.get(
+          `${process.env.REACT_APP_BACKEND_URL}/v1/api/wallet-requests/${walletRequestId}`
+      );
+      setWalletReplenishResponse(responseLatestRequest.data);
       setIsSubmitting(false); // Re-enable the submit button after the operation
       handleNext(); // Move to the next step only after the upload is successful
     } catch (error) {
@@ -730,10 +733,21 @@ const WalletPayouts = () => {
                     >
                       {walletReplenishResponse && (
                           <div>
-                            <span>Date Created: {new Date(walletReplenishResponse.dateCreated).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span><br/>
+                            <span>Date Created: {new Date(walletReplenishResponse.dateCreated).toLocaleDateString(undefined, {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                              second: '2-digit'
+                            })}</span><br/>
                             <span>Reference Number: {walletReplenishResponse.referenceNo}</span><br/>
                             <span>Amount: {walletReplenishResponse.currency} {walletReplenishResponse.amount}</span><br/>
-                            <span>Status: {walletReplenishResponse.paymentStatus}</span>
+                            <span>Status: {walletReplenishResponse.paymentStatus}</span><br/>
+                            <span>File Uploaded: </span><br/>
+                            <div style={{marginBottom: 10}}>
+                              <img src={`${walletReplenishResponse.image}`} alt={"Displayed"} style={{maxWidth: '100%'}}/>
+                            </div>
                           </div>
                       )}
                       <br/>
