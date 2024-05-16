@@ -86,7 +86,6 @@ const StorePageEdit = () => {
             Authorization: `Bearer ${token}`,
           },
         });
-        console.log(response);
         setUploadedDocument(response.data);
       } catch (error) {
         console.error('Could not fetch store data', error);
@@ -1008,7 +1007,7 @@ const StorePageEdit = () => {
 
           <Dialog open={uploadHistoryDialogOpen} onClose={handleUploadHistoryDialogClose} maxWidth="sm" fullWidth>
             <DialogTitle>{'Uploaded Document'}</DialogTitle>
-            <DialogContent dividers>
+            <DialogContent dividers style={{ overflowY: 'auto' }}>
               <Typography
                   sx={{
                     bgcolor: 'background.paper',
@@ -1040,7 +1039,18 @@ const StorePageEdit = () => {
                       <span>Business Type: {uploadedDocument.businessType}</span><br/>
                       <span># of Employees: {uploadedDocument.numberOfEmployee}</span><br/>
                       <span>Zip Code: {uploadedDocument.zipCodeAddress}</span><br/>
+                      <span>IDs Uploaded: </span><br/>
+                      {uploadedDocument.idUrl.map((link, index) => (
+                          <div key={index} style={{marginBottom: 10}}>
+                            <img src={link} alt={`Displayed-${index}`} style={{maxWidth: '100%'}}/>
+                          </div>
+                      ))}
                       <span>Documents Uploaded: </span><br/>
+                      {uploadedDocument.documentUrl.map((link, index) => (
+                          <div key={index} style={{marginBottom: 10}}>
+                            <img src={link} alt={`Displayed-${index}`} style={{maxWidth: '100%'}}/>
+                          </div>
+                      ))}
                     </div>
                 )}
               </Typography>
