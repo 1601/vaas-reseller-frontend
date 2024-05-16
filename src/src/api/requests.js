@@ -38,7 +38,7 @@ const submitFileKyc = async (datas) => {
     datas.map((data) => {
       return formData.append('file', data);
     });
-    response = await axiosInstance.put(`kyc-business/kyc/${getOwnerId()}`, formData);
+    response = await axiosInstance.put(`kyc-business/kyc/upload`, formData);
   } catch (error) {
     console.log(error);
   }
