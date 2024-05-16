@@ -174,7 +174,6 @@ export default function KYC() {
   const [selectedDocs, setSelectedDocs] = useState([]);
   const [formData, setFormData] = useState(initialFormData);
   const fileInputRef = useRef(null);
-  // const docsInputRef = useRef(null);
   const [businessType, setBusinessType] = useState('');
   const [linkFieldsData, setLinkFieldsData] = useState([{ externalLinkAccount: '' }]);
   const [approvalStatus, setApprovalStatus] = useState(0);
@@ -327,9 +326,7 @@ export default function KYC() {
       if (result.status === 200) {
         // Submit File
         const mergeFileData = [...selectedImage, ...selectedDocs];
-
         const fileResult = await putFileKyc(mergeFileData);
-        console.log(fileResult);
         if (fileResult.status === 200) {
           const userData = ls.get('user');
           const userToken = userData.token;
@@ -433,16 +430,21 @@ export default function KYC() {
     window.location.href = '/dashboard/app';
   };
 
-  const onDrop = useCallback((acceptedFiles) => {
+  const onDropID = useCallback((acceptedFiles) => {
     // Do something with the files
     const file = acceptedFiles[0];
     if (file.type === 'image/png' || file.type === 'image/jpeg') {
       setSelectedImage((selectedImage) => [...selectedImage, acceptedFiles[0]]);
-    } else {
-      setSelectedDocs((selectedDocs) => [...selectedDocs, acceptedFiles[0]]);
     }
   }, []);
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
+
+  const onDropDoc = useCallback((acceptedFiles) => {
+    // Do something with the files
+    setSelectedDocs((selectedDocs) => [...selectedDocs, acceptedFiles[0]]);
+  }, []);
+
+  const { getRootProps: getRootPropsID, getInputProps: getInputPropsID, isDragActive: isDragActiveID } = useDropzone({ onDrop: onDropID });
+  const { getRootProps: getRootPropsDoc, getInputProps: getInputPropsDoc, isDragActive: isDragActiveDoc } = useDropzone({ onDrop: onDropDoc });
   const isLastStep = activeStep === steps.length - 1;
 
   useEffect(() => {
@@ -917,9 +919,9 @@ export default function KYC() {
                             </Typography>
                           </div>
 
-                          <HoverableButton {...getRootProps()}>
+                          <HoverableButton {...getRootPropsID()}>
                             <div>
-                              <input name={"uploadIdInput"} {...getInputProps()} />
+                              <input name={"uploadIdInput"} {...getInputPropsID()} />
                               <Button
                                 name={"uploadId"}
                                 variant="contained"
@@ -935,7 +937,7 @@ export default function KYC() {
                                 Select Image
                               </Button>
                               <Box style={{ color: 'gray', fontSize: '.7rem' }}>
-                                {isDragActive ? (
+                                {isDragActiveID ? (
                                   <p>Drop the files here ...</p>
                                 ) : (
                                   <p>Drag 'n' drop some files here, or click to select files</p>
@@ -1000,9 +1002,9 @@ export default function KYC() {
                           <div style={{ marginTop: '30px', marginBottom: '30px' }}>
                             <Typography variant="body2"> DTI Business Name Registration certificate </Typography>
                           </div>
-                          <HoverableButton {...getRootProps()}>
+                          <HoverableButton {...getRootPropsDoc()}>
                             <div>
-                              <input name={"uploadDocInput"} {...getInputProps()} />
+                              <input name={"uploadDocInput"} {...getInputPropsDoc()} />
                               <Button
                                 name={"uploadDoc"}
                                 variant="contained"
@@ -1018,7 +1020,7 @@ export default function KYC() {
                                 Select Image
                               </Button>
                               <Box style={{ color: 'gray', fontSize: '.7rem' }}>
-                                {isDragActive ? (
+                                {isDragActiveDoc ? (
                                   <p>Drop the files here ...</p>
                                 ) : (
                                   <p>Drag 'n' drop some files here, or click to select files</p>
