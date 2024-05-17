@@ -23,7 +23,9 @@ const axiosInstance = axios.create({
 const submitDataKyc = async (data) => {
   let response;
   try {
-    response = await axiosInstance.post(`kyc-business/${getOwnerId()}`, data);
+    response = await axiosInstance.post(`kyc-business/${getOwnerId()}`, data, {
+      headers: { Authorization: `Bearer ${getNewToken()}`, },
+    });
   } catch (error) {
     console.error(error);
   }
@@ -38,7 +40,9 @@ const submitFileKyc = async (datas) => {
     datas.map((data) => {
       return formData.append('file', data);
     });
-    response = await axiosInstance.put(`kyc-business/kyc/upload`, formData);
+    response = await axiosInstance.put(`kyc-business/kyc/upload`, formData, {
+      headers: { Authorization: `Bearer ${getNewToken()}`, },
+    });
   } catch (error) {
     console.log(error);
   }
