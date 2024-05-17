@@ -160,7 +160,7 @@ const CircularLoadingSuccess = () => (
           }}
       >
         <Typography variant="h6">Upload Success</Typography>
-        <Button variant="outlined" color="primary" onClick={() => {
+        <Button variant="contained" color="primary" onClick={() => {
           // Redirect to the desired URL inline
           window.location.href = '/dashboard/app';
         }}>Proceed</Button>
