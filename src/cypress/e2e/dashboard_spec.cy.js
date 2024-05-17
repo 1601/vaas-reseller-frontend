@@ -3,14 +3,14 @@ describe('dashboard unit tests', () => {
     beforeEach(() => {
         const isStaging = Cypress.env('IsStaging');
         cy.visit(`${Cypress.env(isStaging ? 'REACT_CYPRESS_STAGING_TEST_URL' : 'REACT_CYPRESS_LOCAL_TEST_URL')}/login`); // Adjust if your local development URL is different
-        cy.get('input[name="email"]').type('test21451523@yopmail.com');
+        cy.get('input[name="email"]').type('test891554@yopmail.com');
         cy.get('input[name="password"]').type('Tonyspark@71');
         cy.contains('button', 'Login').click();
     })
 
     it('check if dashboard page elements are mounted', () => {
         cy.url().should('include', '/dashboard/app');
-        cy.contains('h4', 'Hi testery, welcome back').should('be.visible');
+        cy.contains('h4', 'Hi test, welcome back').should('be.visible');
         cy.contains('Wallet Balance: ').should('be.visible');
     });
 

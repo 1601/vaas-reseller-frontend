@@ -2,7 +2,7 @@ describe('Landing Page Tests', () => {
   beforeEach(() => {
     // Runs before each test in the block
     const isStaging = Cypress.env('IsStaging');
-    cy.visit(`${Cypress.env(isStaging ? 'REACT_CYPRESS_STAGING_TEST_URL' : 'REACT_CYPRESS_LOCAL_TEST_URL')}/login`); // Adjust if your local development URL is different
+    cy.visit(`${Cypress.env(isStaging ? 'REACT_CYPRESS_STAGING_TEST_URL' : 'REACT_CYPRESS_LOCAL_TEST_URL')}`); // Adjust if your local development URL is different
   });
 
   it('Checks for the presence of Login and Create Shop links, and email input field', () => {

@@ -26,11 +26,11 @@ describe('Login Page Tests', () => {
     })
 
     it('Check login functionality', () => {
-        cy.get('input[name="email"]').type('test21451523@yopmail.com');
+        cy.get('input[name="email"]').type('test891554@yopmail.com');
         cy.get('input[name="password"]').type('Tonyspark@71');
         cy.contains('button', 'Login').click();
         cy.url().should('include', '/dashboard/app');
-        cy.contains('h4', 'Hi testery, welcome back').should('be.visible');
+        cy.contains('h4', 'Hi test, welcome back').should('be.visible');
     })
 
     it('Check for forget password redirection', () => {
