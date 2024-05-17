@@ -245,13 +245,21 @@ const WalletPayouts = () => {
     try {
       const response = await axios.post(
         `${process.env.REACT_APP_BACKEND_URL}/v1/api/wallet-requests`,
-        walletRequestData
+        walletRequestData, {
+            headers: {
+              Authorization: `Bearer ${user.token}`,
+            },
+          },
       );
       console.log('Wallet request created successfully: ', response.data);
       const walletRequestId = response.data.body._id;
       await uploadBankSlipImage(walletRequestId); // Wait for the image upload to complete
       const responseLatestRequest = await axios.get(
-          `${process.env.REACT_APP_BACKEND_URL}/v1/api/wallet-requests/${walletRequestId}`
+          `${process.env.REACT_APP_BACKEND_URL}/v1/api/wallet-requests/${walletRequestId}`, {
+            headers: {
+              Authorization: `Bearer ${user.token}`,
+            },
+          },
       );
       setWalletReplenishResponse(responseLatestRequest.data);
       setIsSubmitting(false); // Re-enable the submit button after the operation
@@ -304,6 +312,7 @@ const WalletPayouts = () => {
       {
         headers: {
           'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${user.token}`,
         },
       }
     );
