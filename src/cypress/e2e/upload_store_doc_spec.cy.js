@@ -1,8 +1,13 @@
 describe('upload store documents spec', () => {
     beforeEach(() => {
+        const isTestEnv = Cypress.env('IS_TEST_ENV');
         const isStaging = Cypress.env('IsStaging');
         cy.visit(`${Cypress.env(isStaging ? 'REACT_CYPRESS_STAGING_TEST_URL' : 'REACT_CYPRESS_LOCAL_TEST_URL')}/login`); // Adjust if your local development URL is different
-        cy.get('input[name="email"]').type('test891554@yopmail.com');
+        if (isTestEnv) {
+            cy.get('input[name="email"]').type('test89155498@yopmail.com');
+        }else{
+            cy.pause();
+        }
         cy.get('input[name="password"]').type('Tonyspark@71');
         cy.contains('button', 'Login').click();
     })
