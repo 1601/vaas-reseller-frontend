@@ -21,9 +21,8 @@ describe('Sign Up Page Tests', () => {
         cy.get('input[name="confirmPassword"]').should('exist');
     })
 
-    // todo make the test succeed
     it('Test sign up validation', () => {
-        cy.wait(4000);
+        cy.wait(3000);
         cy.get('[name="firstName"]').type('test<>');
         cy.get('[name="middleName"]').type('testng<>');
         cy.get('[name="lastName"]').type('tester<>');
@@ -34,6 +33,28 @@ describe('Sign Up Page Tests', () => {
         cy.contains('div p', 'Last Name contains invalid characters').should('exist');
         cy.contains('div p', "Wrong Number format. Please use only digits and optional '+'.").should('exist');
         cy.contains('div p', 'Invalid email format').should('exist');
+    })
+
+    it('test signup tickboxes ', () => {
+        cy.wait(3000);
+        cy.get('input[name="termsCheck"]').click();
+        cy.get('.termsScroll').scrollTo('bottom');
+        cy.contains('button', 'Agree to Terms').click();
+        cy.get('input[name="termsCheck"]').should('be.checked');
+        cy.get('input[name="privacyCheck"]').click();
+        cy.get('.privacyScroll').scrollTo('bottom');
+        cy.contains('button', 'Agree to Terms').click();
+        cy.get('input[name="privacyCheck"]').should('be.checked');
+        cy.get('input[name="cookieCheck"]').click();
+        cy.get('.cookieScroll').scrollTo('bottom'); // Scroll 'sidebar' to its bottom
+        cy.contains('button', 'Agree to Terms').click();
+        cy.get('input[name="cookieCheck"]').should('be.checked');
+        cy.get('input[name="termsCheck"]').click();
+        cy.get('input[name="termsCheck"]').should('not.be.checked');
+        cy.get('input[name="privacyCheck"]').click();
+        cy.get('input[name="privacyCheck"]').should('not.be.checked');
+        cy.get('input[name="cookieCheck"]').click();
+        cy.get('input[name="cookieCheck"]').should('not.be.checked');
     })
 
     it('Check sign up functionality', () => {
@@ -94,10 +115,6 @@ describe('Sign Up Page Tests', () => {
         cy.url().should('include', '/login');
         cy.contains('h6', 'Login').should('be.visible');
     })
-
-    // it('', () => {
-    //
-    // })
 
     // todo sign up unit test with working generated email
     // it('Check sign up functionality', () => {
