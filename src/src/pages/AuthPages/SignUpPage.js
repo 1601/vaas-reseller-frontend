@@ -1277,7 +1277,13 @@ export default function SignUpPage() {
 
                   {/* Accept Terms and Conditions */}
                   <FormControlLabel
-                    control={<Checkbox name={"termsCheck"} checked={isTermsAccepted} onChange={() => openTermsDialog(false, false)} />}
+                    control={<Checkbox name={"termsCheck"} checked={isTermsAccepted} onChange={() => {
+                      if(isTermsAccepted){
+                        setIsTermsAccepted(false);
+                      }else{
+                        openTermsDialog(false, false);
+                      }
+                    }} />}
                     label={
                       <>
                         I agree to the
@@ -1290,7 +1296,13 @@ export default function SignUpPage() {
                   />
 
                   <FormControlLabel
-                      control={<Checkbox name={"privacyCheck"} checked={isPrivacyAccepted} onChange={() => openPrivacyDialog(false, false)} />}
+                      control={<Checkbox name={"privacyCheck"} checked={isPrivacyAccepted} onChange={() => {
+                        if(isPrivacyAccepted){
+                          setIsPrivacyAccepted(false);
+                        }else{
+                          openPrivacyDialog(false, false);
+                        }
+                      }} />}
                       label={
                         <>
                           I agree to the
@@ -1303,7 +1315,13 @@ export default function SignUpPage() {
                   />
 
                   <FormControlLabel
-                      control={<Checkbox name={"cookieCheck"} checked={isCookieAccepted} onChange={() => openCookieDialog(false, false)} />}
+                      control={<Checkbox name={"cookieCheck"} checked={isCookieAccepted} onChange={() => {
+                        if(isCookieAccepted){
+                          setIsCookieAccepted(false);
+                        }else{
+                          openCookieDialog(false, false);
+                        }
+                      }} />}
                       label={
                         <>
                           I agree to the
