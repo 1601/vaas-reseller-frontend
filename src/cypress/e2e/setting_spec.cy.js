@@ -28,7 +28,7 @@ describe('setting unit tests', () => {
         cy.get('[name="firstName"]').clear().type('testery');
         cy.get('[name="middleName"]').clear().type('testing');
         cy.get('[name="lastName"]').clear().type('testy');
-        cy.contains('button', 'Save').click().wait(2000);
+        cy.contains('button', 'Save').click().wait(4000);
         cy.get('input[name="firstName"]').invoke('val').then((inputValue) => {
             // Use Cypress assertions to compare the input value with expected value
             expect(inputValue).to.equal('testery');
@@ -41,6 +41,12 @@ describe('setting unit tests', () => {
             // Use Cypress assertions to compare the input value with expected value
             expect(inputValue).to.equal('testy');
         });
+        cy.contains('a','Proceed to Settings').click();
+        cy.contains('button' ,'Edit Profile').click();
+        cy.get('[name="firstName"]').clear().type('test');
+        cy.get('[name="middleName"]').clear().type('');
+        cy.get('[name="lastName"]').clear().type('testing');
+        cy.contains('button', 'Save').click().wait(4000);
     })
 
     it('Test change password', () => {
@@ -54,7 +60,7 @@ describe('setting unit tests', () => {
             .parent('div') // Assuming the input is a sibling of the label inside the same div
             .find('input')
             .type('Tonyspark@71');
-        cy.contains('div[class="MuiDialog-root MuiModal-root css-zw3mfo-MuiModal-root-MuiDialog-root"] button', 'Change Password').click();
+        cy.contains('button', 'Submit').click();
         cy.on('window:alert', (message) => {
             // Log or assert the message as needed
             expect(message).to.equal('Password changed successfully');
