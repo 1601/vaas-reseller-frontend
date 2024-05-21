@@ -339,7 +339,7 @@ const ProfileSettings = () => {
           email: formState.email,
           firstName: formState.firstName,
           lastName: formState.lastName,
-          middleName: formState.middleName,
+          middleName: formState.middleName === "" ? undefined : formState.middleName,
           country: formState.country,
           mobileNumber: fullMobileNumber,
           marketSub: acceptedMarketSub
