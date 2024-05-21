@@ -41,10 +41,9 @@ describe('setting unit tests', () => {
             // Use Cypress assertions to compare the input value with expected value
             expect(inputValue).to.equal('testy');
         });
-        cy.contains('a','Proceed to Settings').click();
         cy.contains('button' ,'Edit Profile').click();
         cy.get('[name="firstName"]').clear().type('test');
-        cy.get('[name="middleName"]').clear().type('');
+        cy.get('[name="middleName"]').clear();
         cy.get('[name="lastName"]').clear().type('testing');
         cy.contains('button', 'Save').click().wait(4000);
     })
