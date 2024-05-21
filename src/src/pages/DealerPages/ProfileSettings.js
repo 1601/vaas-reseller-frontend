@@ -823,7 +823,7 @@ const ProfileSettings = () => {
                   Cancel
                 </Button>
                 <Button onClick={handleChangePassword} color="primary">
-                  Change Password
+                  Submit
                 </Button>
               </DialogActions>
             </Dialog>
