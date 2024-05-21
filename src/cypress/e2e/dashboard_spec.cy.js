@@ -9,18 +9,30 @@ describe('dashboard unit tests', () => {
     })
 
     it('check if dashboard page elements are mounted', () => {
+        const isStaging = Cypress.env('IsStaging');
+        if(isStaging){
+            cy.pause();
+        }
         cy.url().should('include', '/dashboard/app');
         cy.contains('h4', 'Hi test, welcome back').should('be.visible');
         cy.contains('Wallet Balance: ').should('be.visible');
     });
 
     it('Test Proceed to setting redirection', () => {
+        const isStaging = Cypress.env('IsStaging');
+        if(isStaging){
+            cy.pause();
+        }
         cy.url().should('include', '/dashboard/app');
         cy.contains('a','Proceed to Settings').click();
         cy.url().should('include', '/dashboard/settings/profile')
     })
 
     it('Test wallet redirection', () => {
+        const isStaging = Cypress.env('IsStaging');
+        if(isStaging){
+            cy.pause();
+        }
         cy.url().should('include', '/dashboard/app');
         cy.get('[name="navMenu"]').click();
         cy.contains('a div', 'Wallets & Payouts').click();
@@ -29,6 +41,10 @@ describe('dashboard unit tests', () => {
     })
 
     it('Test store redirection', () => {
+        const isStaging = Cypress.env('IsStaging');
+        if(isStaging){
+            cy.pause();
+        }
         cy.url().should('include', '/dashboard/app');
         cy.get('[name="navMenu"]').click();
         cy.contains('a div', 'Store').click();
@@ -38,6 +54,10 @@ describe('dashboard unit tests', () => {
     })
 
     it('Test upload redirection', () => {
+        const isStaging = Cypress.env('IsStaging');
+        if(isStaging){
+            cy.pause();
+        }
         cy.url().should('include', '/dashboard/app');
         cy.get('[name="navMenu"]').click();
         cy.contains('a div', 'upload document').click();

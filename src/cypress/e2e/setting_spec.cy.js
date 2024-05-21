@@ -5,6 +5,9 @@ describe('setting unit tests', () => {
         cy.get('input[name="email"]').type('test891554@yopmail.com');
         cy.get('input[name="password"]').type('Tonyspark@71');
         cy.contains('button', 'Login').click().wait(3000);
+        if(isStaging){
+            cy.pause();
+        }
         cy.contains('a','Proceed to Settings').click();
     })
 

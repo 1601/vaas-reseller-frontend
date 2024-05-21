@@ -10,12 +10,20 @@ describe('wallet unit tests', () => {
     })
 
     it('Check wallet elements visible', () => {
+        const isStaging = Cypress.env('IsStaging');
+        if(isStaging){
+            cy.pause();
+        }
         cy.url().should('include', '/dashboard/wallet');
         cy.contains('h4', 'Wallet and Payout').should('be.visible');
         cy.contains('div label', 'Amount to be credited in your Wallet');
     })
 
     it('Test wallet bank replenishment', () => {
+        const isStaging = Cypress.env('IsStaging');
+        if(isStaging){
+            cy.pause();
+        }
         cy.contains('div label', 'Amount to be credited in your Wallet')
             .parent('div') // Assuming the input is a sibling of the label inside the same div
             .find('input')

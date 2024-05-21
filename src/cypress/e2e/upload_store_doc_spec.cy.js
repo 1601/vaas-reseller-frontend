@@ -13,6 +13,10 @@ describe('upload store documents spec', () => {
     })
 
     it('Test store document upload element visibility', () => {
+        const isStaging = Cypress.env('IsStaging');
+        if(isStaging){
+            cy.pause();
+        }
         cy.url().should('include', '/dashboard/app');
         cy.get('[name="navMenu"]').click();
         cy.contains('a div', 'upload document').click();
@@ -21,6 +25,9 @@ describe('upload store documents spec', () => {
 
     it('Test store document upload', () => {
         const isStaging = Cypress.env('IsStaging');
+        if(isStaging){
+            cy.pause();
+        }
         cy.get('[name="navMenu"]').click();
         cy.contains('a div', 'upload document').click();
         cy.contains('button', 'Next').click();
@@ -49,6 +56,10 @@ describe('upload store documents spec', () => {
     })
 
     it('Test show uploaded document', () => {
+        const isStaging = Cypress.env('IsStaging');
+        if(isStaging){
+            cy.pause();
+        }
         cy.get('[name="navMenu"]').click();
         cy.contains('a div', 'Store').click();
         cy.contains('a div', 'Storefront').click();
