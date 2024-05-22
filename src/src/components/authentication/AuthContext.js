@@ -1,7 +1,8 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, {createContext, useContext, useState, useEffect, useRef} from 'react';
 import axios from 'axios';
 import SecureLS from 'secure-ls';
 import jwtDecode from 'jwt-decode';
+import intervalManager from "../intervalManager";
 
 const AuthContext = createContext();
 const ls = new SecureLS({ encodingType: 'aes' });
@@ -13,15 +14,11 @@ export const AuthProvider = ({ children }) => {
   const [tokenExpired, setTokenExpired] = useState(false);
   const [newLoginDialogOpen, setNewLoginDialogOpen] = useState(false);
   const [tokenExpiredDialogOpen, setTokenExpiredDialogOpen] = useState(false);
+  const { setTrackedInterval, clearAllIntervals } = intervalManager();
   let isCheckingTokenExpiration = false;
   let intervalId;
 
   const checkTokenExpiration = async () => {
-    if (isCheckingTokenExpiration) {
-      return; // Exit the function to prevent infinite loop
-    }
-
-    isCheckingTokenExpiration = true;
     const storedToken = ls.get('token');
     if (storedToken) {
       try {
@@ -29,40 +26,37 @@ export const AuthProvider = ({ children }) => {
         if (decodedToken.exp * 1000 < Date.now()) {
           setTokenExpired(true);
           setTokenExpiredDialogOpen(true);
-          clearInterval(intervalId);
+          clearAllIntervals(intervalId);
         } else {
           const isValid = await axios.post(
             `${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/verify-token`,
             { token: storedToken },
-            { headers: { Authorization: `Bearer ${storedToken}` } }
           );
           if (!isValid.data.isValid) {
             setTokenExpired(true);
             setTokenExpiredDialogOpen(true);
-            clearInterval(intervalId);
+            clearAllIntervals(intervalId);
           } else {
             setUser(ls.get('user'));
             setTokenExpired(false);
           }
         }
-        isCheckingTokenExpiration = false;
       } catch (error) {
         console.error('Error checking token validity:', error);
         setTokenExpired(true);
         setTokenExpiredDialogOpen(true);
-        isCheckingTokenExpiration = false;
       }
     }
   };
 
   useEffect(() => {
     if (!newLoginDialogOpen && !tokenExpiredDialogOpen) {
-      intervalId = setInterval(checkTokenExpiration, 60000);
+      intervalId = setTrackedInterval(checkTokenExpiration, 600000);
     }
 
     return () => {
       if (intervalId) {
-        clearInterval(intervalId);
+        clearAllIntervals(intervalId);
       }
     };
   }, [newLoginDialogOpen, tokenExpiredDialogOpen]);
@@ -73,11 +67,14 @@ export const AuthProvider = ({ children }) => {
       if (error.response) {
         const status = error.response.status;
   
-        if ([400, 402, 403, 404].includes(status)) {
+        if ([403].includes(status) && !isCheckingTokenExpiration) {
+          isCheckingTokenExpiration = true;
           await checkTokenExpiration();
+          isCheckingTokenExpiration = false;
         }
         
         if (status === 401) {
+          isCheckingTokenExpiration = true;
           if (error.response.data.message === 'Token is invalid due to new login.') {
             if (!tokenExpiredDialogOpen) {
               setNewLoginDialogOpen(true);
@@ -97,12 +94,14 @@ export const AuthProvider = ({ children }) => {
   );
 
   const login = (userData, token) => {
+    clearAllIntervals();
     ls.set('token', token);
     ls.set('user', userData);
     setUser(userData);
     setTokenExpired(false);
     setNewLoginDialogOpen(false);
     setTokenExpiredDialogOpen(false);
+    isCheckingTokenExpiration = false;
   };
 
   const logout = () => {
@@ -112,6 +111,7 @@ export const AuthProvider = ({ children }) => {
     setTokenExpired(false);
     setNewLoginDialogOpen(false);
     setTokenExpiredDialogOpen(false);
+    clearAllIntervals();
   };
 
   const isAuthenticated = () => !!user;
