@@ -262,12 +262,6 @@ const ManageReseller = () => {
         }
         break;
       }
-      case 'companyName': {
-        if (value === '') {
-          error = 'Company Name is required';
-        }
-        break;
-      }
       default:
         break;
     }

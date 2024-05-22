@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField } from '@mui/material';
 import axios from 'axios';
+import SecureLS from "secure-ls";
 import ValidatedManageReseller from '../validation/ValidatedManageReseller';
 import { validateName } from '../validation/validationUtils';
+
+const ls = new SecureLS({ encodingType: 'aes' });
 
 const EditResellerDialog = ({ open, onClose, reseller, onSubmit, userId, refreshResellers, editingResellerId }) => {
   const [formState, setFormState] = useState({
@@ -10,6 +13,8 @@ const EditResellerDialog = ({ open, onClose, reseller, onSubmit, userId, refresh
     lastName: '',
     companyName: '',
   });
+  const token = ls.get('token');
+
 
   useEffect(() => {
     if (reseller) {
@@ -29,8 +34,13 @@ const EditResellerDialog = ({ open, onClose, reseller, onSubmit, userId, refresh
   const handleFormSubmit = async () => {
     try {
       const response = await axios.put(
-        `${process.env.REACT_APP_BACKEND_URL}/v1/api/users/${userId}/resellers/${editingResellerId}`,
-        formState
+        `${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/${userId}/${editingResellerId}`,
+        formState,
+          {
+              headers: {
+                  Authorization: `Bearer ${token}`,
+              }
+          }
       );
 
       if (response.status === 200) {
