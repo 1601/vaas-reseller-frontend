@@ -116,6 +116,7 @@ export default function LoginDialog({ open, onClose }) {
             <>
               <TextField
                 label="Email Address"
+                name="sessionEmail"
                 type="email"
                 fullWidth
                 value={email}
@@ -125,6 +126,7 @@ export default function LoginDialog({ open, onClose }) {
                 helperText={emailError}
               />
               <TextField
+                name="sessionPass"
                 label="Password"
                 type="password"
                 fullWidth
@@ -140,7 +142,7 @@ export default function LoginDialog({ open, onClose }) {
           <Button onClick={handleLogout} color="error" disabled={loading}>
             Logout
           </Button>
-          <Button onClick={handleLogin} disabled={!isFormValid() || loading}>
+          <Button onClick={handleLogin} disabled={!isFormValid || loading}>
             Log in
           </Button>
         </DialogActions>
