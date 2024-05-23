@@ -80,6 +80,9 @@ const checkTokenValidity = async () => {
       { token },
       { headers: { Authorization: `Bearer ${token}` } }
     );
+    if(!response.data.isValid){
+      return { isValid: response.data.isValid, reason: 'Token is expired.' };
+    }
     return { isValid: response.data.isValid, reason: 'valid' };
   } catch (error) {
     console.error('Token validation error:', error);
