@@ -275,7 +275,7 @@ const WalletPayouts = () => {
     const maxRows = 5000;
     const requestKey = ['dateCreated', 'referenceNo', 'currency', 'amount', 'paymentStatus', 'paymentMethod'];
     const headers = ['Date Created', 'Transaction', 'Currency', 'Amount', 'Payment Status', 'Payment Method']
-    const tableData = [headers, ...dateFilteredWalletRequests.slice(0, maxRows).map(row => requestKey.map(key => row[key]))];
+    const tableData = [headers, ...filteredWalletRequests.slice(0, maxRows).map(row => requestKey.map(key => row[key]))];
 
     // Create a new workbook and worksheet
     const workbook = XLSX.utils.book_new();
@@ -295,7 +295,7 @@ const WalletPayouts = () => {
     // Create a download link and trigger the download
     const downloadLink = document.createElement('a');
     downloadLink.href = URL.createObjectURL(fileData);
-    const now = new Date().getTime();
+    const now = Math.floor(new Date().getTime() / (60 * 1000)) * (60 * 1000);
     const unixTimestamp = Math.floor(now / 1000);
     downloadLink.download = `wallet_rep_report_${unixTimestamp}.xlsx`;
     downloadLink.click();
@@ -405,7 +405,10 @@ const WalletPayouts = () => {
           const startDate = new Date(dateRange.startDate);
           const endDate = new Date(dateRange.endDate);
           // Set the time of endDate to 23:59:59
+          startDate.setHours(0, 0, 0, 0);
           endDate.setHours(23, 59, 59, 999);
+          console.log("eto simula: ", startDate);
+          console.log("eto simula: ", endDate);
           return (
               (!startDate || date >= startDate) &&
               (!endDate || date <= endDate)
@@ -862,7 +865,7 @@ const WalletPayouts = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {dateFilteredWalletRequests.map((request) => (
+                  {filteredWalletRequests.map((request) => (
                     <TableRow
                       key={request._id}
                       sx={{ '&:hover': { cursor: 'pointer', backgroundColor: 'rgba(0, 0, 0, 0.04)' } }}
