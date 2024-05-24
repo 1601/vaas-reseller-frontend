@@ -407,8 +407,6 @@ const WalletPayouts = () => {
           // Set the time of endDate to 23:59:59
           startDate.setHours(0, 0, 0, 0);
           endDate.setHours(23, 59, 59, 999);
-          console.log("eto simula: ", startDate);
-          console.log("eto simula: ", endDate);
           return (
               (!startDate || date >= startDate) &&
               (!endDate || date <= endDate)
