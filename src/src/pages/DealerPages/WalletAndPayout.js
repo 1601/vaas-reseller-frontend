@@ -81,8 +81,8 @@ const WalletPayouts = () => {
   const [walletRequests, setWalletRequests] = useState([]);
   const [flattenedWalletRequests, setFlattenedWalletRequests] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [filteredWalletRequests, setFilteredWalletRequests] = useState(walletRequests);
-  const [dateFilteredWalletRequests, setDateFilteredWalletRequests] = useState(filteredWalletRequests);
+  const [dateFilteredWalletRequests, setDateFilteredWalletRequests] = useState(walletRequests);
+  const [filteredWalletRequests, setFilteredWalletRequests] = useState(dateFilteredWalletRequests);
   const [sortBy, setSortBy] = useState('createdBy desc');
   const [walletReplenishResponse, setWalletReplenishResponse] = useState(null);
   const [selectedRange, setSelectedRange] = useState([
