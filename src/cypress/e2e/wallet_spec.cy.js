@@ -40,17 +40,9 @@ describe('wallet unit tests', () => {
         cy.contains('button', 'History').should('have.attr', 'aria-selected', 'true');
     })
 
-    // todo wallet replenishment report batch 2
-    // it('Test View History', () => {
-    //     cy.contains('button', 'History').click();
-    //     cy.get('[class="rdrDateRangePickerWrapper"]').should('be.visible');
-    // cy.get('input[placeholder="Early"]').then($input => {
-    //     // Use jQuery to set the value of the input directly
-    //     $input.val('March 1, 2024');
-    // });
-    // cy.get('input[placeholder="Early"]').then($input => {
-    //     // Use jQuery to set the value of the input directly
-    //     $input.val('March 1, 2024');
-    // });
-    // })
+    it('Test download excel', () => {
+        cy.contains('button', 'History').click().wait(1000);
+        cy.contains('button', 'Export').click();
+        cy.readFile(`cypress/downloads/wallet_rep_report.xlsx`).should('exist');
+    })
 })
