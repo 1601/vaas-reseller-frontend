@@ -34,7 +34,7 @@ describe('wallet unit tests', () => {
             .click()
             .selectFile('cypress/fixtures/test-bank-receipt.png');
         cy.contains('button', 'Submit').click();
-        cy.contains('div button', 'Submitting...').should('be.visible').wait(22000);
+        cy.contains('div button', 'Submitting...').should('be.visible').wait(15000);
         cy.contains('p span','Please wait for your replenishment request to be processed.').should('be.visible');
         cy.contains('button','Done').click();
         cy.contains('button', 'History').should('have.attr', 'aria-selected', 'true');
@@ -43,6 +43,8 @@ describe('wallet unit tests', () => {
     it('Test download excel', () => {
         cy.contains('button', 'History').click().wait(1000);
         cy.contains('button', 'Export').click();
-        cy.readFile(`cypress/downloads/wallet_rep_report.xlsx`).should('exist');
+        const now = Math.floor(new Date().getTime() / (60 * 1000)) * (60 * 1000);
+        const unixTimestamp = Math.floor(now / 1000);
+        cy.readFile(`cypress/downloads/wallet_rep_report_${unixTimestamp}.xlsx`).should('exist');
     })
 })
