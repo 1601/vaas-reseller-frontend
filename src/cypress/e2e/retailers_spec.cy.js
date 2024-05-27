@@ -30,6 +30,7 @@ describe('retailers unit tests', () => {
         cy.get('input[name="companyName"]').type('sample company');
         cy.contains('button' ,'Submit').click();
         cy.contains('h6', 'Creating Retailer...').should('be.visible');
+        cy.wait(5000);
         cy.contains('h5', 'Reseller Successfully Created').should('be.visible');
         cy.contains('button' ,'Done').click();
     })
