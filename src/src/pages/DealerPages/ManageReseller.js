@@ -335,7 +335,6 @@ const ManageReseller = () => {
 
           setFormState(initialFormState);
           setCreateSuccessMessage('Email with account details successfully sent');
-          fetchResellersForUser(userId);
           setIsCreating(false);
           setCreateSuccessMessage('Reseller Successfully Created');
           // setOpen(false);
