@@ -7,9 +7,18 @@ import {
   Card,
   CardContent,
   Chip,
-  Container, FormControl,
-  Grid, InputLabel, MenuItem,
-  Paper, Select,
+  Container,
+  FormControl,
+  Grid,
+  InputLabel,
+  MenuItem,
+  Paper,
+  Select,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   Step,
   StepLabel,
   Stepper,
@@ -97,6 +106,9 @@ const WalletPayouts = () => {
     endDate: new Date(),
   });
 
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogMessage, setDialogMessage] = useState('');
+
   const [bankDetails] = useState({
     USA: {
       bankName: 'Philippine National Bank',
@@ -142,7 +154,17 @@ const WalletPayouts = () => {
   };
 
   const handleFileChange = (event) => {
-    setFile(event.target.files[0]);
+    const selectedFile = event.target.files[0];
+    if (selectedFile && !['image/jpeg', 'image/png', 'image/jpg'].includes(selectedFile.type)) {
+      setDialogMessage('Only JPG, JPEG and PNG image formats will be accepted.');
+      setDialogOpen(true);
+    } else {
+      setFile(selectedFile);
+    }
+  };
+
+  const handleDialogClose = () => {
+    setDialogOpen(false);
   };
 
   const handleBankDepositClick = () => {
@@ -216,7 +238,6 @@ const WalletPayouts = () => {
 
   // Function to create a new wallet request
   const createWalletRequest = async () => {
-    // change here
     const date = new Date();
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -245,21 +266,23 @@ const WalletPayouts = () => {
     try {
       const response = await axios.post(
         `${process.env.REACT_APP_BACKEND_URL}/v1/api/wallet-requests`,
-        walletRequestData, {
-            headers: {
-              Authorization: `Bearer ${user.token}`,
-            },
+        walletRequestData,
+        {
+          headers: {
+            Authorization: `Bearer ${user.token}`,
           },
+        }
       );
       console.log('Wallet request created successfully: ', response.data);
       const walletRequestId = response.data.body._id;
       await uploadBankSlipImage(walletRequestId); // Wait for the image upload to complete
       const responseLatestRequest = await axios.get(
-          `${process.env.REACT_APP_BACKEND_URL}/v1/api/wallet-requests/${walletRequestId}`, {
-            headers: {
-              Authorization: `Bearer ${user.token}`,
-            },
+        `${process.env.REACT_APP_BACKEND_URL}/v1/api/wallet-requests/${walletRequestId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${user.token}`,
           },
+        }
       );
       setWalletReplenishResponse(responseLatestRequest.data);
       setIsSubmitting(false); // Re-enable the submit button after the operation
@@ -274,8 +297,11 @@ const WalletPayouts = () => {
   const handleExportToExcel = () => {
     const maxRows = 5000;
     const requestKey = ['dateCreated', 'referenceNo', 'currency', 'amount', 'paymentStatus', 'paymentMethod'];
-    const headers = ['Date Created', 'Transaction', 'Currency', 'Amount', 'Payment Status', 'Payment Method']
-    const tableData = [headers, ...filteredWalletRequests.slice(0, maxRows).map(row => requestKey.map(key => row[key]))];
+    const headers = ['Date Created', 'Transaction', 'Currency', 'Amount', 'Payment Status', 'Payment Method'];
+    const tableData = [
+      headers,
+      ...filteredWalletRequests.slice(0, maxRows).map((row) => requestKey.map((key) => row[key])),
+    ];
 
     // Create a new workbook and worksheet
     const workbook = XLSX.utils.book_new();
@@ -330,10 +356,11 @@ const WalletPayouts = () => {
       paymentMethod: [],
     };
 
-    if(newValue.length !== 0){
+    if (newValue.length !== 0) {
       // let searchCategory = [];
-      newValue.forEach(value => {
-          const results = dateFilteredWalletRequests.filter(obj => {
+      newValue.forEach((value) => {
+        const results = dateFilteredWalletRequests
+          .filter((obj) => {
             const jsonValues = Object.values(obj);
             return jsonValues.some((jsonValue) => jsonValue === value);
           })
@@ -345,15 +372,17 @@ const WalletPayouts = () => {
         if (results[0]) searchCriteria[results[0]].push(value);
       });
 
-      foundWalletRequests.push(...dateFilteredWalletRequests.filter(obj => {
-        const flattenedObj = flattenObject(obj);
-        return Object.entries(searchCriteria).every(([key, value]) => {
-          if (value.length !== 0) {
-            return value.some(selects => flattenedObj.some(val => selects.includes(val)));
-          }
-          return true;
-        });
-      }));
+      foundWalletRequests.push(
+        ...dateFilteredWalletRequests.filter((obj) => {
+          const flattenedObj = flattenObject(obj);
+          return Object.entries(searchCriteria).every(([key, value]) => {
+            if (value.length !== 0) {
+              return value.some((selects) => flattenedObj.some((val) => selects.includes(val)));
+            }
+            return true;
+          });
+        })
+      );
     }
 
     setFilteredWalletRequests(newValue.length !== 0 ? foundWalletRequests : dateFilteredWalletRequests);
@@ -367,7 +396,7 @@ const WalletPayouts = () => {
 
   const handleSortChange = (event) => {
     setSortBy(event.target.value);
-  }
+  };
 
   useEffect(() => {
     if (sortBy === 'createdBy desc') {
@@ -395,35 +424,33 @@ const WalletPayouts = () => {
 
     const flattenedValues = [...new Set(dateFilteredWalletRequests.flatMap(flattenObject))];
     setFlattenedWalletRequests(flattenedValues);
-
   }, [dateFilteredWalletRequests]);
 
   useEffect(() => {
-      if(dateFilteredWalletRequests.length === 0){
-        setDateFilteredWalletRequests(walletRequests.filter((item) => {
+    if (dateFilteredWalletRequests.length === 0) {
+      setDateFilteredWalletRequests(
+        walletRequests.filter((item) => {
           const date = new Date(item.dateCreated);
           const startDate = new Date(dateRange.startDate);
           const endDate = new Date(dateRange.endDate);
           // Set the time of endDate to 23:59:59
           startDate.setHours(0, 0, 0, 0);
           endDate.setHours(23, 59, 59, 999);
-          return (
-              (!startDate || date >= startDate) &&
-              (!endDate || date <= endDate)
-          )}));
-      }else{
-        setDateFilteredWalletRequests(dateFilteredWalletRequests.filter((item) => {
+          return (!startDate || date >= startDate) && (!endDate || date <= endDate);
+        })
+      );
+    } else {
+      setDateFilteredWalletRequests(
+        dateFilteredWalletRequests.filter((item) => {
           const date = new Date(item.dateCreated);
           const startDate = new Date(dateRange.startDate);
           const endDate = new Date(dateRange.endDate);
           // Set the time of endDate to 23:59:59
           endDate.setHours(23, 59, 59, 999);
-          return (
-              (!startDate || date >= startDate) &&
-              (!endDate || date <= endDate)
-          )}));
-      }
-
+          return (!startDate || date >= startDate) && (!endDate || date <= endDate);
+        })
+      );
+    }
   }, [dateRange, walletRequests]);
 
   useEffect(() => {
@@ -729,42 +756,56 @@ const WalletPayouts = () => {
                 {activeStep === 2 && (
                   <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', mb: 2 }}>
                     <Typography
-                        sx={{
-                          bgcolor: 'background.paper',
-                          border: 1,
-                          borderColor: 'divider',
-                          p: 2,
-                          mt: 2,
-                          borderRadius: 1,
-                          textAlign: 'justify', // Set text alignment to justify
-                          color: 'text.secondary',
-                          margin: 'auto',
-                        }}
+                      sx={{
+                        bgcolor: 'background.paper',
+                        border: 1,
+                        borderColor: 'divider',
+                        p: 2,
+                        mt: 2,
+                        borderRadius: 1,
+                        textAlign: 'justify', // Set text alignment to justify
+                        color: 'text.secondary',
+                        margin: 'auto',
+                      }}
                     >
                       {walletReplenishResponse && (
-                          <div>
-                            <span>Date Created: {new Date(walletReplenishResponse.dateCreated).toLocaleDateString(undefined, {
+                        <div>
+                          <span>
+                            Date Created:{' '}
+                            {new Date(walletReplenishResponse.dateCreated).toLocaleDateString(undefined, {
                               year: 'numeric',
                               month: 'long',
                               day: 'numeric',
                               hour: '2-digit',
                               minute: '2-digit',
-                              second: '2-digit'
-                            })}</span><br/>
-                            <span>Reference Number: {walletReplenishResponse.referenceNo}</span><br/>
-                            <span>Amount: {walletReplenishResponse.currency} {walletReplenishResponse.amount}</span><br/>
-                            <span>Status: {walletReplenishResponse.paymentStatus}</span><br/>
-                            <span>File Uploaded: </span><br/>
-                            <div style={{marginBottom: 10}}>
-                              <img src={`${walletReplenishResponse.image}`} alt={"Displayed"} style={{maxWidth: '100%'}}/>
-                            </div>
+                              second: '2-digit',
+                            })}
+                          </span>
+                          <br />
+                          <span>Reference Number: {walletReplenishResponse.referenceNo}</span>
+                          <br />
+                          <span>
+                            Amount: {walletReplenishResponse.currency} {walletReplenishResponse.amount}
+                          </span>
+                          <br />
+                          <span>Status: {walletReplenishResponse.paymentStatus}</span>
+                          <br />
+                          <span>File Uploaded: </span>
+                          <br />
+                          <div style={{ marginBottom: 10 }}>
+                            <img
+                              src={`${walletReplenishResponse.image}`}
+                              alt={'Displayed'}
+                              style={{ maxWidth: '100%' }}
+                            />
                           </div>
+                        </div>
                       )}
-                      <br/>
-                      <span style={{display: 'block'}}>
+                      <br />
+                      <span style={{ display: 'block' }}>
                         Please wait for your replenishment request to be processed.
                       </span>
-                      <span style={{display: 'block'}}>
+                      <span style={{ display: 'block' }}>
                         You will receive an email notification once request has been approved.
                       </span>
                     </Typography>
@@ -814,42 +855,35 @@ const WalletPayouts = () => {
                 </Box>
               </Card>
             </div>
-            <div className={"flex"}>
+            <div className={'flex'}>
               <Autocomplete
-                  className="w-4/5"
-                  multiple
-                  id="tags-filled"
-                  freeSolo
-                  options={flattenedWalletRequests || ""}
-                  getOptionLabel={(option) => (option || "")}
-                  onChange={handleFilterChange}
-                  renderTags={(value, getTagProps) =>
-                      value.map((option, index) => (
-                          <Chip variant="outlined" label={option} {...getTagProps({index})} />
-                      ))
-                  }
-                  renderInput={(params) => (
-                      <TextField
-                          {...params}
-                          variant="filled"
-                          label="Search transaction"
-                          placeholder="transaction"
-                      />
-                  )}
+                className="w-4/5"
+                multiple
+                id="tags-filled"
+                freeSolo
+                options={flattenedWalletRequests || ''}
+                getOptionLabel={(option) => option || ''}
+                onChange={handleFilterChange}
+                renderTags={(value, getTagProps) =>
+                  value.map((option, index) => <Chip variant="outlined" label={option} {...getTagProps({ index })} />)
+                }
+                renderInput={(params) => (
+                  <TextField {...params} variant="filled" label="Search transaction" placeholder="transaction" />
+                )}
               />
-                <FormControl className="w-1/5">
-                  <InputLabel id={"demo-simple-select-label"}>Sort By</InputLabel>
-                  <Select
-                      labelId={"demo-simple-select-label"}
-                      id="demo-simple-select"
-                      label="Sort By"
-                      value={sortBy}
-                      onChange={handleSortChange}
-                  >
-                    <MenuItem value={"createdBy desc"}>Created By (Desc)</MenuItem>
-                    <MenuItem value={"createdBy asc"}>Created By (Asc)</MenuItem>
-                  </Select>
-                </FormControl>
+              <FormControl className="w-1/5">
+                <InputLabel id={'demo-simple-select-label'}>Sort By</InputLabel>
+                <Select
+                  labelId={'demo-simple-select-label'}
+                  id="demo-simple-select"
+                  label="Sort By"
+                  value={sortBy}
+                  onChange={handleSortChange}
+                >
+                  <MenuItem value={'createdBy desc'}>Created By (Desc)</MenuItem>
+                  <MenuItem value={'createdBy asc'}>Created By (Asc)</MenuItem>
+                </Select>
+              </FormControl>
             </div>
             <TableContainer component={Paper} sx={{ maxWidth: '100%', overflowX: 'auto' }}>
               <Table stickyHeader aria-label="transaction history">
@@ -903,6 +937,17 @@ const WalletPayouts = () => {
         )}
       </Container>
       <AccountStatusModal open userData={userData} storeData={storeData} />
+      <Dialog open={dialogOpen} onClose={handleDialogClose}>
+        <DialogTitle>Invalid File Type</DialogTitle>
+        <DialogContent>
+          <DialogContentText>{dialogMessage}</DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDialogClose} color="primary">
+            OK
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };
