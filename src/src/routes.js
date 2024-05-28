@@ -80,7 +80,7 @@ const checkTokenValidity = async () => {
       { token },
       { headers: { Authorization: `Bearer ${token}` } }
     );
-    if(!response.data.isValid){
+    if (!response.data.isValid) {
       return { isValid: response.data.isValid, reason: 'Token is expired.' };
     }
     return { isValid: response.data.isValid, reason: 'valid' };
@@ -187,12 +187,12 @@ export default function Router() {
   useEffect(() => {
     let intervalId;
 
-    if (!newLoginDialogOpen && !tokenExpiredDialogOpen) {
+    if (location.pathname.startsWith('/dashboard') && !newLoginDialogOpen && !tokenExpiredDialogOpen) {
       intervalId = setInterval(async () => {
         const { isValid, reason } = await checkTokenValidity();
         setIsTokenValid(isValid);
 
-        if (!isValid && location.pathname.startsWith('/dashboard')) {
+        if (!isValid) {
           if (reason === 'Token is invalid due to new login.') {
             setNewLoginDialogOpen(true);
             setTokenExpiredDialogOpen(false);
@@ -298,7 +298,7 @@ export default function Router() {
             { path: '/dashboard/settings', element: <Navigate to="profile" replace />, index: true },
             { path: 'profile', element: <ProfileSettings /> },
             { path: 'faq', element: <FAQs /> },
-            { path: 'support', element: <SupportDetails  /> },
+            { path: 'support', element: <SupportDetails /> },
           ],
         },
       ],
