@@ -35,6 +35,8 @@ import ValidatedTextField from '../../components/validation/ValidatedTextField';
 import { validateName, validateEmail, validateMobileNumber } from '../../components/validation/validationUtils';
 import CircularLoading from '../../components/preLoader';
 import termsAndAgreement from '../../components/agreements/termsAndAgreement';
+import privacyPolicy from "../../components/agreements/privacyPolicy";
+import cookiePolicy from '../../components/agreements/cookiePolicy';
 
 const ls = new SecureLS({ encodingType: 'aes' });
 
@@ -56,7 +58,11 @@ const ProfileSettings = () => {
   const [email, setEmail] = useState('');
   const [acceptedMarketSub, setAcceptedMarketSub] = useState(userData?.marketSub); // Default state is true
   const [showTerms, setShowTerms] = useState(false);
+  const [showPrivacy, setShowPrivacy] = useState(false);
+  const [showCookie, setShowCookie] = useState(false);
   const [isTermsDialogOpen, setIsTermsDialogOpen] = useState(false);
+  const [isPrivacyDialogOpen, setPrivacyDialogOpen] = useState(false);
+  const [isCookieDialogOpen, setCookieDialogOpen] = useState(false);
 
   const kycStatuses = ['Unsubmitted Documents', 'Pending Approval', 'Approved', 'Rejected'];
 
@@ -407,12 +413,27 @@ const ProfileSettings = () => {
   };
 
   const openTermsDialog = () => {
-    console.log();
     setIsTermsDialogOpen(true);
   };
 
   const closeTermsDialog = () => {
     setIsTermsDialogOpen(false);
+  };
+
+  const openPrivacyDialog = () => {
+    setPrivacyDialogOpen(true);
+  };
+
+  const closePrivacyDialog = () => {
+    setPrivacyDialogOpen(false);
+  };
+
+  const openCookieDialog = () => {
+    setCookieDialogOpen(true);
+  };
+
+  const closeCookieDialog = () => {
+    setCookieDialogOpen(false);
   };
 
   const handleMarketingEmailSubChange = (event) => {
@@ -724,9 +745,36 @@ const ProfileSettings = () => {
                           onClick={openTermsDialog}
                       >
                         <span style={{ textDecoration: 'underline', cursor: 'pointer' }}>
-                          Terms and Conditions, Cookie Policy, and Privacy Policy
+                          Terms and Conditions
                         </span>
-                      </Tooltip>{' '}
+                      </Tooltip>
+                      {', '}
+                      <Tooltip
+                          title={showCookie ? 'Cookie Policy' : ''}
+                          onOpen={() =>
+                              setShowCookie(true)
+                          }
+                          onClose={() => setShowTerms(false)}
+                          onClick={openCookieDialog}
+                      >
+                        <span style={{ textDecoration: 'underline', cursor: 'pointer' }}>
+                          Cookie Policy
+                        </span>
+                      </Tooltip>
+                      {', and '}
+                      <Tooltip
+                          title={showPrivacy ? 'Privacy Policy' : ''}
+                          onOpen={() =>
+                              setShowPrivacy(true)
+                          }
+                          onClose={() => setShowTerms(false)}
+                          onClick={openPrivacyDialog}
+                      >
+                        <span style={{ textDecoration: 'underline', cursor: 'pointer' }}>
+                          Privacy Policy
+                        </span>
+                      </Tooltip>
+                      {' '}
                       upon signing up.
                     </Typography>
                   </Card>
@@ -749,6 +797,46 @@ const ProfileSettings = () => {
               </DialogContent>
               <DialogActions>
                 <Button onClick={closeTermsDialog} color="primary">
+                  Close
+                </Button>
+              </DialogActions>
+            </Dialog>
+
+            <Dialog open={isCookieDialogOpen} onClose={closeCookieDialog} scroll="paper">
+              <DialogTitle>Cookie Policy</DialogTitle>
+              <DialogContent dividers>
+                <div
+                    style={{
+                      overflowY: 'auto',
+                      maxHeight: 400,
+                      whiteSpace: 'pre-line',
+                    }}
+                >
+                  <p>{cookiePolicy}</p>
+                </div>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={closeCookieDialog} color="primary">
+                  Close
+                </Button>
+              </DialogActions>
+            </Dialog>
+
+            <Dialog open={isPrivacyDialogOpen} onClose={closePrivacyDialog} scroll="paper">
+              <DialogTitle>Privacy Policy</DialogTitle>
+              <DialogContent dividers>
+                <div
+                    style={{
+                      overflowY: 'auto',
+                      maxHeight: 400,
+                      whiteSpace: 'pre-line',
+                    }}
+                >
+                  <p>{privacyPolicy}</p>
+                </div>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={closePrivacyDialog} color="primary">
                   Close
                 </Button>
               </DialogActions>

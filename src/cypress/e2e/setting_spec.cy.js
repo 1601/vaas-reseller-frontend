@@ -66,9 +66,21 @@ describe('setting unit tests', () => {
         });
     })
 
-    it('Test app policy link', () => {
+    it('Test terms and condition link', () => {
         cy.scrollTo('bottom')
-        cy.contains('span', 'Terms and Conditions, Cookie Policy, and Privacy Policy').click();
+        cy.contains('span', 'Terms and Conditions').click();
         cy.contains('h2', 'Terms and Conditions').should('be.visible');
+    })
+
+    it('Test privacy policy link', () => {
+        cy.scrollTo('bottom')
+        cy.contains('span', 'Privacy Policy').click();
+        cy.contains('h2', 'Privacy Policy').should('be.visible');
+    })
+
+    it('Test cookie policy link', () => {
+        cy.scrollTo('bottom')
+        cy.contains('span', 'Cookie Policy').click();
+        cy.contains('h2', 'Cookie Policy').should('be.visible');
     })
 })
