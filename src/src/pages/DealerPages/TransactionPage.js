@@ -154,9 +154,8 @@ export default function TransactionPage() {
           paymentId: `vaas_${purchase._id}`,
         }));
 
-
       // Filter transactions by selected date range
-      filteredTransactions = transactions.filter(transaction => {
+      filteredTransactions = transactions.filter((transaction) => {
         const transactionDate = new Date(transaction.date);
         const startDate = new Date(selectedRange[0].startDate);
         const endDate = new Date(selectedRange[0].endDate);
@@ -186,8 +185,9 @@ export default function TransactionPage() {
     try {
       // Fetch transactions within the specified date range
       const rangeResult = await getAllByDateRange(formattedStartDate, formattedEndDate);
-      const dateRangeTransactions = rangeResult && rangeResult.body && rangeResult.body.length > 0
-          ? rangeResult.body.map(transaction => ({
+      const dateRangeTransactions =
+        rangeResult && rangeResult.body && rangeResult.body.length > 0
+          ? rangeResult.body.map((transaction) => ({
               ...transaction,
             }))
           : [];
@@ -195,14 +195,14 @@ export default function TransactionPage() {
       const customerPurchases = await fetchCustomerPurchases();
 
       // Combine and filter transactions here
-      const combinedTransactions = [...customerPurchases, ...dateRangeTransactions].filter(transaction => {
-        const transactionDate = new Date(transaction.date); 
+      const combinedTransactions = [...customerPurchases, ...dateRangeTransactions].filter((transaction) => {
+        const transactionDate = new Date(transaction.date);
         return transactionDate >= startDate && transactionDate <= endDate;
       });
 
-      console.log("combinedTransactions: ", combinedTransactions)
+      console.log('combinedTransactions: ', combinedTransactions);
 
-      setTransactionList(combinedTransactions); 
+      setTransactionList(combinedTransactions);
       handleToDownloadData(combinedTransactions);
       setIsNotFound(combinedTransactions.length === 0);
     } catch (error) {
@@ -213,29 +213,38 @@ export default function TransactionPage() {
     }
   };
 
-  const handleToDownloadData = async (datas) => {
+  const handleToDownloadData = (datas) => {
     setToDownload([]);
-    datas.forEach((elements) => {
-      const newElements = {
-        cell1: elements.createdAt,
-        cell2: elements.type,
-        cell3: elements._id,
-        cell4: elements.referenceNumber,
-        cell5: elements.userName,
-        cell6: elements.status,
-        cell7: elements.paymentId,
-        cell8: elements.paymentMethod,
-      };
-      setToDownload((prevtoDownload) => [...prevtoDownload, newElements]);
-    });
+    if (Array.isArray(datas)) {
+      datas.forEach((elements) => {
+        const newElements = {
+          cell1: elements.createdAt,
+          cell2: elements.type,
+          cell3: elements._id,
+          cell4: elements.referenceNumber,
+          cell5: elements.userName,
+          cell6: elements.status,
+          cell7: elements.paymentId,
+          cell8: elements.paymentMethod,
+        };
+        setToDownload((prevToDownload) => [...prevToDownload, newElements]);
+      });
+    }
   };
 
   useEffect(() => {
     const getTrans = async () => {
-      const result = await getAllVortexTransactions();
-      const jsonResult = await result.json();
-      setTransactionList(jsonResult.body);
-      handleToDownloadData(jsonResult.body);
+      try {
+        const result = await getAllVortexTransactions();
+        const jsonResult = await result.json();
+        const transactions = jsonResult.body || [];
+        setTransactionList(transactions);
+        handleToDownloadData(transactions);
+      } catch (error) {
+        console.error('Error fetching transactions:', error);
+        setTransactionList([]);
+        handleToDownloadData([]);
+      }
     };
     getTrans();
   }, []);
@@ -286,17 +295,8 @@ export default function TransactionPage() {
                   {!isNotFound &&
                     transactionList &&
                     transactionList.map((row) => {
-                      const {
-                        _id,
-                        date,
-                        type,
-                        referenceNumber,
-                        userId,
-                        status,
-                        paymentId,
-                        userName,
-                        paymentMethod,
-                      } = row;
+                      const { _id, date, type, referenceNumber, userId, status, paymentId, userName, paymentMethod } =
+                        row;
 
                       return (
                         <TableRow hover key={_id} tabIndex={-1}>
