@@ -1,8 +1,9 @@
-import React, {createContext, useContext, useState, useEffect, useRef} from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 import SecureLS from 'secure-ls';
 import jwtDecode from 'jwt-decode';
-import intervalManager from "../intervalManager";
+import { useLocation } from 'react-router-dom';
+import intervalManager from '../intervalManager';
 
 const AuthContext = createContext();
 const ls = new SecureLS({ encodingType: 'aes' });
@@ -15,6 +16,7 @@ export const AuthProvider = ({ children }) => {
   const [newLoginDialogOpen, setNewLoginDialogOpen] = useState(false);
   const [tokenExpiredDialogOpen, setTokenExpiredDialogOpen] = useState(false);
   const { setTrackedInterval, clearAllIntervals } = intervalManager();
+  const location = useLocation();
   let isCheckingTokenExpiration = false;
   let intervalId;
 
@@ -28,10 +30,9 @@ export const AuthProvider = ({ children }) => {
           setTokenExpiredDialogOpen(true);
           clearAllIntervals(intervalId);
         } else {
-          const isValid = await axios.post(
-            `${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/verify-token`,
-            { token: storedToken },
-          );
+          const isValid = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/verify-token`, {
+            token: storedToken,
+          });
           if (!isValid.data.isValid) {
             setTokenExpired(true);
             setTokenExpiredDialogOpen(true);
@@ -50,7 +51,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    if (!newLoginDialogOpen && !tokenExpiredDialogOpen) {
+    if (location.pathname.startsWith('/dashboard') && !newLoginDialogOpen && !tokenExpiredDialogOpen) {
       intervalId = setTrackedInterval(checkTokenExpiration, 600000);
     }
 
@@ -59,20 +60,20 @@ export const AuthProvider = ({ children }) => {
         clearAllIntervals(intervalId);
       }
     };
-  }, [newLoginDialogOpen, tokenExpiredDialogOpen]);
+  }, [location.pathname, newLoginDialogOpen, tokenExpiredDialogOpen]);
 
   axios.interceptors.response.use(
     (response) => response,
     async (error) => {
       if (error.response) {
         const status = error.response.status;
-  
+
         if ([403].includes(status) && !isCheckingTokenExpiration) {
           isCheckingTokenExpiration = true;
           await checkTokenExpiration();
           isCheckingTokenExpiration = false;
         }
-        
+
         if (status === 401) {
           isCheckingTokenExpiration = true;
           if (error.response.data.message === 'Token is invalid due to new login.') {
