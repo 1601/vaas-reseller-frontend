@@ -1,11 +1,14 @@
 import React, {useState, useCallback } from 'react';
-
+import SecureLS from 'secure-ls';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import axios from 'axios';
 import { Card, Typography, Button, Box, Divider, 
   IconButton, Dialog, DialogActions, DialogContent, DialogContentText,
    DialogTitle, TextField, Link } from '@mui/material';
 import ReactImageMagnify from 'react-image-magnify';
+
+const ls = new SecureLS({ encodingType: 'aes' });
+const token = ls.get('token');
 
 const ConfirmationDialog = ({ open, onClose, onSubmit, action, remarks, setRemarks, adjustedAmount, setAdjustedAmount }) => {
   const isAdjust = action === 'verified';
@@ -97,7 +100,11 @@ const AdminWalletApproval = ({ selectedWallet, onBack }) => {
     
     try {
       console.log('Updating wallet request...', data)
-      const response = await axios.put(url, data);
+      const response = await axios.put(url, data, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       console.log(response.data);
       handleConfirmationClose();
       onBack();
