@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import axios from 'axios';
@@ -50,20 +50,26 @@ export default function ResetPasswordPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
+  const [isPasswordValid, setIsPasswordValid] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
   const token = new URLSearchParams(location.search).get('token');
 
-  function PasswordRequirements({ password }) {
-    const requirements = [
-      { label: '8-12 characters long', test: (pw) => pw.length >= 8 && pw.length <= 12 },
-      { label: 'One uppercase letter', test: (pw) => /[A-Z]/.test(pw) },
-      { label: 'One lowercase letter', test: (pw) => /[a-z]/.test(pw) },
-      { label: 'One number', test: (pw) => /[0-9]/.test(pw) },
-      { label: 'One special character (!@#$%^&*)', test: (pw) => /[!@#$%^&*]/.test(pw) },
-    ];
+  const requirements = [
+    { label: '8-12 characters long', test: (pw) => pw.length >= 8 && pw.length <= 12 },
+    { label: 'One uppercase letter', test: (pw) => /[A-Z]/.test(pw) },
+    { label: 'One lowercase letter', test: (pw) => /[a-z]/.test(pw) },
+    { label: 'One number', test: (pw) => /[0-9]/.test(pw) },
+    { label: 'One special character (!@#$%^&*)', test: (pw) => /[!@#$%^&*]/.test(pw) },
+  ];
 
+  useEffect(() => {
+    const isValid = requirements.every((req) => req.test(newPassword));
+    setIsPasswordValid(isValid);
+  }, [newPassword]);
+
+  function PasswordRequirements({ password }) {
     return (
       <Box
         sx={{
@@ -148,6 +154,16 @@ export default function ResetPasswordPage() {
     }
   };
 
+  const handlePasswordChange = (e) => {
+    const password = e.target.value;
+    setNewPassword(password);
+
+    const passwordMeetsRequirements = requirements.every((req) => req.test(password));
+    setIsPasswordValid(passwordMeetsRequirements);
+
+    setNewPasswordError(password.trim() ? '' : 'New password is required');
+  };
+
   const handlePasswordFocus = () => {
     setIsPasswordFocused(true);
   };
@@ -179,10 +195,7 @@ export default function ResetPasswordPage() {
               variant="outlined"
               type={showPassword ? 'text' : 'password'}
               value={newPassword}
-              onChange={(e) => {
-                setNewPassword(e.target.value);
-                setNewPasswordError(e.target.value.trim() ? '' : 'New password is required');
-              }}
+              onChange={handlePasswordChange}
               sx={{ mb: 3 }}
               error={Boolean(newPasswordError)}
               helperText={newPasswordError}
@@ -224,7 +237,14 @@ export default function ResetPasswordPage() {
                 ),
               }}
             />
-            <Button fullWidth size="large" color="inherit" variant="outlined" onClick={handleChangePassword}>
+            <Button
+              fullWidth
+              size="large"
+              color="inherit"
+              variant="outlined"
+              onClick={handleChangePassword}
+              disabled={!isPasswordValid || !newPassword || !confirmPassword}
+            >
               Change Password
             </Button>
 
@@ -256,7 +276,6 @@ export default function ResetPasswordPage() {
         </DialogActions>
       </Dialog>
 
-      {/* Loading Dialog */}
       <PasswordRequestDialog open={isLoading} />
     </>
   );
