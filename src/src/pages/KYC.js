@@ -370,7 +370,7 @@ export default function KYC() {
       }else{
         window.alert(`Submission failed`);
       }
-
+      setPreload(0);
     }
   };
 
