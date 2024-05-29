@@ -356,7 +356,7 @@ export default function KYC() {
         }
       }
     } catch (error) {
-      window.alert('Please check, One of the data is undefined');
+      window.alert(`Error submission failed: ${error.message}`);
     }
   };
 
@@ -434,6 +434,7 @@ export default function KYC() {
   };
 
   const onDropID = useCallback((acceptedFiles, fileRejections) => {
+    console.log(selectedImage);
     // Do something with the files
     if(fileRejections[0]){
       const file = fileRejections[0];
@@ -447,20 +448,20 @@ export default function KYC() {
         setSelectedImage((selectedImage) => [...selectedImage, acceptedFiles[0]]);
       }
     }
-  }, []);
+  }, [selectedImage]);
 
   const onDropDoc = useCallback((acceptedFiles, fileRejections) => {
     if(fileRejections[0]){
       const file = fileRejections[0];
       if(file.errors[0].code === "file-too-large") setErrorDoc(`File "${file.name}" is too large. Max size is ${MAX_FILE_SIZE / (1024 * 1024)} MB`);
-    }else if(selectedDocs.length >= 10){
+    }else if(selectedDocs.length >= 1){
       setErrorDoc(`Exceeded allowed number of files to upload`);
     }else{
       setErrorDoc('');
       // Do something with the files
       setSelectedDocs((selectedDocs) => [...selectedDocs, acceptedFiles[0]]);
     }
-  }, []);
+  }, [selectedDocs]);
 
   const { getRootProps: getRootPropsID, getInputProps: getInputPropsID, isDragActive: isDragActiveID } = useDropzone({ onDrop: onDropID, maxSize: MAX_FILE_SIZE });
   const { getRootProps: getRootPropsDoc, getInputProps: getInputPropsDoc, isDragActive: isDragActiveDoc } = useDropzone({ onDrop: onDropDoc, maxSize: MAX_FILE_SIZE });
@@ -706,7 +707,7 @@ export default function KYC() {
                               onChange={handleInputChange}
                             />
                           }
-                          label="Do you have a physical store?"
+                          label="with physical store"
                         />
 
                         {/* Number of Employees */}
