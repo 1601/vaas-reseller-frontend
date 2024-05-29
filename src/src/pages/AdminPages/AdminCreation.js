@@ -64,8 +64,12 @@ const AdminCreation = () => {
     // Check if the email is associated with a dealer account
     if (isEmailValid) {
       try {
+        const token = ls.get('token');
         const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/email`, {
           params: { email: formState.email },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         });
 
         if (response.data && response.data.role === 'dealer') {
@@ -74,8 +78,10 @@ const AdminCreation = () => {
           setOpenConfirmDialog(true);
         }
       } catch (error) {
-        if (error.response && error.response.status === 400) {
+        if (error.response && error.response.status === 404) {
           setOpenConfirmDialog(true);
+        } else if (error.response && error.response.status === 400) {
+          setErrorMessage(error.response.data.message.join(' '));
         } else {
           console.error('Error checking email:', error);
           setErrorMessage('Error occurred while checking the email.');
@@ -92,16 +98,20 @@ const AdminCreation = () => {
     const token = ls.get('token');
 
     try {
-      await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/admin/send-invite`, {
-        email: formState.email,
-        mobileNumber: formState.phoneNumber,
-        uniqueKey,
-      }, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
+      await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/admin/send-invite`,
+        {
+          email: formState.email,
+          mobileNumber: formState.phoneNumber,
+          uniqueKey,
         },
-      });
-      
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
       setOpenSnackbar(true);
       setTimeout(() => {
         navigate('/dashboard/admin/home');
