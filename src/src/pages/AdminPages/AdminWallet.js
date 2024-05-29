@@ -32,7 +32,7 @@ import AdminWalletApproval from './AdminWalletApproval';
 const ls = new SecureLS({ encodingType: 'aes' });
 const token = ls.get('token');
 
-const fetchWallets = async () => {
+const fetchWallets = async (token, retry = true) => {
   try {
     const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/wallet-requests`, {
       headers: {
@@ -41,6 +41,12 @@ const fetchWallets = async () => {
     });
     return response.data.body; 
   } catch (error) {
+    if (retry) {
+      const newToken = ls.get('token');
+      if (newToken && newToken !== token) {
+        return fetchWallets(newToken, false);
+      }
+    }
     console.error('Unexpected API response', error);
     return [];
   }
