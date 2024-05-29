@@ -90,7 +90,7 @@ const StorePageEdit = () => {
       } catch (error) {
         console.error('Could not fetch store data', error);
       }
-    }
+    };
     fetchUploadHistory();
   }, []);
 
@@ -547,10 +547,10 @@ const StorePageEdit = () => {
                             Rejections
                           </Button>
                           <Button
-                              variant="outlined"
-                              color="primary"
-                              onClick={handleUploadHistoryDialogOpen}
-                              style={{ marginRight: '8px' }}
+                            variant="outlined"
+                            color="primary"
+                            onClick={handleUploadHistoryDialogOpen}
+                            style={{ marginRight: '8px' }}
                           >
                             Uploaded Document
                           </Button>
@@ -1002,56 +1002,70 @@ const StorePageEdit = () => {
             onClose={handleRejectionDialogClose}
             title="Rejection Reasons"
             list={rejectionReasons}
-            itemKey="date" 
+            itemKey="date"
           />
 
           <Dialog open={uploadHistoryDialogOpen} onClose={handleUploadHistoryDialogClose} maxWidth="sm" fullWidth>
             <DialogTitle>{'Uploaded Document'}</DialogTitle>
             <DialogContent dividers style={{ overflowY: 'auto' }}>
               <Typography
-                  sx={{
-                    bgcolor: 'background.paper',
-                    border: 1,
-                    borderColor: 'divider',
-                    p: 2,
-                    mt: 2,
-                    borderRadius: 1,
-                    textAlign: 'justify', // Set text alignment to justify
-                    color: 'text.secondary',
-                    margin: 'auto',
-                  }}
+                sx={{
+                  bgcolor: 'background.paper',
+                  border: 1,
+                  borderColor: 'divider',
+                  p: 2,
+                  mt: 2,
+                  borderRadius: 1,
+                  textAlign: 'justify', // Set text alignment to justify
+                  color: 'text.secondary',
+                  margin: 'auto',
+                }}
               >
                 {uploadedDocument && (
-                    <div>
-                            <span>Date Submitted: {new Date(uploadedDocument.dateSubmitted).toLocaleDateString(undefined, {
-                              year: 'numeric',
-                              month: 'long',
-                              day: 'numeric',
-                              hour: '2-digit',
-                              minute: '2-digit',
-                              second: '2-digit'
-                            })}</span><br/>
-                      <span>Physical Store: {uploadedDocument.physicalStore ? 'Yes' : 'No'}</span><br/>
-                      <span>Street Address: {uploadedDocument.streetAddress}</span><br/>
-                      <span>Region Address: {uploadedDocument.regionAddress}</span><br/>
-                      <span>City Address: {uploadedDocument.cityAddress}</span><br/>
-                      <span>Customer Service #: {uploadedDocument.customerServiceNumber}</span><br/>
-                      <span>Business Type: {uploadedDocument.businessType}</span><br/>
-                      <span># of Employees: {uploadedDocument.numberOfEmployee}</span><br/>
-                      <span>Zip Code: {uploadedDocument.zipCodeAddress}</span><br/>
-                      <span>IDs Uploaded: </span><br/>
-                      {uploadedDocument.idUrl.map((link, index) => (
-                          <div key={index} style={{marginBottom: 10}}>
-                            <img src={link} alt={`Displayed-${index}`} style={{maxWidth: '100%'}}/>
-                          </div>
-                      ))}
-                      <span>Documents Uploaded: </span><br/>
-                      {uploadedDocument.documentUrl.map((link, index) => (
-                          <div key={index} style={{marginBottom: 10}}>
-                            <img src={link} alt={`Displayed-${index}`} style={{maxWidth: '100%'}}/>
-                          </div>
-                      ))}
-                    </div>
+                  <div>
+                    <span>
+                      Date Submitted:{' '}
+                      {new Date(uploadedDocument.dateSubmitted).toLocaleDateString(undefined, {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit',
+                      })}
+                    </span>
+                    <br />
+                    <span>Physical Store: {uploadedDocument.physicalStore ? 'Yes' : 'No'}</span>
+                    <br />
+                    <span>Street Address: {uploadedDocument.streetAddress}</span>
+                    <br />
+                    <span>Region Address: {uploadedDocument.regionAddress}</span>
+                    <br />
+                    <span>City Address: {uploadedDocument.cityAddress}</span>
+                    <br />
+                    <span>Customer Service #: {uploadedDocument.customerServiceNumber}</span>
+                    <br />
+                    <span>Business Type: {uploadedDocument.businessType}</span>
+                    <br />
+                    <span># of Employees: {uploadedDocument.numberOfEmployee}</span>
+                    <br />
+                    <span>Zip Code: {uploadedDocument.zipCodeAddress}</span>
+                    <br />
+                    <span>IDs Uploaded: </span>
+                    <br />
+                    {uploadedDocument.idUrl.map((link, index) => (
+                      <div key={index} style={{ marginBottom: 10 }}>
+                        <img src={link} alt={`Displayed-${index}`} style={{ maxWidth: '100%' }} />
+                      </div>
+                    ))}
+                    <span>Documents Uploaded: </span>
+                    <br />
+                    {uploadedDocument.documentUrl.map((link, index) => (
+                      <div key={index} style={{ marginBottom: 10 }}>
+                        <img src={link} alt={`Displayed-${index}`} style={{ maxWidth: '100%' }} />
+                      </div>
+                    ))}
+                  </div>
                 )}
               </Typography>
             </DialogContent>
