@@ -238,9 +238,9 @@ const AdminWallet = () => {
         <Typography variant="subtitle1" sx={{ flexGrow: 1 }}>
           Filters
         </Typography>
-        <IconButton onClick={handleAddClick} color="primary" aria-label="add to wallet">
+        {/* <IconButton onClick={handleAddClick} color="primary" aria-label="add to wallet">
           <AddCircleOutlineIcon />
-        </IconButton>
+        </IconButton> */}
       </Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
         <Box sx={{ display: 'flex', gap: 2 }}>
