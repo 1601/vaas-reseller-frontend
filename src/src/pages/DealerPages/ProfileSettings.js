@@ -367,6 +367,16 @@ const ProfileSettings = () => {
       if (response.ok) {
         setDialogTitle('Success');
         setDialogMessage('Profile updated successfully');
+
+        // Update userData with the new values
+        userData.firstName = formState.firstName;
+        userData.lastName = formState.lastName;
+        userData.middleName = formState.middleName;
+        userData.country = formState.country;
+        userData.mobileNumber = fullMobileNumber;
+        userData.username = formState.username;
+        userData.marketSub = acceptedMarketSub;
+
         setEditMode(false);
       } else {
         setDialogTitle('Error');
@@ -383,10 +393,17 @@ const ProfileSettings = () => {
     }
   };
 
+  const hasValidationErrors = () => {
+    return Object.values(validationErrors).some((error) => error);
+  };
+
   const handleInputChange = (event) => {
     const { name, value } = event.target;
 
-    if (name === 'mobileNumber' || name === 'country') {
+    if (name === 'country') {
+      setFormState((prevState) => ({ ...prevState, mobileNumber: '' }));
+      setValidationErrors((prevErrors) => ({ ...prevErrors, mobileNumber: 'Mobile number is required' }));
+    } else if (name === 'mobileNumber') {
       const strippedNumber = value?.replace(countryCodes[formState.country] || '', '');
       const validationError = validateMobileNumber(
         formState.country,
@@ -483,7 +500,12 @@ const ProfileSettings = () => {
             <div>
               {editMode ? (
                 <div className="flex">
-                  <Button onClick={handleSaveChanges} variant="outlined" className="mr-2">
+                  <Button
+                    onClick={handleSaveChanges}
+                    variant="outlined"
+                    className="mr-2"
+                    disabled={hasValidationErrors()}
+                  >
                     Save
                   </Button>
                   <Button variant="outlined" onClick={() => setEditMode(false)} className="mr-2">
