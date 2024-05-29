@@ -174,6 +174,8 @@ export default function KYC() {
   const [selectedDocs, setSelectedDocs] = useState([]);
   const [errorImage, setErrorImage] = useState('');
   const [errorDoc, setErrorDoc] = useState('');
+  const [url, setUrl] = useState('');
+  const [errorUrl, setErrorUrl] = useState('');
   const [formData, setFormData] = useState(initialFormData);
   const fileInputRef = useRef(null);
   const [businessType, setBusinessType] = useState('');
@@ -230,7 +232,14 @@ export default function KYC() {
 
   const handleNext = () => {
     const values = Object.values(formData);
+    console.log(values);
     if (activeStep === 1) {
+      if(errorUrl){
+        return setIsError({
+          ...isError,
+          externalLinkAccount: 'Invalid Link',
+        });
+      }
       if (values[0] !== '') {
         const regex = /[a-zA-Z]+/g; // Regular expression to match one or more letters
         const letters = values[0].match(regex);
@@ -356,7 +365,21 @@ export default function KYC() {
         }
       }
     } catch (error) {
-      window.alert(`Error submission failed: ${error.message}`);
+      if(error.status === 400){
+        window.alert(`Submission failed: ${error.data.message}`);
+      }else{
+        window.alert(`Submission failed`);
+      }
+
+    }
+  };
+
+  const validateUrl = (value) => {
+    try {
+      new URL(value);
+      return true;
+    } catch (e) {
+      return false;
     }
   };
 
@@ -424,6 +447,12 @@ export default function KYC() {
   };
 
   const handleInputChangeLink = (index, event) => {
+    setUrl(event.target.value);
+    if(event.target.value === ''){
+      setErrorUrl('');
+    }else{
+      setErrorUrl(!validateUrl(event.target.value));
+    }
     const updatedData = [...linkFieldsData];
     updatedData[index].externalLinkAccount = event.target.value;
     setLinkFieldsData(updatedData);
@@ -760,6 +789,7 @@ export default function KYC() {
                             value={text.externalLinkAccount}
                             onChange={(event) => handleInputChangeLink(index, event)}
                             key={index}
+                            error={errorUrl}
                             InputProps={{
                               endAdornment: (
                                 <InputAdornment position="end">
