@@ -187,6 +187,7 @@ export default function KYC() {
   const [openListDialog, setOpenListDialog] = useState(false);
   const [rejectionList, setRejectionList] = useState([]);
   const [loading, setLoading] = useState(true);
+  const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
   useEffect(() => {
     const fetchStoreData = async () => {
@@ -443,8 +444,8 @@ export default function KYC() {
     setSelectedDocs((selectedDocs) => [...selectedDocs, acceptedFiles[0]]);
   }, []);
 
-  const { getRootProps: getRootPropsID, getInputProps: getInputPropsID, isDragActive: isDragActiveID } = useDropzone({ onDrop: onDropID });
-  const { getRootProps: getRootPropsDoc, getInputProps: getInputPropsDoc, isDragActive: isDragActiveDoc } = useDropzone({ onDrop: onDropDoc });
+  const { getRootProps: getRootPropsID, getInputProps: getInputPropsID, isDragActive: isDragActiveID } = useDropzone({ onDrop: onDropID, maxSize: MAX_FILE_SIZE });
+  const { getRootProps: getRootPropsDoc, getInputProps: getInputPropsDoc, isDragActive: isDragActiveDoc } = useDropzone({ onDrop: onDropDoc, maxSize: MAX_FILE_SIZE });
   const isLastStep = activeStep === steps.length - 1;
 
   useEffect(() => {
