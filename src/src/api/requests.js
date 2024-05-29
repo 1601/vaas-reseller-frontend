@@ -32,7 +32,7 @@ const submitDataKyc = async (data) => {
   return response;
 };
 
-const submitFileKyc = async (datas) => {
+const submitFileKyc = async (datas, type='none') => {
   let response;
   try {
     const formData = new FormData();
@@ -40,9 +40,15 @@ const submitFileKyc = async (datas) => {
     datas.map((data) => {
       return formData.append('file', data);
     });
-    response = await axiosInstance.put(`kyc-business/kyc/upload`, formData, {
-      headers: { Authorization: `Bearer ${getNewToken()}`, },
-    });
+    if(type === 'docOthers'){
+      response = await axiosInstance.put(`kyc-business/kyc2/upload`, formData, {
+        headers: { Authorization: `Bearer ${getNewToken()}`, },
+      });
+    }else{
+      response = await axiosInstance.put(`kyc-business/kyc/upload`, formData, {
+        headers: { Authorization: `Bearer ${getNewToken()}`, },
+      });
+    }
   } catch (error) {
     console.log(error);
   }
