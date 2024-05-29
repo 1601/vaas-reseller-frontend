@@ -42,6 +42,18 @@ const KYCCard = ({ title, items, onStoreClick }) => (
   </div>
 );
 
+const sortStores = (stores, sortBy) => {
+  return [...stores].sort((a, b) => {
+    if (sortBy === 'latest') {
+      return new Date(b.updatedAt) - new Date(a.updatedAt);
+    }
+    if (sortBy === 'oldest') {
+      return new Date(a.updatedAt) - new Date(b.updatedAt);
+    }
+    return 0;
+  });
+};
+
 const AdminKYC = () => {
   const navigate = useNavigate();
   const [kycNotSubmitted, setKycNotSubmitted] = useState([]);
@@ -49,10 +61,10 @@ const AdminKYC = () => {
   const [kycApproved, setKycApproved] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
-  const [filteredKycNotSubmitted, setFilteredKycNotSubmitted] = useState(kycNotSubmitted);
-  const [filteredKycPending, setFilteredKycPending] = useState(kycPending);
-  const [filteredKycApproved, setFilteredKycApproved] = useState(kycApproved);
-  const [sortBy, setSortBy] = useState('');
+  const [filteredKycNotSubmitted, setFilteredKycNotSubmitted] = useState([]);
+  const [filteredKycPending, setFilteredKycPending] = useState([]);
+  const [filteredKycApproved, setFilteredKycApproved] = useState([]);
+  const [sortBy, setSortBy] = useState('latest');
 
   const fetchKYCStatus = async (status) => {
     const token = ls.get('token');
@@ -78,9 +90,9 @@ const AdminKYC = () => {
           fetchKYCStatus('approved'),
         ]);
         if (isMounted) {
-          setKycNotSubmitted(notSubmitted);
-          setKycPending(pending);
-          setKycApproved(approved);
+          setKycNotSubmitted(sortStores(notSubmitted, sortBy));
+          setKycPending(sortStores(pending, sortBy));
+          setKycApproved(sortStores(approved, sortBy));
           setIsLoading(false);
         }
       } catch (error) {
@@ -96,13 +108,13 @@ const AdminKYC = () => {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [sortBy]);
 
   useEffect(() => {
-    setFilteredKycNotSubmitted(kycNotSubmitted);
-    setFilteredKycPending(kycPending);
-    setFilteredKycApproved(kycApproved);
-  }, [kycNotSubmitted, kycPending, kycApproved]);
+    setFilteredKycNotSubmitted(sortStores(kycNotSubmitted, sortBy));
+    setFilteredKycPending(sortStores(kycPending, sortBy));
+    setFilteredKycApproved(sortStores(kycApproved, sortBy));
+  }, [kycNotSubmitted, kycPending, kycApproved, sortBy]);
 
   const downloadCSV = () => {
     const createCSVData = (data, title) => {
@@ -134,16 +146,6 @@ const AdminKYC = () => {
 
   const handleSortChange = (event) => {
     setSortBy(event.target.value);
-    if (event.target.value === 'latest') {
-      filteredKycNotSubmitted.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-      filteredKycPending.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-      filteredKycApproved.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-    }
-    if (event.target.value === 'oldest') {
-      filteredKycNotSubmitted.sort((a, b) => new Date(a.updatedAt) - new Date(b.updatedAt));
-      filteredKycPending.sort((a, b) => new Date(a.updatedAt) - new Date(b.updatedAt));
-      filteredKycApproved.sort((a, b) => new Date(a.updatedAt) - new Date(b.updatedAt));
-    }
   };
 
   const handleStoreClick = (storeId) => {
@@ -210,16 +212,16 @@ const AdminKYC = () => {
           )}
         />
         <FormControl className="w-1/5">
-          <InputLabel id={'demo-simple-select-label'}>Sort By</InputLabel>
+          <InputLabel id="demo-simple-select-label">Sort By</InputLabel>
           <Select
-            labelId={'demo-simple-select-label'}
+            labelId="demo-simple-select-label"
             id="demo-simple-select"
             label="Sort By"
             value={sortBy}
             onChange={handleSortChange}
           >
-            <MenuItem value={'latest'}>Latest</MenuItem>
-            <MenuItem value={'oldest'}>Oldest</MenuItem>
+            <MenuItem value="latest">Latest</MenuItem>
+            <MenuItem value="oldest">Oldest</MenuItem>
           </Select>
         </FormControl>
       </div>

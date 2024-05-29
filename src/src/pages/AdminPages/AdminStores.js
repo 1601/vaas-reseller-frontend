@@ -46,12 +46,24 @@ const AdminStores = () => {
   const [approvedStores, setApprovedStores] = useState([]);
   const [liveStores, setLiveStores] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [filteredApprovedStores, setFilteredApprovedStores] = useState(approvedStores);
-  const [filteredLiveStores, setFilteredLiveStores] = useState(liveStores);
-  const [filteredStoresNeedingApproval, setFilteredStoresNeedingApproval] = useState(storesNeedingApproval);
-  const [sortBy, setSortBy] = useState('');
+  const [filteredApprovedStores, setFilteredApprovedStores] = useState([]);
+  const [filteredLiveStores, setFilteredLiveStores] = useState([]);
+  const [filteredStoresNeedingApproval, setFilteredStoresNeedingApproval] = useState([]);
+  const [sortBy, setSortBy] = useState('latest');
 
   const token = ls.get('token');
+
+  const sortStores = (stores, sortBy) => {
+    return [...stores].sort((a, b) => {
+      if (sortBy === 'latest') {
+        return new Date(b.updatedAt) - new Date(a.updatedAt);
+      }
+      if (sortBy === 'oldest') {
+        return new Date(a.updatedAt) - new Date(b.updatedAt);
+      }
+      return 0;
+    });
+  };
 
   const fetchData = useCallback(async () => {
     try {
@@ -59,24 +71,24 @@ const AdminStores = () => {
       const allApprovedStores = await fetchStores('stores/approved/admin', token);
       const liveStores = await fetchStores('stores/live/admin', token);
 
-      setStoresNeedingApproval(storesNeedingApproval);
-      setApprovedStores(allApprovedStores);
-      setLiveStores(liveStores);
+      setStoresNeedingApproval(sortStores(storesNeedingApproval, sortBy));
+      setApprovedStores(sortStores(allApprovedStores, sortBy));
+      setLiveStores(sortStores(liveStores, sortBy));
       setIsLoading(false);
     } catch (error) {
       console.error('Error fetching stores', error);
     }
-  }, [token]);
-
-  useEffect(() => {
-    setFilteredApprovedStores(approvedStores);
-    setFilteredLiveStores(liveStores);
-    setFilteredStoresNeedingApproval(storesNeedingApproval);
-  }, [approvedStores, liveStores, storesNeedingApproval]);
+  }, [token, sortBy]);
 
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  useEffect(() => {
+    setFilteredApprovedStores(sortStores(approvedStores, sortBy));
+    setFilteredLiveStores(sortStores(liveStores, sortBy));
+    setFilteredStoresNeedingApproval(sortStores(storesNeedingApproval, sortBy));
+  }, [approvedStores, liveStores, storesNeedingApproval, sortBy]);
 
   const downloadCSV = useCallback(() => {
     const createCSVData = (data, title) => {
@@ -126,16 +138,6 @@ const AdminStores = () => {
 
   const handleSortChange = (event) => {
     setSortBy(event.target.value);
-    if (event.target.value === 'latest') {
-      filteredApprovedStores.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-      filteredLiveStores.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-      filteredStoresNeedingApproval.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-    }
-    if (event.target.value === 'oldest') {
-      filteredApprovedStores.sort((a, b) => new Date(a.updatedAt) - new Date(b.updatedAt));
-      filteredLiveStores.sort((a, b) => new Date(a.updatedAt) - new Date(b.updatedAt));
-      filteredStoresNeedingApproval.sort((a, b) => new Date(a.updatedAt) - new Date(b.updatedAt));
-    }
   };
 
   const renderStoreCard = (title, stores) => (
@@ -204,16 +206,16 @@ const AdminStores = () => {
           )}
         />
         <FormControl className="w-1/5">
-          <InputLabel id={'demo-simple-select-label'}>Sort By</InputLabel>
+          <InputLabel id="demo-simple-select-label">Sort By</InputLabel>
           <Select
-            labelId={'demo-simple-select-label'}
+            labelId="demo-simple-select-label"
             id="demo-simple-select"
             label="Sort By"
             value={sortBy}
             onChange={handleSortChange}
           >
-            <MenuItem value={'latest'}>Latest</MenuItem>
-            <MenuItem value={'oldest'}>Oldest</MenuItem>
+            <MenuItem value="latest">Latest</MenuItem>
+            <MenuItem value="oldest">Oldest</MenuItem>
           </Select>
         </FormControl>
       </div>
