@@ -178,51 +178,9 @@ const getNavConfig = (role) => {
       icon: icon('ic_customer'),
     },
     {
-      title: 'Sales Channel',
-      path: '/dashboard/sales/transactions',
-      icon: icon('ic_sales'),
-      children: [
-        {
-          title: 'Transactions',
-          icon: icon('ic_transact'),
-          path: '/dashboard/sales/transactions',
-        },
-        // {
-        //   title: 'My Wallet',
-        //   icon: icon('ic_wallet'),
-        //   path: '/dashboard/sales/my-wallet',
-        // },
-        // {
-        //   title: 'Reports',
-        //   icon: icon('ic_report'),
-        //   path: '/dashboard/sales/reports',
-        // },
-        {
-          title: 'Point of Sale',
-          icon: icon('ic_pos'),
-          path: '/dashboard/sales/point-of-sale',
-        },
-      ],
-    },
-    {
       title: 'Wallets & Payouts',
       path: '/dashboard/wallet',
       icon: icon('ic_wallet'),
-    },
-    {
-      title: 'Reports',
-      path: '/dashboard/reports',
-      icon: icon('ic_report'),
-    },
-    {
-      title: 'Developers',
-      path: '/dashboard/developer',
-      icon: icon('ic_dev'),
-    },
-    {
-      title: 'View Live Data',
-      icon: icon('ic_toggle'),
-      isToggle: true,
     },
     // {
     //   title: 'login',
