@@ -30,11 +30,6 @@ const navConfigBottom = [
     icon: icon('ic_docu'),
   },
   {
-    title: 'security logs',
-    path: '/dashboard/securitylogs',
-    icon: icon('ic_securitylogs'),
-  },
-  {
     title: 'settings',
     path: '/dashboard/settings',
     icon: icon('ic_settings'),
