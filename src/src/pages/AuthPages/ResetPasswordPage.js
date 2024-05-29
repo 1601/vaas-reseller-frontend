@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import axios from 'axios';
+import jwtDecode from 'jwt-decode';
 import { styled } from '@mui/material/styles';
 import {
   Box,
@@ -51,6 +52,7 @@ export default function ResetPasswordPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
   const [isPasswordValid, setIsPasswordValid] = useState(false);
+  const [isTokenValid, setIsTokenValid] = useState(true);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -68,6 +70,44 @@ export default function ResetPasswordPage() {
     const isValid = requirements.every((req) => req.test(newPassword));
     setIsPasswordValid(isValid);
   }, [newPassword]);
+
+  useEffect(() => {
+    const checkTokenValidity = async () => {
+      if (!token) {
+        setErrorMessage('Invalid token');
+        setIsTokenValid(false);
+        setDialogOpen(true);
+        return;
+      }
+
+      try {
+        const decodedToken = jwtDecode(token);
+        const tokenExpirationDate = new Date(decodedToken.exp * 1000);
+        const isExpired = tokenExpirationDate < new Date();
+
+        if (isExpired) {
+          setErrorMessage('Password reset token has expired.');
+          setIsTokenValid(false);
+          setDialogOpen(true);
+          return;
+        }
+
+        const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/check-token`, { token });
+
+        if (response.data.used) {
+          setErrorMessage('Password reset token has already been used.');
+          setIsTokenValid(false);
+          setDialogOpen(true);
+        }
+      } catch (error) {
+        setErrorMessage('Invalid password reset token.');
+        setIsTokenValid(false);
+        setDialogOpen(true);
+      }
+    };
+
+    checkTokenValidity();
+  }, [token]);
 
   function PasswordRequirements({ password }) {
     return (
@@ -176,6 +216,10 @@ export default function ResetPasswordPage() {
     setDialogOpen(false);
   };
 
+  const handleProceedToLogin = () => {
+    navigate('/login');
+  };
+
   return (
     <>
       <Helmet>
@@ -262,17 +306,23 @@ export default function ResetPasswordPage() {
           </StyledContent>
         </Container>
       </StyledRoot>
-      <Dialog open={dialogOpen} onClose={handleCloseDialog}>
-        <DialogTitle>Password Change</DialogTitle>
+      <Dialog open={dialogOpen}>
+        <DialogTitle>{isTokenValid ? 'Password Change' : 'Invalid or Expired Token'}</DialogTitle>
         <DialogContent>
           <DialogContentText>
             {newPasswordError || confirmPasswordError || errorMessage || successMessage || fieldError}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDialog} color="primary">
-            Close
-          </Button>
+          {!isTokenValid ? (
+            <Button onClick={handleProceedToLogin} color="primary">
+              Proceed to Login
+            </Button>
+          ) : (
+            <Button onClick={handleCloseDialog} color="primary">
+              Close
+            </Button>
+          )}
         </DialogActions>
       </Dialog>
 
