@@ -86,7 +86,7 @@ export default function ResetPasswordPage() {
         const isExpired = tokenExpirationDate < new Date();
 
         if (isExpired) {
-          setErrorMessage('Password reset token has expired.');
+          setErrorMessage('Password request expired.');
           setIsTokenValid(false);
           setDialogOpen(true);
           return;
@@ -95,7 +95,7 @@ export default function ResetPasswordPage() {
         const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/check-token`, { token });
 
         if (response.data.used) {
-          setErrorMessage('Password reset token has already been used.');
+          setErrorMessage('Password request expired.');
           setIsTokenValid(false);
           setDialogOpen(true);
         }
