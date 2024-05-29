@@ -325,9 +325,9 @@ export default function KYC() {
       const result = await postDataKyc(mergedFormData);
       if (result.status === 200) {
         // Submit File
-        const mergeFileData = [...selectedImage, ...selectedDocs];
-        const fileResult = await putFileKyc(mergeFileData);
-        if (fileResult.status === 200) {
+        const fileIdResult = await putFileKyc(selectedImage);
+        const fileDocResult = await putFileKyc(selectedDocs,'docOthers');
+        if (fileIdResult.status === 200 || fileDocResult.status === 200) {
           const userData = ls.get('user');
           const userToken = userData.token;
           const submitted = await axios.put(

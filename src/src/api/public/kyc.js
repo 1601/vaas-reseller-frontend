@@ -9,8 +9,8 @@ export const postDataKyc = async(data) =>{
     return submitDataKyc(data)
 }
 
-export const putFileKyc = async(data) =>{
-    return submitFileKyc(data)
+export const putFileKyc = async(data, type) =>{
+    return submitFileKyc(data, type)
 }
 
 export const autoCompleteAddress = async(data)=>{
