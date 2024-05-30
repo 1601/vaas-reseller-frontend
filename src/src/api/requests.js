@@ -112,6 +112,28 @@ const addBanner = async (data) => {
   return response;
 };
 
+const updateBanner = async (data, id) => {
+  let response;
+  try {
+    const formData = new FormData();
+    formData.append('title', data.title);
+    formData.append('description', data.description);
+    if (data.image) {
+      formData.append('file', data.image);
+    }
+
+    response = await axiosInstance.put(`banner/banner/${id}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        Authorization: `Bearer ${getNewToken()}`,
+      },
+    });
+  } catch (error) {
+    console.log(error);
+  }
+  return response;
+};
+
 const updateBannerStatus = async (data) => {
   let response;
   try {
@@ -166,4 +188,5 @@ export {
   getAllCustomers,
   addBanner,
   updateBannerStatus,
+  updateBanner,
 };
