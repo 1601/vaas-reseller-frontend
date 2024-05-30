@@ -39,7 +39,7 @@ const fetchWallets = async (token, retry = true) => {
         Authorization: `Bearer ${token}`,
       },
     });
-    return response.data.body; 
+    return response.data.body;
   } catch (error) {
     if (retry) {
       const newToken = ls.get('token');
@@ -72,7 +72,6 @@ const AdminWallet = () => {
 
     fetchData();
   }, [selectedWallet]); // Empty dependency array means this effect runs once on mount
-
 
   // Sorting Function
   const sortData = (data) => {
@@ -280,8 +279,19 @@ const AdminWallet = () => {
           />
         </Box>
       </Box>
-      <TableContainer component={Paper}>
-        <Table size="small" sx={{ '& .MuiTableCell-sizeSmall': { padding: '6px 6px', fontSize: '0.75rem' } }}>
+      <TableContainer
+        component={Paper}
+        sx={{
+          overflow: 'auto',
+          maxHeight: '60vh', 
+          maxWidth: '100%',
+        }}
+      >
+        <Table
+          size="small"
+          stickyHeader
+          sx={{ '& .MuiTableCell-sizeSmall': { padding: '6px 6px', fontSize: '0.75rem' } }}
+        >
           <TableHead>
             <TableRow>
               <TableCell>#</TableCell>
