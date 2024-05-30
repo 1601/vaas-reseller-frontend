@@ -10,7 +10,7 @@ import TextField from '@mui/material/TextField';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
-import { Card } from '@mui/material';
+import {Alert, Card} from '@mui/material';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import Checkbox from '@mui/material/Checkbox';
@@ -172,6 +172,10 @@ export default function KYC() {
   const [activeStep, setActiveStep] = useState(0);
   const [selectedImage, setSelectedImage] = useState([]);
   const [selectedDocs, setSelectedDocs] = useState([]);
+  const [errorImage, setErrorImage] = useState('');
+  const [errorDoc, setErrorDoc] = useState('');
+  const [url, setUrl] = useState('');
+  const [errorUrl, setErrorUrl] = useState('');
   const [formData, setFormData] = useState(initialFormData);
   const fileInputRef = useRef(null);
   const [businessType, setBusinessType] = useState('');
@@ -228,7 +232,14 @@ export default function KYC() {
 
   const handleNext = () => {
     const values = Object.values(formData);
+    console.log(values);
     if (activeStep === 1) {
+      if(errorUrl){
+        return setIsError({
+          ...isError,
+          externalLinkAccount: 'Invalid Link',
+        });
+      }
       if (values[0] !== '') {
         const regex = /[a-zA-Z]+/g; // Regular expression to match one or more letters
         const letters = values[0].match(regex);
@@ -354,7 +365,21 @@ export default function KYC() {
         }
       }
     } catch (error) {
-      window.alert('Please check, One of the data is undefined');
+      if(error.status === 400){
+        window.alert(`Submission failed: ${error.data.message}`);
+      }else{
+        window.alert(`Submission failed`);
+      }
+      setPreload(0);
+    }
+  };
+
+  const validateUrl = (value) => {
+    try {
+      new URL(value);
+      return true;
+    } catch (e) {
+      return false;
     }
   };
 
@@ -422,6 +447,12 @@ export default function KYC() {
   };
 
   const handleInputChangeLink = (index, event) => {
+    setUrl(event.target.value);
+    if(event.target.value === ''){
+      setErrorUrl('');
+    }else{
+      setErrorUrl(!validateUrl(event.target.value));
+    }
     const updatedData = [...linkFieldsData];
     updatedData[index].externalLinkAccount = event.target.value;
     setLinkFieldsData(updatedData);
@@ -431,18 +462,35 @@ export default function KYC() {
     window.location.href = '/dashboard/app';
   };
 
-  const onDropID = useCallback((acceptedFiles) => {
+  const onDropID = useCallback((acceptedFiles, fileRejections) => {
+    console.log(selectedImage);
     // Do something with the files
-    const file = acceptedFiles[0];
-    if (file.type === 'image/png' || file.type === 'image/jpeg') {
-      setSelectedImage((selectedImage) => [...selectedImage, acceptedFiles[0]]);
+    if(fileRejections[0]){
+      const file = fileRejections[0];
+      if(file.errors[0].code === "file-too-large") setErrorImage(`File "${file.file.name}" is too large. Max size is ${MAX_FILE_SIZE / (1024 * 1024)} MB`);
+    }else if(selectedImage.length >= 2){
+      setErrorImage(`Exceeded allowed number of files to be uploaded`);
+    }else{
+      setErrorImage('');
+      const file = acceptedFiles[0];
+      if (file.type === 'image/png' || file.type === 'image/jpeg') {
+        setSelectedImage((selectedImage) => [...selectedImage, acceptedFiles[0]]);
+      }
     }
-  }, []);
+  }, [selectedImage]);
 
-  const onDropDoc = useCallback((acceptedFiles) => {
-    // Do something with the files
-    setSelectedDocs((selectedDocs) => [...selectedDocs, acceptedFiles[0]]);
-  }, []);
+  const onDropDoc = useCallback((acceptedFiles, fileRejections) => {
+    if(fileRejections[0]){
+      const file = fileRejections[0];
+      if(file.errors[0].code === "file-too-large") setErrorDoc(`File "${file.name}" is too large. Max size is ${MAX_FILE_SIZE / (1024 * 1024)} MB`);
+    }else if(selectedDocs.length >= 1){
+      setErrorDoc(`Exceeded allowed number of files to upload`);
+    }else{
+      setErrorDoc('');
+      // Do something with the files
+      setSelectedDocs((selectedDocs) => [...selectedDocs, acceptedFiles[0]]);
+    }
+  }, [selectedDocs]);
 
   const { getRootProps: getRootPropsID, getInputProps: getInputPropsID, isDragActive: isDragActiveID } = useDropzone({ onDrop: onDropID, maxSize: MAX_FILE_SIZE });
   const { getRootProps: getRootPropsDoc, getInputProps: getInputPropsDoc, isDragActive: isDragActiveDoc } = useDropzone({ onDrop: onDropDoc, maxSize: MAX_FILE_SIZE });
@@ -688,7 +736,7 @@ export default function KYC() {
                               onChange={handleInputChange}
                             />
                           }
-                          label="Do you have a physical store?"
+                          label="with physical store"
                         />
 
                         {/* Number of Employees */}
@@ -741,6 +789,7 @@ export default function KYC() {
                             value={text.externalLinkAccount}
                             onChange={(event) => handleInputChangeLink(index, event)}
                             key={index}
+                            error={errorUrl}
                             InputProps={{
                               endAdornment: (
                                 <InputAdornment position="end">
@@ -938,11 +987,16 @@ export default function KYC() {
                                 Select Image
                               </Button>
                               <Box style={{ color: 'gray', fontSize: '.7rem' }}>
+                                <div>
                                 {isDragActiveID ? (
                                   <p>Drop the files here ...</p>
                                 ) : (
                                   <p>Drag 'n' drop some files here, or click to select files</p>
                                 )}
+                                </div>
+                                <div>
+                                  {errorImage && (<Alert severity="error" sx={{mt: 2}}>{errorImage}</Alert>)}
+                                </div>
                               </Box>
                             </div>
                             {/* </label> */}
@@ -1028,7 +1082,6 @@ export default function KYC() {
                                 )}
                               </Box>
                             </div>
-
                             {/* </label> */}
 
                             <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', marginTop: '10px' }}>
@@ -1057,6 +1110,7 @@ export default function KYC() {
                             </div>
                           </HoverableButton>
                         </div>
+                        {errorDoc && <Alert severity="error" sx={{ mt: 2 }}>{errorDoc}</Alert>}
                       </Container>
                     </div>
                   )}

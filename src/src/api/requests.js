@@ -50,7 +50,8 @@ const submitFileKyc = async (datas, type='none') => {
       });
     }
   } catch (error) {
-    console.log(error);
+    console.log(error.response);
+    throw error.response
   }
   return response;
 };
