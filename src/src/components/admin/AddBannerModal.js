@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
-export const AddBannerModal = ({ closeModal, handleSubmit }) => {
+export const AddBannerModal = ({ closeModal, handleSubmit, banner }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [formData, setFormData] = useState({
     title: '',
@@ -8,6 +8,17 @@ export const AddBannerModal = ({ closeModal, handleSubmit }) => {
     image: '',
   });
   const [errorMessage, setErrorMessage] = useState('');
+
+  useEffect(() => {
+    if (banner) {
+      setFormData({
+        title: banner.title,
+        description: banner.description,
+        image: banner.url,
+      });
+      setSelectedFile(null); 
+    }
+  }, [banner]);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -54,7 +65,7 @@ export const AddBannerModal = ({ closeModal, handleSubmit }) => {
         <div className="relative w-auto my-6 mx-auto max-w-3xl">
           <div className="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none">
             <div className="flex items-start justify-between p-5 border-b border-solid border-blueGray-200 rounded-t">
-              <h3 className="text-3xl font-semibold">Add Banner</h3>
+              <h3 className="text-3xl font-semibold">{banner ? 'Edit Banner' : 'Add Banner'}</h3>
             </div>
             <div className="relative p-6 flex-auto">
               <form onSubmit={handleFormSubmit}>
@@ -92,7 +103,7 @@ export const AddBannerModal = ({ closeModal, handleSubmit }) => {
                         <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
                           <span className="font-semibold">Click to upload</span> or drag and drop
                         </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">PNG, or JPG (MAX. 3744 × 5616 px)</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">SVG, PNG, JPG (MAX. 3744 × 5616 px)</p>
                       </div>
                     )}
                     <input id="dropzone-file" type="file" className="hidden" onChange={handleFileChange} />
