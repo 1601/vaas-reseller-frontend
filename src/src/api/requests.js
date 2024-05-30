@@ -162,7 +162,12 @@ const getAllBanner = async () => {
 const getAllBannersAdmin = async () => {
   let response;
   try {
-    response = await axiosInstance.get(`banners/admin`);
+    const token = getNewToken();
+    response = await axiosInstance.get('banners/admin', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
   } catch (error) {
     console.log(error);
   }
