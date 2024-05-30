@@ -108,9 +108,6 @@ const WalletPayouts = () => {
     endDate: new Date(),
   });
 
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [dialogMessage, setDialogMessage] = useState('');
-
   const [bankDetails] = useState({
     USA: {
       bankName: 'Philippine National Bank',
@@ -157,14 +154,16 @@ const WalletPayouts = () => {
 
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
+    if (selectedFile && !['image/jpeg', 'image/png', 'image/jpg'].includes(selectedFile.type)) {
+      setErrorSlip('Only JPG, JPEG and PNG image formats will be accepted.');
+      setFile(null);
+      return;
+    }
     const reader = new FileReader();
     reader.onload = (e) => {
       const img = new Image();
       img.onload = () => {
-        if (selectedFile && !['image/jpeg', 'image/png', 'image/jpg'].includes(selectedFile.type)) {
-          setDialogMessage('Only JPG, JPEG and PNG image formats will be accepted.');
-          setDialogOpen(true);
-        } else if (selectedFile.size > MAX_FILE_SIZE) {
+         if (selectedFile.size > MAX_FILE_SIZE) {
           setErrorSlip(`File size exceeds the limit of ${MAX_FILE_SIZE / (1024 * 1024)} MB`);
           setFile(null);
         } else if (img.width > 2048 || img.height > 2048) {
@@ -182,10 +181,6 @@ const WalletPayouts = () => {
       img.src = e.target.result; // Assigns the Base64 data URL to the img src attribute
     };
     reader.readAsDataURL(selectedFile); // Reads the file and triggers the onload event
-  };
-
-  const handleDialogClose = () => {
-    setDialogOpen(false);
   };
 
   const handleBankDepositClick = () => {
@@ -959,17 +954,6 @@ const WalletPayouts = () => {
         )}
       </Container>
       <AccountStatusModal open userData={userData} storeData={storeData} />
-      <Dialog open={dialogOpen} onClose={handleDialogClose}>
-        <DialogTitle>Invalid File Type</DialogTitle>
-        <DialogContent>
-          <DialogContentText>{dialogMessage}</DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleDialogClose} color="primary">
-            OK
-          </Button>
-        </DialogActions>
-      </Dialog>
     </>
   );
 };
