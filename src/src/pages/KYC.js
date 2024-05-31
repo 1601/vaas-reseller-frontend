@@ -377,6 +377,10 @@ export default function KYC() {
   const validateUrl = (value) => {
     try {
       new URL(value);
+      setIsError({
+        ...isError,
+        externalLinkAccount: ''
+      });
       return true;
     } catch (e) {
       return false;
@@ -385,6 +389,10 @@ export default function KYC() {
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
+
+    if(name === 'customerServiceNumber'){
+      if(!/^[0-9@-_+]*$/.test(value) || value.length > 20) return;
+    }
 
     if (isError) {
       setIsError({
@@ -471,10 +479,12 @@ export default function KYC() {
     }else if(selectedImage.length >= 2){
       setErrorImage(`Exceeded allowed number of files to be uploaded`);
     }else{
-      setErrorImage('');
       const file = acceptedFiles[0];
-      if (file.type === 'image/png' || file.type === 'image/jpeg') {
+      if (file.type === 'image/png' || file.type === 'image/jpeg' || file.type === 'application/pdf') {
+        setErrorImage('');
         setSelectedImage((selectedImage) => [...selectedImage, acceptedFiles[0]]);
+      }else{
+        setErrorImage(`Invalid file type`);
       }
     }
   }, [selectedImage]);
@@ -486,9 +496,14 @@ export default function KYC() {
     }else if(selectedDocs.length >= 1){
       setErrorDoc(`Exceeded allowed number of files to upload`);
     }else{
-      setErrorDoc('');
-      // Do something with the files
-      setSelectedDocs((selectedDocs) => [...selectedDocs, acceptedFiles[0]]);
+      const file = acceptedFiles[0];
+      if (file.type === 'image/png' || file.type === 'image/jpeg' || file.type === 'application/pdf') {
+        setErrorDoc('');
+        // Do something with the files
+        setSelectedDocs((selectedDocs) => [...selectedDocs, acceptedFiles[0]]);
+      }else{
+        setErrorDoc(`Invalid file type`);
+      }
     }
   }, [selectedDocs]);
 
@@ -618,7 +633,7 @@ export default function KYC() {
                                   <LocalPhoneIcon /> {/* Replace with your desired icon */}
                                 </IconButton>
                               </InputAdornment>
-                            ),
+                            )
                           }}
                         />
                         {isError.customerServiceNumber && <ErrorMessage label={isError.customerServiceNumber} />}
