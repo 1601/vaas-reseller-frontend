@@ -394,6 +394,10 @@ export default function KYC() {
       if(!/^[0-9@-_+]*$/.test(value) || value.length > 20) return;
     }
 
+    if(name === 'uniqueIdentifier'){
+      if(!/^[a-zA-Z0-9-]*$/.test(value) || value.length > 20) return;
+    }
+
     if (isError) {
       setIsError({
         ...isError,
