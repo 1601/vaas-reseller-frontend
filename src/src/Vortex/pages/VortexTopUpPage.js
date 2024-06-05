@@ -181,7 +181,7 @@ const VortexTopUpPage = () => {
 
     let x = await getStoreEnvById({ storeEnvId: storeEnvId })
 
-    // console.log("platform variables", x)
+    console.log("platform variables", x)
 
     setPlatformVariables(x)
 

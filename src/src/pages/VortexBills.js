@@ -26,6 +26,7 @@ import { Box } from "@mui/system"
 import React, { useState, useEffect, useReducer, useContext } from "react"
 import * as yup from "yup"
 import SecureLS from "secure-ls"
+import axios from 'axios';
 
 import { BillerIcon } from "../Vortex/components/VortexBillerCategory"
 import VortexBillerCard from "../Vortex/components/VortexBillerCard"
@@ -96,8 +97,6 @@ const VortexBillsPaymentPage = () => {
 
   const [transactionReferenceId, setTransactionReferenceId] = useState(null)
 
-  const [platformVariables, setPlatformVariables] = useState({})
-
   const [userStatus, setUserStatus] = useState(null)
 
   const [storeStatus, setstoreStatus] = useState(null)
@@ -127,6 +126,33 @@ const VortexBillsPaymentPage = () => {
   const [isLoading, setisLoading] = useState(false)
 
   const [paymentStatus, setPaymentStatus] = useState(null);
+
+  const [platformVariables, setPlatformVariables] = useState(null);
+
+  useEffect(() => {
+    const fetchPlatformVariables = async () => {
+      try {
+        const pathnameArray = window.location.pathname.split('/');
+        const storeUrl = pathnameArray[1];
+        console.log('Fetching platform variables for storeUrl:', storeUrl);
+
+        const storeResponse = await axios.get(
+          `${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/url/${storeUrl}`
+        );
+        console.log('storeResponse:', storeResponse.data);
+        if (storeResponse && storeResponse.data && storeResponse.data.platformVariables) {
+          console.log('platformVariables:', storeResponse.data.platformVariables);
+          setPlatformVariables(storeResponse.data.platformVariables);
+        } else {
+          console.log('No platform variables found in response:', storeResponse);
+        }
+      } catch (error) {
+        console.error('Error fetching platform variables:', error.response || error.message || error);
+      }
+    };
+
+    fetchPlatformVariables();
+  }, []);
 
   // Getting store env and user status
   // const { getUser } = useLoggedUser()
@@ -1032,6 +1058,11 @@ const VortexBillsPaymentPage = () => {
       currency: "PHP",
     })
 
+    const amount = billDetails?.billAmount || billDetails?.AmountPaid || billDetails?.amount;
+    const convertedAmount = parseFloat(
+      amount / platformVariables.billsCurrencyToPeso
+    ).toFixed(2);
+
     const [isLoadingPrivate, setIsLoadingPrivate] = useState(false); // true for render testing
     const [isPaymentMethodGCash, setisPaymentMethodGCash] = useState(false)
     const [expanded, setExpanded] = useState("panel1")
@@ -1145,6 +1176,25 @@ const VortexBillsPaymentPage = () => {
                       style={{ color: "black" }}
                       sx={{ textTransform: "capitalize" }}
                     >
+                      Fee
+                    </Typography>
+                    
+
+                    <Typography
+                      fontWeight={"bold"}
+                      style={{ color: "black", marginRight: "2em" }}
+                    >
+                      {`${amount
+                      } ${'PHP'} = ${convertedAmount} ${platformVariables.currencySymbol || 'PHP'}`}
+                    </Typography>
+                  </Stack>
+
+                  <Stack direction={"row"} justifyContent={"space-between"}>
+                    <Typography
+                      fontWeight={"bold"}
+                      style={{ color: "black" }}
+                      sx={{ textTransform: "capitalize" }}
+                    >
                       Convenience Fee
                     </Typography>
 
@@ -1168,7 +1218,7 @@ const VortexBillsPaymentPage = () => {
                       fontWeight={"bold"}
                       style={{ color: "black", marginRight: "2em" }}
                     >
-                      {`${(Number.isNaN(parseFloat(convenienceFee)) || convenienceFee == null ? 0 : parseFloat(convenienceFee)) + parseFloat(billDetails?.billAmount || 0)
+                      {`${grandTotalFee
                       } ${platformVariables.currencySymbol || 'PHP'}`}
                     </Typography>
                   </Stack>
@@ -1178,28 +1228,38 @@ const VortexBillsPaymentPage = () => {
                     disabled={isLoadingPrivate}
                     variant="outlined"
                     onClick={async () => {
-                      const grandTotalFee = (Number.isNaN(parseFloat(convenienceFee)) || convenienceFee == null ? 0 : parseFloat(convenienceFee)) + parseFloat(billDetails?.billAmount || 0);
-                      const url = await createLink(grandTotalFee * 100, `Payment for ${selectedBiller?.name}`);
-                      const paymentWindow = window.open(url, '_blank');
-                      // console.log('Link Created: ', createLink);
-                      // console.log('Amount: ', grandTotalFee);
-                      // console.log('Description: ', `Payment for ${selectedBiller?.name}`);
-                      // 'https://pm.link/123123123123123za23/test/de4YiYw'
-                      // Polling to check if the payment window has been closed
-                      const paymentWindowClosed = setInterval(() => {
-                        if (paymentWindow.closed) {
-                          clearInterval(paymentWindowClosed);
-                          // Once the payment window is closed, set the transaction data
-                          setTransactionDetails({
-                            productName: `Payment for ${selectedBiller?.name}`,
-                            price: billDetails?.billAmount || billDetails?.AmountPaid || billDetails?.amount,
-                            convenienceFee,
-                            totalPrice: grandTotalFee,
-                            currency: platformVariables?.currencySymbol,
-                          });
-                          setActiveStep(3);
-                        }
-                      }, 500);
+
+
+                      const grandTotalFee = (Number.isNaN(parseFloat(convenienceFee)) || convenienceFee == null ? 0 : parseFloat(convenienceFee)) + parseFloat(amount);
+                      setTransactionDetails({
+                        productName: `Payment for ${selectedBiller?.name}`,
+                        price: billDetails?.billAmount || billDetails?.AmountPaid || billDetails?.amount,
+                        convenienceFee,
+                        totalPrice: grandTotalFee,
+                        currency: platformVariables?.currencySymbol,
+                      });
+                      setActiveStep(3);
+                      // const url = await createLink(grandTotalFee * 100, `Payment for ${selectedBiller?.name}`);
+                      // const paymentWindow = window.open(url, '_blank');
+                      // // console.log('Link Created: ', createLink);
+                      // // console.log('Amount: ', grandTotalFee);
+                      // // console.log('Description: ', `Payment for ${selectedBiller?.name}`);
+                      // // 'https://pm.link/123123123123123za23/test/de4YiYw'
+                      // // Polling to check if the payment window has been closed
+                      // const paymentWindowClosed = setInterval(() => {
+                      //   if (paymentWindow.closed) {
+                      //     clearInterval(paymentWindowClosed);
+                      //     // Once the payment window is closed, set the transaction data
+                      //     setTransactionDetails({
+                      //       productName: `Payment for ${selectedBiller?.name}`,
+                      //       price: billDetails?.billAmount || billDetails?.AmountPaid || billDetails?.amount,
+                      //       convenienceFee,
+                      //       totalPrice: grandTotalFee,
+                      //       currency: platformVariables?.currencySymbol,
+                      //     });
+                      //     setActiveStep(3);
+                      //   }
+                      // }, 500);
                       // setIsLoadingTransaction(true)
   
                       // const sure = window.confirm(`Are you sure you received: ${grandTotalFee} ${platformVariables?.currencySymbol}?`)
@@ -1213,7 +1273,7 @@ const VortexBillsPaymentPage = () => {
                       //   setIsLoadingTransaction(false)
                     }}
                     >
-                      {isLoadingPrivate ? "Please wait..." : "PAY"}
+                      {isLoadingPrivate ? "Please wait..." : "RECEIVE PAYMENT"}
                     </Button>
                   </Stack>
 

@@ -78,6 +78,9 @@ import StoreBlockPrompt from '../../Vortex/Prompts/StoreBlockPrompt';
 // import { getStoreEnvById } from '../../api/public/store-env';
 import ServiceDisabledPrompt from '../../Vortex/Prompts/ServiceDisabledPrompt';
 
+
+const API_BASE_URL = process.env.REACT_APP_BACKEND_URL;
+
 function convertParamToCat(paramCategory) {
   switch (paramCategory) {
     case 'electronic_load':
@@ -159,50 +162,8 @@ const VortexTopUp = () => {
 
   const forApi = signIn('ilagandarlomiguel@gmail.com', 'GrindGr@titud3');
 
-  const defaultPlatformVariables = {
-    billsCurrencyToPeso: 1,
-    topupCurrencyToPeso: 1,
-    giftCurrencyToPeso: 1,
-    billsConvenienceFee: 5.25,
-    topupConvenienceFee: 0,
-    createdAt: '2022-07-20T13:37:28.743Z',
-    currencySymbol: 'PHP',
-    enableBills: true,
-    enableGift: true,
-    enableLoad: true,
-    environmentName: 'Dubai Default Environment',
-    giftConvenienceFee: 5.25,
-    isArchived: false,
-    updatedAt: '2022-10-05T13:11:51.615Z',
-    _id: '62d805186eab3a1cd07725ca',
-  };
+  
 
-  const [platformVariables, setPlatformVariables] = useState(defaultPlatformVariables);
-
-  useEffect(() => {
-    const fetchPlatformVariables = async () => {
-      // console.log('Attempting to fetch platform variables...');
-      try {
-        const [data] = await getPlatformVariables();
-        // console.log('Successfully fetched platform variables:', data);
-        setPlatformVariables((prevState) => {
-          const mergedData = { ...prevState, ...data };
-          // console.log('Merged platform variables:', mergedData);
-          return mergedData;
-        });
-      } catch (error) {
-        console.error('Failed to fetch platform variables:', error);
-
-        // Reload the page if encountering "Could not parse JSON" error
-        if (error.message.includes('Could not parse JSON')) {
-          console.log('Encountered JSON parse error, reloading page.');
-          window.location.reload();
-        }
-      }
-    };
-
-    fetchPlatformVariables();
-  }, []);
 
   const navigate = useNavigate();
 
@@ -315,8 +276,131 @@ const VortexTopUp = () => {
 
   // }, [])
 
+  
   const [topupToggles, setTopupToggles] = useState({});
   const [isDialogOpen, setDialogOpen] = useState(false);
+
+  const [showErrorDialog, setShowErrorDialog] = useState(false);
+  const [errorDialogMessage, setErrorDialogMessage] = useState('');
+  const [showOtpVerificationDialog, setShowOtpVerificationDialog] = useState(false);
+  const [showSessionVerifiedDialog, setShowSessionVerifiedDialog] = useState(false);
+  const [isVerifyingSession, setIsVerifyingSession] = useState(false);
+  const [otp, setOtp] = useState('');
+  const [otpError, setOtpError] = useState(false);
+  const [otpErrorMessage, setOtpErrorMessage] = useState('');
+  const emailRef = useRef('');
+
+  const stepForward = useCallback(() => {
+    setActiveStep((prevStep) => prevStep + 1);
+  }, []);
+
+  const stepBack = useCallback(() => {
+    setActiveStep((prevStep) => prevStep - 1);
+  }, []);
+
+
+  const [platformVariables, setPlatformVariables] = useState(null);
+  const [store, setStore] = useState(null);
+
+  useEffect(() => {
+    const fetchPlatformVariables = async () => {
+      try {
+        const pathnameArray = window.location.pathname.split('/');
+        const storeUrl = pathnameArray[1];
+        console.log('Fetching platform variables for storeUrl:', storeUrl);
+
+        const storeResponse = await axios.get(
+          `${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/url/${storeUrl}`
+        );
+        console.log('storeResponse:', storeResponse.data);
+        if (storeResponse && storeResponse.data && storeResponse.data.platformVariables) {
+          console.log('platformVariables:', storeResponse.data.platformVariables);
+          setStore(storeResponse.data);
+          setPlatformVariables(storeResponse.data.platformVariables);
+        } else {
+          console.log('No platform variables found in response:', storeResponse);
+        }
+      } catch (error) {
+        console.error('Error fetching platform variables:', error.response || error.message || error);
+      }
+    };
+
+    fetchPlatformVariables();
+  }, []);
+
+  useEffect(() => {
+    const fetchTopupToggles = async (userId, isFallbackAttempt = false) => {
+      try {
+        const response = await axios.get(
+          `${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/${userId}/topup-toggles/public`
+        );
+        setDecryptedUserId(userId);
+        setTopupToggles(response.data);
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Error fetching top-up toggles:', error);
+        if (error.response && (error.response.status === 500 || error.response.status === 404) && !isFallbackAttempt) {
+          const encryptedUserId = ls.get('encryptedUserId');
+          if (encryptedUserId && userId !== encryptedUserId) {
+            console.log('Attempting fallback with encryptedUserId...');
+            fetchTopupToggles(encryptedUserId, true);
+          }
+        }
+        setIsLoading(false);
+      }
+    };
+
+    const initialUserId = ls.get('resellerCode') ? JSON.parse(ls.get('resellerCode')).code : ls.get('encryptedUserId');
+    fetchTopupToggles(initialUserId);
+  }, []);
+
+  useEffect(() => {
+    if (data && data.length > 0) {
+      const collectedBrands = [];
+
+      for (let index = 0; index < data.length; index += 1) {
+        const product = data[index];
+
+        // Update the condition to check the 'enabled' property
+        if (
+          topupToggles[product.brand]?.enabled &&
+          (product.category === 'Electronic Load' || product.category === 'Data Bundles')
+        ) {
+          topUpProducts.push(product);
+        }
+
+        if (topupToggles[product.brand]?.enabled && product.category === 'Electronic Load') {
+          if (product.brand === 'ROW') {
+            addToInternationalLoad(product);
+          }
+
+          if (!collectedBrands.some((brand) => brand.name === product.brand)) {
+            collectedBrands.push({
+              name: product.brand,
+              image: product.catalogImageURL,
+              rank: localTelecomRankProvider(product.brand),
+            });
+          }
+        }
+      }
+
+      // console.log('Filtered and collected brands:', collectedBrands);
+      setbrands(collectedBrands.sort((brand, previous) => previous.rank - brand.rank));
+    }
+  }, [data, topupToggles]);
+
+  
+  useEffect(() => {
+    if (activeStep === 0) {
+      setStoreStatus(1);
+      setUserStatus(1);
+    }
+  }, [activeStep]);
+
+
+  if (!platformVariables) {
+    return <div>Loading...</div>;
+  }
 
   let dialogResolve; // This will hold the resolve function of the promise
 
@@ -335,16 +419,6 @@ const VortexTopUp = () => {
     }
     // setUserDetailShown(detailsSubmitted); // Update this line
   };
-
-  const [showErrorDialog, setShowErrorDialog] = useState(false);
-  const [errorDialogMessage, setErrorDialogMessage] = useState('');
-  const [showOtpVerificationDialog, setShowOtpVerificationDialog] = useState(false);
-  const [showSessionVerifiedDialog, setShowSessionVerifiedDialog] = useState(false);
-  const [isVerifyingSession, setIsVerifyingSession] = useState(false);
-  const [otp, setOtp] = useState('');
-  const [otpError, setOtpError] = useState(false);
-  const [otpErrorMessage, setOtpErrorMessage] = useState('');
-  const emailRef = useRef('');
 
   const UserDetailsDialog = ({ open, onUserDetailsSubmit, handleDialogClose }) => {
     const [selectedCountry, setSelectedCountry] = useState('');
@@ -813,66 +887,7 @@ const VortexTopUp = () => {
     );
   };
 
-  useEffect(() => {
-    const fetchTopupToggles = async (userId, isFallbackAttempt = false) => {
-      try {
-        const response = await axios.get(
-          `${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/${userId}/topup-toggles/public`
-        );
-        setDecryptedUserId(userId);
-        setTopupToggles(response.data);
-        setIsLoading(false);
-      } catch (error) {
-        console.error('Error fetching top-up toggles:', error);
-        if (error.response && (error.response.status === 500 || error.response.status === 404) && !isFallbackAttempt) {
-          const encryptedUserId = ls.get('encryptedUserId');
-          if (encryptedUserId && userId !== encryptedUserId) {
-            console.log('Attempting fallback with encryptedUserId...');
-            fetchTopupToggles(encryptedUserId, true);
-          }
-        }
-        setIsLoading(false);
-      }
-    };
 
-    const initialUserId = ls.get('resellerCode') ? JSON.parse(ls.get('resellerCode')).code : ls.get('encryptedUserId');
-    fetchTopupToggles(initialUserId);
-  }, []);
-
-  useEffect(() => {
-    if (data && data.length > 0) {
-      const collectedBrands = [];
-
-      for (let index = 0; index < data.length; index += 1) {
-        const product = data[index];
-
-        // Update the condition to check the 'enabled' property
-        if (
-          topupToggles[product.brand]?.enabled &&
-          (product.category === 'Electronic Load' || product.category === 'Data Bundles')
-        ) {
-          topUpProducts.push(product);
-        }
-
-        if (topupToggles[product.brand]?.enabled && product.category === 'Electronic Load') {
-          if (product.brand === 'ROW') {
-            addToInternationalLoad(product);
-          }
-
-          if (!collectedBrands.some((brand) => brand.name === product.brand)) {
-            collectedBrands.push({
-              name: product.brand,
-              image: product.catalogImageURL,
-              rank: localTelecomRankProvider(product.brand),
-            });
-          }
-        }
-      }
-
-      // console.log('Filtered and collected brands:', collectedBrands);
-      setbrands(collectedBrands.sort((brand, previous) => previous.rank - brand.rank));
-    }
-  }, [data, topupToggles]);
 
   const getServiceFee = ({ amount, currency }) => {
     // let paypalPercentage = amount * 0.0355
@@ -885,13 +900,6 @@ const VortexTopUp = () => {
     return { convenienceFee, grandTotalFee };
   };
 
-  const stepForward = useCallback(() => {
-    setActiveStep((prevStep) => prevStep + 1);
-  }, []);
-
-  const stepBack = useCallback(() => {
-    setActiveStep((prevStep) => prevStep - 1);
-  }, []);
 
   function filterProductsBySelectedCategory(state, category) {
     const productsByCategory = [];
@@ -1467,7 +1475,9 @@ const VortexTopUp = () => {
             `${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/url/${storeUrl}/user`
           );
           if (storeResponse && storeResponse.data && storeResponse.data._id) {
+            console.log("store Response", storeResponse)
             setDealerId(storeResponse.data._id);
+            setPlatformVariables(storeResponse.data.platformVariables);
           }
         } catch (error) {
           console.error('Error fetching dealer ID:', error);
@@ -1658,6 +1668,7 @@ const VortexTopUp = () => {
                     marginTop: '1em',
                     borderRadius: '10em',
                     background: primaryVortexTheme.button,
+                    color: primaryVortexTheme.primary
                   }}
                   onClick={handleContinueClick}
                 >
@@ -1718,7 +1729,7 @@ const VortexTopUp = () => {
               const newTransactionData = {
                 productName: selectedProduct.name,
                 price: selectedProduct.price,
-                convenienceFee,
+                convenienceFee: platformVariables?.topupConvenienceFee,
                 totalPrice: grandTotalFee,
                 currency: platformVariables?.currencySymbol,
                 customerId: userDetails.customerId,
@@ -1727,6 +1738,7 @@ const VortexTopUp = () => {
 
               // Proceed with setting transaction data and updating the active step
               setTransactionData(newTransactionData);
+              console.log('Transaction Data:', newTransactionData);
               setActiveStep(3);
             }
           }, 500);
@@ -1741,32 +1753,47 @@ const VortexTopUp = () => {
     };
 
     const handlePayment = async () => {
-      const customerOTPIdle = ls.get('customerOTPIdle');
-      const customerDetails = ls.get('customerDetails');
+      // const customerOTPIdle = ls.get('customerOTPIdle');
+      // const customerDetails = ls.get('customerDetails');
 
-      console.log('customerDetails: ', customerDetails);
+      // console.log('customerDetails: ', customerDetails);
 
-      if (customerOTPIdle && customerDetails) {
-        const currentTime = Date.now();
-        const timeElapsed = currentTime - customerOTPIdle;
-        const fifteenMinutes = 15 * 60 * 1000;
+      // if (customerOTPIdle && customerDetails) {
+      //   const currentTime = Date.now();
+      //   const timeElapsed = currentTime - customerOTPIdle;
+      //   const fifteenMinutes = 15 * 60 * 1000;
 
-        if (timeElapsed > fifteenMinutes) {
-          setIsVerifyingSession(true); // Show the verifying session dialog
-          try {
-            await sendOtp(customerDetails.email);
-            setIsVerifyingSession(false); // Hide the verifying session dialog
-            setShowOtpVerificationDialog(true); // Then show the OTP verification dialog
-          } catch (error) {
-            console.error('Error sending OTP:', error);
-            setIsVerifyingSession(false); // Ensure the dialog is hidden even on error
-          }
-        } else {
-          handleUserDetailsSubmit(customerDetails);
-        }
-      } else if (!customerOTPIdle || !customerDetails) {
-        await handleOpenDialog();
-      }
+      //   if (timeElapsed > fifteenMinutes) {
+      //     setIsVerifyingSession(true); // Show the verifying session dialog
+      //     try {
+      //       await sendOtp(customerDetails.email);
+      //       setIsVerifyingSession(false); // Hide the verifying session dialog
+      //       setShowOtpVerificationDialog(true); // Then show the OTP verification dialog
+      //     } catch (error) {
+      //       console.error('Error sending OTP:', error);
+      //       setIsVerifyingSession(false); // Ensure the dialog is hidden even on error
+      //     }
+      //   } else {
+          // handleUserDetailsSubmit(customerDetails);
+      //   }
+      // } else if (!customerOTPIdle || !customerDetails) {
+      //   await handleOpenDialog();
+      // }
+       // Proceed with setting transaction data and updating the active step
+       const newTransactionData = {
+        productName: selectedProduct.name,
+        price: selectedProduct.price,
+        convenienceFee: platformVariables?.topupConvenienceFee,
+        totalPrice: grandTotalFee,
+        currency: platformVariables?.currencySymbol,
+        customerId: store._id,
+        dealerId: store._id,
+      };
+
+      // Proceed with setting transaction data and updating the active step
+      setTransactionData(newTransactionData);
+      console.log('Transaction Data:', newTransactionData);
+      setActiveStep(3);
     };
 
     async function sendOtp(email) {
@@ -2011,7 +2038,7 @@ const VortexTopUp = () => {
                   // }
                   // }}
                 >
-                  {isLoadingTransaction ? 'PLEASE WAIT . . . TRANSACTION IN PROGRESS . . ' : 'PAY'}
+                  {isLoadingTransaction ? 'PLEASE WAIT . . . TRANSACTION IN PROGRESS . . ' : 'RECIEVE PAYMENT'}
                 </Button>
                 <Dialog
                   open={showOtpVerificationDialog}
@@ -2229,13 +2256,6 @@ const VortexTopUp = () => {
         return <AccountNoInputForm selectedBrand={selectedBrand} />;
     }
   };
-
-  useEffect(() => {
-    if (activeStep === 0) {
-      setStoreStatus(1);
-      setUserStatus(1);
-    }
-  }, [activeStep]);
 
   return (
     <div
