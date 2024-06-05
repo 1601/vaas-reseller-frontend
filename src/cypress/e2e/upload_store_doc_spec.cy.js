@@ -33,6 +33,35 @@ describe('upload store documents spec', () => {
         cy.get('input[name="numberOfEmployees"]').should('have.value', 0);
         cy.get('input[name="uniqueIdentifier"]').type('@##%^');
         cy.get('input[name="uniqueIdentifier"]').should('have.value', '');
+        cy.get('input[name="externalLinkAccount-0"]').type('vortex.com');
+        cy.contains('button', 'Next').click();
+        cy.contains('Invalid Link').should('be.visible');
+    })
+
+    it('test validation upload', () => {
+        cy.get('[name="navMenu"]').click();
+        cy.contains('a div', 'upload document').click();
+        cy.contains('button', 'Next').click();
+        cy.get('input[name="customerServiceNumber"]').type('9513217169');
+        cy.get('input[name="streetAddress"]').type('456 Main Street, Apt. 12B');
+        cy.get('input[name="cityAddress"]').type('San Francisco');
+        cy.get('input[name="regionAddress"]').type('CA (California)');
+        cy.get('input[name="zipCodeAddress"]').type('94105');
+        cy.get('input[name="numberOfEmployees"]').type('5');
+        cy.get('input[name="uniqueIdentifier"]').type('51s51aa9-58s51-521d');
+        cy.contains('button', 'Next').click();
+        cy.contains('div', 'Individual').click();
+        cy.contains('button', 'Next').click();
+        cy.get('[name="uploadId"]').click();
+        cy.get('input[type="file"][name="uploadIdInput"]').invoke('show').selectFile('cypress/fixtures/test_id.jpg');
+        cy.get('[name="uploadId"]').click();
+        cy.get('input[type="file"][name="uploadIdInput"]').invoke('show').selectFile('cypress/fixtures/test_id.jpg');
+        cy.get('[name="uploadId"]').click();
+        cy.get('[name="uploadDoc"]').click();
+        cy.get('input[type="file"][name="uploadDocInput"]').invoke('show').selectFile('cypress/fixtures/test_business_doc.jpg');
+        cy.get('[name="uploadDoc"]').click();
+        cy.get('input[type="file"][name="uploadDocInput"]').invoke('show').selectFile('cypress/fixtures/test_business_doc.jpg').wait(2000);
+        cy.contains('Exceeded allowed number of files to be uploaded').should('be.visible');
     })
 
     it('Test store document upload', () => {
