@@ -83,9 +83,9 @@ const AdminAccounts = () => {
               setCreateButtonTooltip('Admin1 already created');
             }
           } else if (subrole === 'admin1') {
-            const nonAdmin0Accounts = admins.filter((admin) => admin.subrole !== 'admin0');
-            setAdmins(nonAdmin0Accounts);
-            setFilteredAdmins(nonAdmin0Accounts);
+            const nonAdmin0andAdmin1Accounts = admins.filter((admin) => admin.subrole !== 'admin0' && admin.subrole !== 'admin1');
+            setAdmins(nonAdmin0andAdmin1Accounts);
+            setFilteredAdmins(nonAdmin0andAdmin1Accounts);
           } else {
             setAdmins(admins);
             setFilteredAdmins(admins);
