@@ -17,6 +17,7 @@ const AdminHome = () => {
   const [totalStores, setTotalStores] = useState(0);
   const [accountsNeedingKYC, setAccountsNeedingKYC] = useState(0);
   const [totalAccounts, setTotalAccounts] = useState(0);
+  const [subrole, setSubrole] = useState('');
 
   const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
 
@@ -36,6 +37,7 @@ const AdminHome = () => {
 
         setUsername(user?.username || 'Not Available');
         setEmail(user?.email || 'Not Available');
+        setSubrole(user?.subrole || '');
 
         // Headers with token
         const headers = {
@@ -124,6 +126,7 @@ const AdminHome = () => {
                   </Typography>
                   <Typography variant="h6">Name: {username}</Typography>
                   <Typography variant="h6">Email: {email}</Typography>
+                  <Typography variant="h6">Account Subrole: {subrole}</Typography>
                 </Card>
               </Card>
             </div>
@@ -135,32 +138,45 @@ const AdminHome = () => {
                   <Typography variant="h4" gutterBottom align="center">
                     Navigation
                   </Typography>
-                  <Button
-                    onClick={handleStoreApproval}
-                    variant="outlined"
-                    color="primary"
-                    style={{ marginRight: '8px' }}
-                  >
-                    Store Approval
-                  </Button>
-                  <Button onClick={handleKYCApproval} variant="outlined" color="primary" style={{ marginRight: '8px' }}>
-                    KYC Approval
-                  </Button>
+                  {subrole !== 'admin0' && subrole !== 'admin1' && (
+                    <>
+                      <Button
+                        onClick={handleStoreApproval}
+                        variant="outlined"
+                        color="primary"
+                        style={{ marginRight: '8px' }}
+                      >
+                        Store Approval
+                      </Button>
+                      <Button
+                        onClick={handleKYCApproval}
+                        variant="outlined"
+                        color="primary"
+                        style={{ marginRight: '8px' }}
+                      >
+                        KYC Approval
+                      </Button>
+                    </>
+                  )}
+                  {subrole !== 'crm' && (
                   <Button onClick={handleAdminCreation} variant="outlined" color="primary">
                     Admin Creation
                   </Button>
+                  )}
                 </Card>
               </Card>
             </div>
           </div>
 
           {/* Notifications Card */}
-          <NotificationsCard
-            storesNeedingApproval={storesNeedingApproval}
-            totalStores={totalStores}
-            accountsNeedingKYC={accountsNeedingKYC}
-            totalAccounts={totalAccounts}
-          />
+          {subrole !== 'admin0' && subrole !== 'admin1' && (
+            <NotificationsCard
+              storesNeedingApproval={storesNeedingApproval}
+              totalStores={totalStores}
+              accountsNeedingKYC={accountsNeedingKYC}
+              totalAccounts={totalAccounts}
+            />
+          )}
         </>
       )}
     </div>
