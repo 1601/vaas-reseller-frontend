@@ -40,6 +40,7 @@ import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 import { Icon as Iconify } from '@iconify/react';
+import { currencies } from '../../utils/currencies';
 import { allBanner } from '../../api/public/banner';
 import Logo from '../../components/logo';
 import { countries } from '../../components/country/CountriesList';
@@ -49,6 +50,7 @@ import privacyPolicy from '../../components/agreements/privacyPolicy';
 import cookiePolicy from '../../components/agreements/cookiePolicy';
 import VerifyPage from './VerifyPage';
 import { mobileNumberLengths } from '../../components/country/countryNumLength';
+
 
 const StyledCard = styled(Card)(({ theme }) => ({
   padding: theme.spacing(2),
@@ -208,52 +210,6 @@ function CookieDialog({ open, onClose, onAgree }) {
       </Dialog>
   );
 }
-
-const currencies = [
-  'HKD',
-  'MYR',
-  'SGD',
-  'USD',
-  'JPY',
-  'GBP',
-  'EUR',
-  'AED',
-  'CAD',
-  'SAR',
-  'KRW',
-  'TWD',
-  'AUD',
-  'KWD',
-  'MOP',
-  'VND',
-  'DKK',
-  'ILS',
-  'THB',
-  'PHP',
-];
-
-const currencyDescriptions = {
-  HKD: 'Hong Kong Dollar',
-  MYR: 'Malaysian Ringgit',
-  SGD: 'Singapore Dollar',
-  USD: 'United States Dollar',
-  JPY: 'Japanese Yen',
-  GBP: 'British Pound',
-  EUR: 'Euro',
-  AED: 'United Arab Emirates Dirham',
-  CAD: 'Canadian Dollar',
-  SAR: 'Saudi Riyal',
-  KRW: 'South Korean Won',
-  TWD: 'New Taiwan Dollar',
-  AUD: 'Australian Dollar',
-  KWD: 'Kuwaiti Dinar',
-  MOP: 'Macanese Pataca',
-  VND: 'Vietnamese Dong',
-  DKK: 'Danish Krone',
-  ILS: 'Israeli New Shekel',
-  THB: 'Thai Baht',
-  PHP: 'Philippine Peso',
-};
 
 const fadeInDown = keyframes`
   from {
@@ -1084,25 +1040,25 @@ export default function SignUpPage() {
 
                     {/* Set Currency */}
                     {formData.currency && (
-                      <Box sx={{ mb: 3 }}>
-                        <Typography sx={{ mb: 1 }}> Currency </Typography>
-                        <FormControl fullWidth variant="outlined">
-                          <InputLabel id="currency-label">Currency</InputLabel>
-                          <Select
-                            labelId="currency-label"
-                            label="Currency"
-                            name="currency"
-                            value={formData.currency}
-                            onChange={handleInputChange}
-                          >
-                            {currencies.map((currencyCode) => (
-                              <MenuItem key={currencyCode} value={currencyCode}>
-                                {`${currencyCode} - ${currencyDescriptions[currencyCode]}`}
-                              </MenuItem>
-                            ))}
-                          </Select>
-                        </FormControl>
-                      </Box>
+                     <Box sx={{ mb: 3 }}>
+                     <Typography sx={{ mb: 1 }}> Currency </Typography>
+                     <FormControl fullWidth variant="outlined">
+                       <InputLabel id="currency-label">Currency</InputLabel>
+                       <Select
+                         labelId="currency-label"
+                         label="Currency"
+                         name="currency"
+                         value={formData.currency}
+                         onChange={handleInputChange}
+                       >
+                         {currencies.map((currency) => (
+                           <MenuItem key={currency.cc} value={currency.cc}>
+                             {`${currency.cc} - ${currency.name}`}
+                           </MenuItem>
+                         ))}
+                       </Select>
+                     </FormControl>
+                   </Box>
                     )}
                     {/* User Credentials Section */}
                     <Box sx={{ mb: 3 }}>

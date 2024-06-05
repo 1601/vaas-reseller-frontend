@@ -57,6 +57,7 @@ import BillerProducts from './pages/DealerPages/Products/BillerProducts';
 import OldLoginPage from './pages/AuthPages/oldLoginPage';
 import AdminWallet from './pages/AdminPages/AdminWallet';
 import AdminAccounts from './pages/AdminPages/AdminAccounts';
+import StoreEnvPage from './pages/StoreEnvPage';
 
 // ----------------------------------------------------------------------
 
@@ -272,6 +273,7 @@ export default function Router() {
           path: 'store',
           children: [
             { path: '/dashboard/store', element: <Navigate to="storefront" replace />, index: true },
+            { path: 'storeforex', element: <StoreEnvPage /> },
             { path: 'storefront', element: <StorePageEdit /> },
             { path: 'resellers', element: <ManageReseller /> },
           ],

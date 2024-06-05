@@ -30,9 +30,10 @@ import {
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import axios from 'axios';
-import BillsImage from '../images/logos/bills.svg';
-import LoadImage from '../images/logos/load.svg';
-import VoucherImage from '../images/logos/voucher.svg';
+import BillsImage from '../images/bills-icon-desktop.png';
+import LoadImage from '../images/load-icon-desktop.png';
+import VoucherImage from '../images/shop-icon-desktop.png';
+import tinboLogo from '../images/tinbo-logo-desktop.svg';
 import { useStore } from '../StoreContext';
 
 const ls = new SecureLS({ encodingType: 'aes' });
@@ -638,7 +639,8 @@ const LiveStorePage = () => {
         <div style={{ flex: 1, textAlign: 'center' }}>
           <Box style={logoContainerStyle}>
             <img
-              src={storeData?.storeLogo || 'https://i.ibb.co/Sx8HSXp/download-removebg-preview.png'}
+              src={tinboLogo}
+              // src={storeData?.storeLogo || 'https://i.ibb.co/Sx8HSXp/download-removebg-preview.png'}
               alt={`${storeData?.storeName || 'Your Store'}'s Logo`}
               style={logoStyle}
             />

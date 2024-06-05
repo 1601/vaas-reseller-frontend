@@ -176,6 +176,10 @@ const getNavConfig = (role, subrole) => {
       icon: icon('ic_store'),
       children: [
         {
+          title: 'Store Forex',
+          path: '/dashboard/store/storeforex',
+        },
+        {
           title: 'Storefront',
           path: '/dashboard/store/storefront',
         },

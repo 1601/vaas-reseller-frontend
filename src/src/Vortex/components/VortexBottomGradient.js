@@ -4,7 +4,7 @@ const VortexBottomGradient = () => (
     <div
       style={{
         background:
-          "linear-gradient(0deg, rgba(6,136,239,0.4374124649859944) 0%, rgba(9,186,248,0) 100%)",
+          "linear-gradient(0deg, rgb(239 180 6 / 44%) 0%, rgba(9, 186, 248, 0) 100%);",
         zIndex: 99,
         width: "100%",
         height: "20%",

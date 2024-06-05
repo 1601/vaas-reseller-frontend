@@ -958,7 +958,7 @@ const VortexBillsPaymentPage = () => {
                     borderRadius: "2em",
                     height: "3em",
                     color: "white !important",
-                    background: "blue !important",
+                    background: "#fe3c02 !important",
                   }}
                 >
                   {isFormLoading ? "Please wait..." : "CONTINUE"}

@@ -85,6 +85,7 @@ export const BillerIcon = ({ categoryName = "Airlines" }) => {
         width={"50px"}
         style={{
           fill: `${primaryVortexTheme.primary}`,
+          filter: `invert(38%) sepia(98%) saturate(6445%) hue-rotate(358deg) brightness(103%) contrast(104%)`
         }}
       />
     </Avatar>
