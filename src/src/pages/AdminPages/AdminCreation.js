@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import SecureLS from 'secure-ls';
 import { useNavigate } from 'react-router-dom';
@@ -15,6 +15,7 @@ import {
   Card,
   IconButton,
   Snackbar,
+  Tooltip, 
 } from '@mui/material';
 import ArrowBack from '@mui/icons-material/ArrowBack';
 
@@ -31,17 +32,14 @@ const AdminCreation = () => {
   const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
   const phoneRegex = /^[0-9]+$/;
   const [errorMessage, setErrorMessage] = useState('');
-
   const [isEmailValid, setIsEmailValid] = useState(false);
   const [isPhoneNumberValid, setIsPhoneNumberValid] = useState(false);
+  const [disableCreateButton, setDisableCreateButton] = useState(false);
+  const [createButtonTooltip, setCreateButtonTooltip] = useState('');
 
-  const validateEmail = (email) => {
-    return emailRegex.test(email);
-  };
+  const validateEmail = (email) => emailRegex.test(email);
 
-  const validatePhoneNumber = (phoneNumber) => {
-    return phoneRegex.test(phoneNumber) && phoneNumber.length >= 10; // Assuming phone number should be at least 10 digits
-  };
+  const validatePhoneNumber = (phoneNumber) => phoneRegex.test(phoneNumber) && phoneNumber.length >= 10;
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -54,14 +52,43 @@ const AdminCreation = () => {
     }
   };
 
-  const isFormValid = () => {
-    return isEmailValid && isPhoneNumberValid;
-  };
+  useEffect(() => {
+    const fetchAdmins = async () => {
+      const token = ls.get('token');
+      const currentUser = ls.get('user');
+      const currentUserSubrole = currentUser?.subrole;
+
+      try {
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/admin/users`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (Array.isArray(response.data)) {
+          const admins = response.data.filter((user) => user.role === 'admin');
+          const hasAdmin1 = admins.some((admin) => admin.subrole === 'admin1');
+
+          if (hasAdmin1 && currentUserSubrole === 'admin0') {
+            setDisableCreateButton(true);
+            setCreateButtonTooltip('Admin1 already created');
+          }
+        } else {
+          console.error('Unexpected API response format for admins');
+        }
+      } catch (error) {
+        console.error('Could not fetch admins:', error);
+      }
+    };
+
+    fetchAdmins();
+  }, []);
+
+  const isFormValid = () => isEmailValid && isPhoneNumberValid;
 
   const handleSubmitClick = async () => {
     setErrorMessage('');
 
-    // Check if the email is associated with a dealer account
     if (isEmailValid) {
       try {
         const token = ls.get('token');
@@ -96,6 +123,12 @@ const AdminCreation = () => {
     setOpenConfirmDialog(false);
     const uniqueKey = uuidv4();
     const token = ls.get('token');
+    const currentUser = ls.get('user');
+    let subrole = 'crm';
+
+    if (currentUser.subrole === 'admin0') {
+      subrole = 'admin1';
+    }
 
     try {
       await axios.post(
@@ -104,6 +137,7 @@ const AdminCreation = () => {
           email: formState.email,
           mobileNumber: formState.phoneNumber,
           uniqueKey,
+          subrole,
         },
         {
           headers: {
@@ -121,13 +155,9 @@ const AdminCreation = () => {
     }
   };
 
-  const handleCloseDialog = () => {
-    setOpenConfirmDialog(false);
-  };
+  const handleCloseDialog = () => setOpenConfirmDialog(false);
 
-  const handleBack = () => {
-    navigate('/dashboard/admin/accounts');
-  };
+  const handleBack = () => navigate('/dashboard/admin/accounts');
 
   return (
     <Container maxWidth="sm">
@@ -165,22 +195,26 @@ const AdminCreation = () => {
             {errorMessage}
           </Typography>
         )}
-        <Button
-          variant="contained"
-          style={{
-            width: '100%',
-            height: '40px',
-            borderRadius: '22px',
-            fontSize: '14px',
-            backgroundColor: isFormValid() ? '#7A52F4' : '#CCCCCC',
-            color: isFormValid() ? '#fff' : '#666666',
-            marginTop: '16px',
-          }}
-          onClick={handleSubmitClick}
-          disabled={!isFormValid()}
-        >
-          Submit
-        </Button>
+        <Tooltip title={createButtonTooltip} arrow disableHoverListener={!disableCreateButton}>
+          <span>
+            <Button
+              variant="contained"
+              style={{
+                width: '100%',
+                height: '40px',
+                borderRadius: '22px',
+                fontSize: '14px',
+                backgroundColor: isFormValid() ? '#7A52F4' : '#CCCCCC',
+                color: isFormValid() ? '#fff' : '#666666',
+                marginTop: '16px',
+              }}
+              onClick={handleSubmitClick}
+              disabled={!isFormValid() || disableCreateButton}
+            >
+              Submit
+            </Button>
+          </span>
+        </Tooltip>
       </Card>
 
       <Dialog open={openConfirmDialog} onClose={handleCloseDialog}>
