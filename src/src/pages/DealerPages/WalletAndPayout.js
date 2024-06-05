@@ -32,7 +32,7 @@ import {
   Tabs,
   TextField,
   Tooltip,
-  Typography,
+  Typography, Alert,
 } from '@mui/material';
 import axios from 'axios';
 import * as XLSX from 'xlsx';
@@ -76,6 +76,8 @@ const WalletPayouts = () => {
   const [currency, setCurrency] = useState();
   const [edit, setEdit] = useState(false);
   const userId = ls.get('user') ? ls.get('user')._id : null;
+  const MAX_FILE_SIZE = 6 * 1024 * 1024;
+  const [errorSlip, setErrorSlip] = useState('');
 
   const userData = UserDataFetch(userId);
   const { storeData, editedData, platformVariables, error } = StoreDataFetch(userId);
@@ -105,9 +107,6 @@ const WalletPayouts = () => {
     startDate: new Date(),
     endDate: new Date(),
   });
-
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [dialogMessage, setDialogMessage] = useState('');
 
   const [bankDetails] = useState({
     USA: {
@@ -156,15 +155,32 @@ const WalletPayouts = () => {
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
     if (selectedFile && !['image/jpeg', 'image/png', 'image/jpg'].includes(selectedFile.type)) {
-      setDialogMessage('Only JPG, JPEG and PNG image formats will be accepted.');
-      setDialogOpen(true);
-    } else {
-      setFile(selectedFile);
+      setErrorSlip('Only JPG, JPEG and PNG image formats will be accepted.');
+      setFile(null);
+      return;
     }
-  };
-
-  const handleDialogClose = () => {
-    setDialogOpen(false);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+         if (selectedFile.size > MAX_FILE_SIZE) {
+          setErrorSlip(`File size exceeds the limit of ${MAX_FILE_SIZE / (1024 * 1024)} MB`);
+          setFile(null);
+        } else if (img.width > 2048 || img.height > 2048) {
+          setErrorSlip(`Image dimensions should not exceed ${2048}x${2048} pixels`);
+          setFile(null);
+        }  else {
+          setErrorSlip('');
+          setFile(selectedFile);
+        }
+      };
+      img.onerror = () => {
+        setErrorSlip('Invalid image file');
+        setFile(null);
+      };
+      img.src = e.target.result; // Assigns the Base64 data URL to the img src attribute
+    };
+    reader.readAsDataURL(selectedFile); // Reads the file and triggers the onload event
   };
 
   const handleBankDepositClick = () => {
@@ -603,6 +619,7 @@ const WalletPayouts = () => {
           <input type="file" hidden onChange={handleFileChange} />
         </Button>
       </Box>
+      {errorSlip && <Alert severity="error" sx={{ mt: 2 }}>{errorSlip}</Alert>}
       <Typography variant="caption" sx={{ mt: 2 }}>
         <span style={{ display: 'block' }}>- Only JPG, JPEG and PNG image formats will be accepted.</span>
         <span style={{ display: 'block' }}>- File size must not exceed 6MB.</span>
@@ -937,17 +954,6 @@ const WalletPayouts = () => {
         )}
       </Container>
       <AccountStatusModal open userData={userData} storeData={storeData} />
-      <Dialog open={dialogOpen} onClose={handleDialogClose}>
-        <DialogTitle>Invalid File Type</DialogTitle>
-        <DialogContent>
-          <DialogContentText>{dialogMessage}</DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleDialogClose} color="primary">
-            OK
-          </Button>
-        </DialogActions>
-      </Dialog>
     </>
   );
 };

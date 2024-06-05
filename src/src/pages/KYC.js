@@ -10,7 +10,7 @@ import TextField from '@mui/material/TextField';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
-import {Alert, Card} from '@mui/material';
+import {Alert, Card, ListItem, ListItemText} from '@mui/material';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import Checkbox from '@mui/material/Checkbox';
@@ -33,6 +33,7 @@ import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import { styled } from '@mui/material/styles';
 import Grid from '@mui/material/Grid';
 import { useDropzone } from 'react-dropzone';
+import DeleteIcon from "@mui/icons-material/Delete";
 import KycImage from '../images/Rectangle 52.png';
 import UnderReview from '../images/underReview.jpeg';
 import Approved from '../images/approved.png';
@@ -377,6 +378,10 @@ export default function KYC() {
   const validateUrl = (value) => {
     try {
       new URL(value);
+      setIsError({
+        ...isError,
+        externalLinkAccount: ''
+      });
       return true;
     } catch (e) {
       return false;
@@ -385,6 +390,14 @@ export default function KYC() {
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
+
+    if(name === 'customerServiceNumber'){
+      if(!/^[0-9@-_+]*$/.test(value) || value.length > 20) return;
+    }
+
+    if(name === 'uniqueIdentifier'){
+      if(!/^[a-zA-Z0-9-]*$/.test(value) || value.length > 20) return;
+    }
 
     if (isError) {
       setIsError({
@@ -471,10 +484,12 @@ export default function KYC() {
     }else if(selectedImage.length >= 2){
       setErrorImage(`Exceeded allowed number of files to be uploaded`);
     }else{
-      setErrorImage('');
       const file = acceptedFiles[0];
-      if (file.type === 'image/png' || file.type === 'image/jpeg') {
+      if (file.type === 'image/png' || file.type === 'image/jpeg' || file.type === 'application/pdf') {
+        setErrorImage('');
         setSelectedImage((selectedImage) => [...selectedImage, acceptedFiles[0]]);
+      }else{
+        setErrorImage(`Invalid file type`);
       }
     }
   }, [selectedImage]);
@@ -486,11 +501,26 @@ export default function KYC() {
     }else if(selectedDocs.length >= 1){
       setErrorDoc(`Exceeded allowed number of files to upload`);
     }else{
-      setErrorDoc('');
-      // Do something with the files
-      setSelectedDocs((selectedDocs) => [...selectedDocs, acceptedFiles[0]]);
+      const file = acceptedFiles[0];
+      if (file.type === 'image/png' || file.type === 'image/jpeg' || file.type === 'application/pdf') {
+        setErrorDoc('');
+        // Do something with the files
+        setSelectedDocs((selectedDocs) => [...selectedDocs, acceptedFiles[0]]);
+      }else{
+        setErrorDoc(`Invalid file type`);
+      }
     }
   }, [selectedDocs]);
+
+  const handleRemoveSelectedId = (fileToRemove) => {
+    setSelectedImage((prevFiles) => prevFiles.filter(file => file !== fileToRemove));
+    setErrorImage('');
+  };
+
+  const handleRemoveSelectedDoc = (fileToRemove) => {
+    setSelectedDocs((prevFiles) => prevFiles.filter(file => file !== fileToRemove));
+    setErrorDoc('');
+  };
 
   const { getRootProps: getRootPropsID, getInputProps: getInputPropsID, isDragActive: isDragActiveID } = useDropzone({ onDrop: onDropID, maxSize: MAX_FILE_SIZE });
   const { getRootProps: getRootPropsDoc, getInputProps: getInputPropsDoc, isDragActive: isDragActiveDoc } = useDropzone({ onDrop: onDropDoc, maxSize: MAX_FILE_SIZE });
@@ -618,7 +648,7 @@ export default function KYC() {
                                   <LocalPhoneIcon /> {/* Replace with your desired icon */}
                                 </IconButton>
                               </InputAdornment>
-                            ),
+                            )
                           }}
                         />
                         {isError.customerServiceNumber && <ErrorMessage label={isError.customerServiceNumber} />}
@@ -994,9 +1024,6 @@ export default function KYC() {
                                   <p>Drag 'n' drop some files here, or click to select files</p>
                                 )}
                                 </div>
-                                <div>
-                                  {errorImage && (<Alert severity="error" sx={{mt: 2}}>{errorImage}</Alert>)}
-                                </div>
                               </Box>
                             </div>
                             {/* </label> */}
@@ -1008,23 +1035,27 @@ export default function KYC() {
                                     backgroundColor: '#873EC0',
                                     borderRadius: '5px',
                                     color: 'white', // Changed text color to white for better contrast
-                                    width: '100px', // Increased the width for more space
-                                    padding: '8px', // Added padding for better spacing
                                     fontSize: '14px', // Adjusted font size
                                     textAlign: 'center', // Center-align text
                                     whiteSpace: 'nowrap',
                                     overflow: 'hidden',
                                     textOverflow: 'ellipsis',
                                     marginRight: '10px',
-                                    marginBottom: '10px',
                                     boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.2)', // Added a subtle shadow
                                   }}
                                 >
-                                  {item.name}
+                                  <ListItem key={index} secondaryAction={
+                                    <IconButton edge="end" aria-label="delete" onClick={() => handleRemoveSelectedId(item)}>
+                                      <DeleteIcon />
+                                    </IconButton>
+                                  }>
+                                    <ListItemText primary={item.name} />
+                                  </ListItem>
                                 </div>
                               ))}
                             </div>
                           </HoverableButton>
+                          {errorImage && (<Alert severity="error" sx={{mt: 2}}>{errorImage}</Alert>)}
                         </div>
                         <hr />
                         <div style={{ marginTop: '20px' }}>
@@ -1092,19 +1123,22 @@ export default function KYC() {
                                     backgroundColor: '#873EC0',
                                     borderRadius: '5px',
                                     color: 'white', // Changed text color to white for better contrast
-                                    width: '100px', // Increased the width for more space
-                                    padding: '8px', // Added padding for better spacing
                                     fontSize: '14px', // Adjusted font size
                                     textAlign: 'center', // Center-align text
                                     whiteSpace: 'nowrap',
                                     overflow: 'hidden',
                                     textOverflow: 'ellipsis',
                                     marginRight: '10px',
-                                    marginBottom: '10px',
                                     boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.2)', // Added a subtle shadow
                                   }}
                                 >
-                                  {item.name}
+                                  <ListItem key={index} secondaryAction={
+                                    <IconButton edge="end" aria-label="delete" onClick={() => handleRemoveSelectedDoc(item)}>
+                                      <DeleteIcon />
+                                    </IconButton>
+                                  }>
+                                    <ListItemText primary={item.name} />
+                                  </ListItem>
                                 </div>
                               ))}
                             </div>
