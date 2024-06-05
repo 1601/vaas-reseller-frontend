@@ -5,86 +5,123 @@ import SvgColor from '../../../components/svg-color';
 
 const icon = (name) => <SvgColor src={`/assets/icons/navbar/${name}.svg`} sx={{ width: 1, height: 1 }} />;
 
-const getNavConfig = (role) => {
+const getNavConfig = (role, subrole) => {
   if (role === 'admin') {
-    return [
-      {
-        title: 'Home',
-        path: '/dashboard/admin/home',
-        icon: icon('ic_analytics'),
-      },
-      {
-        title: 'Approvals',
-        path: '/dashboard/admin/storeapproval',
-        icon: icon('ic_approval'),
-        children: [
-          {
-            title: 'Store Approval',
-            path: '/dashboard/admin/storeapproval',
-            icon: icon('ic_storeapprove'),
-          },
-          {
-            title: 'KYC Approval',
-            path: '/dashboard/admin/kycapproval',
-            icon: icon('ic_user'),
-          },
-        ],
-      },
-      // {
-      //  title: 'Product Configuration',
-      //  path: '/dashboard/admin/products',
-      //  icon: icon('ic_product'),
-      //  children: [
-      //    {
-      //      title: 'Bills',
-      //      path: '/dashboard/admin/products/bills',
-      //      icon: icon('ic_bills'),
-      //    },
-      //    {
-      //      title: 'Top-Up',
-      //      path: '/dashboard/admin/products/topup',
-      //      icon: icon('ic_topup'),
-      //    },
-      //    {
-      //      title: 'E-Gifts',
-      //      path: '/dashboard/admin/products/egift',
-      //      icon: icon('ic_egift'),
-      //    },
-      //  ],
-      // },
-      {
-        title: 'Dealer Accounts',
-        path: '/dashboard/admin/dealers',
-        icon: icon('ic_customer'),
-      },
-      {
-        title: 'Admin Accounts',
-        path: '/dashboard/admin/accounts',
-        icon: icon('ic_customer'),
-      },
-      {
-        title: 'Banner Configuration',
-        path: '/dashboard/admin/banner',
-        icon: icon('ic_product'),
-      },
-      {
-        title: 'Wallet',
-        path: '/dashboard/admin/wallet',
-        icon: icon('ic_wallet'),
-        children: [
-          // {
-          //   title: 'Manage Wallet Portal',
-          //   path: '/dashboard/admin/wallet/manage-portal',
-          //   icon: icon('ic_circle'),
-          // },
-          {
-            title: 'Manage Wallet CA',
-            path: '/dashboard/admin/wallet/manage-ca',
-            icon: icon('ic_circle'),
-          },
-        ],
-      },
-    ];
+    if (subrole === 'crm') {
+      return [
+        {
+          title: 'Home',
+          path: '/dashboard/admin/home',
+          icon: icon('ic_analytics'),
+        },
+        {
+          title: 'Approvals',
+          path: '/dashboard/admin/storeapproval',
+          icon: icon('ic_approval'),
+          children: [
+            {
+              title: 'Store Approval',
+              path: '/dashboard/admin/storeapproval',
+              icon: icon('ic_storeapprove'),
+            },
+            {
+              title: 'KYC Approval',
+              path: '/dashboard/admin/kycapproval',
+              icon: icon('ic_user'),
+            },
+          ],
+        },
+        {
+          title: 'Dealer Accounts',
+          path: '/dashboard/admin/dealers',
+          icon: icon('ic_customer'),
+        },
+        {
+          title: 'Banner Configuration',
+          path: '/dashboard/admin/banner',
+          icon: icon('ic_product'),
+        },
+        {
+          title: 'Wallet',
+          path: '/dashboard/admin/wallet',
+          icon: icon('ic_wallet'),
+          children: [
+            {
+              title: 'Manage Wallet CA',
+              path: '/dashboard/admin/wallet/manage-ca',
+              icon: icon('ic_circle'),
+            },
+          ],
+        },
+      ];
+    }
+    
+    if (subrole === 'admin1' || subrole === 'admin0') {
+      return [
+        {
+          title: 'Home',
+          path: '/dashboard/admin/home',
+          icon: icon('ic_analytics'),
+        },
+        {
+          title: 'Admin Accounts',
+          path: '/dashboard/admin/accounts',
+          icon: icon('ic_customer'),
+        },
+      ];
+    }
+
+    // return [
+    //   {
+    //     title: 'Home',
+    //     path: '/dashboard/admin/home',
+    //     icon: icon('ic_analytics'),
+    //   },
+    //   {
+    //     title: 'Approvals',
+    //     path: '/dashboard/admin/storeapproval',
+    //     icon: icon('ic_approval'),
+    //     children: [
+    //       {
+    //         title: 'Store Approval',
+    //         path: '/dashboard/admin/storeapproval',
+    //         icon: icon('ic_storeapprove'),
+    //       },
+    //       {
+    //         title: 'KYC Approval',
+    //         path: '/dashboard/admin/kycapproval',
+    //         icon: icon('ic_user'),
+    //       },
+    //     ],
+    //   },
+    //   {
+    //     title: 'Dealer Accounts',
+    //     path: '/dashboard/admin/dealers',
+    //     icon: icon('ic_customer'),
+    //   },
+    //   {
+    //     title: 'Admin Accounts',
+    //     path: '/dashboard/admin/accounts',
+    //     icon: icon('ic_customer'),
+    //   },
+    //   {
+    //     title: 'Banner Configuration',
+    //     path: '/dashboard/admin/banner',
+    //     icon: icon('ic_product'),
+    //   },
+    //   {
+    //     title: 'Wallet',
+    //     path: '/dashboard/admin/wallet',
+    //     icon: icon('ic_wallet'),
+    //     children: [
+    //       {
+    //         title: 'Manage Wallet CA',
+    //         path: '/dashboard/admin/wallet/manage-ca',
+    //         icon: icon('ic_circle'),
+    //       },
+    //     ],
+    //   },
+    // ];
   }
 
   if (role === 'reseller') {
@@ -140,12 +177,10 @@ const getNavConfig = (role) => {
       children: [
         {
           title: 'Storefront',
-          // icon: icon('ic_store2'),
           path: '/dashboard/store/storefront',
         },
         {
           title: 'Manage Retailers',
-          // icon: icon('ic_topup'),
           path: '/dashboard/store/resellers',
         },
       ],
@@ -157,19 +192,14 @@ const getNavConfig = (role) => {
       children: [
         {
           title: 'Bills Payment',
-          icon: icon('ic_bills'),
           path: '/dashboard/products/bills-payment',
+          icon: icon('ic_bills'),
         },
         {
           title: 'Top-up',
-          icon: icon('ic_topup'),
           path: '/dashboard/products/top-up',
+          icon: icon('ic_topup'),
         },
-        // {
-        //   title: 'E-gifts',
-        //   icon: icon('ic_egift'),
-        //   path: '/dashboard/products/e-gifts',
-        // },
       ],
     },
     {
@@ -182,16 +212,7 @@ const getNavConfig = (role) => {
       path: '/dashboard/wallet',
       icon: icon('ic_wallet'),
     },
-    // {
-    //   title: 'login',
-    //   path: '/login',
-    //   icon: icon('ic_lock'),
-    // },
-    // {
-    //   title: 'Not found',
-    //   path: '/404',
-    //   icon: icon('ic_disabled'),
-    // },
   ];
 };
+
 export default getNavConfig;

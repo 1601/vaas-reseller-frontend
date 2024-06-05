@@ -75,6 +75,10 @@ export default function Nav({ openNav, onCloseNav }) {
     const user = ls.get('user');
     return user ? user.role : null;
   });
+  const [subrole, setSubrole] = useState(() => {
+    const user = ls.get('user');
+    return user ? user.subrole : null;
+  });
   const [currentNavConfig, setCurrentNavConfig] = useState(getNavConfig(role));
 
   useEffect(() => {
@@ -88,26 +92,28 @@ export default function Nav({ openNav, onCloseNav }) {
     if (pathsToRefetch.includes(location.pathname)) {
       const user = ls.get('user');
       const newRole = user ? user.role : null;
+      const newSubrole = user ? user.subrole : null;
       setRole(newRole);
-      setCurrentNavConfig(getNavConfig(newRole));
+      setSubrole(newSubrole);
+      setCurrentNavConfig(getNavConfig(newRole, newSubrole));
     }
   }, [location.pathname]);
 
   useEffect(() => {
-    setCurrentNavConfig(getNavConfig(role));
-  }, [role]);
+    setCurrentNavConfig(getNavConfig(role, subrole));
+  }, [role, subrole]);
 
   const filteredNavConfigBottom = navConfigBottom
-  .filter((item) => !((role === 'admin' || role === 'reseller') && item.title === 'upload document'))
-  .map((item) => {
-    if (role === 'admin' && item.title === 'settings') {
-      return {
-        ...item,
-        children: item.children.filter((child) => child.title !== 'My Profile'),
-      };
-    }
-    return item;
-  });
+    .filter((item) => !((role === 'admin' || role === 'reseller') && item.title === 'upload document'))
+    .map((item) => {
+      if (role === 'admin' && item.title === 'settings') {
+        return {
+          ...item,
+          children: item.children.filter((child) => child.title !== 'My Profile'),
+        };
+      }
+      return item;
+    });
 
   const renderContent = (
     <Scrollbar
@@ -117,7 +123,7 @@ export default function Nav({ openNav, onCloseNav }) {
       }}
     >
       <Box sx={{ mb: 5, mx: 2.5 }}>
-          <Logo />
+        <Logo />
       </Box>
 
       <NavSection data={currentNavConfig} />
