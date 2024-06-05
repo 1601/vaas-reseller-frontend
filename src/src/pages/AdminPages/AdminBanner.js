@@ -79,7 +79,7 @@ const AdminBanner = () => {
 
   return (
     <div className="flex flex-col gap-4 mt-4 max-w-screen-lg mx-auto">
-      <p className="font-bold text-xl">Banner Configuration</p>
+      <p className="font-bold text-xl ml-4">Banner Configuration</p>
       <div className="bg-white p-5 rounded-md">
         <div className="mb-10">
           <button className="bg-blue-900 text-white px-2 py-1 rounded hover:bg-blue-700" onClick={handleAddBanner}>
