@@ -106,6 +106,7 @@ export default function Router() {
   const isSubdomain = subdomain && !isExcludedSubdomain;
   const user = ls.get('user');
   const role = user ? user.role : null;
+  const subrole = user ? user.subrole : null;
   const [isTokenValid, setIsTokenValid] = useState(true);
   const {
     isAuthenticated,
@@ -356,18 +357,19 @@ export default function Router() {
         { path: 'kycapproval', element: <AdminKYC /> },
         { path: 'kycapprove/:storeId', element: <AdminKYCApproval /> },
         { path: 'banner', element: <AdminBanner /> },
-        { path: 'create', element: <AdminCreation /> },
-
+        { path: 'dealers', element: <AdminDealerAccount /> },
+        { path: 'accounts', element: subrole === 'crm' ? <Navigate to="/404" /> : <AdminAccounts /> },
+        { path: 'wallet/manage-ca', element: <AdminWallet /> },
+        {
+          path: 'create',
+          element: subrole === 'crm' ? <Navigate to="/404" /> : <AdminCreation />,
+        },
+      
         // Product Config
         // { path: 'products', element: <ProductsPage /> },
         // { path: 'products/bills', element: <ProductsPage /> },
         // { path: 'products/topup', element: <TopUpProducts /> },
         // { path: 'products/egift', element: <ProductsPage /> },
-
-        // Dealer Accounts
-        { path: 'dealers', element: <AdminDealerAccount /> },
-        { path: 'accounts', element: <AdminAccounts /> },
-        { path: 'wallet/manage-ca', element: <AdminWallet /> },
       ],
     },
     {
