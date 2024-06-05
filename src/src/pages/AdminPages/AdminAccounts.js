@@ -27,6 +27,7 @@ import {
   Autocomplete,
   TextField,
   Chip,
+  Tooltip,
 } from '@mui/material';
 import { MoreVert as MoreVertIcon } from '@mui/icons-material';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
@@ -51,6 +52,10 @@ const AdminAccounts = () => {
   const [userToDelete, setUserToDelete] = useState(null);
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [userToView, setUserToView] = useState(null);
+  const user = ls.get('user');
+  const subrole = user?.subrole;
+  const [disableCreateButton, setDisableCreateButton] = useState(false);
+  const [createButtonTooltip, setCreateButtonTooltip] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -67,8 +72,24 @@ const AdminAccounts = () => {
         if (Array.isArray(response.data)) {
           const admins = response.data.filter((user) => user.role === 'admin');
           admins.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-          setAdmins(admins);
-          setFilteredAdmins(admins);
+
+          if (subrole === 'admin0') {
+            const admin1Account = admins.filter((admin) => admin.subrole === 'admin1');
+            setAdmins(admin1Account);
+            setFilteredAdmins(admin1Account);
+
+            if (admin1Account.length > 0) { 
+              setDisableCreateButton(true);
+              setCreateButtonTooltip('Admin1 already created');
+            }
+          } else if (subrole === 'admin1') {
+            const nonAdmin0Accounts = admins.filter((admin) => admin.subrole !== 'admin0');
+            setAdmins(nonAdmin0Accounts);
+            setFilteredAdmins(nonAdmin0Accounts);
+          } else {
+            setAdmins(admins);
+            setFilteredAdmins(admins);
+          }
         } else {
           console.error('Unexpected API response format for admins');
         }
@@ -80,7 +101,7 @@ const AdminAccounts = () => {
     };
 
     fetchAdmins();
-  }, []);
+  }, [subrole]);
 
   useEffect(() => {
     setFilteredAdmins(admins);
@@ -214,23 +235,30 @@ const AdminAccounts = () => {
   return (
     <Card className="mt-4 max-w-screen-lg mx-auto p-4" style={{ backgroundColor: '#ffffff' }}>
       <Box display="flex" justifyContent="space-between" alignItems="center">
-        <Typography variant="h3" gutterBottom>
-          Admin Accounts
-        </Typography>
-        <Box>
-          <Button variant="outlined" color="primary" onClick={() => navigate('/dashboard/admin/create')}>
-            Create Admin
-          </Button>
-          <Button
-            variant="outlined"
-            color="secondary"
-            startIcon={<FileDownloadIcon />}
-            onClick={() => downloadCSV(filteredAdmins)}
-            style={{ marginLeft: '10px' }}
-          >
-            Export CSV
-          </Button>
-        </Box>
+        <Tooltip title={createButtonTooltip} arrow disableHoverListener={!disableCreateButton}>
+          <Typography variant="h3" gutterBottom>
+            Admin Accounts
+          </Typography>
+          <Box>
+            <Button
+              variant="outlined"
+              color="primary"
+              onClick={() => navigate('/dashboard/admin/create')}
+              disabled={disableCreateButton}
+            >
+              Create Admin
+            </Button>
+            <Button
+              variant="outlined"
+              color="secondary"
+              startIcon={<FileDownloadIcon />}
+              onClick={() => downloadCSV(filteredAdmins)}
+              style={{ marginLeft: '10px' }}
+            >
+              Export CSV
+            </Button>
+          </Box>
+        </Tooltip>
       </Box>
       <div className="flex">
         <Autocomplete
@@ -261,43 +289,53 @@ const AdminAccounts = () => {
             <TableRow>
               <TableCell>User</TableCell>
               <TableCell align="right">Email</TableCell>
+              <TableCell align="right">Subrole</TableCell> {/* Added Subrole column */}
               <TableCell align="right">Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {filteredAdmins.map((admin, index) => (
-              <TableRow key={index}>
-                <TableCell>
-                  <Typography variant="h6">
-                    {admin.firstName || admin.lastName
-                      ? `${admin.firstName} ${admin.lastName}`
-                      : admin.userName || admin.email}
-                  </Typography>
-                </TableCell>
-                <TableCell align="right">{admin.email}</TableCell>
-                <TableCell align="right">
-                  <MoreVertIcon
-                    aria-controls="simple-menu"
-                    aria-haspopup="true"
-                    onClick={handleMenuClick}
-                    style={{ cursor: 'pointer' }}
-                  />
-                  <Menu anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleMenuClose}>
-                    <MenuItem
-                      onClick={() => {
-                        setUserToView(admin);
-                        setViewModalOpen(true);
-                        handleMenuClose();
-                      }}
-                    >
-                      View Info
-                    </MenuItem>
-                    <MenuItem onClick={() => handleRequestPasswordChange(admin.email)}>Change Password</MenuItem>
-                    <MenuItem onClick={() => handleDelete(admin._id)}>Delete</MenuItem>
-                  </Menu>
+            {filteredAdmins.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={4} align="center">
+                  No Admin1 Account has been created yet
                 </TableCell>
               </TableRow>
-            ))}
+            ) : (
+              filteredAdmins.map((admin, index) => (
+                <TableRow key={index}>
+                  <TableCell>
+                    <Typography variant="h6">
+                      {admin.firstName || admin.lastName
+                        ? `${admin.firstName} ${admin.lastName}`
+                        : admin.userName || admin.email}
+                    </Typography>
+                  </TableCell>
+                  <TableCell align="right">{admin.email}</TableCell>
+                  <TableCell align="right">{admin.subrole || 'crm'}</TableCell> {/* Display Subrole */}
+                  <TableCell align="right">
+                    <MoreVertIcon
+                      aria-controls="simple-menu"
+                      aria-haspopup="true"
+                      onClick={handleMenuClick}
+                      style={{ cursor: 'pointer' }}
+                    />
+                    <Menu anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleMenuClose}>
+                      <MenuItem
+                        onClick={() => {
+                          setUserToView(admin);
+                          setViewModalOpen(true);
+                          handleMenuClose();
+                        }}
+                      >
+                        View Info
+                      </MenuItem>
+                      <MenuItem onClick={() => handleRequestPasswordChange(admin.email)}>Change Password</MenuItem>
+                      <MenuItem onClick={() => handleDelete(admin._id)}>Delete</MenuItem>
+                    </Menu>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
       </TableContainer>
