@@ -76,17 +76,17 @@ export default function DashboardAppPage() {
     const storedUser = ls.get('user');
     if (storedUser && storedUser._id) {
       axios
-          .get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/wallet/details/${storedUser._id}`)
-          .then((response) => {
-            setWalletDetails({
-              accountBalance: response.data.body[0].accountBalance,
-              testBalance: response.data.body[0].testBalance,
-              currency: response.data.body[0].currency,
-            });
-          })
-          .catch((error) => {
-            console.error('Error fetching user data: ', error);
+        .get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/wallet/details/${storedUser._id}`)
+        .then((response) => {
+          setWalletDetails({
+            accountBalance: response.data.body[0].accountBalance,
+            testBalance: response.data.body[0].testBalance,
+            currency: response.data.body[0].currency,
           });
+        })
+        .catch((error) => {
+          console.error('Error fetching user data: ', error);
+        });
     }
   }, [userData, navigate, userId]);
 
@@ -126,13 +126,23 @@ export default function DashboardAppPage() {
     userData &&
     userData.accountStatus !== 'Suspended' &&
     userData.accountStatus !== 'Deactivated' ? (
-      <Card sx={{ mb: 5, p: 3, textAlign: 'center', backgroundColor: 'error.light' }}>
-        <CardContent>
-          <Typography variant="h5" color="error.dark">
-            Your Free Trial Account has {daysLeft} days left to submit documents for Approval
-          </Typography>
-        </CardContent>
-      </Card>
+      kycApprove === 1 ? (
+        <Card sx={{ mb: 5, p: 3, textAlign: 'center', backgroundColor: 'error.light' }}>
+          <CardContent>
+            <Typography variant="h5" color="error.dark">
+              Your Free Trial Account has {daysLeft} days left. Please wait for admins to verify your submission.
+            </Typography>
+          </CardContent>
+        </Card>
+      ) : (
+        <Card sx={{ mb: 5, p: 3, textAlign: 'center', backgroundColor: 'error.light' }}>
+          <CardContent>
+            <Typography variant="h5" color="error.dark">
+              Your Free Trial Account has {daysLeft} days left to submit documents for Approval.
+            </Typography>
+          </CardContent>
+        </Card>
+      )
     ) : null;
 
   const verificationCard =
@@ -165,7 +175,7 @@ export default function DashboardAppPage() {
 
   const user = ls.get('user');
   const userRole = user ? user.role : null;
-  
+
   const storeUrl = user?.storeUrl;
   const baseUrl = `${window.location.protocol}//${window.location.host}`;
   const referralLink = `${baseUrl}/${storeUrl}?reseller=${userId}`;
@@ -196,7 +206,7 @@ export default function DashboardAppPage() {
               Transactions
             </Button>
           </Box>
-          <Divider sx={{ width: '100%', mb: 2 }} /> 
+          <Divider sx={{ width: '100%', mb: 2 }} />
           <Typography variant="body1" gutterBottom>
             Reseller Webstore Referral Link:
           </Typography>
@@ -234,7 +244,7 @@ export default function DashboardAppPage() {
               <Typography variant="h4" sx={{ mb: 5 }}>
                 {userData && userData.firstName ? `Hi ${userData.firstName}, welcome back` : 'Hi, Welcome back'}
               </Typography>
-              <Card sx={{ mb: 5, textAlign: 'center', backgroundColor: 'skyblue', width: '40%'}}>
+              <Card sx={{ mb: 5, textAlign: 'center', backgroundColor: 'skyblue', width: '40%' }}>
                 <CardContent>
                   <Typography variant="h6" color="primary">
                     Wallet Balance: ${walletDetails.accountBalance}
