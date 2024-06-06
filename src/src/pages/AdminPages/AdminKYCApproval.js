@@ -14,6 +14,7 @@ const AdminKYCApproval = () => {
   const [kycApproved, setKYCApproved] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [remarks, setRemarks] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const fetchKYCDetails = async () => {
@@ -66,6 +67,7 @@ const AdminKYCApproval = () => {
   };
 
   const handleConfirmReject = async () => {
+    setIsLoading(true);
     try {
       const token = ls.get('token');
       await axios.put(
@@ -78,6 +80,7 @@ const AdminKYCApproval = () => {
     } catch (error) {
       console.error('Error rejecting KYC:', error);
     }
+    setIsLoading(false);
   };
 
   return (
@@ -151,6 +154,7 @@ const AdminKYCApproval = () => {
         contentText="Please provide a reason for rejecting the KYC application:"
         remarks={remarks}
         setRemarks={setRemarks}
+        isLoading={isLoading}
       />
     </>
   );

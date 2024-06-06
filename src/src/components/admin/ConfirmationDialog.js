@@ -1,7 +1,7 @@
 import React from 'react';
 import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button, TextField } from '@mui/material';
 
-const ConfirmationDialog = ({ open, onClose, onSubmit, title, contentText, remarks, setRemarks }) => {
+const ConfirmationDialog = ({ open, onClose, onSubmit, title, contentText, remarks, setRemarks, isLoading }) => {
   return (
     <Dialog open={open} onClose={onClose}>
       <DialogTitle>{title}</DialogTitle>
@@ -26,8 +26,8 @@ const ConfirmationDialog = ({ open, onClose, onSubmit, title, contentText, remar
         <Button onClick={onClose} color="primary">
           Cancel
         </Button>
-        <Button onClick={onSubmit} color="primary">
-          Confirm
+        <Button disabled={isLoading} onClick={onSubmit} color="primary">
+            {isLoading ? 'Loading...' : 'Confirm'}
         </Button>
       </DialogActions>
     </Dialog>
