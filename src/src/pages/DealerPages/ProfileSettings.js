@@ -27,6 +27,8 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
+import styled from '@emotion/styled';
+import { keyframes } from '@emotion/react';
 import UserDataFetch from '../../components/user-account/UserDataFetch';
 import StoreDataFetch from '../../components/user-account/StoreDataFetch';
 import { countries } from '../../components/country/CountriesList';
@@ -65,6 +67,7 @@ const ProfileSettings = () => {
   const [isPrivacyDialogOpen, setPrivacyDialogOpen] = useState(false);
   const [isCookieDialogOpen, setCookieDialogOpen] = useState(false);
   const [resetFields, setResetFields] = useState(false);
+  const [passwordFocus, setPasswordFocus] = useState(false);
 
   const kycStatuses = ['Unsubmitted Documents', 'Pending Approval', 'Approved', 'Rejected'];
 
@@ -241,7 +244,7 @@ const ProfileSettings = () => {
     if (newPassword !== confirmNewPassword) {
       setPasswordErrors((prevErrors) => ({
         ...prevErrors,
-        confirmNewPassword: 'New and Confirm Passwords does not Match',
+        confirmNewPassword: 'New and Confirm Passwords do not Match',
       }));
       return;
     }
@@ -313,6 +316,55 @@ const ProfileSettings = () => {
 
     handleInputChange(event);
   };
+
+  const fadeInDown = keyframes`
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+`;
+
+  const AnimatedPasswordRequirements = styled.div`
+    animation: ${({ isVisible }) => (isVisible ? `${fadeInDown} 0.5s ease forwards` : 'none')};
+  `;
+
+  function PasswordRequirements({ password }) {
+    const requirements = [
+      { label: '8-12 characters long', test: (pw) => pw.length >= 8 && pw.length <= 12 },
+      { label: 'One uppercase letter', test: (pw) => /[A-Z]/.test(pw) },
+      { label: 'One lowercase letter', test: (pw) => /[a-z]/.test(pw) },
+      { label: 'One number', test: (pw) => /[0-9]/.test(pw) },
+      { label: 'One special character (!@#$%^&*)', test: (pw) => /[!@#$%^&*]/.test(pw) },
+    ];
+
+    return (
+      <Box
+        sx={{
+          mb: 2,
+          p: 2,
+          border: '1px solid #ccc',
+          borderRadius: '4px',
+          backgroundColor: '#fff',
+          zIndex: 1,
+        }}
+      >
+        <Typography variant="body2" color="textSecondary" gutterBottom>
+          Password must contain:
+        </Typography>
+        <ul style={{ margin: 0, padding: 0, listStyleType: 'disc', marginLeft: '20px' }}>
+          {requirements.map((req, index) => (
+            <li key={index} style={{ color: req.test(password) ? 'green' : 'red' }}>
+              {req.label}
+            </li>
+          ))}
+        </ul>
+      </Box>
+    );
+  }
 
   const handleEditClick = () => {
     const countryCode = countryCodes[userData?.country];
@@ -910,6 +962,7 @@ const ProfileSettings = () => {
             </Dialog>
 
             {/* Change Password Dialog */}
+
             <Dialog open={changePasswordDialogOpen} onClose={closeChangePasswordDialog}>
               <DialogTitle>Change Password</DialogTitle>
               <DialogContent>
@@ -919,7 +972,19 @@ const ProfileSettings = () => {
                     type={showCurrentPassword ? 'text' : 'password'}
                     fullWidth
                     value={currentPassword}
-                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    onFocus={() => {
+                      setPasswordErrors((prevErrors) => ({
+                        ...prevErrors,
+                        currentPassword: '',
+                      }));
+                    }}
+                    onChange={(e) => {
+                      setCurrentPassword(e.target.value);
+                      setPasswordErrors((prevErrors) => ({
+                        ...prevErrors,
+                        currentPassword: e.target.value ? prevErrors.currentPassword : '',
+                      }));
+                    }}
                     sx={{ mt: 2 }}
                     error={!!passwordErrors.currentPassword}
                     helperText={passwordErrors.currentPassword}
@@ -939,7 +1004,16 @@ const ProfileSettings = () => {
                   type={showNewPassword ? 'text' : 'password'}
                   fullWidth
                   value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
+                  onChange={(e) => {
+                    setNewPassword(e.target.value);
+                    const validationError = validatePassword(e.target.value);
+                    setPasswordErrors((prevErrors) => ({
+                      ...prevErrors,
+                      newPassword: validationError,
+                    }));
+                  }}
+                  onFocus={() => setPasswordFocus(true)}
+                  onBlur={() => setPasswordFocus(false)}
                   sx={{ mb: 2, mt: 2 }}
                   InputProps={{
                     endAdornment: (
@@ -953,12 +1027,24 @@ const ProfileSettings = () => {
                   error={!!passwordErrors.newPassword}
                   helperText={passwordErrors.newPassword}
                 />
+                {passwordFocus && (
+                  <AnimatedPasswordRequirements isVisible={passwordFocus}>
+                    <PasswordRequirements password={newPassword} />
+                  </AnimatedPasswordRequirements>
+                )}
                 <TextField
                   label="Confirm New Password"
                   type={showConfirmNewPassword ? 'text' : 'password'}
                   fullWidth
                   value={confirmNewPassword}
-                  onChange={(e) => setConfirmNewPassword(e.target.value)}
+                  onChange={(e) => {
+                    setConfirmNewPassword(e.target.value);
+                    setPasswordErrors((prevErrors) => ({
+                      ...prevErrors,
+                      confirmNewPassword:
+                        e.target.value !== newPassword ? 'New and Confirm Passwords do not Match' : '',
+                    }));
+                  }}
                   sx={{ mb: 2 }}
                   InputProps={{
                     endAdornment: (
@@ -977,7 +1063,11 @@ const ProfileSettings = () => {
                 <Button onClick={closeChangePasswordDialog} color="primary">
                   Cancel
                 </Button>
-                <Button onClick={handleChangePassword} color="primary">
+                <Button
+                  onClick={handleChangePassword}
+                  color="primary"
+                  disabled={Object.values(passwordErrors).some((error, index) => error && index !== 'currentPassword')}
+                >
                   Submit
                 </Button>
               </DialogActions>
