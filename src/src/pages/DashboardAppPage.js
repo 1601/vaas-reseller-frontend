@@ -130,7 +130,7 @@ export default function DashboardAppPage() {
         <Card sx={{ mb: 5, p: 3, textAlign: 'center', backgroundColor: 'error.light' }}>
           <CardContent>
             <Typography variant="h5" color="error.dark">
-              Your Free Trial Account has {daysLeft} days left. Please wait for admins to verify your submission.
+              Your Free Trial Account has {daysLeft} days left. Your documents are currently under review.
             </Typography>
           </CardContent>
         </Card>
