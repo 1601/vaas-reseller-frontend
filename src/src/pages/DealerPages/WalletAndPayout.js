@@ -32,7 +32,9 @@ import {
   Tabs,
   TextField,
   Tooltip,
-  Typography, Alert,
+  Typography,
+  Alert,
+  CircularProgress,
 } from '@mui/material';
 import axios from 'axios';
 import * as XLSX from 'xlsx';
@@ -96,6 +98,7 @@ const WalletPayouts = () => {
   const [filteredWalletRequests, setFilteredWalletRequests] = useState(dateFilteredWalletRequests);
   const [sortBy, setSortBy] = useState('createdBy desc');
   const [walletReplenishResponse, setWalletReplenishResponse] = useState(null);
+  const [isLoadingDialogOpen, setIsLoadingDialogOpen] = useState(false);
   const [selectedRange, setSelectedRange] = useState([
     {
       startDate: new Date(),
@@ -163,13 +166,13 @@ const WalletPayouts = () => {
     reader.onload = (e) => {
       const img = new Image();
       img.onload = () => {
-         if (selectedFile.size > MAX_FILE_SIZE) {
+        if (selectedFile.size > MAX_FILE_SIZE) {
           setErrorSlip(`File size exceeds the limit of ${MAX_FILE_SIZE / (1024 * 1024)} MB`);
           setFile(null);
         } else if (img.width > 2048 || img.height > 2048) {
           setErrorSlip(`Image dimensions should not exceed ${2048}x${2048} pixels`);
           setFile(null);
-        }  else {
+        } else {
           setErrorSlip('');
           setFile(selectedFile);
         }
@@ -291,7 +294,7 @@ const WalletPayouts = () => {
       );
       console.log('Wallet request created successfully: ', response.data);
       const walletRequestId = response.data.body._id;
-      await uploadBankSlipImage(walletRequestId); // Wait for the image upload to complete
+      await uploadBankSlipImage(walletRequestId);
       const responseLatestRequest = await axios.get(
         `${process.env.REACT_APP_BACKEND_URL}/v1/api/wallet-requests/${walletRequestId}`,
         {
@@ -301,12 +304,14 @@ const WalletPayouts = () => {
         }
       );
       setWalletReplenishResponse(responseLatestRequest.data);
-      setIsSubmitting(false); // Re-enable the submit button after the operation
-      handleNext(); // Move to the next step only after the upload is successful
+      setIsSubmitting(false);
+      setIsLoadingDialogOpen(false);
+      handleNext();
     } catch (error) {
       alert('Error creating wallet request. Please try again.');
       console.error('Error in wallet request creation or image upload: ', error);
-      setIsSubmitting(false); // Ensure button is re-enabled even if there's an error
+      setIsSubmitting(false);
+      setIsLoadingDialogOpen(false);
     }
   };
 
@@ -405,7 +410,7 @@ const WalletPayouts = () => {
   };
 
   const handleReplenishSubmit = () => {
-    // Submit replenishment logic here
+    setIsLoadingDialogOpen(true);
     setIsSubmitting(true);
     createWalletRequest();
   };
@@ -619,7 +624,11 @@ const WalletPayouts = () => {
           <input type="file" hidden onChange={handleFileChange} />
         </Button>
       </Box>
-      {errorSlip && <Alert severity="error" sx={{ mt: 2 }}>{errorSlip}</Alert>}
+      {errorSlip && (
+        <Alert severity="error" sx={{ mt: 2 }}>
+          {errorSlip}
+        </Alert>
+      )}
       <Typography variant="caption" sx={{ mt: 2 }}>
         <span style={{ display: 'block' }}>- Only JPG, JPEG and PNG image formats will be accepted.</span>
         <span style={{ display: 'block' }}>- File size must not exceed 6MB.</span>
@@ -954,6 +963,16 @@ const WalletPayouts = () => {
         )}
       </Container>
       <AccountStatusModal open userData={userData} storeData={storeData} />
+      <Dialog open={isLoadingDialogOpen} PaperProps={{ style: { pointerEvents: 'none' } }}>
+        <DialogContent>
+          <Box display="flex" alignItems="center">
+            <CircularProgress />
+            <Typography variant="body1" sx={{ ml: 2 }}>
+              Submitting Documents...
+            </Typography>
+          </Box>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
