@@ -8,7 +8,10 @@ import {
   DialogActions,
   CircularProgress,
   Box,
+  InputAdornment,
+  IconButton,
 } from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import axios from 'axios';
 import SecureLS from 'secure-ls';
 import { useNavigate } from 'react-router-dom';
@@ -28,6 +31,7 @@ export default function LoginDialog({ open, onClose }) {
   } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [emailError, setEmailError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -48,8 +52,16 @@ export default function LoginDialog({ open, onClose }) {
     }
   };
 
+  const handleClickShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const handleMouseDownPassword = (event) => {
+    event.preventDefault();
+  };
+
   const isFormValid = () => {
-    return email.length > 0 && validateEmail(email) && password.length > 0;
+    return email.length > 0 && validateEmail(email) && password.length > 0 && !emailError;
   };
 
   const handleLogin = async () => {
@@ -80,10 +92,10 @@ export default function LoginDialog({ open, onClose }) {
     setLoading(true);
     setAction('logout');
     setTimeout(() => {
-      logout(); 
-      setEmail(''); 
-      setPassword(''); 
-      setError(''); 
+      logout();
+      setEmail('');
+      setPassword('');
+      setError('');
       setLoading(false);
       onClose();
       navigate('/login');
@@ -128,11 +140,25 @@ export default function LoginDialog({ open, onClose }) {
               <TextField
                 name="sessionPass"
                 label="Password"
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 fullWidth
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 margin="normal"
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle password visibility"
+                        onClick={handleClickShowPassword}
+                        onMouseDown={handleMouseDownPassword}
+                        edge="end"
+                      >
+                        {showPassword ? <Visibility /> : <VisibilityOff />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
               />
               {error && <p style={{ color: 'red' }}>{error}</p>}
             </>
@@ -142,7 +168,7 @@ export default function LoginDialog({ open, onClose }) {
           <Button onClick={handleLogout} color="error" disabled={loading}>
             Logout
           </Button>
-          <Button onClick={handleLogin} disabled={!isFormValid || loading}>
+          <Button onClick={handleLogin} disabled={!isFormValid() || loading}>
             Log in
           </Button>
         </DialogActions>
