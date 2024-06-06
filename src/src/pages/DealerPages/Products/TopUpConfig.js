@@ -270,7 +270,7 @@ const TopUpConfig = () => {
                 <TableCell>Product</TableCell>
                 <TableCell align="right">Default Price</TableCell>
                 <TableCell align="right">Mark-Up | ₱</TableCell>
-                <TableCell align="right">Apply</TableCell>
+                <TableCell align="right">Apply to Mark-Up</TableCell>
                 <TableCell align="right">Current Price</TableCell>
                 <TableCell align="center">Toggle</TableCell>
               </TableRow>
