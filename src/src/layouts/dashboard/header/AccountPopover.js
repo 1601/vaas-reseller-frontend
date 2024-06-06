@@ -20,7 +20,7 @@ const MENU_OPTIONS = [
     label: 'Profile',
     icon: 'eva:person-fill',
     path: '/dashboard/settings/profile',
-  }
+  },
 ];
 
 // ----------------------------------------------------------------------
@@ -42,6 +42,11 @@ export default function AccountPopover() {
     handleClose();
     navigate(path);
   };
+
+  const filteredMenuOptions =
+    account.email.toLowerCase() === 'admin'
+      ? MENU_OPTIONS.filter((option) => option.label !== 'Profile')
+      : MENU_OPTIONS;
 
   return (
     <>
@@ -97,11 +102,8 @@ export default function AccountPopover() {
         <Divider sx={{ borderStyle: 'dashed' }} />
 
         <Stack sx={{ p: 1 }}>
-          {MENU_OPTIONS.map((option) => (
-            <MenuItem
-              key={option.label}
-              onClick={() => handleMenuClick(option.path)}
-            >
+          {filteredMenuOptions.map((option) => (
+            <MenuItem key={option.label} onClick={() => handleMenuClick(option.path)}>
               {option.label}
             </MenuItem>
           ))}
