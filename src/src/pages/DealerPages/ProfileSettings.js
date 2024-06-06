@@ -536,14 +536,17 @@ const ProfileSettings = () => {
                           onChange={handleInputChange}
                           fullWidth
                           sx={{ mb: 2, mt: 2 }}
+                          inputProps={{ maxLength: 20 }}
                         />
-                        <TextField
+                        <ValidatedTextField
+                          validationFunction={validateName}
                           label="Middle Name (Optional)"
                           name="middleName"
                           value={formState.middleName}
                           onChange={handleInputChange}
                           fullWidth
                           sx={{ mb: 2 }}
+                          inputProps={{ maxLength: 20 }}
                         />
                         <ValidatedTextField
                           validationFunction={validateName}
@@ -553,6 +556,7 @@ const ProfileSettings = () => {
                           onChange={handleInputChange}
                           fullWidth
                           sx={{ mb: 2 }}
+                          inputProps={{ maxLength: 20 }}
                         />
                         <Autocomplete
                           fullWidth
@@ -586,9 +590,11 @@ const ProfileSettings = () => {
                           onChange={handleInputChange}
                           fullWidth
                           sx={{ mb: 2, mt: 2 }}
+                          inputProps={{ maxLength: 20 }}
                           disabled={!editMode}
                         />
                         <TextField
+                          validationFunction={validateName}
                           label="Middle Name (Optional)"
                           name="middleName"
                           value={editMode ? formState.middleName : userData.middleName}
@@ -638,6 +644,7 @@ const ProfileSettings = () => {
                           fullWidth
                           error={!!validationErrors.username}
                           helperText={validationErrors.username}
+                          inputProps={{ maxLength: 20 }}
                         />
                         <ValidatedTextField
                           validationFunction={validateEmail}
