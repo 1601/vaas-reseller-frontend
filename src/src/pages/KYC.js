@@ -10,7 +10,7 @@ import TextField from '@mui/material/TextField';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
-import {Alert, Card, ListItem, ListItemText} from '@mui/material';
+import {Alert, Card, Dialog, DialogActions, DialogContent, DialogTitle, ListItem, ListItemText} from '@mui/material';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import Checkbox from '@mui/material/Checkbox';
@@ -34,6 +34,7 @@ import { styled } from '@mui/material/styles';
 import Grid from '@mui/material/Grid';
 import { useDropzone } from 'react-dropzone';
 import DeleteIcon from "@mui/icons-material/Delete";
+import {grey} from "@mui/material/colors";
 import KycImage from '../images/Rectangle 52.png';
 import UnderReview from '../images/underReview.jpeg';
 import Approved from '../images/approved.png';
@@ -160,16 +161,25 @@ const CircularLoadingSuccess = () => (
             color: '#fff',
           }}
       >
-        <Typography variant="h6">Upload Success</Typography>
-        <Button variant="contained" color="primary" onClick={() => {
-          // Redirect to the desired URL inline
-          window.location.href = '/dashboard/app';
-        }}>Proceed</Button>
+        <Dialog open>
+          <DialogContent>
+            <Typography variant="h6">Upload Success</Typography>
+          </DialogContent>
+          <DialogActions style={{ justifyContent: 'center' }}>
+            <Button variant="outlined" color="primary" onClick={() => {
+              // Redirect to the desired URL inline
+              window.location.href = '/dashboard/app';
+            }}>Proceed</Button>
+          </DialogActions>
+        </Dialog>
+
+
       </Box>
     </>
 );
 
 export default function KYC() {
+  const userId = ls.get('user') ? ls.get('user')._id : null;
   const [activeStep, setActiveStep] = useState(0);
   const [selectedImage, setSelectedImage] = useState([]);
   const [selectedDocs, setSelectedDocs] = useState([]);
@@ -211,6 +221,31 @@ export default function KYC() {
       }
     };
     fetchStoreData();
+  }, []);
+
+  useEffect(() => {
+    const fetchUploadHistory = async () => {
+      try {
+        const token = ls.get('token');
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/${userId}/kycdetail`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        console.log(response);
+        if(response.status === 200){
+          setFormData(prevState => ({
+            ...prevState,
+            ...response.data,
+            numberOfEmployees: response.data.numberOfEmployee
+          }));
+          setLinkFieldsData([{externalLinkAccount: response.data.externalLinkAccount === [] ? '' : response.data.externalLinkAccount}]);
+        }
+      } catch (error) {
+        console.error('Could not fetch store data', error);
+      }
+    };
+    fetchUploadHistory();
   }, []);
 
   const handleOpenRejections = () => {
@@ -397,6 +432,10 @@ export default function KYC() {
 
     if(name === 'uniqueIdentifier'){
       if(!/^[a-zA-Z0-9-]*$/.test(value) || value.length > 20) return;
+    }
+
+    if(name === 'numberOfEmployees' && value.length > 12){
+      return;
     }
 
     if (isError) {
@@ -1046,7 +1085,7 @@ export default function KYC() {
                                 >
                                   <ListItem key={index} secondaryAction={
                                     <IconButton edge="end" aria-label="delete" onClick={() => handleRemoveSelectedId(item)}>
-                                      <DeleteIcon />
+                                      <DeleteIcon sx={{ color: grey[500] }} />
                                     </IconButton>
                                   }>
                                     <ListItemText primary={item.name} />
@@ -1134,7 +1173,7 @@ export default function KYC() {
                                 >
                                   <ListItem key={index} secondaryAction={
                                     <IconButton edge="end" aria-label="delete" onClick={() => handleRemoveSelectedDoc(item)}>
-                                      <DeleteIcon />
+                                      <DeleteIcon sx={{ color: grey[500] }} />
                                     </IconButton>
                                   }>
                                     <ListItemText primary={item.name} />
