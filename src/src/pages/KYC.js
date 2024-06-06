@@ -552,6 +552,7 @@ export default function KYC() {
   }, [selectedDocs]);
 
   const handleRemoveSelectedId = (fileToRemove) => {
+    console.log(fileToRemove);
     setSelectedImage((prevFiles) => prevFiles.filter(file => file !== fileToRemove));
     setErrorImage('');
   };
@@ -1065,23 +1066,25 @@ export default function KYC() {
                                 </div>
                               </Box>
                             </div>
-                            {/* </label> */}
-                            <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', marginTop: '10px' }}>
-                              {selectedImage.map((item, index) => (
+                          </HoverableButton>
+                          {/* </label> */}
+                          <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', marginTop: '10px' }}>
+                            {selectedImage.map((item, index) => (
                                 <div
-                                  key={index}
-                                  style={{
-                                    backgroundColor: '#873EC0',
-                                    borderRadius: '5px',
-                                    color: 'white', // Changed text color to white for better contrast
-                                    fontSize: '14px', // Adjusted font size
-                                    textAlign: 'center', // Center-align text
-                                    whiteSpace: 'nowrap',
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis',
-                                    marginRight: '10px',
-                                    boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.2)', // Added a subtle shadow
-                                  }}
+                                    key={index}
+                                    style={{
+                                      backgroundColor: '#873EC0',
+                                      borderRadius: '5px',
+                                      color: 'white', // Changed text color to white for better contrast
+                                      fontSize: '14px', // Adjusted font size
+                                      textAlign: 'center', // Center-align text
+                                      whiteSpace: 'nowrap',
+                                      overflow: 'hidden',
+                                      textOverflow: 'ellipsis',
+                                      marginRight: '10px',
+                                      marginBottom: '10px',
+                                      boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.2)', // Added a subtle shadow
+                                    }}
                                 >
                                   <ListItem key={index} secondaryAction={
                                     <IconButton edge="end" aria-label="delete" onClick={() => handleRemoveSelectedId(item)}>
@@ -1091,9 +1094,8 @@ export default function KYC() {
                                     <ListItemText primary={item.name} />
                                   </ListItem>
                                 </div>
-                              ))}
-                            </div>
-                          </HoverableButton>
+                            ))}
+                          </div>
                           {errorImage && (<Alert severity="error" sx={{mt: 2}}>{errorImage}</Alert>)}
                         </div>
                         <hr />
@@ -1152,11 +1154,12 @@ export default function KYC() {
                                 )}
                               </Box>
                             </div>
-                            {/* </label> */}
-
-                            <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', marginTop: '10px' }}>
-                              {selectedDocs.map((item, index) => (
-                                <div
+                          </HoverableButton>
+                        </div>
+                        {/* </label> */}
+                        <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', marginTop: '10px' }}>
+                          {selectedDocs.map((item, index) => (
+                              <div
                                   key={index}
                                   style={{
                                     backgroundColor: '#873EC0',
@@ -1168,20 +1171,19 @@ export default function KYC() {
                                     overflow: 'hidden',
                                     textOverflow: 'ellipsis',
                                     marginRight: '10px',
+                                    marginBottom: '10px',
                                     boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.2)', // Added a subtle shadow
                                   }}
-                                >
-                                  <ListItem key={index} secondaryAction={
-                                    <IconButton edge="end" aria-label="delete" onClick={() => handleRemoveSelectedDoc(item)}>
-                                      <DeleteIcon sx={{ color: grey[500] }} />
-                                    </IconButton>
-                                  }>
-                                    <ListItemText primary={item.name} />
-                                  </ListItem>
-                                </div>
-                              ))}
-                            </div>
-                          </HoverableButton>
+                              >
+                                <ListItem key={index} secondaryAction={
+                                  <IconButton edge="end" aria-label="delete" onClick={() => handleRemoveSelectedDoc(item)}>
+                                    <DeleteIcon sx={{ color: grey[500] }} />
+                                  </IconButton>
+                                }>
+                                  <ListItemText primary={item.name} />
+                                </ListItem>
+                              </div>
+                          ))}
                         </div>
                         {errorDoc && <Alert severity="error" sx={{ mt: 2 }}>{errorDoc}</Alert>}
                       </Container>
