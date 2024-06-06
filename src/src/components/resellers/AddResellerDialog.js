@@ -26,6 +26,13 @@ const AddResellerDialog = ({
   createSuccessMessage,
   createErrorMessage,
 }) => {
+  const isSubmitDisabled = () => {
+    const requiredFields = ['email', 'firstName', 'lastName', 'country', 'mobileNumber'];
+    const hasErrors = Object.values(validationErrors).some((error) => error);
+    const hasEmptyFields = requiredFields.some((field) => !formState[field]);
+    return hasErrors || hasEmptyFields;
+  };
+
   return (
     <Dialog open={open} onClose={onClose} aria-labelledby="form-dialog-title">
       <DialogTitle
@@ -81,6 +88,7 @@ const AddResellerDialog = ({
               helperText={validationErrors.firstName}
               variant="outlined"
               sx={{ mt: 2 }}
+              inputProps={{ maxLength: 20 }}
             />
 
             {/* Last Name Field */}
@@ -95,6 +103,7 @@ const AddResellerDialog = ({
               helperText={validationErrors.lastName}
               variant="outlined"
               sx={{ mt: 2 }}
+              inputProps={{ maxLength: 20 }}
             />
 
             {/* Country Field */}
@@ -151,6 +160,7 @@ const AddResellerDialog = ({
               onChange={handleInputChange}
               onBlur={handleBlur}
               sx={{ mt: 2 }}
+              inputProps={{ maxLength: 35 }}
             />
           </>
         )}
@@ -201,14 +211,16 @@ const AddResellerDialog = ({
                 height: '40px',
                 borderRadius: '22px',
                 fontSize: '14px',
-                backgroundColor: '#7A52F4',
+                backgroundColor: isSubmitDisabled() ? '#d3bdfa' : '#7A52F4',
                 color: '#fff',
                 marginTop: createSuccessMessage || createErrorMessage ? '10px' : '0',
               }}
               onClick={handleAddReseller}
+              disabled={isSubmitDisabled()}
             >
               Submit
             </Button>
+
             <Button onClick={onClose} color="primary" sx={{ mt: 2 }}>
               Cancel
             </Button>

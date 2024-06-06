@@ -44,6 +44,7 @@ export default function LoginFormAdmin() {
   const [incorrectOTPDialog, setIncorrectOTPDialog] = useState(false);
   const [otpError, setOtpError] = useState('');
   const [tempLoginData, setTempLoginData] = useState(null);
+  const [validatingOtp, setValidatingOtp] = useState(false);
 
   useEffect(() => {
     try {
@@ -100,7 +101,6 @@ export default function LoginFormAdmin() {
   };
 
   const handleLogin = async () => {
-    
     setError('');
     if (!email.trim() || !password.trim()) {
       setError('Please supply all required fields');
@@ -167,6 +167,7 @@ export default function LoginFormAdmin() {
   };
 
   const handleOTPSubmit = async (otp) => {
+    setValidatingOtp(true);
     // console.log('Submitting OTP. Email:', email, 'OTP Code:', otp); // Log the email and OTP
 
     try {
@@ -220,6 +221,8 @@ export default function LoginFormAdmin() {
       } else {
         console.error('Error verifying OTP:', error);
       }
+    } finally {
+      setValidatingOtp(false);
     }
   };
 
@@ -374,6 +377,14 @@ export default function LoginFormAdmin() {
           <Button onClick={handleCloseOtpDialog}>Cancel</Button>
           <Button onClick={() => handleOTPSubmit(otp)}>Submit</Button>
         </DialogActions>
+      </Dialog>
+
+      <Dialog open={validatingOtp} onClose={() => setValidatingOtp(false)}>
+        <DialogTitle>Validating OTP...</DialogTitle>
+        <DialogContent>
+          <CircularProgress />
+          <DialogContentText>Please wait while your OTP is being validated.</DialogContentText>
+        </DialogContent>
       </Dialog>
     </>
   );
