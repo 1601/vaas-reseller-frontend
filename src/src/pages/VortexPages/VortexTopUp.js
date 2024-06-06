@@ -1859,6 +1859,9 @@ const VortexTopUp = () => {
       }
     };
 
+    console.log("selectedProduct: ", selectedProduct)
+    console.log("platformVariables: ", platformVariables)
+
     return (
       <Box>
         <Box>
@@ -1956,8 +1959,7 @@ const VortexTopUp = () => {
                   <Typography fontWeight={'bold'}>{`Amount Due `}</Typography>
 
                   <Typography fontWeight={'bold'} style={{ marginRight: '2em' }}>{`${parseFloat(
-                    selectedProduct.price / platformVariables?.topupCurrencyToPeso
-                  ).toFixed(2)} ${platformVariables?.currencySymbol}`}</Typography>
+                    selectedProduct.price).toFixed(2)}`}</Typography>
                 </Stack>
 
                 <Stack
@@ -1971,10 +1973,12 @@ const VortexTopUp = () => {
                   <Typography fontWeight={'bold'}>{`Convenience Fee `}</Typography>
 
                   {expanded === 'panel2' ? (
+                    // <Typography fontWeight={'bold'}>{`0 ${platformVariables?.currencySymbol}`}</Typography>
                     <Typography fontWeight={'bold'}>{`0 ${platformVariables?.currencySymbol}`}</Typography>
                   ) : (
                     <Typography fontWeight={'bold'} style={{ marginRight: '2em' }}>
-                      {`${convenienceFee} ${platformVariables?.currencySymbol}`}
+                      {/* {`${convenienceFee} ${platformVariables?.currencySymbol}`} */}
+                      {`${convenienceFee}`}
                       {'        '}
                     </Typography>
                   )}
@@ -1994,7 +1998,8 @@ const VortexTopUp = () => {
                     TOTAL AMOUNT
                   </Typography>
                   <Typography fontWeight={'bold'} fontSize={'25px'}>
-                    {`${grandTotalFee} ${platformVariables?.currencySymbol}`}
+                    {/* {`${grandTotalFee} ${platformVariables?.currencySymbol}`} */}
+                    {`${grandTotalFee}`}
                   </Typography>
                 </Stack>
                 <Box height={20} />
