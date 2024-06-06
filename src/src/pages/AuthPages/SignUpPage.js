@@ -297,7 +297,7 @@ export default function SignUpPage() {
   const [isPrivacyDialogOpen, setIsPrivacyDialogOpen] = useState(false);
   const [isCookieDialogOpen, setIsCookieDialogOpen] = useState(false);
   const [isScrolledToEnd, setIsScrolledToEnd] = useState(false);
-  const [mobileError, setMobileError] = useState(false);
+  const [mobileError, setMobileError] = useState(true);
   const [banners, setBanners] = useState();
   const [initialCurrency, setInitialCurrency] = useState('');
   const [passwordFocus, setPasswordFocus] = useState(false);
