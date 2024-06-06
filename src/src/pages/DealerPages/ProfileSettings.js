@@ -64,6 +64,7 @@ const ProfileSettings = () => {
   const [isTermsDialogOpen, setIsTermsDialogOpen] = useState(false);
   const [isPrivacyDialogOpen, setPrivacyDialogOpen] = useState(false);
   const [isCookieDialogOpen, setCookieDialogOpen] = useState(false);
+  const [resetFields, setResetFields] = useState(false);
 
   const kycStatuses = ['Unsubmitted Documents', 'Pending Approval', 'Approved', 'Rejected'];
 
@@ -329,6 +330,31 @@ const ProfileSettings = () => {
     setEditMode(true);
   };
 
+  const handleCancelClick = () => {
+    setEditMode(false);
+    setValidationErrors({});
+    setPasswordErrors({
+      currentPassword: '',
+      newPassword: '',
+      confirmNewPassword: '',
+    });
+    setOtpError('');
+    setFormState({
+      firstName: userData?.firstName || '',
+      lastName: userData?.lastName || '',
+      middleName: userData?.middleName || '',
+      country: userData?.country || '',
+      mobileNumber: userData?.mobileNumber?.replace(countryCodes[userData?.country] || '', '') || '',
+      username: userData?.username || '',
+    });
+    console.log('Setting resetFields to true');
+    setResetFields(true);
+    setTimeout(() => {
+      console.log('Setting resetFields to false');
+      setResetFields(false);
+    }, 0);
+  };
+
   const handleSaveChanges = async () => {
     const baseUrl = process.env.REACT_APP_BACKEND_URL;
     const fullMobileNumber = countryCodes[formState.country] + formState.mobileNumber;
@@ -508,7 +534,7 @@ const ProfileSettings = () => {
                   >
                     Save
                   </Button>
-                  <Button variant="outlined" onClick={() => setEditMode(false)} className="mr-2">
+                  <Button variant="outlined" onClick={handleCancelClick} className="mr-2">
                     Cancel
                   </Button>
                 </div>
@@ -537,6 +563,7 @@ const ProfileSettings = () => {
                           fullWidth
                           sx={{ mb: 2, mt: 2 }}
                           inputProps={{ maxLength: 20 }}
+                          reset={resetFields}
                         />
                         <ValidatedTextField
                           validationFunction={validateName}
@@ -547,6 +574,7 @@ const ProfileSettings = () => {
                           fullWidth
                           sx={{ mb: 2 }}
                           inputProps={{ maxLength: 20 }}
+                          reset={resetFields}
                         />
                         <ValidatedTextField
                           validationFunction={validateName}
@@ -557,6 +585,7 @@ const ProfileSettings = () => {
                           fullWidth
                           sx={{ mb: 2 }}
                           inputProps={{ maxLength: 20 }}
+                          reset={resetFields}
                         />
                         <Autocomplete
                           fullWidth
@@ -586,7 +615,7 @@ const ProfileSettings = () => {
                           validationFunction={validateName}
                           label="First Name"
                           name="firstName"
-                          value={editMode ? formState.firstName : userData.firstName}
+                          value={userData.firstName}
                           onChange={handleInputChange}
                           fullWidth
                           sx={{ mb: 2, mt: 2 }}
@@ -594,10 +623,9 @@ const ProfileSettings = () => {
                           disabled={!editMode}
                         />
                         <TextField
-                          validationFunction={validateName}
                           label="Middle Name (Optional)"
                           name="middleName"
-                          value={editMode ? formState.middleName : userData.middleName}
+                          value={userData.middleName}
                           onChange={handleInputChange}
                           fullWidth
                           sx={{ mb: 2 }}
@@ -607,7 +635,7 @@ const ProfileSettings = () => {
                           validationFunction={validateName}
                           label="Last Name"
                           name="lastName"
-                          value={editMode ? formState.lastName : userData.lastName}
+                          value={userData.lastName}
                           onChange={handleInputChange}
                           fullWidth
                           sx={{ mb: 2 }}

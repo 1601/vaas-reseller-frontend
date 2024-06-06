@@ -1,9 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { TextField } from '@mui/material';
 
-const ValidatedTextField = ({ validationFunction, ...props }) => {
+const ValidatedTextField = ({ validationFunction, reset, ...props }) => {
   const [error, setError] = useState(false);
   const [helperText, setHelperText] = useState('');
+
+  useEffect(() => {
+    console.log(`reset prop for ${props.label}:`, reset);
+    setError(false);
+    setHelperText('');
+  }, [reset, props.label]);
 
   const handleChange = (event) => {
     const isValid = validationFunction(event.target.value);
