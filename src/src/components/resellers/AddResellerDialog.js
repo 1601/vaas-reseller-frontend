@@ -88,6 +88,7 @@ const AddResellerDialog = ({
               helperText={validationErrors.firstName}
               variant="outlined"
               sx={{ mt: 2 }}
+              inputProps={{ maxLength: 20 }}
             />
 
             {/* Last Name Field */}
@@ -102,6 +103,7 @@ const AddResellerDialog = ({
               helperText={validationErrors.lastName}
               variant="outlined"
               sx={{ mt: 2 }}
+              inputProps={{ maxLength: 20 }}
             />
 
             {/* Country Field */}
@@ -158,6 +160,7 @@ const AddResellerDialog = ({
               onChange={handleInputChange}
               onBlur={handleBlur}
               sx={{ mt: 2 }}
+              inputProps={{ maxLength: 35 }}
             />
           </>
         )}
