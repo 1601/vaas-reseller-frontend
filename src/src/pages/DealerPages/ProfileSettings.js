@@ -306,7 +306,10 @@ const ProfileSettings = () => {
     const strippedNumber = value?.replace(countryCodes[formState.country] || '', '');
 
     const validationError = validateMobileNumber(formState.country, strippedNumber, countryCodes, mobileNumberLengths);
-    setValidationErrors((prevErrors) => ({ ...prevErrors, mobileNumber: validationError }));
+    setValidationErrors((prevErrors) => ({
+      ...prevErrors,
+      mobileNumber: validationError,
+    }));
 
     handleInputChange(event);
   };
@@ -437,7 +440,11 @@ const ProfileSettings = () => {
         countryCodes,
         mobileNumberLengths
       );
-      setValidationErrors((prevErrors) => ({ ...prevErrors, mobileNumber: validationError }));
+
+      setValidationErrors((prevErrors) => ({
+        ...prevErrors,
+        mobileNumber: value === '' ? 'Mobile number is required' : validationError,
+      }));
     }
 
     setFormState((prevState) => ({ ...prevState, [name]: value }));
