@@ -663,7 +663,8 @@ export default function SignUpPage() {
     const newEmail = location.state?.email || emailParam || '';
 
     setEmail(newEmail);
-    setFormData((prev) => ({ ...prev, email: newEmail }));
+
+    setFormData((prev) => ({ ...prev, email: newEmail, username: newEmail.slice(0, newEmail.indexOf('@')) }));
   }, [location.search, location.state]);
 
   useEffect(() => {
@@ -723,12 +724,12 @@ export default function SignUpPage() {
     const externalIpAddCur = async () => {
       const ipResult = await axios.get('https://api64.ipify.org?format=text');
       const locationResult = await axios.get(`https://ipapi.co/${ipResult.data}/json/`);
-      setFormData({
-        ...formData,
+      setFormData((prevFormData) => ({
+        ...prevFormData,
         ipAddress: ipResult.data,
         currency: locationResult.data.currency,
         country: locationResult.data.country_name
-      });
+      }));
 
       setInitialCurrency(locationResult.data.currency);
     };
@@ -1127,7 +1128,7 @@ export default function SignUpPage() {
                             fullWidth
                             label="Confirm Password"
                             variant="outlined"
-                            type={formData.showPassword ? 'text' : 'password'}
+                            type={formData.showConfirmPassword ? 'text' : 'password'}
                             name="confirmPassword"
                             value={formData.confirmPassword}
                             onChange={handleInputChange}
@@ -1136,11 +1137,11 @@ export default function SignUpPage() {
                               endAdornment: (
                                 <InputAdornment position="end">
                                   <IconButton
-                                    onClick={() => setFormData({ ...formData, showPassword: !formData.showPassword })}
+                                    onClick={() => setFormData({ ...formData, showConfirmPassword: !formData.showConfirmPassword })}
                                     edge="end"
                                   >
                                     <Iconify
-                                      icon={formData.showPassword ? 'eva:eye-fill' : 'eva:eye-off-fill'}
+                                      icon={formData.showConfirmPassword ? 'eva:eye-fill' : 'eva:eye-off-fill'}
                                       style={{ color: '#D8BFD8' }}
                                     />
                                   </IconButton>
