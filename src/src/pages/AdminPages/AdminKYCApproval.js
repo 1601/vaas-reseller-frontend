@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import SecureLS from 'secure-ls';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Card, Typography, Button, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
+import { Card, Typography, Button, Checkbox, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import ConfirmationDialog from '../../components/admin/ConfirmationDialog';
 
 const ls = new SecureLS({ encodingType: 'aes' });
@@ -14,6 +15,7 @@ const AdminKYCApproval = () => {
   const [kycApproved, setKYCApproved] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [remarks, setRemarks] = useState('');
+  const [rejectedDocuments, setRejectedDocuments] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -66,13 +68,17 @@ const AdminKYCApproval = () => {
     setShowConfirmation(true);
   };
 
+  const toggleDocumentRejection = (url) => { 
+    setRejectedDocuments((prev) => (prev.includes(url) ? prev.filter((doc) => doc !== url) : [...prev, url]));
+  }; 
+
   const handleConfirmReject = async () => {
     setIsLoading(true);
     try {
       const token = ls.get('token');
       await axios.put(
         `${process.env.REACT_APP_BACKEND_URL}/v1/api/kyc/reject/${storeId}`,
-        { reason: remarks },
+        { reason: remarks, documents: rejectedDocuments }, 
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setShowConfirmation(false);
@@ -137,7 +143,7 @@ const AdminKYCApproval = () => {
                 </div>
                 <div>
                   {/* Display KYC details from kycDetails object */}
-                  <DisplayKYCDetails kycDetails={kycDetails} />
+                  <DisplayKYCDetails kycDetails={kycDetails} toggleDocumentRejection={toggleDocumentRejection} />
                 </div>
               </Card>
             </div>
@@ -155,13 +161,21 @@ const AdminKYCApproval = () => {
         remarks={remarks}
         setRemarks={setRemarks}
         isLoading={isLoading}
+        rejectedDocuments={rejectedDocuments}
       />
     </>
   );
 };
 
 // Extract a separate component to display KYC details
-const DisplayKYCDetails = ({ kycDetails }) => {
+const DisplayKYCDetails = ({ kycDetails, toggleDocumentRejection }) => {
+  const [rejectedDocuments, setRejectedDocuments] = useState([]);
+
+  const handleToggleDocumentRejection = (url) => {
+    setRejectedDocuments((prev) => (prev.includes(url) ? prev.filter((doc) => doc !== url) : [...prev, url]));
+    toggleDocumentRejection(url);
+  };
+
   return (
     <div>
       <Card style={{ marginBottom: '20px', padding: '15px' }}>
@@ -266,7 +280,10 @@ const DisplayKYCDetails = ({ kycDetails }) => {
                   ID Preview
                 </TableCell>
                 <TableCell align="center" style={{ width: '400px' }}>
-                  View Document
+                  View ID
+                </TableCell>
+                <TableCell align="center" style={{ width: '100px' }}>
+                  Reject
                 </TableCell>
               </TableRow>
             </TableHead>
@@ -302,6 +319,12 @@ const DisplayKYCDetails = ({ kycDetails }) => {
                         {`ID_${index + 1}`}
                       </a>
                     </TableCell>
+                    <TableCell align="center">
+                      <Checkbox
+                        checked={rejectedDocuments.includes(url)}
+                        onChange={() => handleToggleDocumentRejection(url)}
+                      />
+                    </TableCell>
                   </TableRow>
                 ))
               ) : (
@@ -326,6 +349,12 @@ const DisplayKYCDetails = ({ kycDetails }) => {
                       ID_1
                     </a>
                   </TableCell>
+                  <TableCell align="center">
+                    <Checkbox
+                      checked={rejectedDocuments.includes(kycDetails.store.idUrl)}
+                      onChange={() => handleToggleDocumentRejection(kycDetails.store.idUrl)}
+                    />
+                  </TableCell>
                 </TableRow>
               )}
             </TableBody>
@@ -341,7 +370,10 @@ const DisplayKYCDetails = ({ kycDetails }) => {
                   Document Preview
                 </TableCell>
                 <TableCell align="center" style={{ width: '400px' }}>
-                  View Document
+                  View PDF
+                </TableCell>
+                <TableCell align="center" style={{ width: '100px' }}>
+                  Reject
                 </TableCell>
               </TableRow>
             </TableHead>
@@ -376,6 +408,12 @@ const DisplayKYCDetails = ({ kycDetails }) => {
                       >
                         {`Document_${index + 1}`}
                       </a>
+                    </TableCell>
+                    <TableCell align="center">
+                      <Checkbox
+                        checked={rejectedDocuments.includes(url)}
+                        onChange={() => handleToggleDocumentRejection(url)}
+                      />
                     </TableCell>
                   </TableRow>
                 ))
@@ -413,17 +451,16 @@ const DisplayKYCDetails = ({ kycDetails }) => {
                       Document_1
                     </a>
                   </TableCell>
+                  <TableCell align="center">
+                    <Checkbox
+                      checked={rejectedDocuments.includes(kycDetails.store.documentUrl)}
+                      onChange={() => handleToggleDocumentRejection(kycDetails.store.documentUrl)}
+                    />
+                  </TableCell>
                 </TableRow>
               )}
             </TableBody>
           </Table>
-        </Card>
-
-        <Card style={{ marginBottom: '20px', padding: '15px' }}>
-          <Typography variant="body2" style={{ marginBottom: '8px' }}>
-            Other Store Links
-          </Typography>
-          <Typography variant="body1">{kycDetails.store.externalLinkAccount}</Typography>
         </Card>
       </Card>
     </div>
