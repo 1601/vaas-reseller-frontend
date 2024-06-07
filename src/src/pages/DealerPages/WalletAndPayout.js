@@ -78,6 +78,7 @@ const WalletPayouts = () => {
   const [currency, setCurrency] = useState();
   const [edit, setEdit] = useState(false);
   const userId = ls.get('user') ? ls.get('user')._id : null;
+  const token = ls.get("token")
   const MAX_FILE_SIZE = 6 * 1024 * 1024;
   const [errorSlip, setErrorSlip] = useState('');
 
@@ -288,7 +289,7 @@ const WalletPayouts = () => {
         walletRequestData,
         {
           headers: {
-            Authorization: `Bearer ${user.token}`,
+            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -299,7 +300,7 @@ const WalletPayouts = () => {
         `${process.env.REACT_APP_BACKEND_URL}/v1/api/wallet-requests/${walletRequestId}`,
         {
           headers: {
-            Authorization: `Bearer ${user.token}`,
+            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -359,7 +360,7 @@ const WalletPayouts = () => {
       {
         headers: {
           'Content-Type': 'multipart/form-data',
-          Authorization: `Bearer ${user.token}`,
+          Authorization: `Bearer ${token}`,
         },
       }
     );
@@ -501,7 +502,7 @@ const WalletPayouts = () => {
         .get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/wallet-requests/user`, {
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${user.token}`,
+            Authorization: `Bearer ${token}`,
           },
         })
         .then((response) => {
