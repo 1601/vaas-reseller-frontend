@@ -89,7 +89,7 @@ const VortexTopUpBrandProducts = ({
               onClick={() => {
                 if (!product.name.includes('(Not Available)') && !product.disabled) {
                   if(!checkProductAvailability(product.name)) {
-                    alert("Product not available")
+                    alert("Product not available anymore, please refresh page")
                   }else{
                     setSelectedProduct(product);
                     setSelectedBrand(selectedBrand);
