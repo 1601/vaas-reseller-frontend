@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Typography, Box } from '@mui/material';
+import axios from "axios";
+import SecureLS from 'secure-ls';
 import VortexTopupCard from './VortexTopupCard';
 
 const VortexTopUpBrandProducts = ({
+  dealerId,
   brandProducts,
   selectedBrand,
   setSelectedProduct = () => {},
@@ -10,12 +13,33 @@ const VortexTopUpBrandProducts = ({
   stepForward = () => {},
   platformVariables,
 }) => {
+  const ls = new SecureLS({ encodingType: 'aes' });
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
     // Set the products directly from brandProducts; sorting will be handled in the render
     setProducts(brandProducts);
   }, [brandProducts]);
+
+  const checkProductAvailability = (checkProduct) => {
+    let userIdToUse = ls.get('resellerCode') ? JSON.parse(ls.get('resellerCode')).code : null;
+    userIdToUse = userIdToUse || dealerId;
+    try {
+      const response = axios.get(
+          `${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/product-config/${userIdToUse}/${selectedBrand}/public`
+      );
+      if(response.status === 200){
+        const checkProductResult = response.data.products.filter((product) => product.name === checkProduct)
+        if(checkProductResult.length === 1 && checkProductResult[0].enabled){
+          return true
+        }
+      }
+      return false;
+    } catch (e) {
+      console.log(e);
+      return false;
+    }
+  }
 
   return (
     <Box>
@@ -64,9 +88,13 @@ const VortexTopUpBrandProducts = ({
               key={product.name}
               onClick={() => {
                 if (!product.name.includes('(Not Available)') && !product.disabled) {
-                  setSelectedProduct(product);
-                  setSelectedBrand(selectedBrand);
-                  stepForward();
+                  if(!checkProductAvailability(product.name)) {
+                    alert("Product not available")
+                  }else{
+                    setSelectedProduct(product);
+                    setSelectedBrand(selectedBrand);
+                    stepForward();
+                  }
                 }
               }}
               style={{

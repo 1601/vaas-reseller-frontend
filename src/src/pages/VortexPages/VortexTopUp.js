@@ -1138,6 +1138,8 @@ const VortexTopUp = () => {
             {headers}
         );
 
+        console.log(response);
+
         if (response.data && response.data.products) {
           return response.data.products;
         }
@@ -1388,6 +1390,7 @@ const VortexTopUp = () => {
                 )}
                 {navigation.name === 'brandProducts' && (
                   <VortexTopUpBrandProducts
+                    dealerId={decryptedUserId}
                     brandProducts={navigation.data}
                     selectedBrand={_selectedBrand || 'ROW'}
                     setSelectedProduct={setSelectedProduct}
