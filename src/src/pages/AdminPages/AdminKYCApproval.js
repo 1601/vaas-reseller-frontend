@@ -68,9 +68,9 @@ const AdminKYCApproval = () => {
     setShowConfirmation(true);
   };
 
-  const toggleDocumentRejection = (url) => { 
+  const toggleDocumentRejection = (url) => {
     setRejectedDocuments((prev) => (prev.includes(url) ? prev.filter((doc) => doc !== url) : [...prev, url]));
-  }; 
+  };
 
   const handleConfirmReject = async () => {
     setIsLoading(true);
@@ -78,7 +78,7 @@ const AdminKYCApproval = () => {
       const token = ls.get('token');
       await axios.put(
         `${process.env.REACT_APP_BACKEND_URL}/v1/api/kyc/reject/${storeId}`,
-        { reason: remarks, documents: rejectedDocuments }, 
+        { reason: remarks, documents: rejectedDocuments },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setShowConfirmation(false);
@@ -267,158 +267,27 @@ const DisplayKYCDetails = ({ kycDetails, toggleDocumentRejection }) => {
       </Card>
 
       <Card style={{ marginBottom: '20px', padding: '15px' }}>
-        <Typography variant="h5" style={{ fontWeight: 'bold', marginBottom: '5px' }}>
-          Store Documents
-        </Typography>
-
-        <Card style={{ marginBottom: '20px', padding: '15px' }}>
-          <Typography variant="h6">IDs Uploaded</Typography>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell align="center" style={{ borderRight: '1px solid #ddd' }}>
-                  ID Preview
-                </TableCell>
-                <TableCell align="center" style={{ width: '400px' }}>
-                  View ID
-                </TableCell>
+        <Typography variant="h6">IDs Uploaded</Typography>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell align="center" style={{ borderRight: '1px solid #ddd' }}>
+                ID Preview
+              </TableCell>
+              <TableCell align="center" style={{ width: '400px' }}>
+                View ID
+              </TableCell>
+              {kycDetails.store.kycApprove === 1 && (
                 <TableCell align="center" style={{ width: '100px' }}>
                   Reject
                 </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {Array.isArray(kycDetails.store.idUrl) ? (
-                kycDetails.store.idUrl.map((url, index) => (
-                  <TableRow key={index}>
-                    <TableCell
-                      align="center"
-                      style={{
-                        borderRight: '1px solid #ddd',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}
-                    >
-                      <img src={url} alt={`ID_${index + 1}`} style={{ maxWidth: '100px', height: 'auto' }} />
-                    </TableCell>
-                    <TableCell align="center">
-                      <a
-                        href={url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{
-                          padding: '8px 12px',
-                          border: '1px solid #000',
-                          borderRadius: '5px',
-                          backgroundColor: '#f0f0f0',
-                          textDecoration: 'none',
-                          color: 'black',
-                        }}
-                      >
-                        {`ID_${index + 1}`}
-                      </a>
-                    </TableCell>
-                    <TableCell align="center">
-                      <Checkbox
-                        checked={rejectedDocuments.includes(url)}
-                        onChange={() => handleToggleDocumentRejection(url)}
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell align="center" style={{ borderRight: '1px solid #ddd' }}>
-                    <img src={kycDetails.store.idUrl} alt="ID" style={{ maxWidth: '100px', height: 'auto' }} />
-                  </TableCell>
-                  <TableCell align="center">
-                    <a
-                      href={kycDetails.store.idUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{
-                        padding: '8px 12px',
-                        border: '1px solid #000',
-                        borderRadius: '5px',
-                        backgroundColor: '#f0f0f0',
-                        textDecoration: 'none',
-                        color: 'black',
-                      }}
-                    >
-                      ID_1
-                    </a>
-                  </TableCell>
-                  <TableCell align="center">
-                    <Checkbox
-                      checked={rejectedDocuments.includes(kycDetails.store.idUrl)}
-                      onChange={() => handleToggleDocumentRejection(kycDetails.store.idUrl)}
-                    />
-                  </TableCell>
-                </TableRow>
               )}
-            </TableBody>
-          </Table>
-        </Card>
-
-        <Card style={{ marginBottom: '20px', padding: '15px' }}>
-          <Typography variant="h6">Additional Documents</Typography>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell align="center" style={{ borderRight: '1px solid #ddd' }}>
-                  Document Preview
-                </TableCell>
-                <TableCell align="center" style={{ width: '400px' }}>
-                  View PDF
-                </TableCell>
-                <TableCell align="center" style={{ width: '100px' }}>
-                  Reject
-                </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {Array.isArray(kycDetails.store.documentUrl) ? (
-                kycDetails.store.documentUrl.map((url, index) => (
-                  <TableRow key={index}>
-                    <TableCell
-                      align="center"
-                      style={{
-                        borderRight: '1px solid #ddd',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}
-                    >
-                      <iframe src={url} style={{ width: '100px', height: '140px' }} title={`Document_${index + 1}`} />
-                    </TableCell>
-                    <TableCell align="center">
-                      <a
-                        href={url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{
-                          padding: '8px 12px',
-                          border: '1px solid #000',
-                          borderRadius: '5px',
-                          backgroundColor: '#f0f0f0',
-                          textDecoration: 'none',
-                          color: 'black',
-                        }}
-                      >
-                        {`Document_${index + 1}`}
-                      </a>
-                    </TableCell>
-                    <TableCell align="center">
-                      <Checkbox
-                        checked={rejectedDocuments.includes(url)}
-                        onChange={() => handleToggleDocumentRejection(url)}
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {Array.isArray(kycDetails.store.idUrl) ? (
+              kycDetails.store.idUrl.map((url, index) => (
+                <TableRow key={index}>
                   <TableCell
                     align="center"
                     style={{
@@ -428,15 +297,11 @@ const DisplayKYCDetails = ({ kycDetails, toggleDocumentRejection }) => {
                       justifyContent: 'center',
                     }}
                   >
-                    <iframe
-                      src={kycDetails.store.documentUrl}
-                      style={{ width: '100px', height: '140px' }}
-                      title="Document"
-                    />
+                    <img src={url} alt={`ID_${index + 1}`} style={{ maxWidth: '100px', height: 'auto' }} />
                   </TableCell>
                   <TableCell align="center">
                     <a
-                      href={kycDetails.store.documentUrl}
+                      href={url}
                       target="_blank"
                       rel="noopener noreferrer"
                       style={{
@@ -448,20 +313,161 @@ const DisplayKYCDetails = ({ kycDetails, toggleDocumentRejection }) => {
                         color: 'black',
                       }}
                     >
-                      Document_1
+                      {`ID_${index + 1}`}
                     </a>
                   </TableCell>
+                  {kycDetails.store.kycApprove === 1 && (
+                    <TableCell align="center">
+                      <Checkbox
+                        checked={rejectedDocuments.includes(url)}
+                        onChange={() => handleToggleDocumentRejection(url)}
+                      />
+                    </TableCell>
+                  )}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell align="center" style={{ borderRight: '1px solid #ddd' }}>
+                  <img src={kycDetails.store.idUrl} alt="ID" style={{ maxWidth: '100px', height: 'auto' }} />
+                </TableCell>
+                <TableCell align="center">
+                  <a
+                    href={kycDetails.store.idUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      padding: '8px 12px',
+                      border: '1px solid #000',
+                      borderRadius: '5px',
+                      backgroundColor: '#f0f0f0',
+                      textDecoration: 'none',
+                      color: 'black',
+                    }}
+                  >
+                    ID_1
+                  </a>
+                </TableCell>
+                {kycDetails.store.kycApprove === 1 && (
+                  <TableCell align="center">
+                    <Checkbox
+                      checked={rejectedDocuments.includes(kycDetails.store.idUrl)}
+                      onChange={() => handleToggleDocumentRejection(kycDetails.store.idUrl)}
+                    />
+                  </TableCell>
+                )}
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </Card>
+
+      <Card style={{ marginBottom: '20px', padding: '15px' }}>
+        <Typography variant="h6">Additional Documents</Typography>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell align="center" style={{ borderRight: '1px solid #ddd' }}>
+                Document Preview
+              </TableCell>
+              <TableCell align="center" style={{ width: '400px' }}>
+                View PDF
+              </TableCell>
+              {kycDetails.store.kycApprove === 1 && (
+                <TableCell align="center" style={{ width: '100px' }}>
+                  Reject
+                </TableCell>
+              )}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {Array.isArray(kycDetails.store.documentUrl) ? (
+              kycDetails.store.documentUrl.map((url, index) => (
+                <TableRow key={index}>
+                  <TableCell
+                    align="center"
+                    style={{
+                      borderRight: '1px solid #ddd',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <iframe src={url} style={{ width: '100px', height: '140px' }} title={`Document_${index + 1}`} />
+                  </TableCell>
+                  <TableCell align="center">
+                    <a
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        padding: '8px 12px',
+                        border: '1px solid #000',
+                        borderRadius: '5px',
+                        backgroundColor: '#f0f0f0',
+                        textDecoration: 'none',
+                        color: 'black',
+                      }}
+                    >
+                      {`Document_${index + 1}`}
+                    </a>
+                  </TableCell>
+                  {kycDetails.store.kycApprove === 1 && (
+                    <TableCell align="center">
+                      <Checkbox
+                        checked={rejectedDocuments.includes(url)}
+                        onChange={() => handleToggleDocumentRejection(url)}
+                      />
+                    </TableCell>
+                  )}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  align="center"
+                  style={{
+                    borderRight: '1px solid #ddd',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <iframe
+                    src={kycDetails.store.documentUrl}
+                    style={{ width: '100px', height: '140px' }}
+                    title="Document"
+                  />
+                </TableCell>
+                <TableCell align="center">
+                  <a
+                    href={kycDetails.store.documentUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      padding: '8px 12px',
+                      border: '1px solid #000',
+                      borderRadius: '5px',
+                      backgroundColor: '#f0f0f0',
+                      textDecoration: 'none',
+                      color: 'black',
+                    }}
+                  >
+                    Document_1
+                  </a>
+                </TableCell>
+                {kycDetails.store.kycApprove === 1 && (
                   <TableCell align="center">
                     <Checkbox
                       checked={rejectedDocuments.includes(kycDetails.store.documentUrl)}
                       onChange={() => handleToggleDocumentRejection(kycDetails.store.documentUrl)}
                     />
                   </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </Card>
+                )}
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
       </Card>
     </div>
   );
