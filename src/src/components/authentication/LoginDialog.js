@@ -118,7 +118,7 @@ export default function LoginDialog({ open, onClose }) {
 
       <Dialog open={tokenExpiredDialogOpen} disableBackdropClick disableEscapeKeyDown onClose={handleLogout}>
         <DialogTitle sx={{ textAlign: 'center' }}>Verify User Session</DialogTitle>
-        <DialogContent>
+        <DialogContent sx={{ textAlign: 'center' }}>
           <p>You have been detected to have Multiple Sessions or have been Inactive. Please relogin</p>
           {loading ? (
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -165,6 +165,7 @@ export default function LoginDialog({ open, onClose }) {
             </>
           )}
         </DialogContent>
+
         <DialogActions>
           <Button onClick={handleLogout} color="error" disabled={loading}>
             Logout
