@@ -10,7 +10,7 @@ import TextField from '@mui/material/TextField';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
-import {Alert, Card, Dialog, DialogActions, DialogContent, DialogTitle, ListItem, ListItemText} from '@mui/material';
+import { Alert, Card, Dialog, DialogActions, DialogContent, DialogTitle, ListItem, ListItemText } from '@mui/material';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import Checkbox from '@mui/material/Checkbox';
@@ -33,8 +33,8 @@ import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import { styled } from '@mui/material/styles';
 import Grid from '@mui/material/Grid';
 import { useDropzone } from 'react-dropzone';
-import DeleteIcon from "@mui/icons-material/Delete";
-import {grey} from "@mui/material/colors";
+import DeleteIcon from '@mui/icons-material/Delete';
+import { grey } from '@mui/material/colors';
 import KycImage from '../images/Rectangle 52.png';
 import UnderReview from '../images/underReview.jpeg';
 import Approved from '../images/approved.png';
@@ -135,47 +135,51 @@ const CircularLoading = () => (
 );
 
 const CircularLoadingSuccess = () => (
-    <>
-      <Box
-          sx={{
-            width: '100%',
-            height: '100%',
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'rgba(0, 0, 0, 0.7)',
-            opacity: 0.5,
-            zIndex: 1,
-          }}
-      />
-      <Box
-          sx={{
-            position: 'fixed',
-            left: '50%',
-            top: '50%',
-            transform: 'translate(-50%, -50%)',
-            zIndex: 2,
-            textAlign: 'center',
-            color: '#fff',
-          }}
-      >
-        <Dialog open>
-          <DialogContent>
-            <Typography variant="h6">Upload Success</Typography>
-          </DialogContent>
-          <DialogActions style={{ justifyContent: 'center' }}>
-            <Button variant="outlined" color="primary" onClick={() => {
+  <>
+    <Box
+      sx={{
+        width: '100%',
+        height: '100%',
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: 'rgba(0, 0, 0, 0.7)',
+        opacity: 0.5,
+        zIndex: 1,
+      }}
+    />
+    <Box
+      sx={{
+        position: 'fixed',
+        left: '50%',
+        top: '50%',
+        transform: 'translate(-50%, -50%)',
+        zIndex: 2,
+        textAlign: 'center',
+        color: '#fff',
+      }}
+    >
+      <Dialog open>
+        <DialogContent>
+          <Typography variant="h6">Upload Success</Typography>
+        </DialogContent>
+        <DialogActions style={{ justifyContent: 'center' }}>
+          <Button
+            variant="outlined"
+            color="primary"
+            onClick={() => {
               // Redirect to the desired URL inline
               window.location.href = '/dashboard/app';
-            }}>Proceed</Button>
-          </DialogActions>
-        </Dialog>
-
-
-      </Box>
-    </>
+            }}
+          >
+            Proceed
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
+  </>
 );
 
 export default function KYC() {
@@ -212,7 +216,10 @@ export default function KYC() {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (response.data && response.data.kycRejectionReasons) {
-          setRejectionList(response.data.kycRejectionReasons);
+          const sortedRejectionList = response.data.kycRejectionReasons.sort(
+            (a, b) => new Date(b.date) - new Date(a.date)
+          );
+          setRejectionList(sortedRejectionList);
         }
       } catch (error) {
         console.error('Error fetching store data:', error);
@@ -222,6 +229,7 @@ export default function KYC() {
     };
     fetchStoreData();
   }, []);
+  console.log('rejectionList: ', rejectionList);
 
   useEffect(() => {
     const fetchUploadHistory = async () => {
@@ -233,13 +241,17 @@ export default function KYC() {
           },
         });
         console.log(response);
-        if(response.status === 200){
-          setFormData(prevState => ({
+        if (response.status === 200) {
+          setFormData((prevState) => ({
             ...prevState,
             ...response.data,
-            numberOfEmployees: response.data.numberOfEmployee
+            numberOfEmployees: response.data.numberOfEmployee,
           }));
-          setLinkFieldsData([{externalLinkAccount: response.data.externalLinkAccount === [] ? '' : response.data.externalLinkAccount}]);
+          setLinkFieldsData(
+            response.data.externalLinkAccount.length === 0
+              ? [{ externalLinkAccount: '' }]
+              : response.data.externalLinkAccount.map((link) => ({ externalLinkAccount: link }))
+          );
         }
       } catch (error) {
         console.error('Could not fetch store data', error);
@@ -270,7 +282,7 @@ export default function KYC() {
     const values = Object.values(formData);
     console.log(values);
     if (activeStep === 1) {
-      if(errorUrl){
+      if (errorUrl) {
         return setIsError({
           ...isError,
           externalLinkAccount: 'Invalid Link',
@@ -374,7 +386,7 @@ export default function KYC() {
       if (result.status === 200) {
         // Submit File
         const fileIdResult = await putFileKyc(selectedImage);
-        const fileDocResult = await putFileKyc(selectedDocs,'docOthers');
+        const fileDocResult = await putFileKyc(selectedDocs, 'docOthers');
         if (fileIdResult.status === 200 || fileDocResult.status === 200) {
           const userData = ls.get('user');
           const userToken = userData.token;
@@ -396,14 +408,14 @@ export default function KYC() {
           if (submitted) {
             setPreload(2);
           }
-        }else{
+        } else {
           setPreload(0);
         }
       }
     } catch (error) {
-      if(error.status === 400){
+      if (error.status === 400) {
         window.alert(`Submission failed: ${error.data.message}`);
-      }else{
+      } else {
         window.alert(`Submission failed`);
       }
       setPreload(0);
@@ -415,7 +427,7 @@ export default function KYC() {
       new URL(value);
       setIsError({
         ...isError,
-        externalLinkAccount: ''
+        externalLinkAccount: '',
       });
       return true;
     } catch (e) {
@@ -426,15 +438,15 @@ export default function KYC() {
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
 
-    if(name === 'customerServiceNumber'){
-      if(!/^[0-9@-_+]*$/.test(value) || value.length > 20) return;
+    if (name === 'customerServiceNumber') {
+      if (!/^[0-9@-_+]*$/.test(value) || value.length > 20) return;
     }
 
-    if(name === 'uniqueIdentifier'){
-      if(!/^[a-zA-Z0-9-]*$/.test(value) || value.length > 20) return;
+    if (name === 'uniqueIdentifier') {
+      if (!/^[a-zA-Z0-9-]*$/.test(value) || value.length > 20) return;
     }
 
-    if(name === 'numberOfEmployees' && value.length > 12){
+    if (name === 'numberOfEmployees' && value.length > 12) {
       return;
     }
 
@@ -500,9 +512,9 @@ export default function KYC() {
 
   const handleInputChangeLink = (index, event) => {
     setUrl(event.target.value);
-    if(event.target.value === ''){
+    if (event.target.value === '') {
       setErrorUrl('');
-    }else{
+    } else {
       setErrorUrl(!validateUrl(event.target.value));
     }
     const updatedData = [...linkFieldsData];
@@ -514,65 +526,79 @@ export default function KYC() {
     window.location.href = '/dashboard/app';
   };
 
-  const onDropID = useCallback((acceptedFiles, fileRejections) => {
-    console.log(selectedImage);
-    // Do something with the files
-    if(fileRejections[0]){
-      const file = fileRejections[0];
-      if(file.errors[0].code === "file-too-large") setErrorImage(`File "${file.file.name}" is too large. Max size is ${MAX_FILE_SIZE / (1024 * 1024)} MB`);
-    }else if(selectedImage.length >= 2){
-      setErrorImage(`Exceeded allowed number of files to be uploaded`);
-    }else{
-      const file = acceptedFiles[0];
-      if (file.type === 'image/png' || file.type === 'image/jpeg' || file.type === 'application/pdf') {
-        setErrorImage('');
-        setSelectedImage((selectedImage) => [...selectedImage, acceptedFiles[0]]);
-      }else{
-        setErrorImage(`Invalid file type`);
+  const onDropID = useCallback(
+    (acceptedFiles, fileRejections) => {
+      console.log(selectedImage);
+      // Do something with the files
+      if (fileRejections[0]) {
+        const file = fileRejections[0];
+        if (file.errors[0].code === 'file-too-large')
+          setErrorImage(`File "${file.file.name}" is too large. Max size is ${MAX_FILE_SIZE / (1024 * 1024)} MB`);
+      } else if (selectedImage.length >= 2) {
+        setErrorImage(`Exceeded allowed number of files to be uploaded`);
+      } else {
+        const file = acceptedFiles[0];
+        if (file.type === 'image/png' || file.type === 'image/jpeg' || file.type === 'application/pdf') {
+          setErrorImage('');
+          setSelectedImage((selectedImage) => [...selectedImage, acceptedFiles[0]]);
+        } else {
+          setErrorImage(`Invalid file type`);
+        }
       }
-    }
-  }, [selectedImage]);
+    },
+    [selectedImage]
+  );
 
-  const onDropDoc = useCallback((acceptedFiles, fileRejections) => {
-    if(fileRejections[0]){
-      const file = fileRejections[0];
-      if(file.errors[0].code === "file-too-large") setErrorDoc(`File "${file.name}" is too large. Max size is ${MAX_FILE_SIZE / (1024 * 1024)} MB`);
-    }else if(selectedDocs.length >= 1){
-      setErrorDoc(`Exceeded allowed number of files to upload`);
-    }else{
-      const file = acceptedFiles[0];
-      if (file.type === 'image/png' || file.type === 'image/jpeg' || file.type === 'application/pdf') {
-        setErrorDoc('');
-        // Do something with the files
-        setSelectedDocs((selectedDocs) => [...selectedDocs, acceptedFiles[0]]);
-      }else{
-        setErrorDoc(`Invalid file type`);
+  const onDropDoc = useCallback(
+    (acceptedFiles, fileRejections) => {
+      if (fileRejections[0]) {
+        const file = fileRejections[0];
+        if (file.errors[0].code === 'file-too-large')
+          setErrorDoc(`File "${file.name}" is too large. Max size is ${MAX_FILE_SIZE / (1024 * 1024)} MB`);
+      } else if (selectedDocs.length >= 1) {
+        setErrorDoc(`Exceeded allowed number of files to upload`);
+      } else {
+        const file = acceptedFiles[0];
+        if (file.type === 'image/png' || file.type === 'image/jpeg' || file.type === 'application/pdf') {
+          setErrorDoc('');
+          // Do something with the files
+          setSelectedDocs((selectedDocs) => [...selectedDocs, acceptedFiles[0]]);
+        } else {
+          setErrorDoc(`Invalid file type`);
+        }
       }
-    }
-  }, [selectedDocs]);
+    },
+    [selectedDocs]
+  );
 
   const handleRemoveSelectedId = (fileToRemove) => {
     console.log(fileToRemove);
-    setSelectedImage((prevFiles) => prevFiles.filter(file => file !== fileToRemove));
+    setSelectedImage((prevFiles) => prevFiles.filter((file) => file !== fileToRemove));
     setErrorImage('');
   };
 
   const handleRemoveSelectedDoc = (fileToRemove) => {
-    setSelectedDocs((prevFiles) => prevFiles.filter(file => file !== fileToRemove));
+    setSelectedDocs((prevFiles) => prevFiles.filter((file) => file !== fileToRemove));
     setErrorDoc('');
   };
 
-  const { getRootProps: getRootPropsID, getInputProps: getInputPropsID, isDragActive: isDragActiveID } = useDropzone({ onDrop: onDropID, maxSize: MAX_FILE_SIZE });
-  const { getRootProps: getRootPropsDoc, getInputProps: getInputPropsDoc, isDragActive: isDragActiveDoc } = useDropzone({ onDrop: onDropDoc, maxSize: MAX_FILE_SIZE });
+  const {
+    getRootProps: getRootPropsID,
+    getInputProps: getInputPropsID,
+    isDragActive: isDragActiveID,
+  } = useDropzone({ onDrop: onDropID, maxSize: MAX_FILE_SIZE });
+  const {
+    getRootProps: getRootPropsDoc,
+    getInputProps: getInputPropsDoc,
+    isDragActive: isDragActiveDoc,
+  } = useDropzone({ onDrop: onDropDoc, maxSize: MAX_FILE_SIZE });
   const isLastStep = activeStep === steps.length - 1;
 
   useEffect(() => {
     const getStatus = async () => {
       const datas = await kycSubmittedstatus();
       if (datas) {
-        switch (
-          datas.kycApprove 
-        ) {
+        switch (datas.kycApprove) {
           case 1:
             setApprovalStatus(1);
             break;
@@ -688,7 +714,7 @@ export default function KYC() {
                                   <LocalPhoneIcon /> {/* Replace with your desired icon */}
                                 </IconButton>
                               </InputAdornment>
-                            )
+                            ),
                           }}
                         />
                         {isError.customerServiceNumber && <ErrorMessage label={isError.customerServiceNumber} />}
@@ -1041,9 +1067,9 @@ export default function KYC() {
 
                           <HoverableButton {...getRootPropsID()}>
                             <div>
-                              <input name={"uploadIdInput"} {...getInputPropsID()} />
+                              <input name={'uploadIdInput'} {...getInputPropsID()} />
                               <Button
-                                name={"uploadId"}
+                                name={'uploadId'}
                                 variant="contained"
                                 color="primary"
                                 component="span"
@@ -1058,11 +1084,11 @@ export default function KYC() {
                               </Button>
                               <Box style={{ color: 'gray', fontSize: '.7rem' }}>
                                 <div>
-                                {isDragActiveID ? (
-                                  <p>Drop the files here ...</p>
-                                ) : (
-                                  <p>Drag 'n' drop some files here, or click to select files</p>
-                                )}
+                                  {isDragActiveID ? (
+                                    <p>Drop the files here ...</p>
+                                  ) : (
+                                    <p>Drag 'n' drop some files here, or click to select files</p>
+                                  )}
                                 </div>
                               </Box>
                             </div>
@@ -1070,33 +1096,44 @@ export default function KYC() {
                           {/* </label> */}
                           <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', marginTop: '10px' }}>
                             {selectedImage.map((item, index) => (
-                                <div
-                                    key={index}
-                                    style={{
-                                      backgroundColor: '#873EC0',
-                                      borderRadius: '5px',
-                                      color: 'white', // Changed text color to white for better contrast
-                                      fontSize: '14px', // Adjusted font size
-                                      textAlign: 'center', // Center-align text
-                                      whiteSpace: 'nowrap',
-                                      overflow: 'hidden',
-                                      textOverflow: 'ellipsis',
-                                      marginRight: '10px',
-                                      marginBottom: '10px',
-                                      boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.2)', // Added a subtle shadow
-                                    }}
-                                >
-                                  <ListItem key={index} secondaryAction={
-                                    <IconButton edge="end" aria-label="delete" onClick={() => handleRemoveSelectedId(item)}>
+                              <div
+                                key={index}
+                                style={{
+                                  backgroundColor: '#873EC0',
+                                  borderRadius: '5px',
+                                  color: 'white', // Changed text color to white for better contrast
+                                  fontSize: '14px', // Adjusted font size
+                                  textAlign: 'center', // Center-align text
+                                  whiteSpace: 'nowrap',
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                  marginRight: '10px',
+                                  marginBottom: '10px',
+                                  boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.2)', // Added a subtle shadow
+                                }}
+                              >
+                                <ListItem
+                                  key={index}
+                                  secondaryAction={
+                                    <IconButton
+                                      edge="end"
+                                      aria-label="delete"
+                                      onClick={() => handleRemoveSelectedId(item)}
+                                    >
                                       <DeleteIcon sx={{ color: grey[500] }} />
                                     </IconButton>
-                                  }>
-                                    <ListItemText primary={item.name} />
-                                  </ListItem>
-                                </div>
+                                  }
+                                >
+                                  <ListItemText primary={item.name} />
+                                </ListItem>
+                              </div>
                             ))}
                           </div>
-                          {errorImage && (<Alert severity="error" sx={{mt: 2}}>{errorImage}</Alert>)}
+                          {errorImage && (
+                            <Alert severity="error" sx={{ mt: 2 }}>
+                              {errorImage}
+                            </Alert>
+                          )}
                         </div>
                         <hr />
                         <div style={{ marginTop: '20px' }}>
@@ -1131,9 +1168,9 @@ export default function KYC() {
                           </div>
                           <HoverableButton {...getRootPropsDoc()}>
                             <div>
-                              <input name={"uploadDocInput"} {...getInputPropsDoc()} />
+                              <input name={'uploadDocInput'} {...getInputPropsDoc()} />
                               <Button
-                                name={"uploadDoc"}
+                                name={'uploadDoc'}
                                 variant="contained"
                                 color="primary"
                                 component="span"
@@ -1159,33 +1196,44 @@ export default function KYC() {
                         {/* </label> */}
                         <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', marginTop: '10px' }}>
                           {selectedDocs.map((item, index) => (
-                              <div
-                                  key={index}
-                                  style={{
-                                    backgroundColor: '#873EC0',
-                                    borderRadius: '5px',
-                                    color: 'white', // Changed text color to white for better contrast
-                                    fontSize: '14px', // Adjusted font size
-                                    textAlign: 'center', // Center-align text
-                                    whiteSpace: 'nowrap',
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis',
-                                    marginRight: '10px',
-                                    marginBottom: '10px',
-                                    boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.2)', // Added a subtle shadow
-                                  }}
-                              >
-                                <ListItem key={index} secondaryAction={
-                                  <IconButton edge="end" aria-label="delete" onClick={() => handleRemoveSelectedDoc(item)}>
+                            <div
+                              key={index}
+                              style={{
+                                backgroundColor: '#873EC0',
+                                borderRadius: '5px',
+                                color: 'white', // Changed text color to white for better contrast
+                                fontSize: '14px', // Adjusted font size
+                                textAlign: 'center', // Center-align text
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                marginRight: '10px',
+                                marginBottom: '10px',
+                                boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.2)', // Added a subtle shadow
+                              }}
+                            >
+                              <ListItem
+                                key={index}
+                                secondaryAction={
+                                  <IconButton
+                                    edge="end"
+                                    aria-label="delete"
+                                    onClick={() => handleRemoveSelectedDoc(item)}
+                                  >
                                     <DeleteIcon sx={{ color: grey[500] }} />
                                   </IconButton>
-                                }>
-                                  <ListItemText primary={item.name} />
-                                </ListItem>
-                              </div>
+                                }
+                              >
+                                <ListItemText primary={item.name} />
+                              </ListItem>
+                            </div>
                           ))}
                         </div>
-                        {errorDoc && <Alert severity="error" sx={{ mt: 2 }}>{errorDoc}</Alert>}
+                        {errorDoc && (
+                          <Alert severity="error" sx={{ mt: 2 }}>
+                            {errorDoc}
+                          </Alert>
+                        )}
                       </Container>
                     </div>
                   )}
