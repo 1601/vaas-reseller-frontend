@@ -34,14 +34,12 @@ const TopUpProducts = () => {
       })
       .then((response) => {
         const fetchedData = response.data;
-        const filteredToggles = {
-          SMARTPH: fetchedData.SMARTPH,
-          TNTPH: fetchedData.TNTPH,
-          PLDTPH: fetchedData.PLDTPH,
-          GLOBE: fetchedData.GLOBE,
-          MERALCO: fetchedData.MERALCO,
-          CIGNAL: fetchedData.CIGNAL,
-        };
+        const filteredToggles = Object.keys(fetchedData).reduce((acc, key) => {
+          if (fetchedData[key] !== null && fetchedData[key].enabled !== null) {
+            acc[key] = fetchedData[key];
+          }
+          return acc;
+        }, {});
         console.log('Filtered Toggles: ', filteredToggles);
         setTopUpToggles(filteredToggles);
         setIsLoading(false);
@@ -110,7 +108,7 @@ const TopUpProducts = () => {
         </Typography>
         <Grid container spacing={2}>
           {Object.entries(topUpToggles).map(([key, { enabled, dealerConfig }]) => (
-            <Grid hidden={role === 'reseller' && !dealerConfig?.enabled} item xs={12} sm={6} md={4} key={key}>
+            <Grid item xs={12} sm={6} md={4} key={key} hidden={role === 'reseller' && !dealerConfig?.enabled}>
               <Paper
                 elevation={3}
                 sx={{
