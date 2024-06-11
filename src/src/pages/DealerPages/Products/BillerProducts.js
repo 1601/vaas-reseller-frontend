@@ -84,11 +84,26 @@ const BillerProducts = () => {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((response) => {
+        const fetchedData = response.data;
+        const filteredData = {};
+
+        Object.keys(fetchedData).forEach((category) => {
+          if (!excludedCategories.includes(category)) {
+            filteredData[category] = {};
+
+            Object.keys(fetchedData[category]).forEach((biller) => {
+              if (fetchedData[category][biller] !== null) {
+                filteredData[category][biller] = fetchedData[category][biller];
+              }
+            });
+          }
+        });
+
         if (isReseller && response.data.resellerToggles) {
           setBillerToggles(response.data.resellerToggles);
           setDealerConfig(response.data.dealerConfig);
         } else {
-          setBillerToggles(response.data);
+          setBillerToggles(filteredData);
         }
         setIsLoading(false);
       })
