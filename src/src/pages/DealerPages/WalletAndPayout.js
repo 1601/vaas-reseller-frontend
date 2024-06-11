@@ -506,6 +506,7 @@ const WalletPayouts = () => {
           },
         })
         .then((response) => {
+          console.log(response.data.data);
           setWalletRequests(response.data.data);
         })
         .catch((error) => console.error('Error fetching wallet requests: ', error));
@@ -916,11 +917,17 @@ const WalletPayouts = () => {
               <Table stickyHeader aria-label="transaction history">
                 <TableHead>
                   <TableRow>
-                    <TableCell>Date</TableCell>
-                    <TableCell>Transaction</TableCell>
-                    <TableCell align="right">Amount</TableCell>
-                    <TableCell>Payment Status</TableCell>
+                    <TableCell>Date Created</TableCell>
+                    <TableCell>Date Updated</TableCell>
+                    <TableCell>Reference No.</TableCell>
+                    <TableCell>Requested By</TableCell>
+                    <TableCell>Account Currency</TableCell>
+                    <TableCell>Wallet Currency</TableCell>
                     <TableCell>Payment Method</TableCell>
+                    <TableCell>Amount</TableCell>
+                    <TableCell>Bonus Amount</TableCell>
+                    <TableCell>Discount (Amount)</TableCell>
+                    <TableCell>Payment Status</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -940,17 +947,41 @@ const WalletPayouts = () => {
                           {new Date(request.dateCreated).toLocaleDateString()}
                         </TableCell>
                       </Tooltip>
-                      <Tooltip title={`Wallet Type: ${request.walletType}`}>
+                      <Tooltip
+                          title={`Updated: ${new Date(request.dateUpdated).toLocaleString()}, Updated: ${new Date(
+                              request.dateUpdated
+                          ).toLocaleString()}`}
+                      >
+                        <TableCell component="th" scope="row">
+                          {new Date(request.dateUpdated).toLocaleDateString()}
+                        </TableCell>
+                      </Tooltip>
+                      <Tooltip title={`Reference No: ${request.referenceNo}`}>
                         <TableCell>{request.referenceNo}</TableCell>
                       </Tooltip>
-                      <Tooltip title={`Trade Discount: ${request.tradeDiscount}, Bonus Amount: ${request.bonusAmount}`}>
-                        <TableCell align="right">{`${request.currency} ${request.amount}`}</TableCell>
+                      <Tooltip title={`Requested By: ${request.accountEmail}`}>
+                        <TableCell>{request.accountEmail}</TableCell>
                       </Tooltip>
-                      <Tooltip title={request.remarks || 'No additional information'}>
-                        <TableCell>{request.paymentStatus}</TableCell>
+                      <Tooltip title={`Account Currency: ${request.currency}`}>
+                        <TableCell>{request.currency}</TableCell>
+                      </Tooltip>
+                      <Tooltip title={`Wallet Currency: ${request.currency}`}>
+                        <TableCell>{request.currency}</TableCell>
                       </Tooltip>
                       <Tooltip title={`Image: Click row to view`}>
                         <TableCell>{request.paymentMethod}</TableCell>
+                      </Tooltip>
+                      <Tooltip title={`Amount: ${request.amount}, `}>
+                        <TableCell>{request.amount}</TableCell>
+                      </Tooltip>
+                      <Tooltip title={`Bonus Amount: ${request.bonusAmount}`}>
+                        <TableCell>{request.bonusAmount}</TableCell>
+                      </Tooltip>
+                      <Tooltip title={`Discount (Amount): ${request.tradeDiscount}`}>
+                        <TableCell>{request.tradeDiscount}</TableCell>
+                      </Tooltip>
+                      <Tooltip title={request.remarks || 'No additional information'}>
+                        <TableCell>{request.paymentStatus}</TableCell>
                       </Tooltip>
                     </TableRow>
                   ))}
