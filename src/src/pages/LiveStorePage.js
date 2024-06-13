@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import SecureLS from 'secure-ls';
 import {
@@ -19,14 +19,16 @@ import {
   TableCell,
   TableBody,
   TableContainer,
-  Collapse,
   AppBar,
   Box,
   Toolbar,
   IconButton,
   useTheme,
   useMediaQuery,
+  Collapse,
+  
 } from '@mui/material';
+import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import axios from 'axios';
@@ -66,12 +68,10 @@ const LiveStorePage = () => {
     enableLoad: true,
     enableGift: true,
   });
-  // const [isPreviewBannerOpen, setIsPreviewBannerOpen] = useState(!storeData.isLive);
   const [isPreviewBannerOpen, setIsPreviewBannerOpen] = useState(true);
   const togglePreviewBanner = () => {
     setIsPreviewBannerOpen(!isPreviewBannerOpen);
   };
-  const bannerHeight = isPreviewBannerOpen ? 'auto' : '48px';
 
   const handleOpenLoginDialog = () => {
     setEmail('');
@@ -90,6 +90,29 @@ const LiveStorePage = () => {
 
   const handlePreviewBannerClose = () => {
     setIsPreviewBannerOpen(false);
+  };
+
+  const SessionTimeoutDialog = () => {
+    return (
+      <Dialog
+        open={isSessionTimedOut}
+        onClose={() => setIsSessionTimedOut(false)}
+        aria-labelledby="session-timeout-dialog-title"
+        aria-describedby="session-timeout-dialog-description"
+      >
+        <DialogTitle id="session-timeout-dialog-title">{'Customer Session Timeout'}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="session-timeout-dialog-description">
+            The current session has expired. Please login again.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setIsSessionTimedOut(false)} color="primary">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
+    );
   };
 
   const handleOpenTransactionsDialog = async () => {
@@ -161,49 +184,6 @@ const LiveStorePage = () => {
         setEmailErrorMessage('An unexpected error occurred. Please try again.');
       }
     }
-  };
-
-  // UseEffect for checking of Customer Timeout
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     const customerDetails = ls.get('customerDetails');
-  //     if (customerDetails && customerDetails.timeOut) {
-  //       const currentTime = Date.now();
-  //       const timeElapsed = currentTime - customerDetails.timeOut;
-
-  //       // 15 minutes = 900000 milliseconds
-  //       if (timeElapsed > 900000) {
-  //         ls.remove('customerDetails');
-  //         setIsSessionTimedOut(true);
-  //         setIsLoggedIn(false);
-  //       }
-  //     }
-  //   }, 1000 * 60);
-
-  //   return () => clearInterval(interval);
-  // }, []);
-
-  const SessionTimeoutDialog = () => {
-    return (
-      <Dialog
-        open={isSessionTimedOut}
-        onClose={() => setIsSessionTimedOut(false)}
-        aria-labelledby="session-timeout-dialog-title"
-        aria-describedby="session-timeout-dialog-description"
-      >
-        <DialogTitle id="session-timeout-dialog-title">{'Customer Session Timeout'}</DialogTitle>
-        <DialogContent>
-          <DialogContentText id="session-timeout-dialog-description">
-            The current session has expired. Please login again.
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setIsSessionTimedOut(false)} color="primary">
-            Close
-          </Button>
-        </DialogActions>
-      </Dialog>
-    );
   };
 
   const handleOtpSubmit = async () => {
@@ -299,7 +279,6 @@ const LiveStorePage = () => {
     ls.remove('guestDetails');
   };
 
-  // Function to validate email
   const validateEmail = (email) => {
     const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
     if (!emailRegex.test(email)) {
@@ -311,7 +290,6 @@ const LiveStorePage = () => {
     }
   };
 
-  // Update email state and validate email
   const handleEmailChange = (e) => {
     const newEmail = e.target.value;
     setEmail(newEmail);
@@ -331,6 +309,8 @@ const LiveStorePage = () => {
     }
   }, []);
 
+ 
+
   useEffect(() => {
     const checkGuestSessionTimeout = () => {
       const guestDetails = ls.get('guestDetails');
@@ -346,7 +326,7 @@ const LiveStorePage = () => {
       }
     };
 
-    const intervalId = setInterval(checkGuestSessionTimeout, 60000); 
+    const intervalId = setInterval(checkGuestSessionTimeout, 60000);
 
     return () => clearInterval(intervalId);
   }, []);
@@ -381,18 +361,15 @@ const LiveStorePage = () => {
   const notFound = queryParams.get('notFound');
   const user = ls.get('user');
 
-  // Function to extract the storeUrl from the URL
   const extractStoreUrl = () => {
     const hostname = window.location.hostname;
     const pathname = window.location.pathname;
 
-    // Check for subdomain in the hostname
     const parts = hostname.split('.');
     if (parts.length >= 3 && parts[0] !== 'www') {
       return parts[0];
     }
 
-    // Fallback to path segment if no subdomain
     const pathParts = pathname.split('/');
     if (pathParts.length > 1) {
       const excludedPaths = ['topup', 'bills'];
@@ -416,13 +393,11 @@ const LiveStorePage = () => {
     const hostname = window.location.hostname;
     const pathname = window.location.pathname;
 
-    // Check for subdomain in the hostname
     const parts = hostname.split('.');
     if (parts.length >= 3 && parts[0] !== 'www') {
       return parts[0];
     }
 
-    // Fallback to path segment if no subdomain
     const pathParts = pathname.split('/');
     if (pathParts.length > 1 && pathParts[1] !== 'topup' && pathParts[1] !== 'bills') {
       return pathParts[1];
@@ -453,7 +428,6 @@ const LiveStorePage = () => {
     }
   }, [location]);
 
-  // Define the base URL
   let baseUrl;
   if (window.location.hostname.includes('lvh.me')) {
     baseUrl = `http://${storeUrl}.lvh.me:3000`;
@@ -554,7 +528,6 @@ const LiveStorePage = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-  // Styles
   const logoContainerStyle = {
     display: 'flex',
     justifyContent: 'center',
@@ -563,33 +536,32 @@ const LiveStorePage = () => {
   };
 
   const logoStyle = {
-    maxWidth: isMobile ? '150px' : '200px', // Smaller on mobile
-    height: 'auto', // maintain aspect ratio
+    maxWidth: isMobile ? '150px' : '200px',
+    height: 'auto',
   };
 
   const linkButtonStyle = {
     margin: '5px',
-    background: '#FFFFFF', // White background for visibility
+    background: '#FFFFFF',
     padding: '10px 15px',
     borderRadius: '5px',
-    color: '#000000', // Black color for text
-    boxShadow: '0 2px 4px rgba(0,0,0,0.2)', // Shadow for better visibility
+    color: '#000000',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
     '&:hover': {
-      background: '#F5F5F5', // Slightly darker on hover
+      background: '#F5F5F5',
     },
-    textDecoration: 'none', // Remove underline from links
+    textDecoration: 'none',
   };
 
   const transactionButtonStyle = {
     ...linkButtonStyle,
     marginTop: '10px',
-    fontWeight: 'bold', // Bold for visibility
+    fontWeight: 'bold',
   };
 
   useEffect(() => {
     const pathname = window.location.pathname.split('/')[1];
     const isSpecialPath = ['topup', 'bills'].includes(pathname);
-    // if storeData null, set title to 'Loading Store... | VAAS'
     if (storeData === null) {
       setShowNotFoundError(false);
       document.title = 'Loading Store... | VAAS';
@@ -605,6 +577,85 @@ const LiveStorePage = () => {
   }, [storeData, notFound]);
 
   const guestDetails = ls.get('guestDetails');
+
+  // New state variables for customer management
+  const [customerList, setCustomerList] = useState([]);
+  const [customerUser, setCustomerUser] = useState(ls.get('currentCustomer'));
+  const [openCustomer, toggleOpenCustomer] = useState(false);
+  const [dialogValue, setDialogValue] = useState({ name: '', email: '', phone: '' });
+  const [value, setValue] = useState(null);
+
+  const handleCloseCustomerDialog = () => {
+    setDialogValue({ name: '', email: '', phone: '' });
+    toggleOpenCustomer(false);
+  };
+
+  const handleSubmitCustomer = async (event) => {
+    event.preventDefault();
+
+    const body = dialogValue;
+    if (!body.email) body.email = "n/a";
+
+    body.dealerId = storeData.ownerId;
+    body.ipaddress = null;
+    body.firstName = body.name.split(' ')[0];
+    body.lastName = body.name.split(' ')[1] || '';
+
+    try {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/new`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      });
+      const jsonData = await response.json();
+      if (jsonData.error) {
+        alert(jsonData.error);
+      } else {
+        setCustomerUser(jsonData.data);
+        ls.set('currentCustomer', jsonData.data);
+        setDialogValue({
+          dealerId: storeData.ownerId,
+          firstName: dialogValue.name.split(' ')[0],
+          lastName: dialogValue.name.split(' ')[1] || '',
+          email: dialogValue.email,
+          phone: dialogValue.phone,
+          ipaddress: null
+        });
+        handleCloseCustomerDialog();
+      }
+    } catch (error) {
+      alert("Error on submit new customer");
+    }
+  };
+  useEffect(() => {
+    const fetchCustomers = async () => {
+      try {
+        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/all/${storeData.ownerId}`);
+        const jsonData = await response.json();
+        setCustomerList(jsonData);
+      } catch (error) {
+        console.error("Error fetching customer list:", error);
+      }
+    };
+    fetchCustomers();
+  }, []);
+
+  
+
+  useEffect(() => {
+    const fetchCustomers = async () => {
+      try {
+        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/all/${storeData.ownerId}`);
+        const jsonData = await response.json();
+        setCustomerList(jsonData);
+      } catch (error) {
+        console.error("Error fetching customer list:", error);
+      }
+    };
+    fetchCustomers();
+  }, [dialogValue]);
 
   if (showNotFoundError) {
     return (
@@ -640,7 +691,6 @@ const LiveStorePage = () => {
           <Box style={logoContainerStyle}>
             <img
               src={tinboLogo}
-              // src={storeData?.storeLogo || 'https://i.ibb.co/Sx8HSXp/download-removebg-preview.png'}
               alt={`${storeData?.storeName || 'Your Store'}'s Logo`}
               style={logoStyle}
             />
@@ -816,6 +866,124 @@ const LiveStorePage = () => {
               <Button onClick={() => setOpenTransactionsDialog(false)}>Close</Button>
             </DialogActions>
           </Dialog>
+
+          {/* Customer management */}
+          <Container>
+            <Stack m={3} direction={"row"} justifyContent={"center"}>
+              <Autocomplete
+                id="customer-field"
+                freeSolo
+                options={customerList}
+                autoHighlight
+                selectOnFocus
+                clearOnBlur
+                handleHomeEndKeys
+                getOptionLabel={(option) => {
+                  if (typeof option === 'string') {
+                    return option;
+                  }
+                  if (option.inputValue) {
+                    return option.inputValue;
+                  }
+                  return `${option.name} ${option.email} ${option.phone}`;
+                }}
+                renderInput={(params) => <TextField {...params} label="Customer Name/Phone/Email" />}
+                renderOption={(props, option) => <li {...props}>{option.name} {option.email} {option.phone}</li>}
+                sx={{ width: 300 }}
+                onChange={(event, newValue) => {
+                  if (typeof newValue === 'string') {
+                    setTimeout(() => {
+                      toggleOpenCustomer(true);
+                      setDialogValue({
+                        name: newValue,
+                        phone: '',
+                        email: '',
+                      });
+                    });
+                  } else if (newValue && newValue.inputValue) {
+                    toggleOpenCustomer(true);
+                    setDialogValue({
+                      name: newValue.inputValue,
+                      phone: '',
+                      email: '',
+                    });
+                  } else {
+                    setCustomerUser(newValue);
+                    ls.set('currentCustomer', newValue);
+                  }
+                }}
+                filterOptions={(options, params) => {
+                  const filtered = createFilterOptions()(options, params);
+                  if (params.inputValue !== '') {
+                    filtered.push({
+                      inputValue: params.inputValue,
+                      name: `Add "${params.inputValue}"`,
+                    });
+                  }
+                  return filtered;
+                }}
+              />
+              <Dialog open={openCustomer} onClose={handleCloseCustomerDialog}>
+                <form onSubmit={handleSubmitCustomer}>
+                  <DialogTitle>Add a new Customer</DialogTitle>
+                  <DialogContent>
+                    <DialogContentText>
+                      Can't see the customer in our list? Please, add it!
+                    </DialogContentText>
+                    <Stack spacing={2}>
+                      <TextField
+                        autoFocus
+                        margin="dense"
+                        id="name"
+                        value={dialogValue.name}
+                        onChange={(event) => setDialogValue({ ...dialogValue, name: event.target.value })}
+                        label="Name"
+                        type="text"
+                        required
+                        variant="standard"
+                      />
+                      <TextField
+                        margin="dense"
+                        id="email"
+                        value={dialogValue.email}
+                        onChange={(event) => setDialogValue({ ...dialogValue, email: event.target.value })}
+                        label="Email"
+                        type="email"
+                        variant="standard"
+                      />
+                      <TextField
+                        margin="dense"
+                        id="phone"
+                        value={dialogValue.phone}
+                        onChange={(event) => setDialogValue({ ...dialogValue, phone: event.target.value })}
+                        label="Phone"
+                        type="text"
+                        variant="standard"
+                      />
+                    </Stack>
+                  </DialogContent>
+                  <DialogActions>
+                    <Button onClick={handleCloseCustomerDialog}>Cancel</Button>
+                    <Button type="submit">Add</Button>
+                  </DialogActions>
+                </form>
+              </Dialog>
+            </Stack>
+
+            {customerUser && (
+              <Stack m={3} direction={"row"} justifyContent={"center"}>
+                <Button
+                  variant="outlined"
+                  onClick={() => {
+                    setCustomerUser('');
+                    ls.set('currentCustomer', '');
+                  }}
+                >
+                  Customer: {customerUser.name} {customerUser.email} {customerUser.phone}
+                </Button>
+              </Stack>
+            )}
+          </Container>
 
           <Outlet />
         </div>
