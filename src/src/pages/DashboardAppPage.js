@@ -244,10 +244,11 @@ export default function DashboardAppPage() {
               <Typography variant="h4" sx={{ mb: 5 }}>
                 {userData && userData.firstName ? `Hi ${userData.firstName}, welcome back` : 'Hi, Welcome back'}
               </Typography>
-              <Card sx={{ mb: 5, textAlign: 'center', backgroundColor: 'skyblue', width: '40%' }}>
+              <Card sx={{ display: 'flex', mb: 5, justifyContent: 'center', textAlign: 'left', backgroundColor: 'skyblue', width: '30%' }}>
                 <CardContent>
                   <Typography variant="h6" color="primary">
-                    Wallet Balance: ${walletDetails.accountBalance}
+                    Wallet Balance: {walletDetails.accountBalance}<br/>
+                    Currency: {walletDetails.currency}
                   </Typography>
                 </CardContent>
               </Card>
