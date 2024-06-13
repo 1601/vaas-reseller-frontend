@@ -541,13 +541,14 @@ const AdminDealerAccount = () => {
           </DialogActions>
         </Dialog>
         {loadingMessage && (
-          // eslint-disable-next-line
-          <Modal open={true}> 
+          <Modal open>
             <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" height="100vh">
-              <CircularProgress />
-              <Typography variant="h6" mt={2}>
-                {loadingMessage}
-              </Typography>
+              <Card style={{ padding: '20px', textAlign: 'center' }}>
+                <CircularProgress />
+                <Typography variant="h6" mt={2}>
+                  {loadingMessage}
+                </Typography>
+              </Card>
             </Box>
           </Modal>
         )}
