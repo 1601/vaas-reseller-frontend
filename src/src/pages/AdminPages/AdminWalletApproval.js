@@ -2,13 +2,16 @@ import React, {useState, useCallback } from 'react';
 import SecureLS from 'secure-ls';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import axios from 'axios';
-import { Card, Typography, Button, Box, Divider, 
+import {
+  Card, Typography, Button, Box, Divider,
   IconButton, Dialog, DialogActions, DialogContent, DialogContentText,
-   DialogTitle, TextField, Link } from '@mui/material';
+  DialogTitle, TextField, Link, CircularProgress
+} from '@mui/material';
 import ReactImageMagnify from 'react-image-magnify';
 
 const ls = new SecureLS({ encodingType: 'aes' });
 const token = ls.get('token');
+const user = ls.get('user');
 
 const ConfirmationDialog = ({ open, onClose, onSubmit, action, remarks, setRemarks, adjustedAmount, setAdjustedAmount }) => {
   const isAdjust = action === 'verified';
@@ -67,6 +70,7 @@ const AdminWalletApproval = ({ selectedWallet, onBack }) => {
   const [remarks, setRemarks] = useState('');
   const [adjustedAmount, setAdjustedAmount] = useState('');
   const [isImageMagnified, setIsImageMagnified] = useState(false);
+  const [isLoading, setIsLoading] = useState(false)
 
   const setRemarksStable = useCallback(setRemarks, []);
   const setAdjustedAmountStable = useCallback(setAdjustedAmount, []);
@@ -97,12 +101,12 @@ const AdminWalletApproval = ({ selectedWallet, onBack }) => {
       remarks, 
       action: confirmationAction,
     };
-    
+    setIsLoading(true);
     try {
       console.log('Updating wallet request...', data)
       const response = await axios.put(url, data, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${user.token}`,
         },
       });
       console.log(response.data);
@@ -111,6 +115,7 @@ const AdminWalletApproval = ({ selectedWallet, onBack }) => {
     } catch (error) {
       console.error('Error updating wallet request: ', error);
     }
+    setIsLoading(false);
   };
   
 
@@ -269,6 +274,16 @@ const AdminWalletApproval = ({ selectedWallet, onBack }) => {
         adjustedAmount={adjustedAmount}
         setAdjustedAmount={setAdjustedAmountStable}
       />
+      <Dialog open={isLoading} PaperProps={{ style: { pointerEvents: 'none' } }}>
+        <DialogContent>
+          <Box display="flex" alignItems="center">
+            <CircularProgress />
+            <Typography variant="body1" sx={{ ml: 2 }}>
+              Processing request...
+            </Typography>
+          </Box>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
