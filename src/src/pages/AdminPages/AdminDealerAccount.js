@@ -541,7 +541,7 @@ const AdminDealerAccount = () => {
           </DialogActions>
         </Dialog>
         {loadingMessage && (
-          <Modal open={true}>
+          <Modal open>
             <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" height="100vh">
               <CircularProgress />
               <Typography variant="h6" mt={2}>
