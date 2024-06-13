@@ -89,8 +89,9 @@ const kycSubmittedStatus = async () => {
   }
 };
 
-const addBanner = async (data) => {
+const addBanner = async (data, setLoading) => {
   let response;
+  setLoading({ isLoading: true, loadingText: 'Adding Banner...' });
   try {
     const bannerDetails = {
       title: data.title,
@@ -99,6 +100,7 @@ const addBanner = async (data) => {
 
     if (!data.image) {
       alert("No files found");
+      setLoading({ isLoading: false, loadingText: '' });
       return null;
     }
 
@@ -107,7 +109,12 @@ const addBanner = async (data) => {
       const formData = new FormData();
       formData.append('file', data.image);
 
-      const imageResult = await axiosInstance.put(`banner/banner/${response.data.body._id}`, formData);
+      const imageResult = await axiosInstance.put(`banner/banner/${response.data.body._id}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${getNewToken()}`,
+        },
+      });
       if (imageResult) {
         console.log(imageResult);
       } else {
@@ -116,13 +123,16 @@ const addBanner = async (data) => {
     }
   } catch (error) {
     console.log(error);
+  } finally {
+    setLoading({ isLoading: false, loadingText: '' });
   }
   return response;
 };
 
 
-const updateBanner = async (data, id) => {
+const updateBanner = async (data, id, setLoading) => {
   let response;
+  setLoading({ isLoading: true, loadingText: 'Applying Edits to Banner...' });
   try {
     const formData = new FormData();
     if (data.title) {
@@ -143,13 +153,16 @@ const updateBanner = async (data, id) => {
     });
   } catch (error) {
     console.log(error);
+  } finally {
+    setLoading({ isLoading: false, loadingText: '' });
   }
   return response;
 };
 
 
-const updateBannerStatus = async (data) => {
+const updateBannerStatus = async (data, setLoading) => {
   let response;
+  setLoading({ isLoading: true, loadingText: data.status ? 'Activating Banner...' : 'Deactivating Banner...' });
   try {
     const { idBanner, status } = data;
     response = await axiosInstance.put(
@@ -166,6 +179,8 @@ const updateBannerStatus = async (data) => {
     }
   } catch (error) {
     console.log(error);
+  } finally {
+    setLoading({ isLoading: false, loadingText: '' });
   }
   return response;
 };
