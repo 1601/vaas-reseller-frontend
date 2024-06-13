@@ -30,13 +30,13 @@ import WalletData from './WalletData.json';
 import AdminWalletApproval from './AdminWalletApproval';
 
 const ls = new SecureLS({ encodingType: 'aes' });
-const token = ls.get('token');
+const user = ls.get('user');
 
 const fetchWallets = async (token, retry = true) => {
   try {
     const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/wallet-requests`, {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${user.token}`,
       },
     });
     return response.data.body;
