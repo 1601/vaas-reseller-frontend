@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import {Box, CircularProgress, Dialog, DialogContent, Typography} from "@mui/material";
 import { AddBannerModal } from '../../components/admin/AddBannerModal';
 import { allBannersAdmin, submitBanner, bannerStatus, updateEditBanner } from '../../api/public/banner';
 
@@ -6,6 +7,8 @@ const AdminBanner = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [banners, setBanners] = useState([]);
   const [bannerToEdit, setBannerToEdit] = useState(null);
+  const [isLoadingProcess, setIsLoadingProcess] = useState(false)
+  const [isLoadingBanner, setIsLoadingBanner] = useState(false)
 
   const openModal = () => {
     setIsModalOpen(true);
@@ -51,6 +54,7 @@ const AdminBanner = () => {
       return;
     }
     const dataDetails = { status, idBanner };
+    setIsLoadingBanner(true);
     try {
       const statusResult = await bannerStatus(dataDetails);
       if (statusResult) {
@@ -59,9 +63,11 @@ const AdminBanner = () => {
     } catch (error) {
       console.error('Error updating banner status:', error);
     }
+    setIsLoadingBanner(false);
   };
 
   const handleSubmit = async (data) => {
+    setIsLoadingProcess(true);
     try {
       let resultBanner;
       if (bannerToEdit) {
@@ -75,9 +81,11 @@ const AdminBanner = () => {
     } catch (error) {
       console.error('Error submitting banner:', error);
     }
+    setIsLoadingProcess(false);
   };
 
   return (
+    <>
     <div className="flex flex-col gap-4 mt-4 max-w-screen-lg mx-auto">
       <p className="font-bold text-xl ml-4">Banner Configuration</p>
       <div className="bg-white p-5 rounded-md">
@@ -109,6 +117,7 @@ const AdminBanner = () => {
                     <div className="flex gap-2 mt-4">
                       {data.status === false ? (
                         <button
+                          disabled={isLoadingBanner}
                           className="bg-green-800 text-white px-2 py-1 rounded hover:bg-blue-700"
                           onClick={() => {
                             handleActiveDeactive(true, data._id);
@@ -118,6 +127,7 @@ const AdminBanner = () => {
                         </button>
                       ) : (
                         <button
+                          disabled={isLoadingBanner}
                           className="bg-red-800 text-white px-2 py-1 rounded hover:bg-blue-700"
                           onClick={() => {
                             handleActiveDeactive(false, data._id);
@@ -143,6 +153,17 @@ const AdminBanner = () => {
       </div>
       {isModalOpen && <AddBannerModal closeModal={closeModal} handleSubmit={handleSubmit} banner={bannerToEdit} />}
     </div>
+    <Dialog open={isLoadingProcess} PaperProps={{ style: { pointerEvents: 'none' } }}>
+      <DialogContent>
+        <Box display="flex" alignItems="center">
+          <CircularProgress />
+          <Typography variant="body1" sx={{ ml: 2 }}>
+            Processing banner...
+          </Typography>
+        </Box>
+      </DialogContent>
+    </Dialog>
+    </>
   );
 };
 
