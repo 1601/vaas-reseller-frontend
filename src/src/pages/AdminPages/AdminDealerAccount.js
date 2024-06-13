@@ -25,6 +25,7 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  CircularProgress,
 } from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { MoreVert as MoreVertIcon } from '@mui/icons-material';
@@ -61,6 +62,7 @@ const AdminDealerAccount = () => {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [dealerCategories, setDealerCategories] = useState([]);
   const [userToViewProducts, setUserToViewProducts] = useState(null);
+  const [loadingMessage, setLoadingMessage] = useState('');
 
   const toggleDeactivatedModal = () => setShowDeactivated(!showDeactivated);
 
@@ -227,12 +229,12 @@ const AdminDealerAccount = () => {
       const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/${userId}/billertoggles`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-  
+
       const productTags = response.data;
       const enabledProducts = [];
       const untaggedProducts = [];
       const validCategories = [];
-  
+
       Object.entries(productTags).forEach(([category, categoryDetails]) => {
         if (category === 'topupToggles' && typeof categoryDetails === 'object') {
           validCategories.push(category);
@@ -263,7 +265,7 @@ const AdminDealerAccount = () => {
           });
         }
       });
-  
+
       setDealerCategories(validCategories);
       setDealerProducts(enabledProducts);
       setTaggedProducts(untaggedProducts);
@@ -274,9 +276,13 @@ const AdminDealerAccount = () => {
       console.error('Failed to fetch dealer products:', error);
     }
   };
-  
+
   // New function to update product status
   const updateProductStatus = async (category, productName, status) => {
+    const action = status === null ? 'Untagging' : 'Tagging';
+    const productDisplayName = `${productName}`;
+    setLoadingMessage(`${action} product "${productDisplayName}"`);
+
     try {
       const token = ls.get('token');
       const updateData = {
@@ -291,10 +297,11 @@ const AdminDealerAccount = () => {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      // Refresh the product list after update
       handleViewProducts(userToViewProducts);
     } catch (error) {
       console.error('Failed to update product status:', error);
+    } finally {
+      setLoadingMessage('');
     }
   };
 
@@ -533,6 +540,18 @@ const AdminDealerAccount = () => {
             <Button onClick={() => setProductTaggingDialogOpen(false)}>Close</Button>
           </DialogActions>
         </Dialog>
+        {loadingMessage && (
+          <Modal open>
+            <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" height="100vh">
+              <Card style={{ padding: '20px', textAlign: 'center' }}>
+                <CircularProgress />
+                <Typography variant="h6" mt={2}>
+                  {loadingMessage}
+                </Typography>
+              </Card>
+            </Box>
+          </Modal>
+        )}
       </>
     </Card>
   );
