@@ -1,5 +1,6 @@
 import axios from 'axios';
 import SecureLS from 'secure-ls';
+import ApprovalLoadingStates from '../components/loading/ApprovalLoadingStates';
 
 const ls = new SecureLS({ encodingType: 'aes' });
 
@@ -151,7 +152,15 @@ const updateBannerStatus = async (data) => {
   let response;
   try {
     const { idBanner, status } = data;
-    response = await axiosInstance.put(`banner/status/${idBanner}/${status}`);
+    response = await axiosInstance.put(
+      `banner/status/${idBanner}/${status}`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${getNewToken()}`,
+        },
+      }
+    );
     if (response) {
       return response;
     }
@@ -160,6 +169,7 @@ const updateBannerStatus = async (data) => {
   }
   return response;
 };
+
 
 const getAllBanner = async () => {
   let response;
