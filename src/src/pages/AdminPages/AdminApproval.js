@@ -58,7 +58,6 @@ const AdminApproval = () => {
   }, [storeId, navigate, BACKEND_URL]);
 
   const handleApprovalChange = async (isApproved) => {
-
     try {
       const token = ls.get('token');
       const response = await axios.put(
@@ -178,7 +177,7 @@ const AdminApproval = () => {
                   Store Details
                 </Typography>
                 <div style={{ position: 'absolute', top: '20px', right: '20px' }}>
-                  {storeDetails && storeDetails.needsApproval && !storeDetails.isLive && (
+                  {storeDetails.needsApproval && !storeDetails.isLive && (
                     <>
                       <Button
                         onClick={() => handleApprovalChange(true)}
@@ -198,8 +197,7 @@ const AdminApproval = () => {
                       </Button>
                     </>
                   )}
-                  {storeDetails &&
-                    storeDetails.isApproved &&
+                  {storeDetails.isApproved &&
                     (storeDetails.isLive ? (
                       <Button
                         variant="contained"

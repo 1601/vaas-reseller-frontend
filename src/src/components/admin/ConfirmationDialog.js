@@ -19,7 +19,7 @@ const ConfirmationDialog = ({
   remarks,
   setRemarks,
   isLoading,
-  rejectedDocuments,
+  rejectedDocuments = [],
 }) => {
   return (
     <Dialog open={open} onClose={onClose}>
