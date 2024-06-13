@@ -38,6 +38,7 @@ import VoucherImage from '../images/shop-icon-desktop.png';
 import tinboLogo from '../images/tinbo-logo-desktop.svg';
 import { useStore } from '../StoreContext';
 
+const filter = createFilterOptions();
 const ls = new SecureLS({ encodingType: 'aes' });
 
 const LiveStorePage = () => {
@@ -577,16 +578,13 @@ const LiveStorePage = () => {
   }, [storeData, notFound]);
 
   const guestDetails = ls.get('guestDetails');
-
-  // New state variables for customer management
   const [customerList, setCustomerList] = useState([]);
   const [customerUser, setCustomerUser] = useState(ls.get('currentCustomer'));
   const [openCustomer, toggleOpenCustomer] = useState(false);
-  const [dialogValue, setDialogValue] = useState({ name: '', email: '', phone: '' });
-  const [value, setValue] = useState(null);
+  const [dialogValue, setDialogValue] = useState({ fullName: '', email: '', phone: '' });
 
   const handleCloseCustomerDialog = () => {
-    setDialogValue({ name: '', email: '', phone: '' });
+    setDialogValue({ fullName: '', email: '', phone: '' });
     toggleOpenCustomer(false);
   };
 
@@ -598,8 +596,9 @@ const LiveStorePage = () => {
 
     body.dealerId = storeData.ownerId;
     body.ipaddress = null;
-    body.firstName = body.name.split(' ')[0];
-    body.lastName = body.name.split(' ')[1] || '';
+    body.firstName = body.fullName.split(' ')[0];
+    body.lastName = body.fullName.split(' ')[1] || '';
+    body.mobileNumber = body.phone;
 
     try {
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/new`, {
@@ -613,12 +612,12 @@ const LiveStorePage = () => {
       if (jsonData.error) {
         alert(jsonData.error);
       } else {
-        setCustomerUser(jsonData.data);
-        ls.set('currentCustomer', jsonData.data);
+        setCustomerUser(jsonData.body);
+        ls.set('currentCustomer', jsonData.body);
         setDialogValue({
           dealerId: storeData.ownerId,
-          firstName: dialogValue.name.split(' ')[0],
-          lastName: dialogValue.name.split(' ')[1] || '',
+          firstName: dialogValue.fullName.split(' ')[0],
+          lastName: dialogValue.fullName.split(' ')[1] || '',
           email: dialogValue.email,
           phone: dialogValue.phone,
           ipaddress: null
@@ -642,6 +641,24 @@ const LiveStorePage = () => {
     fetchCustomers();
   }, []);
 
+  useEffect(() => {
+    const fetchCustomers = async () => {
+      try {
+        if (storeData && storeData.ownerId) {
+          const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/all/${storeData.ownerId}`);
+          const jsonData = await response.json();
+          if (jsonData.body && Array.isArray(jsonData.body)) {
+            setCustomerList(jsonData.body);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching customer list:", error);
+      }
+    };
+    fetchCustomers();
+  }, [storeData]);
+  
+  
   
 
   useEffect(() => {
@@ -700,6 +717,19 @@ const LiveStorePage = () => {
           </Typography>
 
           <Container>
+
+          {customerUser && (
+            <>
+          <Stack direction={"column"} justifyContent={"center"} spacing={2}>
+            <Button
+              variant="outlined"
+              onClick={() => {
+                setCustomerUser(null);
+                ls.remove('currentCustomer');
+              }}
+            >
+              Customer: {customerUser.fullName} {customerUser.email} {customerUser.mobileNumber}
+            </Button>
             <Stack direction={'row'} justifyContent={'center'} spacing={2}>
               {platformVariables.enableBills && (
                 <Link
@@ -729,25 +759,30 @@ const LiveStorePage = () => {
                 </Link>
               )}
             </Stack>
-
-            {isLoggedIn ? (
-              <>
-                <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-                  <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <Button onClick={handleOpenTransactionsDialog} variant="contained" style={transactionButtonStyle}>
-                      {guestDetails ? 'View Guest Transactions' : 'View Transactions'}
-                    </Button>
-                    <Button onClick={handleLogout} variant="contained" style={transactionButtonStyle}>
-                      Logout
-                    </Button>
-                  </div>
+          {isLoggedIn ? (
+            <>
+              <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <Button onClick={handleOpenTransactionsDialog} variant="contained" style={transactionButtonStyle}>
+                    {guestDetails ? 'View Guest Transactions' : 'View Transactions'}
+                  </Button>
+                  <Button onClick={handleLogout} variant="contained" style={transactionButtonStyle}>
+                    Logout
+                  </Button>
                 </div>
-              </>
-            ) : (
-              <Button onClick={handleOpenLoginDialog} variant="contained" style={transactionButtonStyle}>
-                Login first to view Transactions
-              </Button>
-            )}
+              </div>
+            </>
+          ) : (
+            <></>
+            // <Button onClick={handleOpenLoginDialog} variant="contained" style={transactionButtonStyle}>
+            //   Login first to view Transactions
+            // </Button>
+          )}
+          </Stack>
+            </>
+        )}
+
+
           </Container>
 
           <Dialog
@@ -869,118 +904,116 @@ const LiveStorePage = () => {
 
           {/* Customer management */}
           <Container>
-            <Stack m={3} direction={"row"} justifyContent={"center"}>
-              <Autocomplete
-                id="customer-field"
-                freeSolo
-                options={customerList}
-                autoHighlight
-                selectOnFocus
-                clearOnBlur
-                handleHomeEndKeys
-                getOptionLabel={(option) => {
-                  if (typeof option === 'string') {
-                    return option;
-                  }
-                  if (option.inputValue) {
-                    return option.inputValue;
-                  }
-                  return `${option.name} ${option.email} ${option.phone}`;
-                }}
-                renderInput={(params) => <TextField {...params} label="Customer Name/Phone/Email" />}
-                renderOption={(props, option) => <li {...props}>{option.name} {option.email} {option.phone}</li>}
-                sx={{ width: 300 }}
-                onChange={(event, newValue) => {
-                  if (typeof newValue === 'string') {
-                    setTimeout(() => {
-                      toggleOpenCustomer(true);
-                      setDialogValue({
-                        name: newValue,
-                        phone: '',
-                        email: '',
-                      });
-                    });
-                  } else if (newValue && newValue.inputValue) {
-                    toggleOpenCustomer(true);
-                    setDialogValue({
-                      name: newValue.inputValue,
-                      phone: '',
-                      email: '',
-                    });
-                  } else {
-                    setCustomerUser(newValue);
-                    ls.set('currentCustomer', newValue);
-                  }
-                }}
-                filterOptions={(options, params) => {
-                  const filtered = createFilterOptions()(options, params);
-                  if (params.inputValue !== '') {
-                    filtered.push({
-                      inputValue: params.inputValue,
-                      name: `Add "${params.inputValue}"`,
-                    });
-                  }
-                  return filtered;
-                }}
-              />
-              <Dialog open={openCustomer} onClose={handleCloseCustomerDialog}>
-                <form onSubmit={handleSubmitCustomer}>
-                  <DialogTitle>Add a new Customer</DialogTitle>
-                  <DialogContent>
-                    <DialogContentText>
-                      Can't see the customer in our list? Please, add it!
-                    </DialogContentText>
-                    <Stack spacing={2}>
-                      <TextField
-                        autoFocus
-                        margin="dense"
-                        id="name"
-                        value={dialogValue.name}
-                        onChange={(event) => setDialogValue({ ...dialogValue, name: event.target.value })}
-                        label="Name"
-                        type="text"
-                        required
-                        variant="standard"
-                      />
-                      <TextField
-                        margin="dense"
-                        id="email"
-                        value={dialogValue.email}
-                        onChange={(event) => setDialogValue({ ...dialogValue, email: event.target.value })}
-                        label="Email"
-                        type="email"
-                        variant="standard"
-                      />
-                      <TextField
-                        margin="dense"
-                        id="phone"
-                        value={dialogValue.phone}
-                        onChange={(event) => setDialogValue({ ...dialogValue, phone: event.target.value })}
-                        label="Phone"
-                        type="text"
-                        variant="standard"
-                      />
-                    </Stack>
-                  </DialogContent>
-                  <DialogActions>
-                    <Button onClick={handleCloseCustomerDialog}>Cancel</Button>
-                    <Button type="submit">Add</Button>
-                  </DialogActions>
-                </form>
-              </Dialog>
-            </Stack>
+            
 
-            {customerUser && (
+            {!customerUser && (
               <Stack m={3} direction={"row"} justifyContent={"center"}>
-                <Button
-                  variant="outlined"
-                  onClick={() => {
-                    setCustomerUser('');
-                    ls.set('currentCustomer', '');
-                  }}
-                >
-                  Customer: {customerUser.name} {customerUser.email} {customerUser.phone}
-                </Button>
+              <Autocomplete
+    id="customer-field"
+    freeSolo
+    options={Array.isArray(customerList) ? customerList : []}
+    autoHighlight
+    selectOnFocus
+    clearOnBlur
+    handleHomeEndKeys
+    getOptionLabel={(option) => {
+      if (typeof option === 'string') {
+        return option;
+      }
+      if (option.inputValue) {
+        return option.inputValue;
+      }
+      return `${option.fullName} ${option.email} ${option.mobileNumber}`;
+    }}
+    renderInput={(params) => <TextField {...params} label="Customer Name/Phone/Email" />}
+    renderOption={(props, option) => (
+      <li {...props}>
+        {option.fullName} {option.email} {option.mobileNumber}
+      </li>
+    )}
+    sx={{ width: 300 }}
+    onChange={(event, newValue) => {
+      if (typeof newValue === 'string') {
+        setTimeout(() => {
+          toggleOpenCustomer(true);
+         
+          setDialogValue({
+            fullName: newValue,
+            mobileNumber: '',
+            email: '',
+          });
+        });
+      } else if (newValue && newValue.inputValue) {
+        toggleOpenCustomer(true);
+        // alert(newValue);
+        setDialogValue({
+          fullName: newValue.inputValue,
+          mobileNumber: '',
+          email: '',
+        });
+      } else {
+        setCustomerUser(newValue);
+        ls.set('currentCustomer', newValue);
+      }
+    }}
+    filterOptions={(options, params) => {
+      const filter = createFilterOptions();
+      const filtered = filter(options, params);
+      if (params.inputValue !== '') {
+        filtered.push({
+          inputValue: params.inputValue,
+          fullName: `Add "${params.inputValue}"`,
+        });
+      }
+      return filtered;
+    }}
+  />
+  
+                <Dialog open={openCustomer} onClose={handleCloseCustomerDialog}>
+                  <form onSubmit={handleSubmitCustomer}>
+                    <DialogTitle>Add a new Customer</DialogTitle>
+                    <DialogContent>
+                      <DialogContentText>
+                        Can't see the customer in our list? Please, add it!
+                      </DialogContentText>
+                      <Stack spacing={2}>
+                        <TextField
+                          autoFocus
+                          margin="dense"
+                          id="fullName"
+                          value={dialogValue.fullName}
+                          onChange={(event) => setDialogValue({ ...dialogValue, fullName: event.target.value })}
+                          label="Name"
+                          type="text"
+                          required
+                          variant="standard"
+                        />
+                        <TextField
+                          margin="dense"
+                          id="email"
+                          value={dialogValue.email}
+                          onChange={(event) => setDialogValue({ ...dialogValue, email: event.target.value })}
+                          label="Email"
+                          type="email"
+                          variant="standard"
+                        />
+                        <TextField
+                          margin="dense"
+                          id="phone"
+                          value={dialogValue.phone}
+                          onChange={(event) => setDialogValue({ ...dialogValue, mobileNumber: event.target.value })}
+                          label="Phone"
+                          type="text"
+                          variant="standard"
+                        />
+                      </Stack>
+                    </DialogContent>
+                    <DialogActions>
+                      <Button onClick={handleCloseCustomerDialog}>Cancel</Button>
+                      <Button type="submit">Add</Button>
+                    </DialogActions>
+                  </form>
+                </Dialog>
               </Stack>
             )}
           </Container>

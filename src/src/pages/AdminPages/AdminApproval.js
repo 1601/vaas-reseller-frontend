@@ -17,6 +17,7 @@ import {
   CircularProgress,
 } from '@mui/material';
 import ConfirmationDialog from '../../components/admin/ConfirmationDialog';
+import ApprovalLoadingStates from '../../components/loading/ApprovalLoadingStates';
 
 const ls = new SecureLS({ encodingType: 'aes' });
 
@@ -30,6 +31,7 @@ const AdminApproval = () => {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [remarks, setRemarks] = useState('');
   const [action, setAction] = useState('');
+  const [loadingText, setLoadingText] = useState('');
 
   const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
 
@@ -58,6 +60,8 @@ const AdminApproval = () => {
   }, [storeId, navigate, BACKEND_URL]);
 
   const handleApprovalChange = async (isApproved) => {
+    setLoadingText('Approving Store');
+    setAction('approve');
     try {
       const token = ls.get('token');
       const response = await axios.put(
@@ -78,6 +82,8 @@ const AdminApproval = () => {
       }
     } catch (error) {
       setError('Could not update approval status');
+    } finally {
+      setLoadingText('');
     }
   };
 
@@ -92,6 +98,8 @@ const AdminApproval = () => {
   };
 
   const handleSubmitConfirmation = async () => {
+    setLoadingText('Rejecting Store');
+    setAction('unapprove');
     try {
       const token = ls.get('token');
       const response = await axios.put(
@@ -116,10 +124,14 @@ const AdminApproval = () => {
     } catch (error) {
       console.error('Error updating store status: ', error);
       setError('Could not update approval status');
+    } finally {
+      setLoadingText('');
     }
   };
 
   const handleLiveStatusChange = async (isLive) => {
+    setLoadingText(isLive ? 'Store going Live..' : 'Disabling Store');
+    setAction(isLive ? 'goLive' : 'disable');
     try {
       const token = ls.get('token');
       const response = await axios.put(
@@ -139,6 +151,9 @@ const AdminApproval = () => {
       }
     } catch (error) {
       setError('Could not update live status');
+    } finally {
+      setLoadingText('');
+      setAction('');
     }
   };
 
@@ -179,27 +194,33 @@ const AdminApproval = () => {
                 <div style={{ position: 'absolute', top: '20px', right: '20px' }}>
                   {storeDetails.needsApproval && !storeDetails.isLive && (
                     <>
-                      <Button
+                      <ApprovalLoadingStates
+                        isLoading={action === 'approve'}
+                        loadingText={loadingText}
                         onClick={() => handleApprovalChange(true)}
                         variant="outlined"
                         color="primary"
                         style={{ marginRight: '8px' }}
                       >
                         Approve
-                      </Button>
-                      <Button
+                      </ApprovalLoadingStates>
+                      <ApprovalLoadingStates
+                        isLoading={action === 'unapprove'}
+                        loadingText={loadingText}
                         onClick={handleReject}
                         variant="outlined"
                         color="secondary"
                         style={{ marginRight: '8px' }}
                       >
                         Reject
-                      </Button>
+                      </ApprovalLoadingStates>
                     </>
                   )}
                   {storeDetails.isApproved &&
                     (storeDetails.isLive ? (
-                      <Button
+                      <ApprovalLoadingStates
+                        isLoading={action === 'disable'}
+                        loadingText={loadingText}
                         variant="contained"
                         color="secondary"
                         className="bg-red-600 text-white px-4 py-2 rounded"
@@ -207,9 +228,11 @@ const AdminApproval = () => {
                         style={{ marginRight: '8px' }}
                       >
                         Disable
-                      </Button>
+                      </ApprovalLoadingStates>
                     ) : (
-                      <Button
+                      <ApprovalLoadingStates
+                        isLoading={action === 'goLive'}
+                        loadingText={loadingText}
                         variant="contained"
                         color="secondary"
                         className="bg-green-600 text-white px-4 py-2 rounded"
@@ -217,7 +240,7 @@ const AdminApproval = () => {
                         style={{ marginRight: '8px' }}
                       >
                         Go Live
-                      </Button>
+                      </ApprovalLoadingStates>
                     ))}
                   <Button
                     variant="outlined"

@@ -5,6 +5,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Card, Typography, Button, Checkbox, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import ConfirmationDialog from '../../components/admin/ConfirmationDialog';
+import ApprovalLoadingStates from '../../components/loading/ApprovalLoadingStates';
 
 const ls = new SecureLS({ encodingType: 'aes' });
 
@@ -17,6 +18,8 @@ const AdminKYCApproval = () => {
   const [remarks, setRemarks] = useState('');
   const [rejectedDocuments, setRejectedDocuments] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingText, setLoadingText] = useState('');
+  const [action, setAction] = useState('');
 
   useEffect(() => {
     const fetchKYCDetails = async () => {
@@ -47,6 +50,8 @@ const AdminKYCApproval = () => {
   };
 
   const handleApprove = async () => {
+    setLoadingText('Approving KYC...');
+    setAction('approve');
     try {
       const token = ls.get('token');
       await axios.put(
@@ -61,10 +66,13 @@ const AdminKYCApproval = () => {
       setKYCApproved(true);
     } catch (error) {
       console.error('Error approving KYC:', error);
+    } finally {
+      setLoadingText('');
     }
   };
 
   const handleReject = () => {
+    setAction('unapprove');
     setShowConfirmation(true);
   };
 
@@ -73,7 +81,7 @@ const AdminKYCApproval = () => {
   };
 
   const handleConfirmReject = async () => {
-    setIsLoading(true);
+    setLoadingText('Rejecting KYC...');
     try {
       const token = ls.get('token');
       await axios.put(
@@ -85,8 +93,9 @@ const AdminKYCApproval = () => {
       setKYCApproved(false);
     } catch (error) {
       console.error('Error rejecting KYC:', error);
+    } finally {
+      setLoadingText('');
     }
-    setIsLoading(false);
   };
 
   return (
@@ -110,22 +119,26 @@ const AdminKYCApproval = () => {
                   <div style={{ position: 'absolute', top: '20px', right: '20px' }}>
                     {kycApproved === 1 && (
                       <>
-                        <Button
+                        <ApprovalLoadingStates
+                          isLoading={loadingText && action === 'approve'}
+                          loadingText={loadingText}
                           onClick={handleApprove}
                           variant="outlined"
                           color="primary"
                           style={{ marginRight: '5px' }}
                         >
                           Approve
-                        </Button>
-                        <Button
+                        </ApprovalLoadingStates>
+                        <ApprovalLoadingStates
+                          isLoading={loadingText && action === 'unapprove'}
+                          loadingText={loadingText}
                           onClick={handleReject}
                           variant="outlined"
                           color="secondary"
                           style={{ marginRight: '5px' }}
                         >
                           Reject
-                        </Button>
+                        </ApprovalLoadingStates>
                       </>
                     )}
                     <Button
@@ -160,7 +173,7 @@ const AdminKYCApproval = () => {
         contentText="Please provide a reason for rejecting the KYC application:"
         remarks={remarks}
         setRemarks={setRemarks}
-        isLoading={isLoading}
+        isLoading={loadingText}
         rejectedDocuments={rejectedDocuments}
       />
     </>
