@@ -212,6 +212,11 @@ const getNavConfig = (role, subrole) => {
       icon: icon('ic_customer'),
     },
     {
+      title: 'Transactions',
+      path: '/dashboard/sales/transactions',
+      icon: icon('ic_transact'),
+    },
+    {
       title: 'Wallets & Payouts',
       path: '/dashboard/wallet',
       icon: icon('ic_wallet'),
