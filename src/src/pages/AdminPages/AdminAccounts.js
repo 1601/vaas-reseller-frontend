@@ -57,6 +57,13 @@ const AdminAccounts = () => {
   const [disableCreateButton, setDisableCreateButton] = useState(false);
   const [createButtonTooltip, setCreateButtonTooltip] = useState('');
   const [openAccessPrivilegeDialog, setOpenAccessPrivilegeDialog] = useState(false);
+  const [adminAccessPrivilege, setAdminAccessPrivilege] = useState('');
+  const [accessToggles, setAccessToggles] = useState({
+    approvals: false,
+    dealers: false,
+    banners: false,
+    wallets: false,
+  });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -198,14 +205,39 @@ const AdminAccounts = () => {
   };
 
   const handleOpenAccessPrivilegeDialog = (admin) => {
+    const adminId = admin._id;
     setOpenAccessPrivilegeDialog(true);
+    setAdminAccessPrivilege(adminId);
+    setAccessToggles();
+    setAccessToggles({ approvals: admin.adminToggles.approvals, banners: admin.adminToggles.banners, dealers: admin.adminToggles.dealers, wallets: admin.adminToggles.wallets});
     console.log(admin);
   }
 
   const handleCloseAccessPrivilegeDialog = (admin) => {
     setOpenAccessPrivilegeDialog(false);
+    setAdminAccessPrivilege('');
     console.log(admin);
   }
+
+  const handleSubmitAccessPrivilege = async () => {
+    try {
+      await axios.patch(`${process.env.REACT_APP_BACKEND_URL}/v1/api/admin/toggle`, adminAccessPrivilege, accessToggles)
+          .then((response) => {
+            console.log('Success:', response.data);
+            handleCloseAccessPrivilegeDialog();
+          })
+          .catch((error) => {
+            console.error('Error:', error);
+          });
+    }catch (e){
+      console.log(e)
+    }
+  }
+
+  const handleAccessToggleChange = (event) => {
+    const { name, checked } = event.target;
+    setAccessToggles({ ...accessToggles, [name]: checked });
+  };
 
   const confirmRequestPasswordChange = async () => {
     setLoadingRequest(true);
@@ -385,16 +417,17 @@ const AdminAccounts = () => {
         <DialogTitle>Access Privilege</DialogTitle>
         <DialogContent>
           <FormGroup>
-            <FormControlLabel control={<Switch defaultChecked />} label="Approvals" />
-            <FormControlLabel control={<Switch defaultChecked />} label="Dealer Accounts" />
-            <FormControlLabel control={<Switch defaultChecked />} label="Banner Configuration" />
-            <FormControlLabel control={<Switch defaultChecked />} label="Wallet" />
+            <FormControlLabel checked={accessToggles.approvals} onChange={handleAccessToggleChange} control={<Switch defaultChecked />} name="approvals" label="Approvals" />
+            <FormControlLabel checked={accessToggles.dealers} onChange={handleAccessToggleChange} control={<Switch defaultChecked />} name="dealers" label="Dealer Accounts" />
+            <FormControlLabel checked={accessToggles.banners} onChange={handleAccessToggleChange} control={<Switch defaultChecked />} name="banners" label="Banner Configuration" />
+            <FormControlLabel checked={accessToggles.wallets} onChange={handleAccessToggleChange} control={<Switch defaultChecked />} name="wallets" label="Wallet" />
           </FormGroup>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseAccessPrivilegeDialog} color="primary">
             Close
           </Button>
+          <Button onClick={handleSubmitAccessPrivilege} color="primary">Submit</Button>
         </DialogActions>
       </Dialog>
     </Card>
