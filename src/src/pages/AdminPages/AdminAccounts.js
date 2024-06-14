@@ -27,7 +27,7 @@ import {
   Autocomplete,
   TextField,
   Chip,
-  Tooltip,
+  Tooltip, Switch, FormGroup, FormControlLabel
 } from '@mui/material';
 import { MoreVert as MoreVertIcon } from '@mui/icons-material';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
@@ -56,6 +56,7 @@ const AdminAccounts = () => {
   const subrole = user?.subrole;
   const [disableCreateButton, setDisableCreateButton] = useState(false);
   const [createButtonTooltip, setCreateButtonTooltip] = useState('');
+  const [openAccessPrivilegeDialog, setOpenAccessPrivilegeDialog] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -196,6 +197,16 @@ const AdminAccounts = () => {
     handleMenuClose();
   };
 
+  const handleOpenAccessPrivilegeDialog = (admin) => {
+    setOpenAccessPrivilegeDialog(true);
+    console.log(admin);
+  }
+
+  const handleCloseAccessPrivilegeDialog = (admin) => {
+    setOpenAccessPrivilegeDialog(false);
+    console.log(admin);
+  }
+
   const confirmRequestPasswordChange = async () => {
     setLoadingRequest(true);
     try {
@@ -330,6 +341,7 @@ const AdminAccounts = () => {
                         View Info
                       </MenuItem>
                       <MenuItem onClick={() => handleRequestPasswordChange(admin.email)}>Change Password</MenuItem>
+                      <MenuItem onClick={() => handleOpenAccessPrivilegeDialog(admin)}>Access Privileges</MenuItem>
                       <MenuItem onClick={() => handleDelete(admin._id)}>Delete</MenuItem>
                     </Menu>
                   </TableCell>
@@ -364,6 +376,23 @@ const AdminAccounts = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleDialogClose} color="primary">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={openAccessPrivilegeDialog} onClose={handleCloseAccessPrivilegeDialog}>
+        <DialogTitle>Access Privilege</DialogTitle>
+        <DialogContent>
+          <FormGroup>
+            <FormControlLabel control={<Switch defaultChecked />} label="Approvals" />
+            <FormControlLabel control={<Switch defaultChecked />} label="Dealer Accounts" />
+            <FormControlLabel control={<Switch defaultChecked />} label="Banner Configuration" />
+            <FormControlLabel control={<Switch defaultChecked />} label="Wallet" />
+          </FormGroup>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseAccessPrivilegeDialog} color="primary">
             Close
           </Button>
         </DialogActions>
