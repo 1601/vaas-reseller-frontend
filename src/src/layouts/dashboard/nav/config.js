@@ -5,16 +5,19 @@ import SvgColor from '../../../components/svg-color';
 
 const icon = (name) => <SvgColor src={`/assets/icons/navbar/${name}.svg`} sx={{ width: 1, height: 1 }} />;
 
-const getNavConfig = (role, subrole) => {
+const getNavConfig = (role, subrole, toggles) => {
   if (role === 'admin') {
     if (subrole === 'crm') {
-      return [
+      const config = [
         {
           title: 'Home',
           path: '/dashboard/admin/home',
           icon: icon('ic_analytics'),
         },
-        {
+      ];
+
+      if (toggles.approvals) {
+        config.push({
           title: 'Approvals',
           path: '/dashboard/admin/storeapproval',
           icon: icon('ic_approval'),
@@ -30,18 +33,27 @@ const getNavConfig = (role, subrole) => {
               icon: icon('ic_user'),
             },
           ],
-        },
-        {
+        });
+      }
+
+      if (toggles.dealers) {
+        config.push({
           title: 'Dealer Accounts',
           path: '/dashboard/admin/dealers',
           icon: icon('ic_customer'),
-        },
-        {
+        });
+      }
+
+      if (toggles.banners) {
+        config.push({
           title: 'Banner Configuration',
           path: '/dashboard/admin/banner',
           icon: icon('ic_product'),
-        },
-        {
+        });
+      }
+
+      if (toggles.wallets) {
+        config.push({
           title: 'Wallet',
           path: '/dashboard/admin/wallet',
           icon: icon('ic_wallet'),
@@ -52,10 +64,12 @@ const getNavConfig = (role, subrole) => {
               icon: icon('ic_circle'),
             },
           ],
-        },
-      ];
+        });
+      }
+
+      return config;
     }
-    
+
     if (subrole === 'admin1' || subrole === 'admin0') {
       return [
         {

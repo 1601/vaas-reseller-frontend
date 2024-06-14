@@ -79,6 +79,10 @@ export default function Nav({ openNav, onCloseNav }) {
     const user = ls.get('user');
     return user ? user.subrole : null;
   });
+  const [toggles, setToggles] = useState(() => {
+    const user = ls.get('user');
+    return user ? user.adminToggles : null;
+  });
   const [currentNavConfig, setCurrentNavConfig] = useState(getNavConfig(role));
 
   useEffect(() => {
@@ -93,14 +97,16 @@ export default function Nav({ openNav, onCloseNav }) {
       const user = ls.get('user');
       const newRole = user ? user.role : null;
       const newSubrole = user ? user.subrole : null;
+      const newToggles = user ? user.adminToggles : null;
       setRole(newRole);
       setSubrole(newSubrole);
-      setCurrentNavConfig(getNavConfig(newRole, newSubrole));
+      setToggles(newToggles);
+      setCurrentNavConfig(getNavConfig(newRole, newSubrole, newToggles));
     }
   }, [location.pathname]);
 
   useEffect(() => {
-    setCurrentNavConfig(getNavConfig(role, subrole));
+    setCurrentNavConfig(getNavConfig(role, subrole, toggles));
   }, [role, subrole]);
 
   const filteredNavConfigBottom = navConfigBottom
