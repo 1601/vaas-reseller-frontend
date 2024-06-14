@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Outlet, useLocation } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import SecureLS from 'secure-ls';
 import {
   Container,
@@ -23,11 +23,14 @@ import {
   Box,
   Toolbar,
   IconButton,
-  useTheme,
   useMediaQuery,
   Collapse,
-  
+  Grid,
+  InputAdornment,
+  Checkbox,
 } from '@mui/material';
+import { Icon as Iconify } from '@iconify/react';
+import { styled, useTheme } from '@mui/material/styles';
 import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -38,11 +41,30 @@ import VoucherImage from '../images/shop-icon-desktop.png';
 import tinboLogo from '../images/tinbo-logo-desktop.svg';
 import { useStore } from '../StoreContext';
 
+const StyledContent = styled('div')(({ theme }) => ({
+  marginLeft: '100px',
+  marginRight: '100px',
+  [theme.breakpoints.down('lg')]: {
+    marginLeft: '40px',
+    marginRight: '40px',
+  },
+  [theme.breakpoints.down('sm')]: {
+    marginLeft: '10px',
+    marginRight: '10px',
+  },
+  minHeight: 'min-content',
+  display: 'flex',
+  justifyContent: 'center',
+  flexDirection: 'column',
+}));
+
 const filter = createFilterOptions();
 const ls = new SecureLS({ encodingType: 'aes' });
 
 const LiveStorePage = () => {
+  const navigate = useNavigate();
   const location = useLocation();
+  const theme = useTheme();
   const { storeData, setStoreData } = useStore();
   const [storeUrl, setStoreUrl] = useState('');
   const [previewStoreUrl, setPreviewStoreUrl] = useState(storeUrl);
@@ -50,13 +72,12 @@ const LiveStorePage = () => {
   const [openLoginDialog, setOpenLoginDialog] = useState(false);
   const [dialogStage, setDialogStage] = useState(1); // 1 for email, 2 for OTP
   const [dialogWidth, setDialogWidth] = useState('md');
-  const [email, setEmail] = useState('');
-  const [emailError, setEmailError] = useState(false);
-  const [emailErrorMessage, setEmailErrorMessage] = useState('');
+
   const [otp, setOtp] = useState('');
   const [otpError, setOtpError] = useState(false);
   const [otpErrorMessage, setOtpErrorMessage] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [reseller, setReseller] = useState(null);
   const [isGuest, setIsGuest] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isSessionTimedOut, setIsSessionTimedOut] = useState(false);
@@ -73,6 +94,220 @@ const LiveStorePage = () => {
   const togglePreviewBanner = () => {
     setIsPreviewBannerOpen(!isPreviewBannerOpen);
   };
+
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [verificationMessage, setVerificationMessage] = useState('');
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [emailError, setEmailError] = useState(false);
+  const [passwordError, setPasswordError] = useState(false);
+  const [emailErrorMessage, setEmailErrorMessage] = useState('');
+  const [loggingIn, setLoggingIn] = useState(false);
+  const [isFormValid, setIsFormValid] = useState(false);
+
+  const validateEmailNew = (email) => {
+    // const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i;
+    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+    if (!emailRegex.test(email)) {
+      setEmailError(true);
+      setEmailErrorMessage('Email is Invalid');
+    } else {
+      setEmailError(false);
+      setEmailErrorMessage('');
+    }
+    return emailRegex.test(email);
+  };
+
+  useEffect(() => {
+    console.log('Email:', email);
+    console.log('Password:', password);
+    console.log(validateEmailNew(email));
+    setIsFormValid(validateEmailNew(email) && password);
+  }, [email, password]);
+
+  useEffect(() => {
+    const reseller = ls.get('userStore');
+    if (reseller) {
+      setReseller(reseller);
+      setIsLoggedIn(true);
+    }
+  }, []);
+
+  // const handleEmailChange = (e) => {
+  //   setEmail(e.target.value);
+  // };
+  
+  const isXs = useMediaQuery(theme.breakpoints.up('xs')); 
+  const isSm = useMediaQuery(theme.breakpoints.up('sm'));
+  const isMd = useMediaQuery(theme.breakpoints.up('md'));
+
+  const formContainer = {
+    overflowY: 'hidden',
+    maxHeight: 'max-content',
+    whiteSpace: 'pre-line',
+    mb: 1,
+    ...(isSm && {
+      overflowY: 'hidden',
+      maxHeight: 'max-content',
+    }),
+    ...(isMd && {
+      overflowY: 'auto',
+      maxHeight: 250,
+    }),
+  };
+
+  const signUpText = {
+    ...(isXs && {
+      marginTop: '30px',
+      fontSize: '1.6rem',
+    }),
+    ...(isMd && {
+      marginTop: '0px',
+      fontSize: '2rem',
+    }),
+  };
+
+ const handleLogin = async ({
+    email,
+    password,
+    rememberMe,
+    setLoggingIn,
+    setError,
+    setDialogOpen,
+    setVerificationMessage,
+    navigate,
+  }) => {
+    setError('');
+    if (!email.trim() || !password.trim()) {
+      setError('Please supply all required fields');
+      setDialogOpen(true);
+      return;
+    }
+  
+    if (!validateEmailNew(email)) {
+      setError(true);
+      setVerificationMessage('Invalid email format');
+      setDialogOpen(true);
+      return;
+    }
+  
+    const storeUrl = getStoreUrlFromPath();
+  
+    try {
+      setLoggingIn(true);
+      const storeResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/url/${storeUrl}/user`);
+      const ownerId = storeResponse.data.userId;
+  
+      const validateResellerResponse = await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/v1/api/dealer/reseller/login`,
+        {
+          email,
+          ownerId,
+        }
+      );
+  
+      if (!validateResellerResponse.data.isValid) {
+        setError('This reseller does not belong to the specified dealer.');
+        setDialogOpen(true);
+        setLoggingIn(false);
+        return;
+      }
+  
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/login`, {
+        email,
+        password,
+      });
+  
+      const { token, role } = response.data;
+  
+      if (rememberMe) {
+        ls.set('rememberMeEmail', email);
+        ls.set('rememberMePassword', password);
+        ls.set('rememberMe', true);
+      } else {
+        ls.remove('rememberMe');
+        ls.remove('rememberMeEmail');
+        ls.remove('rememberMePassword');
+      }
+  
+      if (role === 'admin') {
+        setError('Admins must login to their respective CRM');
+        setDialogOpen(true);
+        setLoggingIn(false);
+        return;
+      }
+  
+      if (role === 'dealer') {
+        setError('Dealers must login to their respective CRM');
+        setDialogOpen(true);
+        setLoggingIn(false);
+        return;
+      }
+  
+      const verifiedRole = await verifyRole(token);
+  
+      if (verifiedRole) {
+        ls.set('roleStore', verifiedRole);
+      } else {
+        console.error('No role received from verifyRole API');
+      }
+  
+      const userData = {
+        ...response.data, 
+        storeUrl, 
+      };
+  
+      ls.set('tokenStore', token);
+      ls.set('userStore', userData);
+      setReseller(userData);
+      setIsLoggedIn(true);
+  
+      const dealerId = response.data._id;
+  
+      // navigate(role === 'admin' ? '/dashboard/admin' : '/dashboard/app', { replace: true });
+      setLoggingIn(false);
+    } catch (error) {
+      if (error.response && error.response.data) {
+        setError(error.response.data.message);
+      } else {
+        setError('Invalid email or password');
+      }
+      setDialogOpen(true);
+      setLoggingIn(false);
+    }
+  };
+  
+const getStoreUrlFromPath = () => {
+  const pathSegments = location.pathname.split('/');
+  const storeUrl = pathSegments[1];
+  return storeUrl;
+};
+
+ const verifyRole = async (token) => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/auth/role`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data.role;
+    } catch (error) {
+      console.error('Could not verify user role', error);
+      return null;
+    }
+  };
+  
+  const handleCloseDialog = () => {
+    setDialogOpen(false);
+  };
+
+  const handleRememberMeChange = (e) => {
+    setRememberMe(e.target.checked);
+  };
+
 
   const handleOpenLoginDialog = () => {
     setEmail('');
@@ -275,6 +510,12 @@ const LiveStorePage = () => {
 
   const handleLogout = () => {
     setIsLoggedIn(false);
+    ls.remove('userStore');
+    ls.remove('tokenStore');
+    ls.remove('roleStore');
+    ls.remove('currentCustomer');
+    setCustomerUser(null);
+    setReseller(null);
     ls.remove('customerDetails');
     ls.remove('customerOTPIdle');
     ls.remove('guestDetails');
@@ -526,7 +767,6 @@ const LiveStorePage = () => {
     );
   };
 
-  const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const logoContainerStyle = {
@@ -715,10 +955,135 @@ const LiveStorePage = () => {
           <Typography variant="h4" gutterBottom>
             {storeData.storeName}
           </Typography>
+         
+          {isLoggedIn ? (
+            <>
+              <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+                <div style={{ display: 'flex', alignItems: 'center' }}> 
+                  <Typography variant="h6" gutterBottom>
+                    Reseller: {reseller.fullName} {reseller.email}
+                  </Typography>
+                </div>
+              
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Button onClick={handleLogout} variant="contained" style={transactionButtonStyle}>
+                    Logout
+                  </Button>
+                </div>
+            
+            </>
+          ) : (
+            <>
+           <Container>
+  <Grid item xs={12} sm={12} md={6}>
+    <Typography variant="h6" gutterBottom style={signUpText}>
+      Login to Store
+    </Typography>
+    <Box sx={formContainer}>
+      <Box sc={{ mb: 5 }}>
+        <Grid container>
+          <Grid item xs={12} mt={2} sm={12} md={12}>
+            <TextField
+              error={emailError || !!verificationMessage}
+              fullWidth
+              sx={{ mb: 2 }}
+              variant="outlined"
+              name="email"
+              label="Email"
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setEmailError(!validateEmail(e.target.value));
+              }}
+              helperText={emailErrorMessage || verificationMessage}
+            />
+          </Grid>
+          <Grid item xs={12} sm={12} md={12}>
+            <TextField
+              error={passwordError}
+              fullWidth
+              sx={{ mb: 1 }}
+              variant="outlined"
+              name="password"
+              label="Password"
+              type={showPassword ? 'text' : 'password'}
+              value={password}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                setPasswordError(!e.target.value);
+              }}
+              helperText={passwordError && 'Password is required'}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                      <Iconify icon={showPassword ? 'eva:eye-fill' : 'eva:eye-off-fill'} />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+          </Grid>
+        </Grid>
+      </Box>
+    </Box>
+
+    <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ my: 0.5 }}>
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        <Checkbox name="remember" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} />
+        <Typography variant="body2">Remember Me</Typography>
+      </div>
+      <Link
+        variant="subtitle2"
+        underline="hover"
+        onClick={() => navigate('/forgotpassword')}
+        sx={{ cursor: 'pointer' }}
+      >
+        Forgot password?
+      </Link>
+    </Stack>
+
+    <Button
+      fullWidth
+      size="large"
+      color="inherit"
+      variant="outlined"
+      sx={{ mt: 1.5 }}
+      onClick={() => {
+        handleLogin({
+          email,
+          password,
+          rememberMe,
+          setLoggingIn,
+          setError,
+          setDialogOpen,
+          setVerificationMessage,
+          navigate,
+        });
+        if (rememberMe) {
+          ls.set('rememberMe', 'true');
+        } else {
+          ls.remove('rememberMe');
+          ls.remove('rememberMeEmail');
+          ls.remove('rememberMePassword');
+        }
+      }}
+      disabled={!isFormValid}
+    >
+      Login
+    </Button>
+    {error && <div className="error-message">{ error}</div>}
+  </Grid>
+</Container>
+
+            </>
+            
+          )}
 
           <Container>
 
-          {customerUser && (
+          {(isLoggedIn && customerUser) && (
             <>
           <Stack direction={"column"} justifyContent={"center"} spacing={2}>
             <Button
@@ -758,28 +1123,15 @@ const LiveStorePage = () => {
                   Vouchers
                 </Link>
               )}
+
+            
             </Stack>
-          {isLoggedIn ? (
-            <>
-              <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <Button onClick={handleOpenTransactionsDialog} variant="contained" style={transactionButtonStyle}>
-                    {guestDetails ? 'View Guest Transactions' : 'View Transactions'}
-                  </Button>
-                  <Button onClick={handleLogout} variant="contained" style={transactionButtonStyle}>
-                    Logout
-                  </Button>
-                </div>
-              </div>
-            </>
-          ) : (
-            <></>
-            // <Button onClick={handleOpenLoginDialog} variant="contained" style={transactionButtonStyle}>
-            //   Login first to view Transactions
-            // </Button>
-          )}
+            <Button onClick={handleOpenTransactionsDialog} variant="contained" style={transactionButtonStyle}>
+                {guestDetails ? 'View Guest Transactions' : 'View Transactions'}
+            </Button>
+          
           </Stack>
-            </>
+          </>
         )}
 
 
@@ -906,7 +1258,7 @@ const LiveStorePage = () => {
           <Container>
             
 
-            {!customerUser && (
+            {(isLoggedIn && !customerUser) && (
               <Stack m={3} direction={"row"} justifyContent={"center"}>
               <Autocomplete
     id="customer-field"
