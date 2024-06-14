@@ -38,6 +38,7 @@ import CircularLoading from '../../components/preLoader';
 const ls = new SecureLS({ encodingType: 'aes' });
 
 const AdminAccounts = () => {
+  const token = ls.get('token');
   const [admins, setAdmins] = useState([]);
   const [filteredAdmins, setFilteredAdmins] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -57,7 +58,7 @@ const AdminAccounts = () => {
   const [disableCreateButton, setDisableCreateButton] = useState(false);
   const [createButtonTooltip, setCreateButtonTooltip] = useState('');
   const [openAccessPrivilegeDialog, setOpenAccessPrivilegeDialog] = useState(false);
-  const [adminAccessPrivilege, setAdminAccessPrivilege] = useState('');
+  const [selectedAdmin, setSelectedAdmin] = useState(null);
   const [accessToggles, setAccessToggles] = useState({
     approvals: false,
     dealers: false,
@@ -69,7 +70,6 @@ const AdminAccounts = () => {
   useEffect(() => {
     const fetchAdmins = async () => {
       setIsLoading(true);
-      const token = ls.get('token');
 
       try {
         const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/admin/users`, {
@@ -109,7 +109,7 @@ const AdminAccounts = () => {
     };
 
     fetchAdmins();
-  }, [subrole]);
+  }, [subrole, accessToggles]);
 
   useEffect(() => {
     setFilteredAdmins(admins);
@@ -182,7 +182,6 @@ const AdminAccounts = () => {
 
   const confirmDelete = async () => {
     try {
-      const token = ls.get('token');
       await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/v1/api/admin/users/${userToDelete}`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -191,7 +190,6 @@ const AdminAccounts = () => {
 
       const updatedAdmins = admins.filter((admin) => admin._id !== userToDelete);
       setAdmins(updatedAdmins);
-
       setDeleteModalOpen(false);
     } catch (error) {
       console.error('Failed to delete admin:', error);
@@ -204,39 +202,37 @@ const AdminAccounts = () => {
     handleMenuClose();
   };
 
-  const handleOpenAccessPrivilegeDialog = (admin) => {
-    const adminId = admin._id;
+  const handleOpenAccessPrivilegeDialog = () => {
     setOpenAccessPrivilegeDialog(true);
-    setAdminAccessPrivilege(adminId);
-    setAccessToggles();
-    setAccessToggles({ approvals: admin.adminToggles.approvals, banners: admin.adminToggles.banners, dealers: admin.adminToggles.dealers, wallets: admin.adminToggles.wallets});
-    console.log(admin);
+    setAccessToggles({ approvals: selectedAdmin.adminToggles.approvals, banners: selectedAdmin.adminToggles.banners, dealers: selectedAdmin.adminToggles.dealers, wallets: selectedAdmin.adminToggles.wallets});
   }
 
-  const handleCloseAccessPrivilegeDialog = (admin) => {
+  const handleCloseAccessPrivilegeDialog = () => {
     setOpenAccessPrivilegeDialog(false);
-    setAdminAccessPrivilege('');
-    console.log(admin);
   }
 
-  const handleSubmitAccessPrivilege = async () => {
+  const handleSubmitAccessPrivilege = async (name, checked) => {
+    setLoadingRequest(true);
+    console.log(name);
+    console.log(checked);
     try {
-      await axios.patch(`${process.env.REACT_APP_BACKEND_URL}/v1/api/admin/toggle`, adminAccessPrivilege, accessToggles)
+      await axios.patch(`${process.env.REACT_APP_BACKEND_URL}/v1/api/admin/toggle`, {userId: selectedAdmin._id, toggle: name, value: checked}, { headers: { Authorization: `Bearer ${token}` } })
           .then((response) => {
             console.log('Success:', response.data);
-            handleCloseAccessPrivilegeDialog();
           })
           .catch((error) => {
             console.error('Error:', error);
           });
-    }catch (e){
+    } catch (e) {
       console.log(e)
     }
+    setLoadingRequest(false);
   }
 
   const handleAccessToggleChange = (event) => {
     const { name, checked } = event.target;
     setAccessToggles({ ...accessToggles, [name]: checked });
+    handleSubmitAccessPrivilege(name, checked);
   };
 
   const confirmRequestPasswordChange = async () => {
@@ -359,22 +355,25 @@ const AdminAccounts = () => {
                     <MoreVertIcon
                       aria-controls="simple-menu"
                       aria-haspopup="true"
-                      onClick={handleMenuClick}
+                      onClick={(e) => {
+                        handleMenuClick(e);
+                        setSelectedAdmin(admin);
+                      }}
                       style={{ cursor: 'pointer' }}
                     />
                     <Menu anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleMenuClose}>
                       <MenuItem
                         onClick={() => {
-                          setUserToView(admin);
+                          setUserToView(selectedAdmin);
                           setViewModalOpen(true);
                           handleMenuClose();
                         }}
                       >
                         View Info
                       </MenuItem>
-                      <MenuItem onClick={() => handleRequestPasswordChange(admin.email)}>Change Password</MenuItem>
-                      <MenuItem onClick={() => handleOpenAccessPrivilegeDialog(admin)}>Access Privileges</MenuItem>
-                      <MenuItem onClick={() => handleDelete(admin._id)}>Delete</MenuItem>
+                      <MenuItem onClick={() => handleRequestPasswordChange(selectedAdmin.email)}>Change Password</MenuItem>
+                      <MenuItem onClick={() => handleOpenAccessPrivilegeDialog()}>Access Privileges</MenuItem>
+                      <MenuItem onClick={() => handleDelete(selectedAdmin._id)}>Delete</MenuItem>
                     </Menu>
                   </TableCell>
                 </TableRow>
@@ -417,17 +416,17 @@ const AdminAccounts = () => {
         <DialogTitle>Access Privilege</DialogTitle>
         <DialogContent>
           <FormGroup>
-            <FormControlLabel checked={accessToggles.approvals} onChange={handleAccessToggleChange} control={<Switch defaultChecked />} name="approvals" label="Approvals" />
-            <FormControlLabel checked={accessToggles.dealers} onChange={handleAccessToggleChange} control={<Switch defaultChecked />} name="dealers" label="Dealer Accounts" />
-            <FormControlLabel checked={accessToggles.banners} onChange={handleAccessToggleChange} control={<Switch defaultChecked />} name="banners" label="Banner Configuration" />
-            <FormControlLabel checked={accessToggles.wallets} onChange={handleAccessToggleChange} control={<Switch defaultChecked />} name="wallets" label="Wallet" />
+            <FormControlLabel checked={accessToggles.approvals} onChange={handleAccessToggleChange} control={loadingRequest ? <CircularProgress /> : <Switch defaultChecked />} name="approvals" label="Approvals" />
+            <FormControlLabel checked={accessToggles.dealers} onChange={handleAccessToggleChange} control={loadingRequest ? <CircularProgress /> : <Switch defaultChecked />} name="dealers" label="Dealer Accounts" />
+            <FormControlLabel checked={accessToggles.banners} onChange={handleAccessToggleChange} control={loadingRequest ? <CircularProgress /> : <Switch defaultChecked />} name="banners" label="Banner Configuration" />
+            <FormControlLabel checked={accessToggles.wallets} onChange={handleAccessToggleChange} control={loadingRequest ? <CircularProgress /> : <Switch defaultChecked />} name="wallets" label="Wallet" />
           </FormGroup>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseAccessPrivilegeDialog} color="primary">
             Close
           </Button>
-          <Button onClick={handleSubmitAccessPrivilege} color="primary">Submit</Button>
+
         </DialogActions>
       </Dialog>
     </Card>
