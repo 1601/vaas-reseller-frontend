@@ -87,18 +87,16 @@ const VortexTopUpBrandProducts = ({
               unit={platformVariables?.currencySymbol}
               key={product.name}
               onClick={() => {
-                if (!product.name.includes('(Not Available)') && !product.disabled) {
-                  if(!checkProductAvailability(product.name)) {
-                    alert("Product not available anymore, please refresh page")
-                  }else{
-                    setSelectedProduct(product);
-                    setSelectedBrand(selectedBrand);
-                    stepForward();
-                  }
+                if (product.name.includes('(Not Available)') || !product.isAvailable) {
+                  alert("Product not available anymore, please refresh page");
+                } else {
+                  setSelectedProduct(product);
+                  setSelectedBrand(selectedBrand);
+                  stepForward();
                 }
-              }}
+              }}              
               style={{
-                color: product.disabled ? 'gray' : 'inherit', // Grey out the text when disabled
+                color: !product.isAvailable ? 'gray' : 'inherit', // Grey out the text when disabled
                 pointerEvents: product.name.includes('(Not Available)') ? 'none' : 'auto', // Disable click events for (Not Available) products
                 backgroundColor: product.name.includes('(Not Available)') ? 'lightgray' : 'white', // Gray background for (Not Available) products
               }}
