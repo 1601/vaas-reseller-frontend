@@ -356,7 +356,8 @@ const getStoreUrlFromPath = () => {
       setIsLoading(true);
       const guestDetails = ls.get('guestDetails');
       const customerDetailsFromLS = ls.get('customerDetails');
-      const jwtToken = customerDetailsFromLS ? customerDetailsFromLS.jwtToken : null;
+      const customerToken = ls.get('customerToken');
+      const jwtToken = customerDetailsFromLS && customerDetailsFromLS.jwtToken ? customerDetailsFromLS.jwtToken : customerToken;      
 
       const dealerResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/stores/url/${storeUrl}/user`);
       const dealerId = dealerResponse.data.userId;
@@ -830,16 +831,16 @@ const getStoreUrlFromPath = () => {
 
   const handleSubmitCustomer = async (event) => {
     event.preventDefault();
-
+  
     const body = dialogValue;
     if (!body.email) body.email = "n/a";
-
+  
     body.dealerId = storeData.ownerId;
     body.ipaddress = null;
     body.firstName = body.fullName.split(' ')[0];
     body.lastName = body.fullName.split(' ')[1] || '';
     body.mobileNumber = body.phone;
-
+  
     try {
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/new`, {
         method: "POST",
@@ -852,6 +853,20 @@ const getStoreUrlFromPath = () => {
       if (jsonData.error) {
         alert(jsonData.error);
       } else {
+        try {
+          const customerResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/${jsonData.body._id}`);
+          if (customerResponse.data.token) {
+            ls.set('customerToken', customerResponse.data.token);
+            setCustomerUser(customerResponse.data.customer);
+            setIsLoggedIn(true);
+            alert('Customer logged in successfully');
+          }
+        } catch (error) {
+          console.error('Error fetching customer:', error);
+          alert('Failed to log in customer');
+        }
+        
+        // Update local storage and state
         setCustomerUser(jsonData.body);
         ls.set('currentCustomer', jsonData.body);
         setDialogValue({
@@ -860,7 +875,7 @@ const getStoreUrlFromPath = () => {
           lastName: dialogValue.fullName.split(' ')[1] || '',
           email: dialogValue.email,
           phone: dialogValue.phone,
-          ipaddress: null
+          ipaddress: null,
         });
         handleCloseCustomerDialog();
       }
@@ -1091,6 +1106,7 @@ const getStoreUrlFromPath = () => {
               onClick={() => {
                 setCustomerUser(null);
                 ls.remove('currentCustomer');
+                ls.remove('customerToken');
               }}
             >
               Customer: {customerUser.fullName} {customerUser.email} {customerUser.mobileNumber}
@@ -1284,11 +1300,10 @@ const getStoreUrlFromPath = () => {
       </li>
     )}
     sx={{ width: 300 }}
-    onChange={(event, newValue) => {
+    onChange={async (event, newValue) => {
       if (typeof newValue === 'string') {
         setTimeout(() => {
           toggleOpenCustomer(true);
-         
           setDialogValue({
             fullName: newValue,
             mobileNumber: '',
@@ -1297,15 +1312,27 @@ const getStoreUrlFromPath = () => {
         });
       } else if (newValue && newValue.inputValue) {
         toggleOpenCustomer(true);
-        // alert(newValue);
         setDialogValue({
           fullName: newValue.inputValue,
           mobileNumber: '',
           email: '',
         });
-      } else {
+      } else if (newValue) {
         setCustomerUser(newValue);
         ls.set('currentCustomer', newValue);
+    
+        try {
+          const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/${newValue._id}`);
+          if (response.data.token) {
+            ls.set('customerToken', response.data.token);
+            setCustomerUser(response.data.customer);
+            setIsLoggedIn(true);
+            alert('Customer logged in successfully');
+          }
+        } catch (error) {
+          console.error('Error fetching customer:', error);
+          alert('Failed to log in customer');
+        }
       }
     }}
     filterOptions={(options, params) => {
