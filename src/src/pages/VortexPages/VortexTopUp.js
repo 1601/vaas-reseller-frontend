@@ -2113,7 +2113,8 @@ const VortexTopUp = () => {
     const handleConfirmClick = async () => {
       try {
         const customerId = transactionData.customerId;
-        const dealerId = transactionData.dealerId;
+        const userStore = ls.get('userStore');
+        const dealerId = userStore ? userStore.dealer : null;
         const resellerCodeObject = ls.get('resellerCode');
         const resellerId = resellerCodeObject ? JSON.parse(resellerCodeObject).code : null;
 
@@ -2125,10 +2126,11 @@ const VortexTopUp = () => {
         };
 
         const guestDetails = ls.get('guestDetails');
-        const customerDetails = ls.get('customerDetails');
-        const jwtToken = customerDetails ? customerDetails.jwtToken : null;
+        const customerDetails = ls.get('currentCustomer');
+        const customerToken = ls.get('customerToken');
+        const jwtToken = customerDetails && customerDetails.jwtToken ? customerDetails.jwtToken : customerToken;
 
-        let endpoint = `${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/purchase/${customerId}`;
+        let endpoint = `${process.env.REACT_APP_BACKEND_URL}/v1/api/customer/purchase/${customerDetails._id}`;
         const headers = {
           'Content-Type': 'application/json',
         };
