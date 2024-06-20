@@ -297,7 +297,8 @@ export default function SignUpPage() {
   const [isPrivacyDialogOpen, setIsPrivacyDialogOpen] = useState(false);
   const [isCookieDialogOpen, setIsCookieDialogOpen] = useState(false);
   const [isScrolledToEnd, setIsScrolledToEnd] = useState(false);
-  const [mobileError, setMobileError] = useState(true);
+  const [mobileError, setMobileError] = useState(false);
+  const [mobileFocused, setMobileFocused] = useState(false);
   const [banners, setBanners] = useState();
   const [initialCurrency, setInitialCurrency] = useState('');
   const [passwordFocus, setPasswordFocus] = useState(false);
@@ -476,23 +477,27 @@ export default function SignUpPage() {
 
   const handleMobileChange = (e) => {
     const value = e.target.value;
-
+  
     // Validate mobile number with regex
     const mobileRegex = /^[\d+-]+$/;
     if (!mobileRegex.test(value) || value.replace(countryCodes[formData.country] || '', '').trim() === '') {
-      setMobileError(true);
-      setErrorMessage("Wrong Number format. Please use only digits and optional '+'.");
+      if (mobileFocused) {
+        setMobileError(true);
+        setErrorMessage("Wrong Number format. Please use only digits and optional '+'.");
+      }
     } else {
       const errorMessage = validateMobileNumber(formData.country, value);
       if (errorMessage) {
-        setMobileError(true);
-        setErrorMessage(errorMessage);
+        if (mobileFocused) {
+          setMobileError(true);
+          setErrorMessage(errorMessage);
+        }
       } else {
         setMobileError(false);
         setErrorMessage('');
       }
     }
-
+  
     setFormData({
       ...formData,
       mobileNumber: value,
@@ -1017,6 +1022,8 @@ export default function SignUpPage() {
                             name="mobileNumber"
                             value={formData.mobileNumber?.replace(countryCodes[formData.country] || '', '')}
                             onChange={handleMobileChange}
+                            onFocus={() => setMobileFocused(true)} // Set focus state on focus
+                            onBlur={() => setMobileFocused(false)} // Unset focus state on blur
                             sx={{ mb: 3 }}
                             helperText={
                               (fieldErrors.mobileNumber && 'Mobile Number is required') || (mobileError && errorMessage)
@@ -1041,25 +1048,25 @@ export default function SignUpPage() {
 
                     {/* Set Currency */}
                     {formData.currency && (
-                     <Box sx={{ mb: 3 }}>
-                     <Typography sx={{ mb: 1 }}> Currency </Typography>
-                     <FormControl fullWidth variant="outlined">
-                       <InputLabel id="currency-label">Currency</InputLabel>
-                       <Select
-                         labelId="currency-label"
-                         label="Currency"
-                         name="currency"
-                         value={formData.currency}
-                         onChange={handleInputChange}
-                       >
-                         {currencies.map((currency) => (
-                           <MenuItem key={currency.cc} value={currency.cc}>
-                             {`${currency.cc} - ${currency.name}`}
-                           </MenuItem>
-                         ))}
-                       </Select>
-                     </FormControl>
-                   </Box>
+                      <Box sx={{ mb: 3 }}>
+                        <Typography sx={{ mb: 1 }}> Currency </Typography>
+                        <FormControl fullWidth variant="outlined">
+                          <InputLabel id="currency-label">Currency</InputLabel>
+                          <Select
+                            labelId="currency-label"
+                            label="Currency"
+                            name="currency"
+                            value={formData.currency}
+                            onChange={handleInputChange}
+                          >
+                            {currencies.map((currency) => (
+                              <MenuItem key={currency.cc} value={currency.cc}>
+                                {`${currency.cc} - ${currency.name}`}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+                      </Box>
                     )}
                     {/* User Credentials Section */}
                     <Box sx={{ mb: 3 }}>
@@ -1137,7 +1144,9 @@ export default function SignUpPage() {
                               endAdornment: (
                                 <InputAdornment position="end">
                                   <IconButton
-                                    onClick={() => setFormData({ ...formData, showConfirmPassword: !formData.showConfirmPassword })}
+                                    onClick={() =>
+                                      setFormData({ ...formData, showConfirmPassword: !formData.showConfirmPassword })
+                                    }
                                     edge="end"
                                   >
                                     <Iconify
@@ -1176,19 +1185,19 @@ export default function SignUpPage() {
                   />
 
                   <PrivacyDialog
-                      open={isPrivacyDialogOpen}
-                      onClose={() => {
-                        setIsPrivacyDialogOpen(false);
-                      }}
-                      onAgree={agreeToPrivacy}
+                    open={isPrivacyDialogOpen}
+                    onClose={() => {
+                      setIsPrivacyDialogOpen(false);
+                    }}
+                    onAgree={agreeToPrivacy}
                   />
 
                   <CookieDialog
-                      open={isCookieDialogOpen}
-                      onClose={() => {
-                        setIsCookieDialogOpen(false);
-                      }}
-                      onAgree={agreeToCookie}
+                    open={isCookieDialogOpen}
+                    onClose={() => {
+                      setIsCookieDialogOpen(false);
+                    }}
+                    onAgree={agreeToCookie}
                   />
 
                   {/* Password Guidelines Dialog */}
@@ -1219,9 +1228,17 @@ export default function SignUpPage() {
                     fullWidth
                     size="large"
                     variant="outlined"
-                    name={"signup"}
+                    name={'signup'}
                     onClick={handleSignup}
-                    disabled={!isFormValid || !isTermsAccepted || !isPrivacyAccepted || !isCookieAccepted || !isEmailValid || mobileError || passwordError}
+                    disabled={
+                      !isFormValid ||
+                      !isTermsAccepted ||
+                      !isPrivacyAccepted ||
+                      !isCookieAccepted ||
+                      !isEmailValid ||
+                      mobileError ||
+                      passwordError
+                    }
                     sx={{
                       py: [1.5, 1],
                       backgroundColor: '#873EC0 !important', // Set the background color
@@ -1234,60 +1251,78 @@ export default function SignUpPage() {
 
                   {/* Accept Terms and Conditions */}
                   <FormControlLabel
-                    control={<Checkbox name={"termsCheck"} checked={isTermsAccepted} onChange={() => {
-                      if(isTermsAccepted){
-                        setIsTermsAccepted(false);
-                      }else{
-                        openTermsDialog(false, false);
-                      }
-                    }} />}
+                    control={
+                      <Checkbox
+                        name={'termsCheck'}
+                        checked={isTermsAccepted}
+                        onChange={() => {
+                          if (isTermsAccepted) {
+                            setIsTermsAccepted(false);
+                          } else {
+                            openTermsDialog(false, false);
+                          }
+                        }}
+                      />
+                    }
                     label={
                       <>
                         I agree to the
                         <Link component="button" onClick={openTermsDialog} sx={{ pl: 1, fontSize: { xs: '.9rem' } }}>
                           Terms and Conditions
                         </Link>{' '}
-                         of the company
+                        of the company
                       </>
                     }
                   />
 
                   <FormControlLabel
-                      control={<Checkbox name={"privacyCheck"} checked={isPrivacyAccepted} onChange={() => {
-                        if(isPrivacyAccepted){
-                          setIsPrivacyAccepted(false);
-                        }else{
-                          openPrivacyDialog(false, false);
-                        }
-                      }} />}
-                      label={
-                        <>
-                          I agree to the
-                          <Link component="button" onClick={openPrivacyDialog} sx={{ pl: 1, fontSize: { xs: '.9rem' } }}>
-                            Privacy Policy
-                          </Link>{' '}
-                           of the company
-                        </>
-                      }
+                    control={
+                      <Checkbox
+                        name={'privacyCheck'}
+                        checked={isPrivacyAccepted}
+                        onChange={() => {
+                          if (isPrivacyAccepted) {
+                            setIsPrivacyAccepted(false);
+                          } else {
+                            openPrivacyDialog(false, false);
+                          }
+                        }}
+                      />
+                    }
+                    label={
+                      <>
+                        I agree to the
+                        <Link component="button" onClick={openPrivacyDialog} sx={{ pl: 1, fontSize: { xs: '.9rem' } }}>
+                          Privacy Policy
+                        </Link>{' '}
+                        of the company
+                      </>
+                    }
                   />
 
                   <FormControlLabel
-                      control={<Checkbox name={"cookieCheck"} checked={isCookieAccepted} onChange={() => {
-                        if(isCookieAccepted){
-                          setIsCookieAccepted(false);
-                        }else{
-                          openCookieDialog(false, false);
-                        }
-                      }} />}
-                      label={
-                        <>
-                          I agree to the
-                          <Link component="button" onClick={openCookieDialog} sx={{ pl: 1, fontSize: { xs: '.9rem' } }}>
-                            Cookie Policy
-                          </Link>{' '}
-                          of the company
-                        </>
-                      }
+                    control={
+                      <Checkbox
+                        name={'cookieCheck'}
+                        checked={isCookieAccepted}
+                        onChange={() => {
+                          if (isCookieAccepted) {
+                            setIsCookieAccepted(false);
+                          } else {
+                            openCookieDialog(false, false);
+                          }
+                        }}
+                      />
+                    }
+                    label={
+                      <>
+                        I agree to the
+                        <Link component="button" onClick={openCookieDialog} sx={{ pl: 1, fontSize: { xs: '.9rem' } }}>
+                          Cookie Policy
+                        </Link>{' '}
+                        of the company
+                      </>
+                    }
                   />
 
                   {/* {errorMessage && (
