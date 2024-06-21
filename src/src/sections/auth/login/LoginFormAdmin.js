@@ -358,7 +358,7 @@ export default function LoginFormAdmin() {
       </Dialog>
 
       {/* OTP Dialog */}
-      <Dialog open={openOTPDialog} onClose={() => setOpenOTPDialog(false)}>
+      <Dialog open={openOTPDialog} disableEscapeKeyDown>
         <DialogTitle>Enter OTP</DialogTitle>
         <DialogContent>
           <TextField
