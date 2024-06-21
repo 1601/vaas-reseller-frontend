@@ -759,7 +759,7 @@ const WalletPayouts = () => {
                     />
 
                     <Typography variant="body2" sx={{ mb: 2 }}>
-                      Your wallet currency is PHP
+                      Your wallet currency is {user.currency}
                     </Typography>
                     <Button
                       variant="outlined"
