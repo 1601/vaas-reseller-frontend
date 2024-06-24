@@ -1,5 +1,5 @@
 
-# Frontend Development Environment - VAAS Portal
+# Frontend Development Environment - VAAS Reseller
 
 This project is set up with Docker for a consistent development environment. It leverages React and extensive testing with Cypress.
 

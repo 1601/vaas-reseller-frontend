@@ -6,6 +6,7 @@ import { useTheme } from '@mui/material/styles';
 import { Box, Link } from '@mui/material';
 
 import VortexBlackLogo from '../../assets/vortex_logo_black.png';
+import tinboLogo from '../../assets/tinbo-logo-desktop-header.svg';
 
 // ----------------------------------------------------------------------
 
@@ -40,7 +41,7 @@ const Logo = forwardRef(({ disabledLink = false, sx, ...other }, ref) => {
       }}
       {...other}
     >
-      <img src={VortexBlackLogo}  height="50" alt="Logo" 
+      <img src={tinboLogo}  height="50" alt="Logo" 
       style={{height:"5em"}}
       /> 
       {/* <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 512 512">
