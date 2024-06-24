@@ -112,6 +112,7 @@ export const AddBannerModal = ({ closeModal, handleSubmit, banner }) => {
                 {errorMessage && <p className="text-red-500 mt-2">{errorMessage}</p>}
                 <div className="mt-5">
                   <label htmlFor="title" className="block text-gray-600" style={{ width: '400px' }}>
+                    Title:
                     <input
                       id="title"
                       type="text"
@@ -129,6 +130,7 @@ export const AddBannerModal = ({ closeModal, handleSubmit, banner }) => {
                     className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                     style={{ width: '400px' }}
                   >
+                    Description:
                     <textarea
                       id="description"
                       rows="4"
