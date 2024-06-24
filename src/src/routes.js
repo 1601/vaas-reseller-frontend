@@ -101,7 +101,7 @@ export default function Router() {
   const isExcludedSubdomain = subdomain
     ? excludedSubdomains.includes(subdomain) ||
       subdomain.includes('pldt-vaas-frontend') ||
-      subdomain.includes('vortex-vaas-frontend')
+      subdomain.includes('vaas-reseller-frontend')
     : false;
   const isLoggedIn = ls.get('token');
   const isSubdomain = subdomain && !isExcludedSubdomain;
